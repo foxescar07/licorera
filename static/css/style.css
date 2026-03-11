@@ -1,0 +1,245 @@
+/* --- ÚNICAMENTE COLORES, DEGRADADOS Y ESTADOS --- */
+:root {
+    --sasa-rojo: #B7372A;
+    --sasa-rojo-oscuro: #8E2B22;
+    --sasa-dorado: #DE9C12;
+    --sasa-crema-fondo: #E8C898;
+    --sasa-card-bg: #FCF8F2;
+    --sasa-card-border: #F0E2D0;
+    --sasa-gris-nav: #6c757d;
+}
+
+body { background-color: var(--sasa-crema-fondo); }
+
+/* Identidad visual */
+.bg-sasa-main { background-color: var(--sasa-rojo) !important; color: white; }
+.bg-sasa-panel { background-color: white !important; }
+.bg-sasa-card { background-color: var(--sasa-card-bg) !important; border: 1px solid var(--sasa-card-border) !important; }
+.text-sasa-rojo { color: var(--sasa-rojo) !important; }
+
+/* Botones e Indicadores */
+.btn-entrada { background-color: var(--sasa-dorado) !important; color: white !important; border: none !important; }
+.btn-venta { background-color: var(--sasa-rojo-oscuro) !important; color: white !important; border: none !important; }
+.dot-indicator { background-color: var(--sasa-rojo) !important; border: 4px solid white !important; }
+.btn-nav-carrusel { background-color: var(--sasa-gris-nav) !important; color: white !important; border: none !important; }
+
+.nav-link-sasa { 
+    color: #8E9499; 
+    text-decoration: none; 
+    cursor: pointer;
+    
+    /* Reducimos el margen lateral a 10px para que quepan bien en 240px */
+    margin: 4px 10px; 
+    border-radius: 10px;
+    border-right: 5px solid transparent;
+    transition: all 0.25s ease;
+}
+
+/* El efecto de empuje se mantiene para conservar tu animación */
+.nav-link-sasa:hover {
+    background-color: rgba(183, 55, 42, 0.05);
+    color: var(--sasa-rojo);
+    border-right: 5px solid var(--sasa-rojo);
+    padding-left: 28px !important; 
+}
+
+/* Elimina cualquier espacio fantasma en el header */
+header.bg-sasa-main {
+    border-radius: 0 !important;
+    border: none !important;
+}
+
+/* Si la barra lateral tiene sombra, que no se encime feo sobre el rojo */
+aside.bg-sasa-panel {
+    border-right: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+/* Ajuste de los botones para que no se vean pegados al borde ahora que es delgada */
+.nav-link-sasa {
+    margin: 4px 8px;
+    padding-left: 15px !important;
+}
+
+.nav-link-sasa.active {
+    background-color: rgba(183, 55, 42, 0.08);
+    color: var(--sasa-rojo);
+    border-right: 5px solid var(--sasa-rojo);
+    padding-left: 28px !important;
+    font-weight: 600;
+}
+
+.nav-pills .nav-link {
+color: #8E9499;
+margin: 4px 8px;
+border-radius: 10px;
+border-right: 5px solid transparent;
+transition: all 0.25s ease;
+}
+
+.nav-pills .nav-link:hover {
+background-color: rgba(183,55,42,0.05);
+color: var(--sasa-rojo);
+border-right: 5px solid var(--sasa-rojo);
+padding-left: 28px;
+}
+
+.nav-pills .nav-link.active {
+background-color: rgba(183,55,42,0.08);
+color: var(--sasa-rojo);
+border-right: 5px solid var(--sasa-rojo);
+padding-left: 28px;
+}
+
+/* CONTROLES DEL CARRUSEL INVENTARIO */
+
+#inventarioCarousel{
+position:relative;
+padding-top:25px;
+}
+
+#inventarioCarousel .carousel-control-prev,
+#inventarioCarousel .carousel-control-next{
+
+position:absolute;
+top:-45px;
+
+width:38px;
+height:38px;
+
+background-color:var(--sasa-gris-nav);
+border-radius:50%;
+
+opacity:1;
+}
+
+#inventarioCarousel .carousel-control-prev{
+right:50px;
+left:auto;
+}
+
+#inventarioCarousel .carousel-control-next{
+right:0;
+}
+
+#inventarioCarousel .carousel-control-prev-icon,
+#inventarioCarousel .carousel-control-next-icon{
+width:18px;
+height:18px;
+}
+
+/* ============================= */
+/* ANIMACIONES BOTONES SASA */
+/* ============================= */
+
+.btn-entrada,
+.btn-venta{
+    transition: all 0.25s ease;
+}
+
+/* Hover levantar botón */
+.btn-entrada:hover,
+.btn-venta:hover{
+
+    transform: translateY(-4px);
+    box-shadow: 0 10px 18px rgba(0,0,0,0.18);
+
+}
+
+/* Click efecto presión */
+.btn-entrada:active,
+.btn-venta:active{
+
+    transform: translateY(1px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+
+}
+
+
+/* ============================= */
+/* PULSO INDICADOR CENTRAL */
+/* ============================= */
+
+.dot-indicator{
+
+    animation: pulsoSasa 2s infinite;
+
+}
+
+@keyframes pulsoSasa{
+
+    0%{
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(183,55,42,0.5);
+    }
+
+    50%{
+        transform: scale(1.08);
+        box-shadow: 0 0 0 10px rgba(183,55,42,0);
+    }
+
+    100%{
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(183,55,42,0);
+    }
+
+}
+
+
+/* ============================= */
+/* TARJETAS INVENTARIO */
+/* ============================= */
+
+.bg-sasa-card{
+
+    transition: all 0.25s ease;
+
+}
+
+.bg-sasa-card:hover{
+
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+
+}
+
+
+/* ============================= */
+/* BOTONES SIDEBAR */
+/* ============================= */
+
+.nav-pills .nav-link{
+
+    transition: all 0.25s ease;
+
+}
+
+.nav-pills .nav-link:hover{
+
+    transform: translateX(6px);
+
+}
+
+
+/* ============================= */
+/* ANIMACIÓN APARICIÓN PANEL */
+/* ============================= */
+
+.tab-pane{
+
+    animation: aparecerPanel 0.35s ease;
+
+}
+
+@keyframes aparecerPanel{
+
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
