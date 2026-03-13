@@ -1,9 +1,9 @@
 
 from django.contrib import admin
-from django.urls import include, path
-from licorera.views import home
+from django.urls import path
+from reportes import views
 
 urlpatterns = [
-    path('', home, name='home'),
-     path('', include('reportes.urls')),
+    path('', views.home, name='home'),
+    path('reportes/', views.reportes, name='reportes'),
 ]
