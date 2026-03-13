@@ -9,6 +9,6 @@ urlpatterns = [
     path('proveedores/', include('proveedores.urls')),
     path('reportes/', include('reportes.urls')),
     path('usuario/',include('usuario.urls')),
-    path('producto/',include('producto.urls')),
     path('', include('proveedores.urls')),
+    path("producto/", include("producto.urls", namespace="producto")),
 ]
