@@ -11,4 +11,6 @@ def home(request):
 
 def proveedor(request):
     return render(request, 'proveedor.html')
-    
+
+def proveedores(request):
+    return render(request, 'proveedor.html')
