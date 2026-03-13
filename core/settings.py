@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'proveedores', 
     'reportes',
     'usuario',
+    'producto',
 ]
 
 MIDDLEWARE = [
