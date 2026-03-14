@@ -7,4 +7,5 @@ from licorera.views import home
 urlpatterns = [
     path('', home, name='home'),
     path('proveedores/', views.proveedores, name='proveedores'),
+    path('producto/', views.producto, name='producto'),
 ]
