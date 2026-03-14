@@ -3,7 +3,8 @@ from django.contrib import messages
 from .models  import Producto, Categoria, Inventario
 from .forms   import ProductoForm
 
-# 1. ELIMINADO: Se borró la función "def producto(request)" que estaba vacía al principio.
+
+
 
 def producto_lista(request):
     form = ProductoForm()
