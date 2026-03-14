@@ -8,8 +8,7 @@ from controlador import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home, name='home'),
+    path('', home, name='home'), 
     path('proveedores/', views.proveedores, name='proveedores'),
-    
-    path('producto/', include('producto.urls')),  # Agrega esta línea para incluir las URLs de la aplicación 'producto'
+    path('producto/', include('producto.urls')),  
 ]
