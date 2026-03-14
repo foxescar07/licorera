@@ -11,6 +11,5 @@ urlpatterns = [
     path('', home, name='home'),
     path('proveedores/', views.proveedores, name='proveedores'),
     
-    # Esta es la forma correcta y moderna de registrar el namespace 'producto'
-    path('producto/', include('controlador.urls')), 
+    path('producto/', include('producto.urls')),  # Agrega esta línea para incluir las URLs de la aplicación 'producto'
 ]
