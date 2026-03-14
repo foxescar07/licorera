@@ -26,18 +26,3 @@ urlpatterns = [
         name="producto_editar"
     ),
 ]
-
-
-# ────────────────────────────────────────────────────────────────────
-#  En tu archivo raíz urls.py (proyecto/urls.py) agrega esto:
-# ────────────────────────────────────────────────────────────────────
-#
-#   from django.contrib import admin
-#   from django.urls import path, include
-#
-#   urlpatterns = [
-#       path("admin/", admin.site.urls),
-#       path("producto/", include("producto.urls", namespace="producto")),
-#   ]
-#
-# ────────────────────────────────────────────────────────────────────
