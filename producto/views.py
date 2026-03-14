@@ -3,15 +3,9 @@ from django.contrib import messages
 from .models  import Producto, Categoria, Inventario
 from .forms   import ProductoForm
 
+# 1. ELIMINADO: Se borró la función "def producto(request)" que estaba vacía al principio.
 
-# ─────────────────────────────────────────────
-#  Vista principal: lista de productos
-# ─────────────────────────────────────────────
 def producto_lista(request):
-    """
-    GET  → Muestra el inventario con tarjetas por categoría y tabla.
-    POST → Recibe el formulario del modal y registra un nuevo producto.
-    """
     form = ProductoForm()
 
     if request.method == "POST":
@@ -19,12 +13,11 @@ def producto_lista(request):
         if form.is_valid():
             form.save()
             messages.success(request, "✅ Producto registrado correctamente.")
-            return redirect("producto_lista")
+            # 2. CAMBIO: Agregamos "producto:" al redirect para que use el namespace
+            return redirect("producto:producto_lista") 
         else:
-            # Si hay errores, reabre el modal (se maneja en el template con JS)
             messages.error(request, "⚠️ Revisa los campos del formulario.")
 
-    # Datos para las tarjetas de resumen por categoría
     categorias = Categoria.objects.all()
     resumen_categorias = []
     for cat in categorias:
@@ -33,10 +26,7 @@ def producto_lista(request):
             "total":  cat.productos.count(),
         })
 
-    # Productos con stock crítico (≤ 5) para el banner de alerta
     stock_critico = Producto.objects.filter(cantidad_disponible__lte=5)
-
-    # Todos los productos para la tabla
     productos = Producto.objects.select_related("categoria").all()
 
     context = {
@@ -47,15 +37,7 @@ def producto_lista(request):
     }
     return render(request, "producto.html", context)
 
-
-# ─────────────────────────────────────────────
-#  Vista de detalle de un producto
-# ─────────────────────────────────────────────
 def producto_detalle(request, pk):
-    """
-    Muestra la información completa de un producto
-    y su historial de movimientos en el inventario.
-    """
     producto    = get_object_or_404(Producto, pk=pk)
     movimientos = producto.movimientos.all()
 
@@ -65,15 +47,7 @@ def producto_detalle(request, pk):
     }
     return render(request, "producto_detalle.html", context)
 
-
-# ─────────────────────────────────────────────
-#  Vista de edición de un producto
-# ─────────────────────────────────────────────
 def producto_editar(request, pk):
-    """
-    GET  → Muestra el formulario pre-cargado con los datos del producto.
-    POST → Guarda los cambios.
-    """
     producto = get_object_or_404(Producto, pk=pk)
 
     if request.method == "POST":
@@ -81,7 +55,8 @@ def producto_editar(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, "✅ Producto actualizado correctamente.")
-            return redirect("producto_lista")
+            # 3. CAMBIO: Agregamos "producto:" aquí también
+            return redirect("producto:producto_lista") 
     else:
         form = ProductoForm(instance=producto)
 
