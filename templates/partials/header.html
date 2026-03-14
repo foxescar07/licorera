@@ -1,17 +1,26 @@
 <header class="bg-sasa-main fixed-top d-flex align-items-center justify-content-between px-5 shadow" style="height:90px; margin-left:240px; width:calc(100% - 240px);">
 
-  <!-- Título de la página -->
-  <div class="d-flex align-items-center">
+  <!-- IZQUIERDA -->
+  <div>
     <h1 class="h4 m-0 fw-bold text-uppercase text-white">
       {% block header_title %}Tablero de Control{% endblock %}
     </h1>
-    <small class="fw-bold opacity-75 text-white ms-4">SISTEMA ACTIVO</small>
+
+    <div class="d-flex align-items-center gap-2 mt-1">
+      <small class="fw-bold text-white text-uppercase">
+        LICORERA C Y S
+      </small>
+
+      <!-- indicador sistema activo -->
+      <span class="estado-sistema"></span>
+    </div>
   </div>
 
-  <!-- Acciones + Reloj -->
+  <!-- DERECHA -->
   <div class="d-flex align-items-center gap-4">
     {% block header_actions %}{% endblock %}
-    <div class="text-end text-white">
+
+    <div class="text-end text-white"translate="no">
       <div id="reloj" class="h3 m-0 fw-bold"></div>
       <small id="fecha" class="text-uppercase fw-bold" style="font-size:0.75rem;"></small>
     </div>

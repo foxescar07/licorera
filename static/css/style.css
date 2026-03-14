@@ -28,14 +28,13 @@ body { background-color: var(--sasa-crema-fondo); }
     text-decoration: none; 
     cursor: pointer;
     
-    /* Reducimos el margen lateral a 10px para que quepan bien en 240px */
     margin: 4px 10px; 
     border-radius: 10px;
     border-right: 5px solid transparent;
     transition: all 0.25s ease;
 }
 
-/* El efecto de empuje se mantiene para conservar tu animación */
+/*  efecto de empuje  */
 .nav-link-sasa:hover {
     background-color: rgba(183, 55, 42, 0.05);
     color: var(--sasa-rojo);
@@ -43,18 +42,18 @@ body { background-color: var(--sasa-crema-fondo); }
     padding-left: 28px !important; 
 }
 
-/* Elimina cualquier espacio fantasma en el header */
+
 header.bg-sasa-main {
     border-radius: 0 !important;
     border: none !important;
 }
 
-/* Si la barra lateral tiene sombra, que no se encime feo sobre el rojo */
+
 aside.bg-sasa-panel {
     border-right: 1px solid rgba(0,0,0,0.1) !important;
 }
 
-/* Ajuste de los botones para que no se vean pegados al borde ahora que es delgada */
+
 .nav-link-sasa {
     margin: 4px 8px;
     padding-left: 15px !important;
@@ -221,25 +220,39 @@ height:18px;
 
 
 /* ============================= */
-/* ANIMACIÓN APARICIÓN PANEL */
+/* INDICADOR SISTEMA ACTIVO */
 /* ============================= */
 
-.tab-pane{
-
-    animation: aparecerPanel 0.35s ease;
-
+.estado-sistema{
+    width:10px;
+    height:10px;
+    background:#28c76f;
+    border-radius:50%;
+    display:inline-block;
+    position:relative;
 }
 
-@keyframes aparecerPanel{
+/* halo que late */
+.estado-sistema::after{
+    content:"";
+    position:absolute;
+    inset:-4px;
+    border-radius:50%;
+    border:2px solid #28c76f;
+    opacity:0.7;
+    animation: pulsoSistema 1.4s infinite;
+}
 
-    from{
+@keyframes pulsoSistema{
+    0%{
+        transform:scale(0.8);
+        opacity:0.8;
+    }
+    70%{
+        transform:scale(1.8);
         opacity:0;
-        transform:translateY(10px);
     }
-
-    to{
-        opacity:1;
-        transform:translateY(0);
+    100%{
+        opacity:0;
     }
-
 }
