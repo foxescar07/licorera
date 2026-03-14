@@ -6,6 +6,7 @@ if (ctx) {
         data: {
             labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
             datasets: [{
+                label: 'Ventas',
                 data: [15, 25, 12, 30, 45, 60, 35],
                 borderColor: '#B7372A',
                 backgroundColor: 'rgba(183,55,42,0.1)',
@@ -16,7 +17,11 @@ if (ctx) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
         }
     });
 }
