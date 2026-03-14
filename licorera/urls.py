@@ -1,11 +1,16 @@
 
+from xml.etree.ElementInclude import include
+
 from django.contrib import admin
-from django.urls import path
-from controlador import views
+from django.urls import path, include # Importante agregar 'include'
 from licorera.views import home
+from controlador import views
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('', home, name='home'),
     path('proveedores/', views.proveedores, name='proveedores'),
-    path('producto/', views.producto, name='producto'),
+    
+    # Esta es la forma correcta y moderna de registrar el namespace 'producto'
+    path('producto/', include('controlador.urls')), 
 ]
