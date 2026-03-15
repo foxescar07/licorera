@@ -1,29 +1,37 @@
-  <header class="bg-sasa-main fixed-top d-flex align-items-center justify-content-between px-5 shadow" style="height:90px; margin-left:240px; width:calc(100% - 240px);">
+{% load static %}
 
-    <!-- IZQUIERDA -->
+<header class="bg-sasa-main fixed-top d-flex align-items-center justify-content-between px-5 shadow" style="height:90px; margin-left:240px; width:calc(100% - 240px);">
+
+  <!-- IZQUIERDA: logo + título -->
+  <div class="d-flex align-items-center gap-2" style="margin-left:-17px;">
+    <!-- Logo -->
+    <img src="{% static 'img/logo.jpeg' %}" alt="Logo" style="height:50px; width:auto; border-radius:10px;">
+
+    <!-- Título + LICORERA C Y S -->  
     <div>
       <h1 class="h4 m-0 fw-bold text-uppercase text-white">
         {% block header_title %}Tablero de Control{% endblock %}
       </h1>
 
       <div class="d-flex align-items-center gap-4 mt-1">
-       <small class="fw-bold text-white text-uppercase mb-0 ms-1">
-        LICORERA C Y S
-       </small>
+        <small class="fw-bold text-white text-uppercase mb-0 ms-1">
+          LICORERA C Y S                            
+        </small>
 
         <!-- indicador sistema activo -->
         <span class="estado-sistema"></span>
       </div>
     </div>
+  </div>
 
-    <!-- DERECHA -->
-    <div class="d-flex align-items-center gap-4">
-      {% block header_actions %}{% endblock %}
+  <!-- DERECHA -->
+  <div class="d-flex align-items-center gap-4">
+    {% block header_actions %}{% endblock %}
 
-      <div class="text-end text-white"translate="no">
-        <div id="reloj" class="h3 m-0 fw-bold"></div>
-        <small id="fecha" class="text-uppercase fw-bold" style="font-size:0.75rem;"></small>
-      </div>
+    <div class="text-end text-white" translate="no">
+      <div id="reloj" class="h3 m-0 fw-bold"></div>
+      <small id="fecha" class="text-uppercase fw-bold" style="font-size:0.75rem;"></small>
     </div>
+  </div>
 
-  </header>
+</header>
