@@ -224,35 +224,32 @@ height:18px;
 /* ============================= */
 
 .estado-sistema{
+
+    display:inline-block;
+
     width:10px;
     height:10px;
-    background:#28c76f;
+
+    background:#28a745;
+
     border-radius:50%;
-    display:inline-block;
-    position:relative;
+
+    animation:estadoSistema 1.5s infinite;
+
 }
 
-/* halo que late */
-.estado-sistema::after{
-    content:"";
-    position:absolute;
-    inset:-4px;
-    border-radius:50%;
-    border:2px solid #28c76f;
-    opacity:0.7;
-    animation: pulsoSistema 1.4s infinite;
-}
+@keyframes estadoSistema{
 
-@keyframes pulsoSistema{
     0%{
-        transform:scale(0.8);
-        opacity:0.8;
+        box-shadow:0 0 0 0 rgba(40,167,69,0.7);
     }
+
     70%{
-        transform:scale(1.8);
-        opacity:0;
+        box-shadow:0 0 0 8px rgba(40,167,69,0);
     }
+
     100%{
-        opacity:0;
+        box-shadow:0 0 0 0 rgba(40,167,69,0);
     }
+
 }
