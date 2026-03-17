@@ -123,108 +123,83 @@
 </div>
 <!-- ========== FIN CONTENIDO ========== -->
  
- 
-  <!-- ========== MODAL: Registrar Nuevo Producto ========== -->
-  <div class="modal fade" id="modalNuevoProducto" tabindex="-1" aria-labelledby="modalNuevoProductoLabel"
-       aria-hidden="true"
-       {# Si el formulario tiene errores, reabre el modal automáticamente #}
-       {% if form.errors %}data-open="true"{% endif %}>
+   <!--MODAL - REGISTRAR NUEVO PRODUCTO -->
+
+  <div class="modal fade" id="modalNuevoProducto" tabindex="-1" aria-labelledby="modalNuevoProductoLabel" aria-hidden="true"><!--maneja automáticamente el estado abierto/cerrado-->
     <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content border-0 rounded-3 shadow-lg">
- 
-        <div class="modal-header bg-danger text-white border-0">
-          <h5 class="modal-title fw-semibold" id="modalNuevoProductoLabel">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalNuevoProductoLabel">
             <i class="bi bi-plus-circle me-2"></i> Registrar Nuevo Producto
           </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
- 
         <div class="modal-body">
-          {# action vacío → POST a la misma URL (producto_lista) #}
-          <form id="form-nuevo-producto" method="POST" action="{% url 'producto:producto_lista' %}">
-            {% csrf_token %}
+          <form>
             <div class="row g-3">
- 
               <div class="col-md-8">
-                <label for="{{ form.nombre.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.nombre.label }}
-                </label>
-                {{ form.nombre }}
-                {% if form.nombre.errors %}
-                  <div class="text-danger small mt-1">{{ form.nombre.errors }}</div>
-                {% endif %}
+                <label for="nombreProducto" class="form-label">Nombre del Producto</label>
+                <input type="text" class="form-control" id="nombreProducto" placeholder="Ej: Aguila Lata 330ml" required>
               </div>
- 
               <div class="col-md-4">
-                <label for="{{ form.codigo.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.codigo.label }}
-                </label>
-                {{ form.codigo }}
-                {% if form.codigo.errors %}
-                  <div class="text-danger small mt-1">{{ form.codigo.errors }}</div>
-                {% endif %}
+                <label for="codigo" class="form-label">Código / Referencia</label>
+                <input type="text" class="form-control" id="codigo" placeholder="Ej: AGU330">
               </div>
- 
-              <div class="col-md-12">
-                <label for="{{ form.categoria.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.categoria.label }}
-                </label>
-                {{ form.categoria }}
-                {% if form.categoria.errors %}
-                  <div class="text-danger small mt-1">{{ form.categoria.errors }}</div>
-                {% endif %}
+
+              <div class="col-md-6">
+                <label for="categoria" class="form-label">Categoría</label>
+                <select class="form-select" id="categoria" required>
+                  <option value="" selected disabled>Seleccione...</option>
+                  <option value="cervezas">Cervezas</option>
+                  <option value="gaseosas">Gaseosas</option>
+                  <option value="licores">Licores</option>
+                  <option value="cigarreria">Cigarrería</option>
+                  <option value="otros">Otros</option>
+                </select>
               </div>
- 
+              <div class="col-md-6">
+                <label for="proveedor" class="form-label">Proveedor</label>
+                <select class="form-select" id="proveedor">
+                  <option value="" selected disabled>Seleccione...</option>
+                  <option>Proveedor X</option>
+                  <option>Proveedor Y</option>
+                  <option>CYS Distribuciones</option>
+                  <option>Otro</option>
+                </select>
+              </div>
+
               <div class="col-md-4">
-                <label for="{{ form.precio_unitario.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.precio_unitario.label }}
-                </label>
-                {{ form.precio_unitario }}
-                {% if form.precio_unitario.errors %}
-                  <div class="text-danger small mt-1">{{ form.precio_unitario.errors }}</div>
-                {% endif %}
+                <label for="precio" class="form-label">Precio Unitario (COP)</label>
+                <input type="number" class="form-control" id="precio" placeholder="45000" min="0" step="100" required>
               </div>
- 
               <div class="col-md-4">
-                <label for="{{ form.cantidad_disponible.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.cantidad_disponible.label }}
-                </label>
-                {{ form.cantidad_disponible }}
-                {% if form.cantidad_disponible.errors %}
-                  <div class="text-danger small mt-1">{{ form.cantidad_disponible.errors }}</div>
-                {% endif %}
+                <label for="stockInicial" class="form-label">Stock Inicial</label>
+                <input type="number" class="form-control" id="stockInicial" placeholder="50" min="0" required>
               </div>
- 
               <div class="col-md-4">
-                <label for="{{ form.unidad.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.unidad.label }}
-                </label>
-                {{ form.unidad }}
+                <label for="unidad" class="form-label">Unidad</label>
+                <select class="form-select" id="unidad">
+                  <option>UND</option>
+                  <option>CAJA</option>
+                  <option>PAQ</option>
+                  <option>LITRO</option>
+                </select>
               </div>
- 
+
               <div class="col-12">
-                <label for="{{ form.descripcion.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.descripcion.label }}
-                </label>
-                {{ form.descripcion }}
+                <label for="descripcion" class="form-label">Descripción (opcional)</label>
+                <textarea class="form-control" id="descripcion" rows="3" placeholder="Ej: Cerveza nacional, lata 330ml, six pack..."></textarea>
               </div>
- 
             </div>
           </form>
         </div>
- 
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-          {# Submite el form desde fuera del <form> usando el id del form #}
-          <button type="submit" form="form-nuevo-producto" class="btn btn-danger px-5 fw-bold">
-            Guardar Producto
-          </button>
+          <button type="button" class="btn btn-danger px-5 fw-bold">Guardar Producto</button>
         </div>
- 
       </div>
     </div>
   </div>
-  <!-- ========== FIN MODAL ========== -->
  
 {% endblock %}
 
