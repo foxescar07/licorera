@@ -38,10 +38,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'licorera',
+<<<<<<< Updated upstream
     'proveedores', 
     'reportes',
     'usuario',
     'producto',
+=======
+    'proveedores',
+    'reportes',
+    'usuario',
+    'producto',
+    
+>>>>>>> Stashed changes
     
 ]
 
