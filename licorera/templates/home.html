@@ -2,7 +2,8 @@
 {% load static %}
 {% block content %}
 <!-- CONTENIDO -->
-<main class="pt-5 mt-4" style="margin-left:240px;">
+
+<main class="pt-2 mt-1" style="margin-left:6px;">
 
     <div class="tab-content">
 
@@ -11,7 +12,7 @@
 
             <div class="container-fluid p-4">
 
-                <div class="d-flex justify-content-center align-items-center gap-4 my-3 flex-wrap">
+                <div class="d-flex justify-content-center align-items-center gap-4 my-5 flex-wrap">
 
                     <button class="btn btn-entrada px-5 py-3 fw-bold rounded-3 shadow-sm">
                         REGISTRAR ENTRADA
@@ -219,12 +220,14 @@
 
         <!-- OTROS TABS -->
         <div class="tab-pane fade" id="productos">Contenido productos</div>
-        <div class="tab-pane fade" id="entradas">Contenido entradas</div>
-        <div class="tab-pane fade" id="historial">Contenido historial</div>
         <div class="tab-pane fade" id="salidas">Contenido salidas</div>
         <div class="tab-pane fade" id="proveedores">Contenido proveedores</div>
         <div class="tab-pane fade" id="reportes">Contenido reportes</div>
-        {% block js %}
-        <script src="{% static 'js/home.js' %}"></script>
-        {% endblock %}
-{% endblock %}
+      
+     {% endblock %}
+
+
+     {% block js %}
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script src="{% static 'js/home.js' %}"></script>
+     {% endblock %}
