@@ -1,9 +1,10 @@
 
-
 from django.urls import path
-from . import views # Asegúrate de tener funciones en views.py
+from .templates import views 
 
 urlpatterns = [
     
+
     path('', views.proveedores, name='proveedores'),
 ]
+
