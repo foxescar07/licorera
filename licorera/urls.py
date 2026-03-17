@@ -5,6 +5,7 @@ from controlador import views
 from licorera.views import home
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('', home, name='home'),
     path('proveedores/', views.proveedores, name='proveedores'),
 ]
