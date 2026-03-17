@@ -7,7 +7,3 @@ urlpatterns = [
     
     path('', views.proveedores, name='proveedores'),
 ]
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes

@@ -1,7 +1,7 @@
-
-from django.urls import path
-from reportes import views
+from django.contrib import admin
+from django.urls import path, include
 
 urlpatterns = [
-    path('', views.reporte, name='home'),
+    path('admin/', admin.site.urls),
+    path('', include('reportes.urls')),
 ]

@@ -1,10 +1,6 @@
-from django.shortcuts import render
+from django.urls import path
+from . import views
 
-<<<<<<< Updated upstream
-# El nombre DEBE ser 'reporte' para que coincida con views.reporte
-def reporte(request):
-    return render(request, 'reportes.html')
-=======
-def reporte_ventas(request):
-    return render(request, 'reportes/reporte.html')
->>>>>>> Stashed changes
+urlpatterns = [
+    path('', views.reporte, name='reportes'),
+]
