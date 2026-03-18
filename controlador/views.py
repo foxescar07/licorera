@@ -3,6 +3,8 @@ from django.shortcuts import render
 # Create your views here.
 def proveedores(request):
     return render(request, 'proveedor.html')
+
 def reportes(request):
-    return render(request, 'reportes/reportes.html')
+    return render(request, 'reportes.html')
+
 
