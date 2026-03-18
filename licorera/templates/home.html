@@ -1,233 +1,194 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base.html' %} 
+{% load static %} 
 {% block content %}
 <!-- CONTENIDO -->
 
-<main class="pt-2 mt-1" style="margin-left:6px;">
+<div class="tab-content">
+  <!-- TABLERO -->
+  <div class="tab-pane fade show active" id="tablero">
+    <div class="container-fluid p-4">
+      <div
+        class="d-flex justify-content-center align-items-center gap-4 my-5 flex-wrap"
+      >
+        <button class="btn btn-entrada px-5 py-3 fw-bold rounded-3 shadow-sm">
+          REGISTRAR ENTRADA
+        </button>
 
-    <div class="tab-content">
+        <div
+          class="dot-indicator rounded-circle shadow"
+          style="width: 55px; height: 55px"
+        ></div>
 
-        <!-- TABLERO -->
-        <div class="tab-pane fade show active" id="tablero">
+        <button class="btn btn-venta px-5 py-3 fw-bold rounded-3 shadow-sm">
+          REGISTRAR VENTA
+        </button>
+      </div>
 
-            <div class="container-fluid p-4">
+      <!-- INVENTARIO -->
+      <section class="bg-sasa-panel rounded-5 p-4 mb-4 shadow-sm">
+        <h5 class="fw-bold mb-4 text-uppercase">
+          Resumen de Inventario por Categoría
+        </h5>
 
-                <div class="d-flex justify-content-center align-items-center gap-4 my-5 flex-wrap">
-
-                    <button class="btn btn-entrada px-5 py-3 fw-bold rounded-3 shadow-sm">
-                        REGISTRAR ENTRADA
-                    </button>
-
-                    <div class="dot-indicator rounded-circle shadow" style="width:55px;height:55px;"></div>
-
-                    <button class="btn btn-venta px-5 py-3 fw-bold rounded-3 shadow-sm">
-                        REGISTRAR VENTA
-                    </button>
-
+        <div id="inventarioCarousel" class="carousel slide">
+          <div class="carousel-inner">
+            <!-- SLIDE 1 -->
+            <div class="carousel-item active">
+              <div class="row gx-3 gy-3">
+                <div class="col-md-4">
+                  <div class="bg-sasa-card p-4 rounded-4 text-center">
+                    <span>Aguardiente</span>
+                    <strong class="d-block fs-1 text-sasa-rojo">42</strong>
+                  </div>
                 </div>
 
+                <div class="col-md-4">
+                  <div class="bg-sasa-card p-4 rounded-4 text-center">
+                    <span>Cervezas</span>
+                    <strong class="d-block fs-1 text-sasa-rojo">120</strong>
+                  </div>
+                </div>
 
-                <!-- INVENTARIO -->
-                <section class="bg-sasa-panel rounded-5 p-4 mb-4 shadow-sm">
+                <div class="col-md-4">
+                  <div class="bg-sasa-card p-4 rounded-4 text-center">
+                    <span>Rones</span>
+                    <strong class="d-block fs-1 text-sasa-rojo">28</strong>
+                  </div>
+                </div>
 
-                    <h5 class="fw-bold mb-4 text-uppercase">
-                        Resumen de Inventario por Categoría
-                    </h5>
+                <div class="col-md-4">
+                  <div class="bg-sasa-card p-4 rounded-4 text-center">
+                    <span>Vinos</span>
+                    <strong class="d-block fs-1 text-sasa-rojo">15</strong>
+                  </div>
+                </div>
 
-                    <div id="inventarioCarousel" class="carousel slide">
+                <div class="col-md-4">
+                  <div class="bg-sasa-card p-4 rounded-4 text-center">
+                    <span>Whisky</span>
+                    <strong class="d-block fs-1 text-sasa-rojo">10</strong>
+                  </div>
+                </div>
 
-                        <div class="carousel-inner">
-
-                            <!-- SLIDE 1 -->
-                            <div class="carousel-item active">
-
-                                <div class="row gx-3 gy-3">
-
-                                    <div class="col-md-4">
-                                        <div class="bg-sasa-card p-4 rounded-4 text-center">
-                                            <span>Aguardiente</span>
-                                            <strong class="d-block fs-1 text-sasa-rojo">42</strong>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <div class="bg-sasa-card p-4 rounded-4 text-center">
-                                            <span>Cervezas</span>
-                                            <strong class="d-block fs-1 text-sasa-rojo">120</strong>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <div class="bg-sasa-card p-4 rounded-4 text-center">
-                                            <span>Rones</span>
-                                            <strong class="d-block fs-1 text-sasa-rojo">28</strong>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <div class="bg-sasa-card p-4 rounded-4 text-center">
-                                            <span>Vinos</span>
-                                            <strong class="d-block fs-1 text-sasa-rojo">15</strong>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <div class="bg-sasa-card p-4 rounded-4 text-center">
-                                            <span>Whisky</span>
-                                            <strong class="d-block fs-1 text-sasa-rojo">10</strong>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <div class="bg-sasa-card p-4 rounded-4 text-center">
-                                            <span>Tequila</span>
-                                            <strong class="d-block fs-1 text-sasa-rojo">8</strong>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            <!-- SLIDE 2 -->
-                            <div class="carousel-item">
-
-                                <div class="row gx-3 gy-3 justify-content-center">
-
-                                    <div class="col-md-6">
-                                        <div class="bg-sasa-card p-4 rounded-4 text-center">
-                                            <span>Vodka</span>
-                                            <strong class="d-block fs-1 text-sasa-rojo">5</strong>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="bg-sasa-card p-4 rounded-4 text-center">
-                                            <span>Ginebra</span>
-                                            <strong class="d-block fs-1 text-sasa-rojo">12</strong>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="bg-sasa-card p-4 rounded-4 text-center">
-                                            <span>Licores</span>
-                                            <strong class="d-block fs-1 text-sasa-rojo">18</strong>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="bg-sasa-card p-4 rounded-4 text-center">
-                                            <span>Otros</span>
-                                            <strong class="d-block fs-1 text-sasa-rojo">7</strong>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- BOTONES CARRUSEL -->
-                        <button
-                            class="carousel-control-prev"
-                            type="button"
-                            data-bs-target="#inventarioCarousel"
-                            data-bs-slide="prev">
-
-                            <span class="carousel-control-prev-icon"></span>
-
-                        </button>
-
-                        <button
-                            class="carousel-control-next"
-                            type="button"
-                            data-bs-target="#inventarioCarousel"
-                            data-bs-slide="next">
-
-                            <span class="carousel-control-next-icon"></span>
-
-                        </button>
-
-                    </div>
-
-                </section>
-
-
-                <!-- GRAFICA -->
-                <section class="bg-sasa-panel rounded-5 p-4 mb-4 shadow-sm">
-
-                    <h5 class="fw-bold mb-4 text-uppercase">
-                        Tendencia Semanal de Ventas
-                    </h5>
-
-                    <div style="height:350px">
-                        <canvas id="tendenciaChart"></canvas>
-                    </div>
-
-                </section>
-
-
-                <!-- TABLA -->
-                <section class="bg-sasa-panel rounded-5 p-4 shadow-sm">
-
-                    <h5 class="fw-bold mb-4 text-uppercase">
-                        Movimientos Recientes
-                    </h5>
-
-                    <div class="table-responsive">
-
-                        <table class="table table-hover">
-
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Tipo</th>
-                                    <th>Cantidad</th>
-                                    <th>Fecha</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                                <tr>
-                                    <td>Aguardiente Antioqueño</td>
-                                    <td><span class="badge bg-danger">Venta</span></td>
-                                    <td>3</td>
-                                    <td>06/03/2026</td>
-                                </tr>
-
-                                <tr>
-                                    <td>Cerveza Club Colombia</td>
-                                    <td><span class="badge bg-success">Entrada</span></td>
-                                    <td>10</td>
-                                    <td>06/03/2026</td>
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </section>
-
+                <div class="col-md-4">
+                  <div class="bg-sasa-card p-4 rounded-4 text-center">
+                    <span>Tequila</span>
+                    <strong class="d-block fs-1 text-sasa-rojo">8</strong>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- SLIDE 2 -->
+            <div class="carousel-item">
+              <div class="row gx-3 gy-3 justify-content-center">
+                <div class="col-md-6">
+                  <div class="bg-sasa-card p-4 rounded-4 text-center">
+                    <span>Vodka</span>
+                    <strong class="d-block fs-1 text-sasa-rojo">5</strong>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="bg-sasa-card p-4 rounded-4 text-center">
+                    <span>Ginebra</span>
+                    <strong class="d-block fs-1 text-sasa-rojo">12</strong>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="bg-sasa-card p-4 rounded-4 text-center">
+                    <span>Licores</span>
+                    <strong class="d-block fs-1 text-sasa-rojo">18</strong>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="bg-sasa-card p-4 rounded-4 text-center">
+                    <span>Otros</span>
+                    <strong class="d-block fs-1 text-sasa-rojo">7</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTONES CARRUSEL -->
+          <button
+            class="carousel-control-prev"
+            type="button"
+            data-bs-target="#inventarioCarousel"
+            data-bs-slide="prev"
+          >
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+
+          <button
+            class="carousel-control-next"
+            type="button"
+            data-bs-target="#inventarioCarousel"
+            data-bs-slide="next"
+          >
+            <span class="carousel-control-next-icon"></span>
+          </button>
         </div>
+      </section>
 
+      <!-- GRAFICA -->
+      <section class="bg-sasa-panel rounded-5 p-4 mb-4 shadow-sm">
+        <h5 class="fw-bold mb-4 text-uppercase">Tendencia Semanal de Ventas</h5>
 
-        <!-- OTROS TABS -->
-        <div class="tab-pane fade" id="productos">Contenido productos</div>
-        <div class="tab-pane fade" id="salidas">Contenido salidas</div>
-        <div class="tab-pane fade" id="proveedores">Contenido proveedores</div>
-        <div class="tab-pane fade" id="reportes">Contenido reportes</div>
-      
-     {% endblock %}
+        <div style="height: 350px">
+          <canvas id="tendenciaChart"></canvas>
+        </div>
+      </section>
 
+      <!-- TABLA -->
+      <section class="bg-sasa-panel rounded-5 p-4 shadow-sm">
+        <h5 class="fw-bold mb-4 text-uppercase">Movimientos Recientes</h5>
 
-     {% block js %}
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      <script src="{% static 'js/home.js' %}"></script>
-     {% endblock %}
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>Producto</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>Aguardiente Antioqueño</td>
+                <td><span class="badge bg-danger">Venta</span></td>
+                <td>3</td>
+                <td>06/03/2026</td>
+              </tr>
+
+              <tr>
+                <td>Cerveza Club Colombia</td>
+                <td><span class="badge bg-success">Entrada</span></td>
+                <td>10</td>
+                <td>06/03/2026</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- OTROS TABS -->
+  <div class="tab-pane fade" id="productos">Contenido productos</div>
+  <div class="tab-pane fade" id="salidas">Contenido salidas</div>
+  <div class="tab-pane fade" id="proveedores">Contenido proveedores</div>
+  <div class="tab-pane fade" id="reportes">Contenido reportes</div>
+</div>
+
+  {% endblock %} 
+  
+{% block js %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{% static 'js/home.js' %}"></script>
+  {% endblock %}

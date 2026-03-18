@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}      
+     
+
+        <!-- CONTENIDO -->
+        
+
+            <!-- BOTONES -->
+            <section class="d-flex justify-content-center align-items-center gap-4 mb-5">
+
+                <button class="btn btn-warning btn-lg px-5 fw-bold shadow">
+                    REGISTRAR ENTRADA
+                </button>
+
+                <div class="bg-danger rounded-circle border border-4 border-white" style="width:60px; height:60px;"></div>
+
+                <button class="btn btn-danger btn-lg px-5 fw-bold shadow">
+                    REGISTRAR VENTA
+                </button>
+
+            </section>
+
+            <!-- INVENTARIO -->
+            <section class="card border-0 shadow rounded-4 p-4">
+
+                <h4 class="fw-bold mb-4">
+                    RESUMEN DE INVENTA  RIO POR CATEGORÍA
+                </h4>           
+
+                <div class="row g-4">
+
+                    <div class="col-lg-4">
+                        <div class="card text-center p-4 border-0 shadow-sm rounded-4">
+                            <h6 class="text-muted">Aguardiente</h6>
+                            <h1 class="fw-bold text-danger">42</h1>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="card text-center p-4 border-0 shadow-sm rounded-4">
+                            <h6 class="text-muted">Cervezas</h6>
+                            <h1 class="fw-bold text-danger">120</h1>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card text-center p-4 border-0 shadow-sm rounded-4">
+                            <h6 class="text-muted">Rones</h6>
+                            <h1 class="fw-bold text-danger">28</h1>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card text-center p-4 border-0 shadow-sm rounded-4">
+                            <h6 class="text-muted">Vinos</h6>
+                            <h1 class="fw-bold text-danger">15</h1>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card text-center p-4 border-0 shadow-sm rounded-4">
+                            <h6 class="text-muted">Whisky</h6>
+                            <h1 class="fw-bold text-danger">10</h1>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card text-center p-4 border-0 shadow-sm rounded-4">
+                            <h6 class="text-muted">Tequila</h6>
+                            <h1 class="fw-bold text-danger">8</h1>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+{% endblock content %}   
