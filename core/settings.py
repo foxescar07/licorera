@@ -26,12 +26,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+<<<<<<< Updated upstream
     'licorera',
     'proveedores', 
     'reportes',
     'usuario',
     'producto',
     
+=======
+    'cajero',
+    'cliente',
+    'Rol',
+>>>>>>> Stashed changes
 ]
 
 MIDDLEWARE = [
