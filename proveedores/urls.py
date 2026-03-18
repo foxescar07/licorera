@@ -1,8 +1,8 @@
 
 from django.urls import path
-from .templates import views 
+from proveedores.views import inicio_proveedores
 
 urlpatterns = [
     
-    path ('', views.proveedores, name='proveedores'),
+    path ('', inicio_proveedores, name='proveedores'),
 ]
