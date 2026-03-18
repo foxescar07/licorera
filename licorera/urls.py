@@ -11,5 +11,5 @@ urlpatterns = [
     path('home/', home, name='home'), 
     path('proveedores/', views.proveedores, name='proveedores'),
     path('producto/', include('producto.urls')), 
-    path('prueba/', include('prueba.urls')), 
+    path('prueba/', views.prueba, name='prueba'),
 ]
