@@ -30,8 +30,8 @@ width:250px;
 }
 
 .header{
-background:var(--naranja);
-color:white;
+background:var(--rojo);
+color:beige;
 }
 </style>
 </head>
@@ -41,16 +41,17 @@ color:white;
 <!-- SIDEBAR -->
 <div class="sidebar d-flex flex-column align-items-center position-fixed top-0 start-0 vh-100 pt-5 bg-light">
 
-<div class="d-flex align-items-center justify-content-center bg-danger text-white rounded-circle mb-2" style="width:90px;height:90px;">
+<div class="d-flex align-items-center justify-content-center bg-danger text-blanco rounded-circle mb-2" style="width:90px;height:90px;">
 <i class="bi bi-person-fill fs-3"></i>
 </div>
 
 <h5>Usuario</h5>
 
 <div class="d-flex flex-column w-100 mt-4 px-3 gap-2">
-<a class="text-decoration-none text-dark p-2 rounded">🏠 Tablero</a>
-<a class="text-decoration-none text-dark p-2 rounded">📦 Productos</a>
-<a class="text-decoration-none text-white p-2 rounded" style="background:var(--rojo);">🚚 Proveedores</a>
+<a class="text-decoration-none text-negro p-2 rounded">🏠Tablero</a>
+<a class="text-decoration-none text-negro p-2 rounded">📦Productos</a>
+<a class="text-decoration-none text-negro p-2 rounded">📈 Reportes </a>
+<a class="text-decoration-none text-negro p-2 rounded">🚛Proveedores</a>
 </div>
 
 </div>
@@ -59,35 +60,31 @@ color:white;
 <div class="flex-grow-1" style="margin-left:250px;">
 
 <!-- HEADER -->
-<div class="header d-flex justify-content-center align-items-center py-2">
+<div class="header d-flex align-items-center px-3 py-3">
     
-<h4 class="m-0">DISTRIBUCIONES C Y S</h4>
+    <img src="{% static 'img/logo.jpeg' %}" 
+    class="rounded-circle me-3"
+    style="width:50px; height:50px; object-fit:cover;">
+    <h4 class="m-0">DISTRIBUCIONES C Y S</h4>
+
 </div>
-
 <div class="p-4">
-
-<!-- TITULO + BOTON -->
 <div class="d-flex justify-content-between align-items-center mb-3">
 <h3>Proveedores</h3>
-
 <button class="btn text-white rounded-pill"
 style="background:var(--rojo);"
 onclick="mostrarFormulario()">
-<i class="bi bi-plus-circle"></i> Nuevo
+<i class="bi bi-plus-circle"></i> Nuevo proveedor
 </button>
 </div>
-
-<!-- FORMULARIO -->
 <div id="formulario" class="position-fixed top-0 start-0 w-100 h-100 d-none align-items-center justify-content-center" style="background: rgba(0,0,0,0.4); z-index:999;">
 
   <div class="card shadow-lg" style="width:500px; border-radius:15px;">
 
     <!-- HEADER -->
     <div class="card-header text-white" style="background: var(--rojo);">
-      <h5 class="mb-0">Nuevo Proveedor</h5>
+      <h5 class="mb-0">Nuevo proveedor</h5>
     </div>
-
-    <!-- BODY -->
     <div class="card-body">
 
       <input type="hidden" id="id">
@@ -162,7 +159,7 @@ tabla.innerHTML+=`
 <td>${p.telefono}</td>
 <td>${p.correo}</td>
 <td>
-<button class="btn btn-warning btn-sm" onclick="editar(${p.id})">✏️</button>
+<button class="btn btn-warning btn-sm" onclick="editar(${p.id})">📝</button>
 <button class="btn btn-danger btn-sm" onclick="eliminar(${p.id})">🗑️</button>
 </td>
 </tr>`;
