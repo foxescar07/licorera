@@ -8,7 +8,8 @@ from controlador import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home, name='home'), 
+    path('home/', home, name='home'), 
     path('proveedores/', views.proveedores, name='proveedores'),
-    path('producto/', include('producto.urls')),  
+    path('producto/', include('producto.urls')), 
+    path('prueba/', include('prueba.urls')), 
 ]
