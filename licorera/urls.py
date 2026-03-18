@@ -12,5 +12,6 @@ urlpatterns = [
     path('', home, name='home'), 
     path('proveedores/', views.proveedores, name='proveedores'),
     path('producto/', include('producto.urls')),  
+    path('reportes/', views.reportes, name='reportes'),
 
 ]
