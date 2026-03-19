@@ -10,7 +10,8 @@ from controlador import views
 urlpatterns = [ 
     path('admin/', admin.site.urls),
     path('home/', home, name='home'), 
-    path('proveedores/', include('proveedores.urls')),
     path('producto/', include('producto.urls')), 
     path('prueba/', views.prueba, name='prueba'),
+    path('proveedores/', include('proveedores.urls')),
+    
 ]

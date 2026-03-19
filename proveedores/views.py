@@ -1,13 +1,20 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from .forms import ProveedorForm
+from .models import Proveedor
 
-from proveedores.forms import ProveedorForm
-
-# Create your views here.
 def inicio_proveedores(request):
-    form= ProveedorForm()
-    print("Hola")
+    if request.method == 'POST':
+        form = ProveedorForm(request.POST)
+        if form.is_valid():
+            form.save() # Aquí se guarda el proveedor
+            return redirect('proveedores') # Esto refresca la página
+    else:
+        form = ProveedorForm() 
+    
+    proveedores = Proveedor.objects.all()
+    
     context={
         'form': form,
+        'proveedores': proveedores
     }
-    print(form)
-    return render(request, 'proveedor.html',context)
+    return render(request, 'proveedor.html', context)
