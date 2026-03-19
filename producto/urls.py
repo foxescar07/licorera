@@ -10,4 +10,5 @@ urlpatterns = [
     path("agenda/", views.agenda_lista, name="agenda_lista"),
     path("agenda/<int:pk>/eliminar/", views.agenda_eliminar, name="agenda_eliminar"),
     path("categoria/crear/", views.categoria_crear, name="categoria_crear"),
+    path("ingreso/", views.producto_ingreso, name="producto_ingreso"),
 ]
