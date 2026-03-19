@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Categoria, Producto, Inventario
+from .models import Categoria, Producto, Inventario, AgendaInventario
 
 
 # ─────────────────────────────────────────────
@@ -54,3 +54,11 @@ class InventarioAdmin(admin.ModelAdmin):
     search_fields  = ["producto__nombre", "producto__codigo"]
     ordering       = ["-fecha_actualizada"]
     readonly_fields = ["fecha_actualizada"]
+    
+
+@admin.register(AgendaInventario)
+class AgendaInventarioAdmin(admin.ModelAdmin):
+    list_display  = ["titulo", "fecha_programada", "estado", "creado_en"]
+    list_filter   = ["estado"]
+    search_fields = ["titulo"]
+    ordering      = ["fecha_programada"]
