@@ -109,3 +109,26 @@ def categoria_crear(request):
         )
         messages.success(request, "✅ Categoría creada correctamente.")
     return redirect("producto:producto_lista")
+
+def producto_ingreso(request):
+    if request.method == "POST":
+        producto_id = request.POST.get("producto")
+        cantidad    = int(request.POST.get("cantidad", 0))
+        notas       = request.POST.get("notas", "")
+        producto    = get_object_or_404(Producto, pk=producto_id)
+
+        # Suma al stock
+        producto.cantidad_disponible += cantidad
+        producto.save()
+
+        # Registra el movimiento
+        Inventario.objects.create(
+            producto=producto,
+            cantidad=cantidad,
+            ubicacion=notas
+        )
+
+        messages.success(request, f"✅ Se ingresaron {cantidad} {producto.unidad} de {producto.nombre}.")
+        return redirect("producto:producto_lista")
+
+    return redirect("producto:producto_lista")
