@@ -96,3 +96,16 @@ def agenda_eliminar(request, pk):
         agenda.delete()
         messages.success(request, "✅ Agenda eliminada.")
     return redirect("producto:agenda_lista")
+
+def categoria_crear(request):
+    if request.method == "POST":
+        nombre      = request.POST.get("nombre")
+        codigo      = request.POST.get("codigo")
+        descripcion = request.POST.get("descripcion")
+        Categoria.objects.create(
+            nombre=nombre,
+            codigo=codigo,
+            descripcion=descripcion
+        )
+        messages.success(request, "✅ Categoría creada correctamente.")
+    return redirect("producto:producto_lista")
