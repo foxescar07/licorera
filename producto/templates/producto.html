@@ -14,318 +14,262 @@
 {% block content %}
 <div class="container-fluid px-4">
   <div class="row justify-content-center">
- 
-      <!-- Mensajes Django (éxito / error) -->
-      {% if messages %}
-        <div class="col-12">
-          {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
- 
-      <!-- ── Alerta stock crítico (solo si hay productos con stock ≤ 5) ── -->
-      {% if stock_critico %}
-        <section class="col-12">
-          <div class="alert alert-warning my-5 border-danger border-2 d-flex align-items-center justify-content-between mb-4 shadow-sm" role="alert">
-            <div class="d-flex align-items-center">
-              <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-danger"></i>
-              <div>
-                <strong>¡ATENCIÓN STOCK CRÍTICO!</strong><br>
-                {% for p in stock_critico %}
-                  {{ p.nombre }} → Solo {{ p.cantidad_disponible }} {{ p.unidad }} restantes{% if not forloop.last %}, {% endif %}
-                {% endfor %}
-              </div>
-            </div>
-            <button type="button" class="btn btn-danger btn-sm px-4">Revisar Ahora</button>
+
+    {% if messages %}
+      <div class="col-12">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
           </div>
-        </section>
-      {% endif %}
- 
-      <!-- ── Tarjetas resumen por categoría ── -->
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if stock_critico %}
       <section class="col-12">
-        <h4 class="fw-bold mb-4 py-3 text-uppercase text-center text-md-start">Inventario por Categoría</h4>
-        <div class="row g-4 mb-5">
-          {% for cat in resumen_categorias %}
-            <div class="col-6 col-md-4 col-lg-2">
-              <div class="card text-white text-center shadow border-0 h-100 {% cycle 'bg-danger' 'bg-warning' 'bg-warning bg-opacity-75' 'bg-danger' %}">
-                <div class="card-body py-5">
-                  <h5 class="card-title">{{ cat.nombre }}</h5>
-                  <h1 class="display-4 fw-bold mb-0">{{ cat.total }}</h1>
-                  <p class="card-text">Total</p>
-                </div>
-              </div>
+        <div class="alert alert-warning my-3 border-danger border-2 d-flex align-items-center justify-content-between mb-4 shadow-sm" role="alert">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-danger"></i>
+            <div>
+              <strong>¡ATENCIÓN STOCK CRÍTICO!</strong><br>
+              {% for p in stock_critico %}
+                {{ p.nombre }} → Solo {{ p.cantidad_disponible }} {{ p.unidad }} restantes{% if not forloop.last %}, {% endif %}
+              {% endfor %}
             </div>
-          {% empty %}
-            <p class="text-muted">No hay categorías registradas.</p>
-          {% endfor %}
-          <!-- Tarjeta crear nueva categoría -->
-<div class="col-6 col-md-4 col-lg-2">
-  <div class="card text-secondary text-center shadow border-2 border-secondary h-100"
-       data-bs-toggle="modal"
-       data-bs-target="#modalNuevaCategoria"
-       style="cursor:pointer; border-style: dashed !important; background:transparent;">
-    <div class="card-body py-5 d-flex flex-column align-items-center justify-content-center">
-      <i class="bi bi-plus-circle fs-1 mb-2"></i>
-      <h5 class="card-title">Nueva Categoría</h5>
-  </div>
-</div>
+          </div>
+          <button type="button" class="btn btn-danger btn-sm px-4">Revisar Ahora</button>
         </div>
       </section>
+    {% endif %}
 
-      <!-- ── Formulario ingreso de mercancía ── -->
-<section class="col-12 mb-4">
-  <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-    <div class="card-header bg-danger text-white fw-semibold py-3">
-      <i class="bi bi-box-arrow-in-down me-2"></i> Ingresar Mercancía
-    </div>
-    <div class="card-body">
-      <form method="POST" action="{% url 'producto:producto_ingreso' %}">
-        {% csrf_token %}
-        <div class="row g-3 align-items-end">
-
-          <div class="col-md-4">
-            <label class="form-label fw-medium text-dark">Producto</label>
-            <select name="producto" class="form-select" required>
-              <option value="" disabled selected>Seleccione producto...</option>
-              {% for producto in productos %}
-                <option value="{{ producto.pk }}">
-                  {{ producto.nombre }} ({{ producto.codigo }})
-                </option>
-              {% endfor %}
-            </select>
+    <section class="col-12">
+      <h4 class="fw-bold mb-4 py-3 text-uppercase text-center text-md-start">Inventario por Categoría</h4>
+      <div class="row g-4 mb-5">
+        {% for cat in resumen_categorias %}
+          <div class="col-6 col-md-4 col-lg-2">
+            <div class="card text-white text-center shadow border-0 h-100 {% cycle 'bg-danger' 'bg-warning' 'bg-warning bg-opacity-75' 'bg-danger' %}">
+              <div class="card-body py-5">
+                <h5 class="card-title">{{ cat.nombre }}</h5>
+                <h1 class="display-4 fw-bold mb-0">{{ cat.total }}</h1>
+                <p class="card-text">Total</p>
+              </div>
+            </div>
           </div>
+        {% empty %}
+          <p class="text-muted">No hay categorías registradas.</p>
+        {% endfor %}
 
-          <div class="col-md-2">
-            <label class="form-label fw-medium text-dark">Cantidad</label>
-            <input type="number" name="cantidad" class="form-control" min="1" placeholder="0" required>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card text-secondary text-center shadow border-2 border-secondary h-100"
+               data-bs-toggle="modal"
+               data-bs-target="#modalNuevaCategoria"
+               style="cursor:pointer; border-style: dashed !important; background:transparent;">
+            <div class="card-body py-5 d-flex flex-column align-items-center justify-content-center">
+              <i class="bi bi-plus-circle fs-1 mb-2"></i>
+              <h5 class="card-title">Nueva Categoría</h5>
+            </div>
           </div>
-
-          <div class="col-md-4">
-            <label class="form-label fw-medium text-dark">Notas (opcional)</label>
-            <input type="text" name="notas" class="form-control" placeholder="Ej: Pedido proveedor X...">
-          </div>
-
-          <div class="col-md-2">
-            <button type="submit" class="btn btn-danger w-100 fw-bold">
-              <i class="bi bi-plus-lg me-1"></i> Ingresar
-            </button>
-          </div>
-
         </div>
-      </form>
-    </div>
-  </div>
-</section>
- 
-      <!-- ── Tabla de inventario ── -->
-      <section class="col-12">
-        <h4 class="fw-bold mb-3 text-uppercase">Inventario</h4>
-        <div class="table-responsive shadow-sm rounded overflow-hidden">
-          <table class="table table-hover table-striped align-middle mb-0">
-            <thead class="table-dark">
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Producto</th>
-                <th scope="col">Categoría</th>
-                <th scope="col">Stock</th>
-                <th scope="col">Precio</th>
-                <th scope="col">Últ. Entrada</th>
-                <th scope="col">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for producto in productos %}
-                <tr class="{% if producto.stock_critico %}table-danger{% endif %}">
-                  <td>{{ forloop.counter }}</td>
-                  <td>{{ producto.nombre }}</td>
-                  <td>{{ producto.categoria.nombre }}</td>
-                  <td>
-                    {% if producto.stock_critico %}
-                      <span class="badge bg-dark fs-6">{{ producto.cantidad_disponible }} {{ producto.unidad }}</span>
-                    {% else %}
-                      {{ producto.cantidad_disponible }} {{ producto.unidad }}
-                    {% endif %}
-                  </td>
-                  <td>${{ producto.precio_unitario|floatformat:0 }}</td>
-                  <td>
-                    {% with ultimo=producto.movimientos.first %}
-                      {% if ultimo %}{{ ultimo.fecha_actualizada|date:"d/m/Y" }}{% else %}—{% endif %}
-                    {% endwith %}
-                  </td>
-                  <td>
-                    <a href="{% url 'producto:producto_editar' producto.pk %}" class="btn btn-sm btn-warning me-1" aria-label="Editar">
-                      <i class="bi bi-pencil-square"></i>
-                    </a>
-                    <a href="{% url 'producto:producto_detalle' producto.pk %}" class="btn btn-sm btn-primary" aria-label="Ver detalle">
-                      <i class="bi bi-eye"></i>
-                    </a>
-                  </td>
-                </tr>
-              {% empty %}
-                <tr>
-                  <td colspan="7" class="text-center text-muted py-4">No hay productos registrados.</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+
+      </div>
+    </section>
+
+    <section class="col-12 mb-4">
+      <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        <div class="card-header bg-danger text-white fw-semibold py-3">
+          <i class="bi bi-box-arrow-in-down me-2"></i> Ingresar Mercancía
         </div>
-      </section>
- 
-  </div>
-</div>
-<!-- ========== FIN CONTENIDO ========== -->
- 
- 
-  <!-- ========== MODAL: Registrar Nuevo Producto ========== -->
-  <div class="modal fade" id="modalNuevoProducto" tabindex="-1" aria-labelledby="modalNuevoProductoLabel"
-       aria-hidden="true"
-       {# Si el formulario tiene errores, reabre el modal automáticamente #}
-       {% if form.errors %}data-open="true"{% endif %}>
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content border-0 rounded-3 shadow-lg">
- 
-        <div class="modal-header bg-danger text-white border-0">
-          <h5 class="modal-title fw-semibold" id="modalNuevoProductoLabel">
-            <i class="bi bi-plus-circle me-2"></i> Registrar Nuevo Producto
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
- 
-        <div class="modal-body">
-          {# action vacío → POST a la misma URL (producto_lista) #}
-          <form id="form-nuevo-producto" method="POST" action="{% url 'producto:producto_lista' %}">
+        <div class="card-body">
+          <form method="POST" action="{% url 'producto:producto_ingreso' %}">
             {% csrf_token %}
-            <div class="row g-3">
- 
-              <div class="col-md-8">
-                <label for="{{ form.nombre.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.nombre.label }}
-                </label>
-                {{ form.nombre }}
-                {% if form.nombre.errors %}
-                  <div class="text-danger small mt-1">{{ form.nombre.errors }}</div>
-                {% endif %}
+            <div class="row g-3 align-items-end">
+
+              <div class="col-12 col-md-4">
+                <label class="form-label fw-medium text-dark">Producto</label>
+                <select name="producto" class="form-select" required>
+                  <option value="" disabled selected>Seleccione producto...</option>
+                  {% for producto in productos %}
+                    <option value="{{ producto.pk }}">{{ producto.nombre }} ({{ producto.codigo }})</option>
+                  {% endfor %}
+                </select>
               </div>
- 
-              <div class="col-md-4">
-                <label for="{{ form.codigo.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.codigo.label }}
-                </label>
-                {{ form.codigo }}
-                {% if form.codigo.errors %}
-                  <div class="text-danger small mt-1">{{ form.codigo.errors }}</div>
-                {% endif %}
+
+              <div class="col-12 col-md-2">
+                <label class="form-label fw-medium text-dark">Cantidad</label>
+                <input type="number" name="cantidad" id="cantidad" class="form-control" min="1" placeholder="0" required oninput="validarCantidad(this)">
+                <div id="error-cantidad" class="text-danger small mt-1" style="display:none;">Ingresa un número válido mayor a 0.</div>
               </div>
- 
-              <div class="col-md-12">
-                <label for="{{ form.categoria.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.categoria.label }}
-                </label>
-                {{ form.categoria }}
-                {% if form.categoria.errors %}
-                  <div class="text-danger small mt-1">{{ form.categoria.errors }}</div>
-                {% endif %}
+
+              <div class="col-12 col-md-4">
+                <label class="form-label fw-medium text-dark">Notas (opcional)</label>
+                <input type="text" name="notas" class="form-control" placeholder="Ej: Pedido proveedor X...">
               </div>
- 
-              <div class="col-md-4">
-                <label for="{{ form.precio_unitario.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.precio_unitario.label }}
-                </label>
-                {{ form.precio_unitario }}
-                {% if form.precio_unitario.errors %}
-                  <div class="text-danger small mt-1">{{ form.precio_unitario.errors }}</div>
-                {% endif %}
+
+              <div class="col-12 col-md-2">
+                <button type="submit" class="btn btn-danger w-100 fw-bold">
+                  <i class="bi bi-plus-lg me-1"></i> Ingresar
+                </button>
               </div>
- 
-              <div class="col-md-4">
-                <label for="{{ form.cantidad_disponible.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.cantidad_disponible.label }}
-                </label>
-                {{ form.cantidad_disponible }}
-                {% if form.cantidad_disponible.errors %}
-                  <div class="text-danger small mt-1">{{ form.cantidad_disponible.errors }}</div>
-                {% endif %}
-              </div>
- 
-              <div class="col-md-4">
-                <label for="{{ form.unidad.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.unidad.label }}
-                </label>
-                {{ form.unidad }}
-              </div>
- 
-              <div class="col-12">
-                <label for="{{ form.descripcion.id_for_label }}" class="form-label fw-medium text-dark">
-                  {{ form.descripcion.label }}
-                </label>
-                {{ form.descripcion }}
-              </div>
- 
+
             </div>
           </form>
         </div>
- 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-          {# Submite el form desde fuera del <form> usando el id del form #}
-          <button type="submit" form="form-nuevo-producto" class="btn btn-danger px-5 fw-bold">
-            Guardar Producto
-          </button>
-        </div>
- 
+      </div>
+    </section>
+
+    <section class="col-12">
+      <h4 class="fw-bold mb-3 text-uppercase">Inventario</h4>
+      <div class="table-responsive shadow-sm rounded overflow-hidden">
+        <table class="table table-hover table-striped align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Producto</th>
+              <th scope="col">Categoría</th>
+              <th scope="col">Stock</th>
+              <th scope="col">Precio</th>
+              <th scope="col">Últ. Entrada</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for producto in productos %}
+              <tr class="{% if producto.stock_critico %}table-danger{% endif %}">
+                <td>{{ forloop.counter }}</td>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.categoria.nombre }}</td>
+                <td>
+                  {% if producto.stock_critico %}
+                    <span class="badge bg-dark fs-6">{{ producto.cantidad_disponible }} {{ producto.unidad }}</span>
+                  {% else %}
+                    {{ producto.cantidad_disponible }} {{ producto.unidad }}
+                  {% endif %}
+                </td>
+                <td>${{ producto.precio_unitario|floatformat:0 }}</td>
+                <td>
+                  {% with ultimo=producto.movimientos.first %}
+                    {% if ultimo %}{{ ultimo.fecha_actualizada|date:"d/m/Y" }}{% else %}—{% endif %}
+                  {% endwith %}
+                </td>
+                <td>
+                  <a href="{% url 'producto:producto_editar' producto.pk %}" class="btn btn-sm btn-warning me-1" aria-label="Editar">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                  <a href="{% url 'producto:producto_detalle' producto.pk %}" class="btn btn-sm btn-primary" aria-label="Ver detalle">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="text-center text-muted py-4">No hay productos registrados.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- MODAL: Registrar Nuevo Producto -->
+<div class="modal fade" id="modalNuevoProducto" tabindex="-1" aria-labelledby="modalNuevoProductoLabel"
+     aria-hidden="true" {% if form.errors %}data-open="true"{% endif %}>
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 rounded-3 shadow-lg">
+      <div class="modal-header bg-danger text-white border-0">
+        <h5 class="modal-title fw-semibold" id="modalNuevoProductoLabel">
+          <i class="bi bi-plus-circle me-2"></i> Registrar Nuevo Producto
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-nuevo-producto" method="POST" action="{% url 'producto:producto_lista' %}">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label for="{{ form.nombre.id_for_label }}" class="form-label fw-medium text-dark">{{ form.nombre.label }}</label>
+              {{ form.nombre }}
+              {% if form.nombre.errors %}<div class="text-danger small mt-1">{{ form.nombre.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.codigo.id_for_label }}" class="form-label fw-medium text-dark">{{ form.codigo.label }}</label>
+              {{ form.codigo }}
+              {% if form.codigo.errors %}<div class="text-danger small mt-1">{{ form.codigo.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-12">
+              <label for="{{ form.categoria.id_for_label }}" class="form-label fw-medium text-dark">{{ form.categoria.label }}</label>
+              {{ form.categoria }}
+              {% if form.categoria.errors %}<div class="text-danger small mt-1">{{ form.categoria.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.precio_unitario.id_for_label }}" class="form-label fw-medium text-dark">{{ form.precio_unitario.label }}</label>
+              {{ form.precio_unitario }}
+              {% if form.precio_unitario.errors %}<div class="text-danger small mt-1">{{ form.precio_unitario.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.cantidad_disponible.id_for_label }}" class="form-label fw-medium text-dark">{{ form.cantidad_disponible.label }}</label>
+              {{ form.cantidad_disponible }}
+              {% if form.cantidad_disponible.errors %}<div class="text-danger small mt-1">{{ form.cantidad_disponible.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label for="{{ form.unidad.id_for_label }}" class="form-label fw-medium text-dark">{{ form.unidad.label }}</label>
+              {{ form.unidad }}
+            </div>
+            <div class="col-12">
+              <label for="{{ form.descripcion.id_for_label }}" class="form-label fw-medium text-dark">{{ form.descripcion.label }}</label>
+              {{ form.descripcion }}
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" form="form-nuevo-producto" class="btn btn-danger px-5 fw-bold">Guardar Producto</button>
       </div>
     </div>
   </div>
- <!-- MODAL: Nueva Categoría -->
+</div>
+
+<!-- MODAL: Nueva Categoría -->
 <div class="modal fade" id="modalNuevaCategoria" tabindex="-1" aria-labelledby="modalNuevaCategoriaLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 rounded-3 shadow-lg">
-
       <div class="modal-header bg-dark text-white border-0">
         <h5 class="modal-title fw-semibold" id="modalNuevaCategoriaLabel">
           <i class="bi bi-plus-circle me-2"></i> Nueva Categoría
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-
       <div class="modal-body">
         <form id="form-nueva-categoria" method="POST" action="{% url 'producto:categoria_crear' %}">
           {% csrf_token %}
           <div class="row g-3">
-
             <div class="col-md-4">
               <label class="form-label fw-medium text-dark">Código</label>
               <input type="text" name="codigo" class="form-control" placeholder="Ej: CER" required>
             </div>
-
             <div class="col-md-8">
               <label class="form-label fw-medium text-dark">Nombre</label>
               <input type="text" name="nombre" class="form-control" placeholder="Ej: Cervezas" required>
             </div>
-
             <div class="col-12">
               <label class="form-label fw-medium text-dark">Descripción (opcional)</label>
               <textarea name="descripcion" class="form-control" rows="3" placeholder="Descripción de la categoría..."></textarea>
             </div>
-
           </div>
         </form>
       </div>
-
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" form="form-nueva-categoria" class="btn btn-dark px-5 fw-bold">
-          Guardar Categoría
-        </button>
+        <button type="submit" form="form-nueva-categoria" class="btn btn-dark px-5 fw-bold">Guardar Categoría</button>
       </div>
-
     </div>
   </div>
 </div>
+
 {% endblock %}
 
 {% block js %}
@@ -336,6 +280,17 @@
       new bootstrap.Modal(modalEl).show();
     }
   });
+
+  function validarCantidad(input) {
+    const error = document.getElementById("error-cantidad");
+    if (!input.value || input.value <= 0 || !Number.isInteger(Number(input.value))) {
+      error.style.display = "block";
+      input.classList.add("is-invalid");
+    } else {
+      error.style.display = "none";
+      input.classList.remove("is-invalid");
+      input.classList.add("is-valid");
+    }
+  }
 </script>
 {% endblock %}
- 
