@@ -1,123 +1,241 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block header_title %}Productos{% endblock %}
+
+{% block header_actions %}
+<button class="btn btn-dark btn-lg px-3 py-2 fw-bold shadow"
+        data-bs-toggle="modal"
+        data-bs-target="#modalNuevoProducto">
+  <i class="bi bi-plus-lg me-2"></i> REGISTRAR PRODUCTO
+</button>
+{% endblock %}
+
 {% block content %}
+<div class="container-fluid px-4">
+  <div class="row justify-content-center">
  
-
-  
-
-  <!-- Contenido principal -->
-  <div class="container mt-5" ><!--evita que el contenido quede tapado por la navbar fixed -->
-       <!-- margin-left → para que no quede tapado por la sidebar (2 columnas = 16.6667%) -->
-    <div class="row justify-content-center pt-3">
-
-      <!-- Alert stock bajo -->
-      <div class="col-6 d-flex justify-content-center">
-        <div class="alert alert-warning border-danger border-2 d-flex align-items-center justify-content-between mb-4 shadow-sm" role="alert">
-          <div class="d-flex align-items-center">
-            <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-danger"></i>
-            <div>
-              <strong>¡ATENCIÓN STOCK CRÍTICO!</strong><br>
-              Producto Ejemplo A → Solo 2 UND restantes
+      <!-- Mensajes Django (éxito / error) -->
+      {% if messages %}
+        <div class="col-12">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
-          </div>
-          <button type="button" class="btn btn-danger btn-ms px-4">Revisar Ahora</button>
+          {% endfor %}
         </div>
-      </div>
-
-      <!-- Tarjetas categorías -->
-      <div class="col-7">
+      {% endif %}
+ 
+      <!-- ── Alerta stock crítico (solo si hay productos con stock ≤ 5) ── -->
+      {% if stock_critico %}
+        <section class="col-12">
+          <div class="alert alert-warning border-danger border-2 d-flex align-items-center justify-content-between mb-4 shadow-sm" role="alert">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-danger"></i>
+              <div>
+                <strong>¡ATENCIÓN STOCK CRÍTICO!</strong><br>
+                {% for p in stock_critico %}
+                  {{ p.nombre }} → Solo {{ p.cantidad_disponible }} {{ p.unidad }} restantes{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm px-4">Revisar Ahora</button>
+          </div>
+        </section>
+      {% endif %}
+ 
+      <!-- ── Tarjetas resumen por categoría ── -->
+      <section class="col-12">
         <h4 class="fw-bold mb-4 text-uppercase text-center text-md-start">Inventario por Categoría</h4>
         <div class="row g-4 mb-5">
-          <div class="col-6 col-md-3">
-            <div class="card text-white text-center shadow border-3 h-100" style="background-color: #B7372A;">
-              <div class="card-body py-5">
-                <h5>Cervezas</h5>
-                <h1 class="display-2 fw-bold mb-0">20</h1>
-                <p>Total</p>
+          {% for cat in resumen_categorias %}
+            <div class="col-6 col-md-4 col-lg-2">
+              <div class="card text-white text-center shadow border-0 h-100 {% cycle 'bg-danger' 'bg-warning' 'bg-warning bg-opacity-75' 'bg-danger' %}">
+                <div class="card-body py-5">
+                  <h5 class="card-title">{{ cat.nombre }}</h5>
+                  <h1 class="display-4 fw-bold mb-0">{{ cat.total }}</h1>
+                  <p class="card-text">Total</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="card text-white text-center shadow border-3 h-100" style="background-color: #DE9C12;">
-              <div class="card-body py-5">
-                <h5>Gaseosas</h5>
-                <h1 class="display-2 fw-bold mb-0">30</h1>
-                <p>Total</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="card text-white text-center shadow border-3 h-100" style="background-color: #E8C898;">
-              <div class="card-body py-5">
-                <h5>Licores</h5>
-                <h1 class="display-2 fw-bold mb-0">30</h1>
-                <p>Total</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="card text-white text-center shadow border-3 h-100" style="background-color: #B7372A;">
-              <div class="card-body py-5">
-                <h5>Cigarrería</h5>
-                <h1 class="display-2 fw-bold mb-0">30</h1>
-                <p>Total</p>
-              </div>
-            </div>
-          </div>
+          {% empty %}
+            <p class="text-muted">No hay categorías registradas.</p>
+          {% endfor %}
         </div>
-      </div>
-
-      <!-- Tabla -->
-      <div class="col-7">
+      </section>
+ 
+      <!-- ── Tabla de inventario ── -->
+      <section class="col-12">
         <h4 class="fw-bold mb-3 text-uppercase">Inventario</h4>
-        <div class="table-responsive shadow-sm rounded overflow-hidden"><!--Recorta o oculta cualquier contenido que se salga-->
-          <table class="table table-hover table-striped align-middle mb-0"> <!--table-hover   → resalta fila al pasar mouse . table-striped → filas alternas de color  align - centra verticalmente el contenido.-->
+        <div class="table-responsive shadow-sm rounded overflow-hidden">
+          <table class="table table-hover table-striped align-middle mb-0">
             <thead class="table-dark">
               <tr>
-                <th>#</th>
-                <th>Producto</th>
-                <th>Categoría</th>
-                <th>Stock</th>
-                <th>Precio</th>
-                <th>Proveedor</th>
-                <th>Últ. Entrada</th>
-                <th>Acciones</th>
+                <th scope="col">#</th>
+                <th scope="col">Producto</th>
+                <th scope="col">Categoría</th>
+                <th scope="col">Stock</th>
+                <th scope="col">Precio</th>
+                <th scope="col">Últ. Entrada</th>
+                <th scope="col">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              <tr class="table-danger">
-                <td>1</td>
-                <td>Producto Ejemplo A</td>
-                <td>Cervezas</td>
-                <td><span class="badge bg-dark fs-6">2 UND</span></td>
-                <td>$45.000</td>
-                <td>Proveedor X</td>
-                <td>20/02/2026</td>
-                <td>
-                  <button class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil-square"></i></button>
-                  <button class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></button>
-                </td>
-              </tr>
-              <tr class="table-secondary">
-                <td>2</td>
-                <td>Producto Ejemplo B</td>
-                <td>Licores</td>
-                <td>48 UND</td>
-                <td>$120.000</td>
-                <td>Proveedor Y</td>
-                <td>19/02/2026</td>
-                <td>
-                  <button class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil-square"></i></button>
-                  <button class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></button>
-                </td>
-              </tr>
+              {% for producto in productos %}
+                <tr class="{% if producto.stock_critico %}table-danger{% endif %}">
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ producto.nombre }}</td>
+                  <td>{{ producto.categoria.nombre }}</td>
+                  <td>
+                    {% if producto.stock_critico %}
+                      <span class="badge bg-dark fs-6">{{ producto.cantidad_disponible }} {{ producto.unidad }}</span>
+                    {% else %}
+                      {{ producto.cantidad_disponible }} {{ producto.unidad }}
+                    {% endif %}
+                  </td>
+                  <td>${{ producto.precio_unitario|floatformat:0 }}</td>
+                  <td>
+                    {% with ultimo=producto.movimientos.first %}
+                      {% if ultimo %}{{ ultimo.fecha_actualizada|date:"d/m/Y" }}{% else %}—{% endif %}
+                    {% endwith %}
+                  </td>
+                  <td>
+                    <a href="{% url 'producto:producto_editar' producto.pk %}" class="btn btn-sm btn-warning me-1" aria-label="Editar">
+                      <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <a href="{% url 'producto:producto_detalle' producto.pk %}" class="btn btn-sm btn-primary" aria-label="Ver detalle">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-4">No hay productos registrados.</td>
+                </tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>
+      </section>
+ 
+  </div>
+</div>
+<!-- ========== FIN CONTENIDO ========== -->
+ 
+ 
+  <!-- ========== MODAL: Registrar Nuevo Producto ========== -->
+  <div class="modal fade" id="modalNuevoProducto" tabindex="-1" aria-labelledby="modalNuevoProductoLabel"
+       aria-hidden="true"
+       {# Si el formulario tiene errores, reabre el modal automáticamente #}
+       {% if form.errors %}data-open="true"{% endif %}>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 rounded-3 shadow-lg">
+ 
+        <div class="modal-header bg-danger text-white border-0">
+          <h5 class="modal-title fw-semibold" id="modalNuevoProductoLabel">
+            <i class="bi bi-plus-circle me-2"></i> Registrar Nuevo Producto
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+ 
+        <div class="modal-body">
+          {# action vacío → POST a la misma URL (producto_lista) #}
+          <form id="form-nuevo-producto" method="POST" action="{% url 'producto:producto_lista' %}">
+            {% csrf_token %}
+            <div class="row g-3">
+ 
+              <div class="col-md-8">
+                <label for="{{ form.nombre.id_for_label }}" class="form-label fw-medium text-dark">
+                  {{ form.nombre.label }}
+                </label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}
+                  <div class="text-danger small mt-1">{{ form.nombre.errors }}</div>
+                {% endif %}
+              </div>
+ 
+              <div class="col-md-4">
+                <label for="{{ form.codigo.id_for_label }}" class="form-label fw-medium text-dark">
+                  {{ form.codigo.label }}
+                </label>
+                {{ form.codigo }}
+                {% if form.codigo.errors %}
+                  <div class="text-danger small mt-1">{{ form.codigo.errors }}</div>
+                {% endif %}
+              </div>
+ 
+              <div class="col-md-12">
+                <label for="{{ form.categoria.id_for_label }}" class="form-label fw-medium text-dark">
+                  {{ form.categoria.label }}
+                </label>
+                {{ form.categoria }}
+                {% if form.categoria.errors %}
+                  <div class="text-danger small mt-1">{{ form.categoria.errors }}</div>
+                {% endif %}
+              </div>
+ 
+              <div class="col-md-4">
+                <label for="{{ form.precio_unitario.id_for_label }}" class="form-label fw-medium text-dark">
+                  {{ form.precio_unitario.label }}
+                </label>
+                {{ form.precio_unitario }}
+                {% if form.precio_unitario.errors %}
+                  <div class="text-danger small mt-1">{{ form.precio_unitario.errors }}</div>
+                {% endif %}
+              </div>
+ 
+              <div class="col-md-4">
+                <label for="{{ form.cantidad_disponible.id_for_label }}" class="form-label fw-medium text-dark">
+                  {{ form.cantidad_disponible.label }}
+                </label>
+                {{ form.cantidad_disponible }}
+                {% if form.cantidad_disponible.errors %}
+                  <div class="text-danger small mt-1">{{ form.cantidad_disponible.errors }}</div>
+                {% endif %}
+              </div>
+ 
+              <div class="col-md-4">
+                <label for="{{ form.unidad.id_for_label }}" class="form-label fw-medium text-dark">
+                  {{ form.unidad.label }}
+                </label>
+                {{ form.unidad }}
+              </div>
+ 
+              <div class="col-12">
+                <label for="{{ form.descripcion.id_for_label }}" class="form-label fw-medium text-dark">
+                  {{ form.descripcion.label }}
+                </label>
+                {{ form.descripcion }}
+              </div>
+ 
+            </div>
+          </form>
+        </div>
+ 
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+          {# Submite el form desde fuera del <form> usando el id del form #}
+          <button type="submit" form="form-nuevo-producto" class="btn btn-danger px-5 fw-bold">
+            Guardar Producto
+          </button>
+        </div>
+ 
       </div>
-
     </div>
   </div>
-{% endblock content %}
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-</body>
-</html>
+  <!-- ========== FIN MODAL ========== -->
+ 
+{% endblock %}
+
+{% block js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const modalEl = document.getElementById("modalNuevoProducto");
+    if (modalEl && modalEl.dataset.open === "true") {
+      new bootstrap.Modal(modalEl).show();
+    }
+  });
+</script>
+{% endblock %}
+ 
