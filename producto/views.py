@@ -112,16 +112,23 @@ def categoria_crear(request):
 
 def producto_ingreso(request):
     if request.method == "POST":
-        producto_id = request.POST.get("producto")
-        cantidad    = int(request.POST.get("cantidad", 0))
-        notas       = request.POST.get("notas", "")
-        producto    = get_object_or_404(Producto, pk=producto_id)
+        producto_id  = request.POST.get("producto")
+        cantidad_raw = request.POST.get("cantidad", "")
+        notas        = request.POST.get("notas", "")
 
-        # Suma al stock
+        # Validación
+        try:
+            cantidad = int(cantidad_raw)
+            if cantidad <= 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            messages.error(request, "⚠️ La cantidad debe ser un número entero mayor a 0.")
+            return redirect("producto:producto_lista")
+
+        producto = get_object_or_404(Producto, pk=producto_id)
         producto.cantidad_disponible += cantidad
         producto.save()
 
-        # Registra el movimiento
         Inventario.objects.create(
             producto=producto,
             cantidad=cantidad,
