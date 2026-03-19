@@ -1,5 +1,5 @@
 from django import forms
-from .models import Producto, Categoria
+from .models import Producto, Categoria, AgendaInventario
 
 
 class ProductoForm(forms.ModelForm):
@@ -70,3 +70,36 @@ class ProductoForm(forms.ModelForm):
             "cantidad_disponible": "Stock Inicial",
             "unidad":              "Unidad",
         }
+        
+class AgendaInventarioForm(forms.ModelForm):
+    class Meta:
+        model  = AgendaInventario
+        fields = ["titulo", "descripcion", "fecha_programada", "estado"]
+        widgets = {
+            "titulo": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Ej: Conteo mensual licores",
+            }),
+            "descripcion": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Descripción opcional...",
+            }),
+            "fecha_programada": forms.DateTimeInput(attrs={
+                "class": "form-control",
+                "type":  "datetime-local",
+            }, format="%Y-%m-%dT%H:%M"),
+            "estado": forms.Select(attrs={
+                "class": "form-select",
+            }),
+        }
+        labels = {
+            "titulo":           "Título",
+            "descripcion":      "Descripción (opcional)",
+            "fecha_programada": "Fecha y Hora",
+            "estado":           "Estado",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["fecha_programada"].input_formats = ["%Y-%m-%dT%H:%M"]
