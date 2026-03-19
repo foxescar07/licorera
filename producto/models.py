@@ -80,3 +80,26 @@ class Inventario(models.Model):
 
     def __str__(self):
         return f"{self.producto.nombre} | {self.cantidad} | {self.fecha_actualizada:%d/%m/%Y}"
+    
+class AgendaInventario(models.Model):
+        
+    ESTADO_CHOICES = [
+        ("pendiente",  "Pendiente"),
+        ("en_proceso", "En Proceso"),
+        ("completado", "Completado"),
+        ("cancelado",  "Cancelado"),
+    ]
+
+    titulo           = models.CharField(max_length=150)
+    descripcion      = models.TextField(blank=True, null=True)
+    fecha_programada = models.DateTimeField()
+    estado           = models.CharField(max_length=20, choices=ESTADO_CHOICES, default="pendiente")
+    creado_en        = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name        = "Agenda de Inventario"
+        verbose_name_plural = "Agendas de Inventario"
+        ordering            = ["fecha_programada"]
+
+    def __str__(self):
+        return f"{self.titulo} — {self.fecha_programada:%d/%m/%Y %H:%M}"
