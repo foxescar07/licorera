@@ -65,3 +65,34 @@ def producto_editar(request, pk):
         "form":     form,
         "producto": producto,
     })
+    
+from .models  import Producto, Categoria, Inventario, AgendaInventario
+from .forms   import ProductoForm, AgendaInventarioForm
+
+def agenda_lista(request):
+    """Lista todas las agendas y permite crear una nueva."""
+    form = AgendaInventarioForm()
+
+    if request.method == "POST":
+        form = AgendaInventarioForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "✅ Agenda registrada correctamente.")
+            return redirect("producto:agenda_lista")
+        else:
+            messages.error(request, "⚠️ Revisa los campos del formulario.")
+
+    agendas = AgendaInventario.objects.all()
+    return render(request, "agenda.html", {
+        "form":    form,
+        "agendas": agendas,
+    })
+
+
+def agenda_eliminar(request, pk):
+    """Elimina una agenda."""
+    agenda = get_object_or_404(AgendaInventario, pk=pk)
+    if request.method == "POST":
+        agenda.delete()
+        messages.success(request, "✅ Agenda eliminada.")
+    return redirect("producto:agenda_lista")
