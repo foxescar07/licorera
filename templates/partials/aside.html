@@ -9,6 +9,8 @@
         <ul class="nav flex-column nav-pills p-2">
             <li class="nav-item"><a class="nav-link active" data-bs-toggle="pill" href="#tablero">Tablero Principal</a></li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#productos">Productos</a></li>
+             <a class="nav-link text-dark py-3 px-4" href="{% url 'producto:agenda_lista' %}">
+            Agenda Inventario  </a>
             <a class="nav-link" href="{% url 'proveedores' %}">Proveedores</a>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#reportes">Reportes</a></li>
         </ul>
