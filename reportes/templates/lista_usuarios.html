@@ -9,51 +9,72 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
-<body class="d-flex flex-column min-vh-100" style="background-color: #E8C898;">
+<body class="d-flex flex-column min-vh-100 bg-body-secondary" style="font-family: sans-serif;">
 
-    <header class="container-fluid  d-flex justify-content-between align-items-center py-3 px-4 ">
-        <div class="d-flex align-items-center gap-3 ">
-            <img src="{% static 'img/logo.jpeg' %}" alt="Logo">
-                class="rounded-circle shadow-sm"
-               class="w-30  h-auto object-fit-cover rounded "
+    <header class="container-fluid py-3 px-4 d-flex justify-content-between align-items-center bg-white shadow-sm">
+        <div class="d-flex align-items-center gap-3">
+            
+            <div class="ratio ratio-1x1 d-block" style="width: 50px;">
+                <img src="{% static 'img/logo.jpeg' %}" alt="Logo"
+                    class="rounded-circle shadow-sm object-fit-cover">
+            </div>
             <span class="fw-bold fs-5 text-dark">CYS</span>
         </div>
-        <a href="{% url 'registro_usuario' %}" class="btn text-white px-4 shadow-sm rounded-3" style="background-color: #B7372A;">
+        <a href="{% url 'registro_usuario' %}" class="btn btn-danger px-4 shadow-sm rounded-3 fw-bold">
             <i class="fas fa-user-plus me-2"></i>Registrar usuario
         </a>
     </header>
 
     <main class="flex-grow-1 container py-4">
-        <div class="card border-0 shadow-lg p-4 p-md-5 rounded-5" style="background-color: #f1e9dc;">
-
+        <div class="bg-light shadow-lg p-4 p-md-5 rounded-5 border border-white">
+           <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img src="" class="d-block w-100" alt="...">
+    </div>
+    <div class="carousel-item">
+      <img src="..." class="d-block w-100" alt="...">
+    </div>
+    <div class="carousel-item">
+      <img src="..." class="d-block w-100" alt="...">
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
             <h3 class="fw-bold text-dark mb-4 text-center">
-                <i class="fas fa-users me-2" style="color: #B7372A;"></i>Usuarios registrados
+                <i class="fas fa-users me-2 text-danger"></i>Usuarios registrados
             </h3>
 
             {% if usuarios %}
             <div class="table-responsive">
-                <table class="table table-hover align-middle border-light">
-                    <thead>
-                        <tr class="text-white" style="background-color: #B7372A;">
-                            <th class="py-3 ps-4 rounded-start border-0">Identificación</th>
-                            <th class="py-3 border-">Nombre</th>
-                            <th class="py-3 border-0">Teléfono</th>
-                            <th class="py-3 border-0">Dirección</th>
-                            <th class="py-3 rounded-end text-center border-0">Fecha registro</th>
+                <table class="table table-hover align-middle">
+                    <thead class="table-danger">
+                        <tr>
+                            <th class="ps-4">Identificación</th>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Dirección</th>
+                            <th class="text-center">Fecha registro</th>
                         </tr>
                     </thead>
-                    <tbody class="border-top-0">
+                    <tbody>
                         {% for usuario in usuarios %}
                         <tr>
                             <td class="ps-4">
-                                <span class="badge rounded-2 fw-normal px-2 py-1" style="background-color: #e2d3bc; color: #5a3e2b;">
+                                <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis border px-3">
                                     {{ usuario.identificacion }}
                                 </span>
                             </td>
-                            <td class="fw-bold text-dark">{{ usuario.nombre }}</td>
-                            <td class="text-secondary">{{ usuario.telefono }}</td>
-                            <td class="text-secondary">{{ usuario.direccion }}</td>
-                            <td class="text-center text-secondary small">
+                            <td class="fw-semibold text-dark">{{ usuario.nombre }}</td>
+                            <td class="text-muted small">{{ usuario.telefono }}</td>
+                            <td class="text-muted small">{{ usuario.direccion }}</td>
+                            <td class="text-center text-muted small">
                                 {{ usuario.fecha_registro|date:"d/m/Y H:i" }}
                             </td>
                         </tr>
@@ -63,18 +84,18 @@
             </div>
             {% else %}
             <div class="text-center py-5">
-                <div class="display-3 mb-3 text-opacity-50" style="color: #c9a97a;">
-                    <i class="fas fa-users-slash"></i>
-                </div>
-                <p class="text-secondary fw-bold fs-5">No hay usuarios registrados aún.</p>
-                <a href="{% url 'registro_usuario' %}" class="btn text-white px-4 rounded-3 mt-2 shadow-sm" style="background-color: #B7372A;">
+                
+                <div class="mb-3 display-1 text-secondary opacity-25"><i class="fas fa-users-slash"></i></div>
+                <p class="text-muted fw-semibold">No hay usuarios registrados aún.</p>
+                <a href="{% url 'registro_usuario' %}" class="btn btn-danger px-4 rounded-3 mt-2 fw-bold">
                     <i class="fas fa-user-plus me-2"></i>Registrar el primero
                 </a>
+                <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
+
             </div>
             {% endif %}
 
         </div>
-        
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
