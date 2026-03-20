@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from .models  import Producto, Categoria, Inventario
+from .models  import Producto, Categoria, Inventario, AgendaInventario
 from .forms   import ProductoForm
 
 
@@ -65,3 +65,77 @@ def producto_editar(request, pk):
         "form":     form,
         "producto": producto,
     })
+    
+from .models  import Producto, Categoria, Inventario, AgendaInventario
+from .forms   import ProductoForm, AgendaInventarioForm
+
+def agenda_lista(request):
+    """Lista todas las agendas y permite crear una nueva."""
+    form = AgendaInventarioForm()
+
+    if request.method == "POST":
+        form = AgendaInventarioForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "✅ Agenda registrada correctamente.")
+            return redirect("producto:agenda_lista")
+        else:
+            messages.error(request, "⚠️ Revisa los campos del formulario.")
+
+    agendas = AgendaInventario.objects.all()
+    return render(request, "agenda.html", {
+        "form":    form,
+        "agendas": agendas,
+    })
+
+
+def agenda_eliminar(request, pk):
+    """Elimina una agenda."""
+    agenda = get_object_or_404(AgendaInventario, pk=pk)
+    if request.method == "POST":
+        agenda.delete()
+        messages.success(request, "✅ Agenda eliminada.")
+    return redirect("producto:agenda_lista")
+
+def categoria_crear(request):
+    if request.method == "POST":
+        nombre      = request.POST.get("nombre")
+        codigo      = request.POST.get("codigo")
+        descripcion = request.POST.get("descripcion")
+        Categoria.objects.create(
+            nombre=nombre,
+            codigo=codigo,
+            descripcion=descripcion
+        )
+        messages.success(request, "✅ Categoría creada correctamente.")
+    return redirect("producto:producto_lista")
+
+def producto_ingreso(request):
+    if request.method == "POST":
+        producto_id  = request.POST.get("producto")
+        cantidad_raw = request.POST.get("cantidad", "")
+        notas        = request.POST.get("notas", "")
+
+        # Validación
+        try:
+            cantidad = int(cantidad_raw)
+            if cantidad <= 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            messages.error(request, "⚠️ La cantidad debe ser un número entero mayor a 0.")
+            return redirect("producto:producto_lista")
+
+        producto = get_object_or_404(Producto, pk=producto_id)
+        producto.cantidad_disponible += cantidad
+        producto.save()
+
+        Inventario.objects.create(
+            producto=producto,
+            cantidad=cantidad,
+            ubicacion=notas
+        )
+
+        messages.success(request, f"✅ Se ingresaron {cantidad} {producto.unidad} de {producto.nombre}.")
+        return redirect("producto:producto_lista")
+
+    return redirect("producto:producto_lista")
