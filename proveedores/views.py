@@ -1,13 +1,4 @@
 
-
-from django.shortcuts import render
-
-# Create your views here.
-
-def proveedores(request):
-    return render(request, 'proveedores.html')
-
-
 from django.shortcuts import render, redirect
 from .forms import ProveedorForm
 from .models import Proveedor
@@ -27,5 +18,5 @@ def inicio_proveedores(request):
         'form': form,
         'proveedores': proveedores
     }
-    return render(request, 'proveedor.html', context)
+    return render(request,'proveedor.html', context)
  
