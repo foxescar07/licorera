@@ -25,6 +25,8 @@
                         <th class="py-3">Nombre</th>
                         <th class="py-3">Empresa</th>
                         <th class="py-3">Teléfono</th>
+                        <th class="py-3">Fecha Registro</th>
+                        <th>Registrado Por</th> 
                         <th class="py-3" style="border-radius: 0 15px 0 0;">Acciones</th>
                     </tr>
                 </thead>
@@ -35,6 +37,8 @@
                         <td class="fw-bold">{{ proveedor.nombre }}</td>
                         <td><span class="badge bg-light text-dark border">{{ proveedor.empresa }}</span></td>
                         <td>{{ proveedor.telefono }}</td>
+                        <td>{{ proveedor.fecha_registro|date:"d/m/Y H:i" }}</td>
+                        <td>{{ proveedor.registrado_por.email }}</td>
                         <td>
                              <button class="btn btn-sm text-primary fs-5"><i class="bi bi-pencil-square"></i></button>
                              <button class="btn btn-sm text-danger fs-5"><i class="bi bi-trash"></i></button>
