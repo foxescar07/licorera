@@ -1,4 +1,4 @@
- Mafe
+
 
 from django.shortcuts import render
 
@@ -28,4 +28,4 @@ def inicio_proveedores(request):
         'proveedores': proveedores
     }
     return render(request, 'proveedor.html', context)
- main
+ 

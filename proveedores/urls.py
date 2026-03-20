@@ -2,13 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
- Mafe
-    
-
     path('', views.proveedores, name='proveedores'),
+    path('inicio/', views.inicio_proveedores, name='inicio_proveedores'),
 ]
-
-
-    path('', views.inicio_proveedores, name='proveedores'),   
-    ]
-main
