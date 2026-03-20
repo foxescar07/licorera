@@ -1,10 +1,13 @@
 from django.shortcuts import render
-
-# Create your views here.
 def proveedores(request):
     return render(request, 'proveedor.html')
 
+Mafe
 def reportes(request):
     return render(request, 'reportes.html')
+
+def prueba(request):
+    return render(request, 'prueba.html')
+ main
 
 
