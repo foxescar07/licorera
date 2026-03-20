@@ -11,7 +11,7 @@
 
 <body class="d-flex flex-column min-vh-100" style="background-color: #E8C898;">
 
-    <!-- ✅ Modal ÉXITO -->
+    <!-- Modal ÉXITO -->
     <div class="modal fade" id="modalExito" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 350px;">
             <div class="modal-content rounded-4 shadow-lg border-0" style="background-color: #f1e9dc;">
@@ -33,26 +33,26 @@
     </div>
 
     <!-- Modal ERROR -->
-<div class="modal fade" id="modalError" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
-        <div class="modal-content rounded-4 shadow-lg border-0" style="background-color: #f1e9dc;">
-            <div class="modal-body text-center p-4">
-                <i class="fas fa-times-circle display-3 text-danger mb-3"></i>
-                <h4 class="fw-bold text-dark">¡Error!</h4>
-                {% for message in messages %}
-                    {% if message.tags == 'error' %}
-                        <p class="text-muted mb-1">• {{ message }}</p>
-                    {% endif %}
-                {% endfor %}
-                <button type="button" class="btn w-100 text-white fw-bold mt-3"
-                    data-bs-dismiss="modal"
-                    style="background-color: #B7372A; border-radius: 10px;">
-                    Cerrar
-                </button>
+    <div class="modal fade" id="modalError" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+            <div class="modal-content rounded-4 shadow-lg border-0" style="background-color: #f1e9dc;">
+                <div class="modal-body text-center p-4">
+                    <i class="fas fa-times-circle display-3 text-danger mb-3"></i>
+                    <h4 class="fw-bold text-dark">¡Error!</h4>
+                    {% for message in messages %}
+                        {% if message.tags == 'error' %}
+                            <p class="text-muted mb-1">• {{ message }}</p>
+                        {% endif %}
+                    {% endfor %}
+                    <button type="button" class="btn w-100 text-white fw-bold mt-3"
+                        data-bs-dismiss="modal"
+                        style="background-color: #B7372A; border-radius: 10px;">
+                        Cerrar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <header class="container-fluid py-3 px-4 d-flex justify-content-end">
         <a href="{% url 'lista_usuarios' %}" class="btn btn-danger fw-bold px-4 shadow-sm"
@@ -102,13 +102,22 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            let hasSuccess = false;
+            let hasError = false;
+
             {% for message in messages %}
                 {% if message.tags == 'success' %}
-                    new bootstrap.Modal(document.getElementById('modalExito')).show();
+                    hasSuccess = true;
                 {% elif message.tags == 'error' %}
-                    new bootstrap.Modal(document.getElementById('modalError')).show();
+                    hasError = true;
                 {% endif %}
             {% endfor %}
+
+            if (hasSuccess) {
+                new bootstrap.Modal(document.getElementById('modalExito')).show();
+            } else if (hasError) {
+                new bootstrap.Modal(document.getElementById('modalError')).show();
+            }
         });
     </script>
 

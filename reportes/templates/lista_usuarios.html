@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Usuarios - CYS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="d-flex flex-column min-vh-100" style="background-color: #E8C898;">
+
+    <header class="container-fluid  d-flex justify-content-between align-items-center py-3 px-4 ">
+        <div class="d-flex align-items-center gap-3 ">
+            <img src="{% static 'img/logo.jpeg' %}" alt="Logo">
+                class="rounded-circle shadow-sm"
+               class="w-30  h-auto object-fit-cover rounded "
+            <span class="fw-bold fs-5 text-dark">CYS</span>
+        </div>
+        <a href="{% url 'registro_usuario' %}" class="btn text-white px-4 shadow-sm rounded-3" style="background-color: #B7372A;">
+            <i class="fas fa-user-plus me-2"></i>Registrar usuario
+        </a>
+    </header>
+
+    <main class="flex-grow-1 container py-4">
+        <div class="card border-0 shadow-lg p-4 p-md-5 rounded-5" style="background-color: #f1e9dc;">
+
+            <h3 class="fw-bold text-dark mb-4 text-center">
+                <i class="fas fa-users me-2" style="color: #B7372A;"></i>Usuarios registrados
+            </h3>
+
+            {% if usuarios %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle border-light">
+                    <thead>
+                        <tr class="text-white" style="background-color: #B7372A;">
+                            <th class="py-3 ps-4 rounded-start border-0">Identificación</th>
+                            <th class="py-3 border-">Nombre</th>
+                            <th class="py-3 border-0">Teléfono</th>
+                            <th class="py-3 border-0">Dirección</th>
+                            <th class="py-3 rounded-end text-center border-0">Fecha registro</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-top-0">
+                        {% for usuario in usuarios %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="badge rounded-2 fw-normal px-2 py-1" style="background-color: #e2d3bc; color: #5a3e2b;">
+                                    {{ usuario.identificacion }}
+                                </span>
+                            </td>
+                            <td class="fw-bold text-dark">{{ usuario.nombre }}</td>
+                            <td class="text-secondary">{{ usuario.telefono }}</td>
+                            <td class="text-secondary">{{ usuario.direccion }}</td>
+                            <td class="text-center text-secondary small">
+                                {{ usuario.fecha_registro|date:"d/m/Y H:i" }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="display-3 mb-3 text-opacity-50" style="color: #c9a97a;">
+                    <i class="fas fa-users-slash"></i>
+                </div>
+                <p class="text-secondary fw-bold fs-5">No hay usuarios registrados aún.</p>
+                <a href="{% url 'registro_usuario' %}" class="btn text-white px-4 rounded-3 mt-2 shadow-sm" style="background-color: #B7372A;">
+                    <i class="fas fa-user-plus me-2"></i>Registrar el primero
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+        
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
