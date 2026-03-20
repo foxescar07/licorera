@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Distribuidora c y s</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --rojo: #b7372a;
+        --mostaza: #e9c36f;
+        --naranja: #d75833;
+        --beige: #e8c898;
+        --sidebar-width: 280px;
+      }
+      body {
+        background-color: var(--beige);
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        display: flex;
+      }
+
+      /* Sidebar Fija */
+      .sidebar {
+        width: var(--sidebar-width);
+        background-color: #ffffff;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 1000;
+        border-right: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      .user-profile {
+        padding: 40px 20px;
+        text-align: center;
+      }
+      .user-avatar {
+        width: 80px;
+        height: 80px;
+        background-color: #ff0000;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+      }
+      .user-name {
+        font-weight: 700;
+        font-size: 1.4rem;
+        color: #201e1f;
+      }
+      .nav-link {
+        color: #333 !important;
+        padding: 12px 25px !important;
+        border-right: 5px solid transparent;
+      }
+      .nav-link.active {
+        background-color: #ffebee !important;
+        color: var(--rojo) !important;
+        border-right: 5px solid var(--rojo) !important;
+        font-weight: 600;
+      }
+
+      /* Contenido Principal */
+      .main-content {
+        margin-left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
+        min-height: 100vh;
+      }
+      .bg-rojo {
+        background-color: var(--rojo) !important;
+      }
+      .bg-mostaza {
+        background-color: var(--mostaza) !important;
+      }
+      .bg-naranja {
+        background-color: var(--naranja) !important;
+      }
+
+      .card {
+        border: none;
+        border-radius: 10px;
+      }
+      .btn-custom {
+        background-color: var(--rojo);
+        color: white;
+        border: none;
+      }
+
+      @media (max-width: 992px) {
+        .sidebar {
+          width: 80px;
+        }
+        .user-name,
+        .nav-link span {
+          display: none;
+        }
+        .main-content {
+          margin-left: 80px;
+          width: calc(100% - 80px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar shadow">
+      <div class="user-profile">
+        <div class="user-avatar">
+          <svg viewBox="0 0 24 24" fill="white" width="45" height="45">
+            <path
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+            />
+          </svg>
+        </div>
+        <div class="user-name">Usuario</div>
+      </div>
+      <nav class="nav flex-column">
+        <a class="nav-link" href="#">Tablero Principal</a>
+        <a class="nav-link" href="#">Productos</a>
+        <a class="nav-link" href="#">Entradas</a>
+        <a class="nav-link" href="#">Historial de Entradas</a>
+        <a class="nav-link" href="#">Salidas</a>
+        <a class="nav-link" href="#">Proveedores</a>
+        <a class="nav-link active" href="?">Reportes</a>
+      </nav>
+    </div>
+
+    <div class="main-content">
+      <nav class="navbar navbar-expand-lg bg-rojo shadow py-3 mb-4">
+        <div class="container-fluid px-4">
+          <span class="navbar-brand text-white fs-2 fw-bold">
+            {% if request.GET.action == 'nuevo' %} Registrar Venta {% else %}
+            Reporte de Ventas {% endif %}
+          </span>
+        </div>
+      </nav>
+
+      <div class="container-fluid px-4">
+        {% if request.GET.action != "nuevo" %}
+        <div class="row g-4 mb-4 text-center">
+          <div class="col-md-4">
+            <div class="card bg-rojo text-white shadow p-3">
+              <h5>Total Ventas</h5>
+              <h2 id="totalVentas">$0</h2>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card bg-mostaza text-dark shadow p-3">
+              <h5>Productos Vendidos</h5>
+              <h2 id="totalProductos">0</h2>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card bg-naranja text-white shadow p-3">
+              <h5>Total Clientes</h5>
+              <h2 id="totalClientes">0</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow">
+          <div
+            class="card-header bg-rojo text-white d-flex justify-content-between align-items-center py-3"
+          >
+            <span class="fs-5">Listado de Ventas</span>
+            <a href="?action=nuevo" class="btn btn-light fw-bold"
+              >+ Agregar Nuevo Reporte</a
+            >
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0 text-center">
+                <thead class="bg-mostaza text-dark">
+                  <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Producto</th>
+                    <th>Cant.</th>
+                    <th>Precio</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaVentasBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="container-fluid row px-4">
+          <div class="card" style="width: 18rem">
+            <div class="card-body">
+              <h5 class="card-title">Card title</h5>
+              <p class="card-text">
+                Some quick example text to build on the card title and make up
+                the bulk of the card’s content.
+              </p>
+              <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>
+          </div>
+          <div class="card" style="width: 18rem">
+            <div class="card-body">
+              <h5 class="card-title">Card title</h5>
+              <p class="card-text">
+                Some quick example text to build on the card title and make up
+                the bulk of the card’s content.
+              </p>
+              <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>
+          </div>
+          <div class="card" style="width: 18rem">
+            <div class="card-body">
+              <h5 class="card-title">Card title</h5>
+              <p class="card-text">
+                Some quick example text to build on the card title and make up
+                the bulk of the card’s content.
+              </p>
+              <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>
+          </div>
+          <div class="card" style="width: 18rem">
+            <div class="card-body">
+              <h5 class="card-title">Card title</h5>
+              <p class="card-text">
+                Some quick example text to build on the card title and make up
+                the bulk of the card’s content.
+              </p>
+              <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="card shadow">
+              <div class="card-header bg-mostaza text-dark fw-bold py-3">
+                Detalles del Reporte
+              </div>
+              <div class="card-body p-4">
+                <form id="formNuevaVenta">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Nombre del Cliente</label>
+                    <input
+                      type="text"
+                      id="cliente"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold">Producto</label>
+                      <select id="producto" class="form-select">
+                        <option>Cerveza Águila Light</option>
+                        <option>Cerveza Poker</option>
+                        <option>Cerveza Club Colombia</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label fw-bold">Cantidad</label>
+                      <input
+                        type="number"
+                        id="cantidad"
+                        class="form-control"
+                        min="1"
+                        required
+                      />
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label fw-bold">Precio Unitario</label>
+                      <input
+                        type="number"
+                        id="precio"
+                        class="form-control"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-danger px-4 fw-bold">
+                      Guardar Reporte
+                    </button>
+                    <a href="?" class="btn btn-outline-secondary px-4"
+                      >Cancelar</a
+                    >
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <script>
+      let ventas = JSON.parse(localStorage.getItem("ventas")) || [
+        {
+          id: 1,
+          cliente: "Juan Pérez",
+          producto: "Cerveza Poker",
+          cantidad: 10,
+          precio: 3000,
+        },
+      ];
+
+      function actualizarSistema() {
+        const tbody = document.getElementById("tablaVentasBody");
+        if (!tbody) return;
+
+        tbody.innerHTML = "";
+        let sumaV = 0,
+          sumaP = 0,
+          cSet = new Set();
+
+        ventas.forEach((v, index) => {
+          const totalFila = v.cantidad * v.precio;
+          sumaV += totalFila;
+          sumaP += v.cantidad;
+          cSet.add(v.cliente);
+
+          tbody.innerHTML += `
+                <tr>
+                    <td>${v.id}</td>
+                    <td>${v.cliente}</td>
+                    <td>${v.producto}</td>
+                    <td>${v.cantidad}</td>
+                    <td>$${v.precio.toLocaleString()}</td>
+                    <td class="fw-bold">$${totalFila.toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" onclick="editarVenta(${index})">Editar</button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarVenta(${index})">Eliminar</button>
+                    </td>
+                </tr>`;
+        });
+
+        document.getElementById("totalVentas").textContent =
+          "$" + sumaV.toLocaleString();
+        document.getElementById("totalProductos").textContent = sumaP;
+        document.getElementById("totalClientes").textContent = cSet.size;
+        localStorage.setItem("ventas", JSON.stringify(ventas));
+      }
+
+      window.eliminarVenta = function (index) {
+        if (confirm("¿Seguro que deseas eliminar este registro?")) {
+          ventas.splice(index, 1);
+          actualizarSistema();
+        }
+      };
+
+      window.editarVenta = function (index) {
+        let v = ventas[index];
+        let n = prompt("Nombre del Cliente:", v.cliente);
+        if (n) {
+          v.cliente = n;
+          v.cantidad = parseInt(prompt("Cantidad:", v.cantidad)) || v.cantidad;
+          v.precio = parseInt(prompt("Precio:", v.precio)) || v.precio;
+          actualizarSistema();
+        }
+      };
+
+      const form = document.getElementById("formNuevaVenta");
+      if (form) {
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const nuevaVenta = {
+            id: ventas.length > 0 ? ventas[ventas.length - 1].id + 1 : 1,
+            cliente: document.getElementById("cliente").value,
+            producto: document.getElementById("producto").value,
+            cantidad: parseInt(document.getElementById("cantidad").value),
+            precio: parseInt(document.getElementById("precio").value),
+          };
+          ventas.push(nuevaVenta);
+          localStorage.setItem("ventas", JSON.stringify(ventas));
+          window.location.href = "?";
+        });
+      }
+      actualizarSistema();
+    </script>
+  </body>
+</html>

@@ -1,6 +1,4 @@
 from django.shortcuts import render
 
-# Create your views here.
-# Create your views here.
-def reporte(request):
+def reportes(request):
     return render(request, 'reportes.html')
