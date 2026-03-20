@@ -1,284 +1,102 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distribuciones C Y S - Proveedores</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+{% load crispy_forms_tags %}
 
-    <style>
-        :root {
-            --sasa-rojo: #B7372A;
-            --sasa-beige: #E8C898;
-        }
+{% block header_title %}GESTIÓN DE PROVEEDORES{% endblock %}
 
-        body {
-            background-color: var(--sasa-beige);
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            overflow-x: hidden;
-        }
-
-        /* --- SIDEBAR (MEDIDAS EXACTAS IMAGEN 2) --- */
-        aside.bg-sasa-panel {
-            width: 240px;
-            background-color: white !important;
-            z-index: 1050;
-        }
-
-        .nav-link {
-            color: #6c757d;
-            font-weight: 500;
-            padding: 12px 25px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        /* Animación de la pestaña roja (Video 1) */
-        .nav-link.active {
-            background-color: rgba(183, 55, 42, 0.05) !important;
-            color: var(--sasa-rojo) !important;
-        }
-
-        .nav-link.active::after {
-            content: "";
-            position: absolute;
-            right: 0;
-            top: 10%;
-            height: 80%;
-            width: 5px;
-            background-color: var(--sasa-rojo);
-            border-radius: 5px 0 0 5px;
-            animation: barSlide 0.4s ease forwards;
-        }
-
-        @keyframes barSlide {
-            from { opacity: 0; transform: translateX(5px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        /* --- HEADER (MEDIDAS EXACTAS IMAGEN 2) --- */
-        header.bg-sasa-main {
-            background-color: var(--sasa-rojo) !important;
-            height: 90px;
-            margin-left: 240px;
-            width: calc(100% - 240px);
-            z-index: 1040;
-        }
-
-        /* Animación Punto Verde */
-        .estado-sistema {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            background: #28a745;
-            border-radius: 50%;
-            box-shadow: 0 0 0 rgba(40, 167, 69, 0.4);
-            animation: pulse-green 2s infinite;
-        }
-
-        @keyframes pulse-green {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
-        }
-
-        /* --- CONTENIDO --- */
-        main {
-            margin-left: 240px;
-            margin-top: 90px;
-            padding: 40px;
-        }
-
-        .card-sasa {
-            background: white;
-            border-radius: 20px;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            padding: 30px;
-        }
-
-        /* Tabla Estilo Imagen 3 */
-        .table-sasa thead th {
-            background-color: var(--sasa-rojo);
-            color: white;
-            padding: 18px;
-            border: none;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-        }
-
-        .table-sasa thead th:first-child { border-radius: 15px 0 0 0; }
-        .table-sasa thead th:last-child { border-radius: 0 15px 0 0; }
-
-        .view-section { display: none; }
-        .view-section.active { display: block; animation: fadeIn 0.4s ease; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    </style>
-</head>
-<body>
-
-<aside class="bg-sasa-panel position-fixed top-0 start-0 vh-100 border-end d-flex flex-column align-items-center pt-5 shadow d-none d-lg-flex">
-    <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm mb-3" style="width:80px;height:80px; background-color: var(--sasa-rojo);">
-        <svg fill="white" width="45" height="45" viewBox="0 0 24 24">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
+{% block content %}
+<section class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-5 pt-5">
+        <h2 class="fw-bold" style="color: #333;">Proveedores Registrados</h2>
+        
+        <button type="button" class="btn text-white px-4 py-2 shadow-sm" 
+                style="background-color: var(--sasa-rojo); border-radius: 12px;" 
+                data-bs-toggle="modal" data-bs-target="#modalProveedor">
+            <i class="bi bi-plus-circle me-2"></i> Nuevo Proveedor
+        </button>
     </div>
-    <h2 class="h4 fw-bold mb-4 text-dark">Usuario</h2>
-    <nav class="w-100">
-        <ul class="nav flex-column nav-pills p-2">
-            <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-house-door me-2"></i> Tablero Principal</a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-box-seam me-2"></i> Productos</a></li>
-            <li class="nav-item"><a class="nav-link active" href="#"><i class="bi bi-truck me-2"></i> Proveedores</a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-file-earmark-bar-graph me-2"></i> Reportes</a></li>
-        </ul>
-    </nav>
-</aside>
 
-<header class="bg-sasa-main fixed-top d-flex align-items-center justify-content-between px-5 shadow" style="height:90px; margin-left:240px; width:calc(100% - 240px);">
-
-  <div class="d-flex align-items-center gap-2" style="margin-left:-17px;">
-    <img src="{% static 'img/logo.jpeg' %}" alt="Logo" style="height:55px; width:auto; border-radius:55px;">
-
-    <div>
-      <h1 class="m-0 text-uppercase text-white" style="font-size: 1.4rem; font-weight: 600; letter-spacing: 0.5px;">
-        {% block header_title %}GESTIÓN DE PROVEEDORES{% endblock %}
-      </h1>
-
-      <div class="d-flex align-items-center gap-4 mt-1">
-        <small class="text-white text-uppercase mb-0 ms-1" style="font-size: 0.75rem; font-weight: 700; opacity: 0.9;">
-          LICORERA C Y S                                    
-        </small>
-
-        <span class="estado-sistema"></span>
-      </div>
-    </div>
-  </div>
-
-  <div class="d-flex align-items-center gap-4">
-    {% block header_actions %}{% endblock %}
-
-    <div class="text-end text-white" translate="no">
-      <div id="reloj" class="m-0" style="font-size: 1.8rem; font-weight: 500; line-height: 1.1;"></div>
-      <small id="fecha" class="text-uppercase" style="font-size: 0.65rem; font-weight: 600; letter-spacing: 0.3px; opacity: 0.85;"></small>
-    </div>
-  </div>
-
-</header>
-
-<main>
-    <section id="vistaLista" class="view-section active">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold" style="color: #333;">Proveedores</h2>
-            <button class="btn text-white px-4 py-2 shadow-sm" style="background-color: var(--sasa-rojo); border-radius: 12px;" onclick="showView('registro')">
-                <i class="bi bi-plus-circle me-2"></i> Nuevo Proveedor
-            </button>
-        </div>
-
-        <div class="card-sasa">
-            <table class="table table-hover align-middle text-center table-sasa">
-                <thead>
+    <div class="card-sasa border-0 shadow-sm" style="background: white; border-radius: 20px; padding: 20px;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle text-center mb-0">
+                <thead style="background-color: var(--sasa-rojo); color: white;">
                     <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Empresa</th>
-                        <th>Teléfono</th>
-                        <th>Acciones</th>
+                        <th class="py-3" style="border-radius: 15px 0 0 0;">ID</th>
+                        <th class="py-3">Nombre</th>
+                        <th class="py-3">Empresa</th>
+                        <th class="py-3">Teléfono</th>
+                        <th class="py-3" style="border-radius: 0 15px 0 0;">Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="tablaProveedores">
-                    </tbody>
+                <tbody>
+                    {% for proveedor in proveedores %}
+                    <tr>
+                        <td><span class="badge bg-dark rounded-pill">{{ proveedor.id }}</span></td>
+                        <td class="fw-bold">{{ proveedor.nombre }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ proveedor.empresa }}</span></td>
+                        <td>{{ proveedor.telefono }}</td>
+                        <td>
+                             <button class="btn btn-sm text-primary fs-5"><i class="bi bi-pencil-square"></i></button>
+                             <button class="btn btn-sm text-danger fs-5"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-muted py-4">No hay proveedores registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </div>
-    </section>
+    </div>
 
-    <section id="vistaRegistro" class="view-section">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card-sasa">
-                    <h3 class="fw-bold mb-4 text-center" style="color: var(--sasa-rojo);">Registro de Proveedor</h3>
-                    <form id="formProveedor">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Nombre del Contacto</label>
-                                <input type="text" id="nombre" class="form-control border-0 bg-light p-3" style="border-radius: 12px;" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Empresa</label>
-                                <input type="text" id="empresa" class="form-control border-0 bg-light p-3" style="border-radius: 12px;" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Teléfono</label>
-                                <input type="text" id="telefono" class="form-control border-0 bg-light p-3" style="border-radius: 12px;" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Correo Electrónico</label>
-                                <input type="email" id="correo" class="form-control border-0 bg-light p-3" style="border-radius: 12px;" required>
-                            </div>
-                        </div>
-                        <div class="mt-4 d-flex gap-2">
-                            <button type="submit" class="btn text-white w-100 p-3 fw-bold" style="background-color: var(--sasa-rojo); border-radius: 12px;">GUARDAR</button>
-                            <button type="button" class="btn btn-light w-100 p-3 fw-bold border" onclick="showView('lista')" style="border-radius: 12px;">CANCELAR</button>
-                        </div>
-                    </form>
+    <div class="modal fade" id="modalProveedor" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h3 class="fw-bold mb-0" style="color: var(--sasa-rojo);" id="modalLabel">Registro de Proveedor</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body px-4">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.nombre|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.empresa|as_crispy_field }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.telefono|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.correo|as_crispy_field }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0 d-flex justify-content-end pb-4 px-4">
+                        <button type="button" class="btn btn-light fw-bold px-4 me-2" data-bs-dismiss="modal" style="border-radius: 10px;">
+                            CANCELAR
+                        </button>
+                        <button type="submit" class="btn text-white fw-bold px-4" style="background-color: var(--sasa-rojo); border-radius: 10px;">
+                            GUARDAR PROVEEDOR
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </section>
-</main>
-
+    </div>
+</section>
+{% endblock content %}
 <script>
-    // Lógica de Vistas
-    function showView(view) {
-        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-        document.getElementById(view === 'lista' ? 'vistaLista' : 'vistaRegistro').classList.add('active');
-        if(view === 'lista') render();
-    }
-
-    // Reloj e Indicador (Imagen 2)
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('reloj').innerText = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true });
-        document.getElementById('fecha').innerText = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
-    }
-    setInterval(updateClock, 1000); updateClock();
-
-    // Gestión de Datos
-    let data = JSON.parse(localStorage.getItem("proveedores")) || [];
-    function render() {
-        const t = document.getElementById("tablaProveedores");
-        t.innerHTML = data.map((p, i) => `
-            <tr>
-                <td><span class="badge bg-dark rounded-circle">${i+1}</span></td>
-                <td class="fw-bold">${p.nombre}</td>
-                <td><span class="badge bg-light text-dark border p-2">${p.empresa}</span></td>
-                <td>${p.telefono}</td>
-                <td>
-                    <button class="btn btn-sm text-primary fs-5" onclick="edit(${i})"><i class="bi bi-pencil-square"></i></button>
-                    <button class="btn btn-sm text-danger fs-5" onclick="del(${i})"><i class="bi bi-trash"></i></button>
-                </td>
-            </tr>`).join('');
-    }
-
-    document.getElementById("formProveedor").onsubmit = (e) => {
-        e.preventDefault();
-        data.push({
-            nombre: document.getElementById("nombre").value,
-            empresa: document.getElementById("empresa").value,
-            telefono: document.getElementById("telefono").value,
-            correo: document.getElementById("correo").value
-        });
-        localStorage.setItem("proveedores", JSON.stringify(data));
-        e.target.reset();
-        showView('lista');
-    };
-
-    function del(i) { if(confirm("¿Eliminar?")) { data.splice(i,1); localStorage.setItem("proveedores", JSON.stringify(data)); render(); } }
-    render();
+    // Si hay errores en el formulario, reabre el modal automáticamente
+    {% if form.errors %}
+        var myModal = new bootstrap.Modal(document.getElementById('modalProveedor'));
+        myModal.show();
+    {% endif %}
 </script>
-</body>
-</html>
