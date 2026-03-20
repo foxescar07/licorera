@@ -1,4 +1,28 @@
-{% extends 'base.html' %}
+[2:07 p. m., 20/3/2026] Andre: {% extends 'base.html' %}
+{% load static %}
+
+{% block header_title %}Productos{% endblock %}
+
+{% block header_actions %}
+<button class="btn btn-dark btn-lg px-3 py-2 fw-bold shadow"
+        data-bs-toggle="modal"
+        data-bs-target="#modalNuevoProducto">
+  <i class="bi bi-plus-lg me-2"></i> REGISTRAR PRODUCTO
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+  <div class="row justify-content-center">
+
+    {% if messages %}
+      <div class="col-12">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+   …
+[2:08 p. m., 20/3/2026] Andre: {% extends 'base.html' %}
 {% load static %}
 
 {% block header_title %}Agenda de Inventario{% endblock %}
