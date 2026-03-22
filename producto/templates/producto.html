@@ -1,30 +1,31 @@
-{% extends 'base.html' %}
-{% load static %}
+  {% extends 'base.html' %}
+  {% load static %}
 
-{% block header_title %}Productos{% endblock %}
+  {% block header_title %}Productos{% endblock %}
 
-{% block header_actions %}
-<button class="btn btn-dark btn-lg px-3 py-2 fw-bold shadow"
-        data-bs-toggle="modal"
-        data-bs-target="#modalNuevoProducto">
-  <i class="bi bi-plus-lg me-2"></i> REGISTRAR PRODUCTO
-</button>
-{% endblock %}
+  {% block header_actions %}
+  <button class="btn btn-dark btn-lg px-3 py-2 fw-bold shadow"
+          data-bs-toggle="modal"
+          data-bs-target="#modalNuevoProducto">
+    <i class="bi bi-plus-lg me-2"></i> REGISTRAR PRODUCTO
+  </button>
 
-{% block content %}
-<div class="container-fluid px-4">
-  <div class="row justify-content-center">
+  {% endblock %}
 
-    {% if messages %}
-      <div class="col-12">
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
+  {% block content %}
+  <div class="container-fluid px-4">
+    <div class="row justify-content-center">
+
+      {% if messages %}
+        <div class="col-12">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
 
     {% if stock_critico %}
       <section class="col-12">
@@ -188,6 +189,7 @@
       <div class="modal-body">
         <form id="form-nuevo-producto" method="POST" action="{% url 'producto:producto_lista' %}">
           {% csrf_token %}
+          <input type="hidden" name="origen" value="modal_producto">
           <div class="row g-3">
             <div class="col-md-8">
               <label for="{{ form.nombre.id_for_label }}" class="form-label fw-medium text-dark">{{ form.nombre.label }}</label>
