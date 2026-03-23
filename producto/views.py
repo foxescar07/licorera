@@ -139,3 +139,24 @@ def producto_ingreso(request):
         return redirect("producto:producto_lista")
 
     return redirect("producto:producto_lista")
+
+from .forms import ProductoRegistroForm
+
+def producto_registro(request):
+    form = ProductoRegistroForm()
+
+    if request.method == "POST":
+        form = ProductoRegistroForm(request.POST)
+        if form.is_valid():
+            producto = form.save(commit=False)
+            producto.cantidad_disponible = 0  # importante
+            producto.save()
+
+            messages.success(request, "✅ Producto registrado correctamente.")
+            return redirect("producto:producto_registro")
+        else:
+            messages.error(request, "⚠️ Revisa los campos del formulario.")
+
+    return render(request, "producto_registro.html", {
+        "form": form
+    })

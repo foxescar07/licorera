@@ -20,57 +20,55 @@ class ProductoForm(forms.ModelForm):
             "unidad",
         ]
         widgets = {
-            # --- Campos de texto ---
             "nombre": forms.TextInput(attrs={
-                "class":       "form-control",
+                "class": "form-control",
                 "placeholder": "Ej: Aguila Lata 330ml",
-                "id":          "nombreProducto",
+                "id": "nombreProducto",
             }),
             "codigo": forms.TextInput(attrs={
-                "class":       "form-control",
+                "class": "form-control",
                 "placeholder": "Ej: AGU330",
-                "id":          "codigo",
+                "id": "codigo",
             }),
             "descripcion": forms.Textarea(attrs={
-                "class":       "form-control",
-                "rows":        3,
-                "placeholder": "Ej: Cerveza nacional, lata 330ml, six pack...",
-                "id":          "descripcion",
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Ej: Cerveza nacional...",
+                "id": "descripcion",
             }),
-            # --- Selects ---
             "categoria": forms.Select(attrs={
                 "class": "form-select",
-                "id":    "categoria",
+                "id": "categoria",
             }),
             "unidad": forms.Select(attrs={
                 "class": "form-select",
-                "id":    "unidad",
+                "id": "unidad",
             }),
-            # --- Numéricos ---
             "precio_unitario": forms.NumberInput(attrs={
-                "class":       "form-control",
+                "class": "form-control",
                 "placeholder": "45000",
-                "min":         "0",
-                "step":        "100",
-                "id":          "precio",
+                "min": "0",
+                "step": "100",
+                "id": "precio",
             }),
             "cantidad_disponible": forms.NumberInput(attrs={
-                "class":       "form-control",
+                "class": "form-control",
                 "placeholder": "50",
-                "min":         "0",
-                "id":          "stockInicial",
+                "min": "0",
+                "id": "stockInicial",
             }),
         }
         labels = {
-            "nombre":              "Nombre del Producto",
-            "codigo":              "Código / Referencia",
-            "descripcion":         "Descripción (opcional)",
-            "categoria":           "Categoría",
-            "precio_unitario":     "Precio Unitario (COP)",
+            "nombre": "Nombre del Producto",
+            "codigo": "Código / Referencia",
+            "descripcion": "Descripción (opcional)",
+            "categoria": "Categoría",
+            "precio_unitario": "Precio Unitario (COP)",
             "cantidad_disponible": "Stock Inicial",
-            "unidad":              "Unidad",
+            "unidad": "Unidad",
         }
-        
+
+
 class AgendaInventarioForm(forms.ModelForm):
     class Meta:
         model  = AgendaInventario
@@ -87,19 +85,57 @@ class AgendaInventarioForm(forms.ModelForm):
             }),
             "fecha_programada": forms.DateTimeInput(attrs={
                 "class": "form-control",
-                "type":  "datetime-local",
+                "type": "datetime-local",
             }, format="%Y-%m-%dT%H:%M"),
             "estado": forms.Select(attrs={
                 "class": "form-select",
             }),
         }
         labels = {
-            "titulo":           "Título",
-            "descripcion":      "Descripción (opcional)",
+            "titulo": "Título",
+            "descripcion": "Descripción (opcional)",
             "fecha_programada": "Fecha y Hora",
-            "estado":           "Estado",
+            "estado": "Estado",
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["fecha_programada"].input_formats = ["%Y-%m-%dT%H:%M"]
+
+
+#  NUEVO FORMULARIO 
+class ProductoRegistroForm(forms.ModelForm):
+    """
+    Formulario exclusivo para registrar productos (sin lógica de inventario).
+    """
+
+    class Meta:
+        model = Producto
+        fields = [
+            "codigo",
+            "nombre",
+            "categoria",
+            "precio_unitario",
+            "unidad",
+        ]
+
+        widgets = {
+            "codigo": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Ej: AGU330"
+            }),
+            "nombre": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Ej: Aguila Lata"
+            }),
+            "categoria": forms.Select(attrs={
+                "class": "form-select"
+            }),
+            "precio_unitario": forms.NumberInput(attrs={
+                "class": "form-control",
+                "min": "0"
+            }),
+            "unidad": forms.Select(attrs={
+                "class": "form-select"
+            }),
+        }
