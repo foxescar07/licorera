@@ -1,18 +1,83 @@
-<aside class="bg-sasa-panel position-fixed top-0 start-0 vh-100 border-end d-flex flex-column align-items-center pt-5 shadow d-none d-lg-flex" style="width:240px; z-index:1050;">
-    <div class="rounded-circle bg-sasa-main d-flex align-items-center justify-content-center shadow-sm mb-3" style="width:80px;height:80px;">
-        <svg fill="white" width="45" height="45" viewBox="0 0 24 24">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
+<!-- OFFCANVAS SIDEBAR (derecha, desplegable) -->
+<div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="sidebarRight" style="width:280px;">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-danger fs-6 px-3 py-2 rounded-3">C</span>
+      <div>
+        <div class="fw-bold">CYS Ltda</div>
+        <small class="text-secondary">Distribución</small>
+      </div>
     </div>
-    <h2 class="h4 fw-bold mb-4">Usuario</h2>
-    <nav class="w-100">
-        <ul class="nav flex-column nav-pills p-2">
-            <li class="nav-item"><a class="nav-link active" data-bs-toggle="pill" href="#tablero">Tablero Principal</a></li>
-            <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#productos">Productos</a></li>
-            <a class="nav-link" href="{% url 'proveedores' %}">Proveedores</a>
-            <a class="nav-link text-dark py-3 px-4" href="{% url 'producto:agenda_lista' %}">
-            Agenda Inventario  </a>
-            <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#reportes">Reportes</a></li>
-        </ul>
-    </nav>
-</aside>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+  </div>
+
+  <div class="offcanvas-body d-flex flex-column gap-3">
+
+    <!-- Usuario -->
+    <div class="d-flex align-items-center gap-2 p-2 rounded-3 bg-secondary bg-opacity-25">
+      <span class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white"
+            style="width:38px;height:38px;flex-shrink:0">
+        <i class="bi bi-person-fill"></i>
+      </span>
+      <div>
+        <div class="fw-semibold small">Usuario</div>
+        <div class="text-secondary" style="font-size:.72rem;">Administrador</div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <div>
+      <p class="text-secondary text-uppercase fw-bold mb-2" style="font-size:.6rem;letter-spacing:.15em;">Navegación</p>
+      <div class="nav flex-column gap-1">
+        <a href="#" class="nav-link text-white-50 d-flex align-items-center gap-2 rounded-2 px-3 py-2">
+          <i class="bi bi-grid-1x2"></i> Tablero Principal
+        </a>
+        <a href="#" class="nav-link bg-danger text-white d-flex align-items-center gap-2 rounded-2 px-3 py-2 fw-semibold">
+          <i class="bi bi-box-seam-fill"></i> Productos
+        </a>
+        <a href="#" class="nav-link text-white-50 d-flex align-items-center gap-2 rounded-2 px-3 py-2">
+          <i class="bi bi-bar-chart-fill"></i> Reportes
+        </a>
+      </div>
+    </div>
+
+    <hr class="border-secondary my-0"/>
+
+    <!-- Resumen -->
+    <div>
+      <p class="text-secondary text-uppercase fw-bold mb-2" style="font-size:.6rem;letter-spacing:.15em;">Resumen</p>
+      <div class="d-flex flex-column gap-2">
+
+        <div class="p-3 rounded-3 bg-secondary bg-opacity-25 d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-secondary" style="font-size:.7rem;">Total productos</div>
+            <div class="fw-bold fs-4">110</div>
+            <div class="text-secondary" style="font-size:.65rem;">unidades en stock</div>
+          </div>
+          <span class="bg-success rounded-circle" style="width:10px;height:10px;"></span>
+        </div>
+
+        <div class="p-3 rounded-3 bg-secondary bg-opacity-25 d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-secondary" style="font-size:.7rem;">Stock crítico</div>
+            <div class="fw-bold fs-4">1</div>
+            <div class="text-secondary" style="font-size:.65rem;">producto por reponer</div>
+          </div>
+          <span class="bg-danger rounded-circle" style="width:10px;height:10px;"></span>
+        </div>
+
+        <div class="p-3 rounded-3 bg-secondary bg-opacity-25 d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-secondary" style="font-size:.7rem;">Categorías</div>
+            <div class="fw-bold fs-4">4</div>
+            <div class="text-secondary" style="font-size:.65rem;">activas</div>
+          </div>
+          <span class="bg-warning rounded-circle" style="width:10px;height:10px;"></span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="mt-auto text-secondary text-center" style="font-size:.65rem;">CYS Ltda © 2026</div>
+  </div>
+</div>
