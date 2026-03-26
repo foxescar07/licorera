@@ -11,121 +11,13 @@
 <body class="bg-light">
 
   <!-- HEADER -->
-  <nav class="navbar navbar-light bg-white border-bottom px-4 sticky-top">
-    <span class="navbar-brand fw-bold fs-5">{% block page_title %}Productos{% endblock %}</span>
-    <div class="d-flex gap-2 align-items-center">
-      {% block navbar_actions %}{% endblock %}
-      <button class="btn btn-outline-secondary btn-sm rounded-pill px-3"
-              data-bs-toggle="offcanvas" data-bs-target="#sidebarRight">
-        <i class="bi bi-layout-sidebar-reverse"></i> Menú
-      </button>
-    </div>
-  </nav>
+  {% include 'partials/header.html' %}
 
   <!-- ASIDE — Offcanvas sidebar -->
-  <aside>
-    <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="sidebarRight" style="width:280px;">
-      <div class="offcanvas-header border-bottom border-secondary">
-        <div class="d-flex align-items-center gap-2">
-          <span class="badge bg-danger fs-6 px-3 py-2 rounded-3">C</span>
-          <div>
-            <div class="fw-bold">CYS Ltda</div>
-            <small class="text-secondary">Distribución</small>
-          </div>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-      </div>
-
-      <div class="offcanvas-body d-flex flex-column gap-3">
-
-        <!-- Usuario -->
-        <div class="d-flex align-items-center gap-2 p-2 rounded-3 bg-secondary bg-opacity-25">
-          <span class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white"
-                style="width:38px;height:38px;flex-shrink:0">
-            <i class="bi bi-person-fill"></i>
-          </span>
-          <div>
-            <div class="fw-semibold small">
-              {% if user.is_authenticated %}
-                {{ user.get_full_name|default:user.username }}
-              {% else %}
-                Usuario
-              {% endif %}
-            </div>
-            <div class="text-secondary" style="font-size:.72rem;">
-              {% if user.is_superuser %}Administrador{% else %}Operador{% endif %}
-            </div>
-          </div>
-        </div>
-
-        <!-- Nav -->
-        <div>
-          <p class="text-secondary text-uppercase fw-bold mb-2" style="font-size:.6rem;letter-spacing:.15em;">Navegación</p>
-          <div class="nav flex-column gap-1">
-            <a href="{% url 'dashboard' %}"
-               class="nav-link d-flex align-items-center gap-2 rounded-2 px-3 py-2
-                      {% if request.resolver_match.url_name == 'dashboard' %}bg-danger text-white fw-semibold{% else %}text-white-50{% endif %}">
-              <i class="bi bi-grid-1x2"></i> Tablero Principal
-            </a>
-            <a href=""
-               class="nav-link d-flex align-items-center gap-2 rounded-2 px-3 py-2
-                      {% if request.resolver_match.url_name == 'productos' %}bg-danger text-white fw-semibold{% else %}text-white-50{% endif %}">
-              <i class="bi bi-box-seam-fill"></i> Productos
-            </a>
-            <a href=""
-               class="nav-link d-flex align-items-center gap-2 rounded-2 px-3 py-2
-                      {% if request.resolver_match.url_name == 'reportes' %}bg-danger text-white fw-semibold{% else %}text-white-50{% endif %}">
-              <i class="bi bi-bar-chart-fill"></i> Reportes
-            </a>
-          </div>
-        </div>
-
-        <hr class="border-secondary my-0"/>
-
-        <!-- Resumen -->
-        <div>
-          <p class="text-secondary text-uppercase fw-bold mb-2" style="font-size:.6rem;letter-spacing:.15em;">Resumen</p>
-          <div class="d-flex flex-column gap-2">
-
-            <div class="p-3 rounded-3 bg-secondary bg-opacity-25 d-flex justify-content-between align-items-center">
-              <div>
-                <div class="text-secondary" style="font-size:.7rem;">Total productos</div>
-                <div class="fw-bold fs-4">{{ total_productos|default:"—" }}</div>
-                <div class="text-secondary" style="font-size:.65rem;">unidades en stock</div>
-              </div>
-              <span class="bg-success rounded-circle" style="width:10px;height:10px;"></span>
-            </div>
-
-            <div class="p-3 rounded-3 bg-secondary bg-opacity-25 d-flex justify-content-between align-items-center">
-              <div>
-                <div class="text-secondary" style="font-size:.7rem;">Stock crítico</div>
-                <div class="fw-bold fs-4">{{ stock_critico|default:"—" }}</div>
-                <div class="text-secondary" style="font-size:.65rem;">producto por reponer</div>
-              </div>
-              <span class="bg-danger rounded-circle" style="width:10px;height:10px;"></span>
-            </div>
-
-            <div class="p-3 rounded-3 bg-secondary bg-opacity-25 d-flex justify-content-between align-items-center">
-              <div>
-                <div class="text-secondary" style="font-size:.7rem;">Categorías</div>
-                <div class="fw-bold fs-4">{{ total_categorias|default:"—" }}</div>
-                <div class="text-secondary" style="font-size:.65rem;">activas</div>
-              </div>
-              <span class="bg-warning rounded-circle" style="width:10px;height:10px;"></span>
-            </div>
-
-          </div>
-        </div>
-
-        {% block sidebar_extra %}{% endblock %}
-
-        <div class="mt-auto text-secondary text-center" style="font-size:.65rem;">CYS Ltda © {% now "Y" %}</div>
-      </div>
-    </div>
-  </aside>
+{% include 'partials/aside.html' %}
 
   <!-- MAIN -->
-  <main class="container py-4" style="max-width:860px;">
+   {% block main_class %}{% endblock %}
 
     <!-- Mensajes de Django -->
     {% if messages %}
