@@ -4,122 +4,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro Usuario - CYS</title>
+    <title>CYS - Gestión Licorera</title>
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts: Oswald y Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
+<body class="d-flex flex-column min-vh-100" style="background-color: #E8C898; font-family: 'Roboto', sans-serif;">
 
-<body class="d-flex flex-column min-vh-100" style="background-color: #E8C898;">
-
-    <!-- Modal ÉXITO -->
-    <div class="modal fade" id="modalExito" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 350px;">
-            <div class="modal-content rounded-4 shadow-lg border-0" style="background-color: #f1e9dc;">
-                <div class="modal-body text-center p-4">
-                    <i class="fas fa-check-circle display-3 text-success mb-3"></i>
-                    <h4 class="fw-bold text-dark">¡Listo!</h4>
-                    {% for message in messages %}
-                        {% if message.tags == 'success' %}
-                            <p class="text-muted fw-semibold">{{ message }}</p>
-                        {% endif %}
-                    {% endfor %}
-                    <a href="{% url 'lista_usuarios' %}" class="btn w-100 text-white fw-bold mt-2"
-                        style="background-color: #B7372A; border-radius: 10px;">
-                        Aceptar
-                    </a>
-                </div>
-            </div>
-        </div>
+    <!-- BOTONES SUPERIORES -->
+    <div class="w-100 d-flex justify-content-between p-4">
+        <button class="btn text-white px-4 shadow fw-bold" 
+                style="background-color: #B7372A; border-radius: 15px; font-family: 'Oswald', sans-serif; border: none; box-shadow: 0 0 10px rgba(183, 55, 42, 0.4);" 
+                data-bs-toggle="collapse" data-bs-target="#seccionRecuperar">Olvidé mi contraseña</button>
+        
+        <button class="btn text-white px-4 shadow fw-bold" 
+                style="background-color: #B7372A; border-radius: 15px; font-family: 'Oswald', sans-serif; border: none; box-shadow: 0 0 10px rgba(183, 55, 42, 0.4);" 
+                data-bs-toggle="collapse" data-bs-target="#seccionRegistro">Crear cuenta</button>
     </div>
 
-    <!-- Modal ERROR -->
-    <div class="modal fade" id="modalError" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
-            <div class="modal-content rounded-4 shadow-lg border-0" style="background-color: #f1e9dc;">
-                <div class="modal-body text-center p-4">
-                    <i class="fas fa-times-circle display-3 text-danger mb-3"></i>
-                    <h4 class="fw-bold text-dark">¡Error!</h4>
-                    {% for message in messages %}
-                        {% if message.tags == 'error' %}
-                            <p class="text-muted mb-1">• {{ message }}</p>
-                        {% endif %}
-                    {% endfor %}
-                    <button type="button" class="btn w-100 text-white fw-bold mt-3"
-                        data-bs-dismiss="modal"
-                        style="background-color: #B7372A; border-radius: 10px;">
-                        Cerrar
+    <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center" style="margin-top: -50px;">
+        <!-- CARD SUAVE CON BORDES DE 15PX Y SOMBRA MODERNA -->
+        <div class="card border-0 p-5 text-center" id="contenedorPrincipal" 
+             style="background-color: #f1e9dc; width: 100%; max-width: 420px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+            
+            <div class="mb-4">
+                <img src="{% static 'img/logo.jpeg' %}" alt="Logo" class="rounded-circle shadow-sm" 
+                     style="width: 110px; height: 110px; object-fit: cover; border: 3px solid #B7372A; filter: drop-shadow(0 0 5px rgba(183, 55, 42, 0.3));">
+            </div>
+
+            <!-- SECCIÓN: LOGIN -->
+            <div class="collapse show" id="seccionLogin" data-bs-parent="#contenedorPrincipal">
+                <h2 class="fw-bold mb-4" style="color: #B7372A; font-family: 'Oswald', sans-serif; letter-spacing: 1px;">CYS</h2>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="accion" value="login">
+                    
+                    <div class="mb-3">
+                        <input type="text" name="usuario_input" class="form-control text-center py-3 border-0 shadow-sm" 
+                               placeholder="Usuario" style="border-radius: 15px; font-family: 'Roboto', sans-serif;" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <input type="password" name="clave_input" class="form-control text-center py-3 border-0 shadow-sm" 
+                               placeholder="Contraseña" style="border-radius: 15px; font-family: 'Roboto', sans-serif;" required>
+                    </div>
+                    
+                    <!-- BOTÓN CON GLOW (BRILLO) -->
+                    <button type="submit" class="btn w-100 py-2 shadow-lg fw-bold text-white mb-2" 
+                            style="background-color: #B7372A; border-radius: 15px; font-family: 'Oswald', sans-serif; border: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(183, 55, 42, 0.4);">
+                        ENTRAR
                     </button>
-                </div>
+                </form>
             </div>
+
+            <!-- SECCIÓN: REGISTRO (Mismo estilo) -->
+            <div class="collapse" id="seccionRegistro" data-bs-parent="#contenedorPrincipal">
+                <h3 class="fw-bold mb-3" style="font-family: 'Oswald', sans-serif; color: #B7372A;">REGISTRARSE</h3>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="accion" value="registrar">
+                    <input type="text" name="nombre_input" class="form-control mb-2 text-center shadow-sm border-0 py-2" placeholder="Nombre completo" style="border-radius: 15px;">
+                    <input type="text" name="user_nuevo" class="form-control mb-2 text-center shadow-sm border-0 py-2" placeholder="Usuario" style="border-radius: 15px;">
+                    <input type="password" name="pass_nueva" class="form-control mb-3 text-center shadow-sm border-0 py-2" placeholder="Clave" style="border-radius: 15px;">
+                    
+                    <select name="rol_nuevo" class="form-select mb-3 text-center shadow-sm border-0" style="border-radius: 15px;">
+                        <option value="empleado">Empleado</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+
+                    <button type="submit" class="btn w-100 text-white fw-bold py-2" style="background-color: #B7372A; border-radius: 15px; font-family: 'Oswald', sans-serif;">GUARDAR</button>
+                </form>
+                <button class="btn btn-link text-danger mt-2 fw-bold text-decoration-none small" data-bs-toggle="collapse" data-bs-target="#seccionLogin">Volver al inicio</button>
+            </div>
+
         </div>
     </div>
-
-    <header class="container-fluid py-3 px-4 d-flex justify-content-end">
-        <a href="{% url 'lista_usuarios' %}" class="btn btn-danger fw-bold px-4 shadow-sm"
-            style="background-color: #B7372A; border: none;">
-            Volver al Inicio
-        </a>
-    </header>
-
-    <main class="flex-grow-1 d-flex align-items-center justify-content-center pb-5">
-        <div class="card border-0 shadow-lg p-4 p-md-5 rounded-5 text-center"
-            style="max-width: 400px; background-color: #f1e9dc;">
-
-            <div class="mb-3">
-                <img src="{% static 'img/logo.jpeg' %}" alt="Logo" class="rounded-circle shadow-sm"
-                    style="width: 100px; height: 100px; object-fit: cover;">
-            </div>
-
-            <h3 class="mb-4 fw-bold text-dark">Registro usuario</h3>
-
-            <form method="POST">
-                {% csrf_token %}
-                <input type="text" name="identificacion" value="{{ form.identificacion.value|default:'' }}"
-                    class="form-control form-control-lg rounded-3 mb-3 text-center border-0 shadow-sm"
-                    placeholder="Identificación usuario" required>
-
-                <input type="text" name="nombre" value="{{ form.nombre.value|default:'' }}"
-                    class="form-control form-control-lg rounded-3 mb-3 text-center border-0 shadow-sm"
-                    placeholder="Nombre usuario" required>
-
-                <input type="text" name="telefono" value="{{ form.telefono.value|default:'' }}"
-                    class="form-control form-control-lg rounded-3 mb-3 text-center border-0 shadow-sm"
-                    placeholder="Teléfono usuario" required>
-
-                <input type="text" name="direccion" value="{{ form.direccion.value|default:'' }}"
-                    class="form-control form-control-lg rounded-3 mb-4 text-center border-0 shadow-sm"
-                    placeholder="Dirección usuario" required>
-
-                <button type="submit" class="btn w-100 text-white fw-bold shadow-sm"
-                    style="background-color: #B7372A; height: 50px; border-radius: 12px;">
-                    Guardar usuario
-                </button>
-            </form>
-        </div>
-    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let hasSuccess = false;
-            let hasError = false;
-
-            {% for message in messages %}
-                {% if message.tags == 'success' %}
-                    hasSuccess = true;
-                {% elif message.tags == 'error' %}
-                    hasError = true;
-                {% endif %}
-            {% endfor %}
-
-            if (hasSuccess) {
-                new bootstrap.Modal(document.getElementById('modalExito')).show();
-            } else if (hasError) {
-                new bootstrap.Modal(document.getElementById('modalError')).show();
-            }
-        });
-    </script>
-
 </body>
 </html>
