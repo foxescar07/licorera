@@ -1,83 +1,94 @@
-<!-- OFFCANVAS SIDEBAR (derecha, desplegable) -->
-<div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="sidebarRight" style="width:280px;">
-  <div class="offcanvas-header border-bottom border-secondary">
-    <div class="d-flex align-items-center gap-2">
-      <span class="badge bg-danger fs-6 px-3 py-2 rounded-3">C</span>
+{% load static %}
+
+<div class="offcanvas offcanvas-end"
+     tabindex="-1"
+     id="sidebarRight"
+     style="width:290px;"
+     data-bs-backdrop="false"
+     data-bs-scroll="true">
+
+  <!-- HEADER -->
+  <div class="cys-sb-header">
+    <div class="cys-sb-brand">
+
+      <!-- LOGO -->
+      <img src="{% static 'img/logo.jpeg' %}" class="cys-sb-logo">
+
       <div>
-        <div class="fw-bold">CYS Ltda</div>
-        <small class="text-secondary">Distribución</small>
+        <div class="cys-sb-brand-name">CYS Ltda</div>
+        <div class="cys-sb-brand-sub">Distribución</div>
       </div>
     </div>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+
+    <button class="cys-sb-close" data-bs-dismiss="offcanvas">
+      <i class="bi bi-x-lg"></i>
+    </button>
   </div>
 
-  <div class="offcanvas-body d-flex flex-column gap-3">
+  <!-- BODY -->
+  <div class="cys-sb-body">
 
     <!-- Usuario -->
-    <div class="d-flex align-items-center gap-2 p-2 rounded-3 bg-secondary bg-opacity-25">
-      <span class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white"
-            style="width:38px;height:38px;flex-shrink:0">
+    <div class="cys-sb-user">
+      <div class="cys-sb-avatar">
         <i class="bi bi-person-fill"></i>
-      </span>
+      </div>
       <div>
-        <div class="fw-semibold small">Usuario</div>
-        <div class="text-secondary" style="font-size:.72rem;">Administrador</div>
+        <div class="cys-sb-user-name">Usuario</div>
+        <div class="cys-sb-user-role">Administrador</div>
       </div>
     </div>
 
-    <!-- Nav -->
+    <!-- NAV -->
     <div>
-      <p class="text-secondary text-uppercase fw-bold mb-2" style="font-size:.6rem;letter-spacing:.15em;">Navegación</p>
-      <div class="nav flex-column gap-1">
-        <a href="#" class="nav-link text-white-50 d-flex align-items-center gap-2 rounded-2 px-3 py-2">
-          <i class="bi bi-grid-1x2"></i> Tablero Principal
+      <div class="cys-sb-label">Navegación</div>
+
+      <nav class="cys-sb-nav">
+        <a href="{% url 'home' %}" class="cys-sb-link">
+          <i class="bi bi-grid-1x2-fill"></i> Tablero
         </a>
-        <a href="#" class="nav-link bg-danger text-white d-flex align-items-center gap-2 rounded-2 px-3 py-2 fw-semibold">
+
+        <a href="{% url 'producto:producto_lista' %}" class="cys-sb-link active">
           <i class="bi bi-box-seam-fill"></i> Productos
         </a>
-        <a href="#" class="nav-link text-white-50 d-flex align-items-center gap-2 rounded-2 px-3 py-2">
+
+        <a href="{% url 'reportes' %}" class="cys-sb-link">
           <i class="bi bi-bar-chart-fill"></i> Reportes
         </a>
-      </div>
+      </nav>
     </div>
 
-    <hr class="border-secondary my-0"/>
+    <hr class="cys-sb-divider">
 
-    <!-- Resumen -->
+    <!-- RESUMEN -->
     <div>
-      <p class="text-secondary text-uppercase fw-bold mb-2" style="font-size:.6rem;letter-spacing:.15em;">Resumen</p>
+      <div class="cys-sb-label">Resumen</div>
+
       <div class="d-flex flex-column gap-2">
 
-        <div class="p-3 rounded-3 bg-secondary bg-opacity-25 d-flex justify-content-between align-items-center">
+        <div class="cys-sb-stat">
           <div>
-            <div class="text-secondary" style="font-size:.7rem;">Total productos</div>
-            <div class="fw-bold fs-4">110</div>
-            <div class="text-secondary" style="font-size:.65rem;">unidades en stock</div>
+            <div class="cys-sb-stat-label">Total productos</div>
+            <div class="cys-sb-stat-val">110</div>
+            <div class="cys-sb-stat-sub">unidades</div>
           </div>
-          <span class="bg-success rounded-circle" style="width:10px;height:10px;"></span>
+          <span class="cys-sb-dot bg-success"></span>
         </div>
 
-        <div class="p-3 rounded-3 bg-secondary bg-opacity-25 d-flex justify-content-between align-items-center">
+        <div class="cys-sb-stat">
           <div>
-            <div class="text-secondary" style="font-size:.7rem;">Stock crítico</div>
-            <div class="fw-bold fs-4">1</div>
-            <div class="text-secondary" style="font-size:.65rem;">producto por reponer</div>
+            <div class="cys-sb-stat-label">Stock crítico</div>
+            <div class="cys-sb-stat-val">1</div>
           </div>
-          <span class="bg-danger rounded-circle" style="width:10px;height:10px;"></span>
-        </div>
-
-        <div class="p-3 rounded-3 bg-secondary bg-opacity-25 d-flex justify-content-between align-items-center">
-          <div>
-            <div class="text-secondary" style="font-size:.7rem;">Categorías</div>
-            <div class="fw-bold fs-4">4</div>
-            <div class="text-secondary" style="font-size:.65rem;">activas</div>
-          </div>
-          <span class="bg-warning rounded-circle" style="width:10px;height:10px;"></span>
+          <span class="cys-sb-dot bg-danger"></span>
         </div>
 
       </div>
     </div>
 
-    <div class="mt-auto text-secondary text-center" style="font-size:.65rem;">CYS Ltda © 2026</div>
+    <div class="cys-sb-footer">
+      CYS Ltda © 2026
+    </div>
+
   </div>
 </div>
