@@ -2,22 +2,27 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Proveedor
 from .forms import ProveedorForm
 from django.contrib.auth.models import User
+from django.contrib import messages
 
 def inicio_proveedores(request):
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
         if form.is_valid():
             proveedor = form.save(commit=False)
-            user = User.objects.first()
-            if user:
-                proveedor.registrado_por = user
-                proveedor.save()
-                return redirect('proveedores')
+            # Intenta usar el usuario logueado, si no, el primero de la BD
+            user = request.user if request.user.is_authenticated else User.objects.first()
+            proveedor.registrado_por = user
+            proveedor.save()
+            messages.success(request, "Proveedor guardado con éxito.")
+            return redirect('proveedores')
     else:
         form = ProveedorForm()
     
-    proveedores = Proveedor.objects.all()
-    return render(request, 'proveedores/proveedor.html', {'form': form, 'proveedores': proveedores})
+    proveedores = Proveedor.objects.all().order_by('-id')
+    return render(request, 'proveedores/proveedor.html', {
+        'form': form, 
+        'proveedores': proveedores
+    })
 
 def editar_proveedor(request, id):
     proveedor = get_object_or_404(Proveedor, id=id)
@@ -25,19 +30,18 @@ def editar_proveedor(request, id):
         form = ProveedorForm(request.POST, instance=proveedor)
         if form.is_valid():
             form.save()
+            messages.success(request, "Proveedor actualizado.")
             return redirect('proveedores')
     else:
         form = ProveedorForm(instance=proveedor)
     
-    proveedores = Proveedor.objects.all()
-    return render(request, 'proveedores/proveedor.html', {
+    return render(request, 'proveedores/editar_proveedor.html', {
         'form': form,
-        'proveedores': proveedores,
-        'editando': True,
-        'proveedor_id': id
+        'proveedor': proveedor
     })
 
 def eliminar_proveedor(request, id):
     proveedor = get_object_or_404(Proveedor, id=id)
     proveedor.delete()
+    messages.warning(request, "Proveedor eliminado.")
     return redirect('proveedores')

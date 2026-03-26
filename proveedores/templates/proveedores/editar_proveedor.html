@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                <div class="card-header bg-white border-0 pt-4 text-center">
+                    <h2 class="fw-bold" style="color: #dc3545;">Editar Proveedor</h2>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="d-flex justify-content-end mt-4">
+                            <a href="{% url 'proveedores' %}" class="btn btn-light me-2">Cancelar</a>
+                            <button type="submit" class="btn btn-danger text-white">GUARDAR CAMBIOS</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
