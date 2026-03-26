@@ -1,8 +1,8 @@
-
 from django.urls import path
-from . import views # Asegúrate de tener funciones en views.py
-
+from . import views
+ 
 urlpatterns = [
-    
-    path('', views.usuario, name='usuario'),
+    path('usuario/registro/', views.registro_usuario, name='registro_usuario'),
+    path('usuario/', views.lista_usuarios, name='lista_usuarios'),
 ]
+
