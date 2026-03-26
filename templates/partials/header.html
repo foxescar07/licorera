@@ -1,50 +1,83 @@
-{% load static %}
-
-<header class="bg-sasa-main fixed-top d-flex align-items-center justify-content-between px-5 shadow" style="height:90px; margin-left:240px; width:calc(100% - 240px);">
-
-  <!-- IZQUIERDA: logo + título -->
-  <div class="d-flex align-items-center gap-2" style="margin-left:-17px;">
-    <!-- Logo -->
-    <img src="{% static 'img/logo.jpeg' %}" alt="Logo" style="height:55px; width:auto; border-radius:55px;">
-
-    <!-- Título + LICORERA C Y S -->  
-    <div>
-      <h1 class="h4 m-0 fw-bold text-uppercase text-white">
-        {% block header_title %}TABLERO DE CONTROL{% endblock %}
-      </h1>
-
-      <div class="d-flex align-items-center gap-4 mt-1">
-        <small class="fw-bold text-white text-uppercase mb-0 ms-1">
-          LICORERA C Y S                            
-        </small>
-
-        <!-- indicador sistema activo -->
-        <span class="estado-sistema"></span>
+<!-- OFFCANVAS SIDEBAR (derecha, desplegable) -->
+<div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="sidebarRight" style="width:280px;">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-danger fs-6 px-3 py-2 rounded-3">C</span>
+      <div>
+        <div class="fw-bold">CYS Ltda</div>
+        <small class="text-secondary">Distribución</small>
       </div>
     </div>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
   </div>
 
-  <!-- DERECHA -->
-  <div class="d-flex align-items-center gap-4">
-    {% block header_actions %}{% endblock %}
+  <div class="offcanvas-body d-flex flex-column gap-3">
 
-    <div class="text-end text-white" translate="no">
-      <div id="reloj" class="h3 m-0 fw-bold"></div>
-      <small id="fecha" class="text-uppercase fw-bold" style="font-size:0.75rem;"></small>
+    <!-- Usuario -->
+    <div class="d-flex align-items-center gap-2 p-2 rounded-3 bg-secondary bg-opacity-25">
+      <span class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white"
+            style="width:38px;height:38px;flex-shrink:0">
+        <i class="bi bi-person-fill"></i>
+      </span>
+      <div>
+        <div class="fw-semibold small">Usuario</div>
+        <div class="text-secondary" style="font-size:.72rem;">Administrador</div>
+      </div>
     </div>
-  </div>
 
-</header>
-<nav class="navbar navbar-light bg-white border-bottom px-4 sticky-top">
-  <span class="navbar-brand fw-bold fs-5">Productos</span>
-  <div class="d-flex gap-2 align-items-center">
-    <button class="btn btn-dark btn-sm rounded-pill px-3 fw-semibold">
-      <div id="reloj" class="h3 m-0 fw-bold"></div>
-      <small id="fecha" class="text-uppercase fw-bold" style="font-size:0.75rem;"></small>
-    </button>
-    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3"
-            data-bs-toggle="offcanvas" data-bs-target="#sidebarRight">
-      <i class="bi bi-layout-sidebar-reverse"></i> Menú
-    </button>
+    <!-- Nav -->
+    <div>
+      <p class="text-secondary text-uppercase fw-bold mb-2" style="font-size:.6rem;letter-spacing:.15em;">Navegación</p>
+      <div class="nav flex-column gap-1">
+        <a href="#" class="nav-link text-white-50 d-flex align-items-center gap-2 rounded-2 px-3 py-2">
+          <i class="bi bi-grid-1x2"></i> Tablero Principal
+        </a>
+        <a href="#" class="nav-link bg-danger text-white d-flex align-items-center gap-2 rounded-2 px-3 py-2 fw-semibold">
+          <i class="bi bi-box-seam-fill"></i> Productos
+        </a>
+        <a href="#" class="nav-link text-white-50 d-flex align-items-center gap-2 rounded-2 px-3 py-2">
+          <i class="bi bi-bar-chart-fill"></i> Reportes
+        </a>
+      </div>
+    </div>
+
+    <hr class="border-secondary my-0"/>
+
+    <!-- Resumen -->
+    <div>
+      <p class="text-secondary text-uppercase fw-bold mb-2" style="font-size:.6rem;letter-spacing:.15em;">Resumen</p>
+      <div class="d-flex flex-column gap-2">
+
+        <div class="p-3 rounded-3 bg-secondary bg-opacity-25 d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-secondary" style="font-size:.7rem;">Total productos</div>
+            <div class="fw-bold fs-4">110</div>
+            <div class="text-secondary" style="font-size:.65rem;">unidades en stock</div>
+          </div>
+          <span class="bg-success rounded-circle" style="width:10px;height:10px;"></span>
+        </div>
+
+        <div class="p-3 rounded-3 bg-secondary bg-opacity-25 d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-secondary" style="font-size:.7rem;">Stock crítico</div>
+            <div class="fw-bold fs-4">1</div>
+            <div class="text-secondary" style="font-size:.65rem;">producto por reponer</div>
+          </div>
+          <span class="bg-danger rounded-circle" style="width:10px;height:10px;"></span>
+        </div>
+
+        <div class="p-3 rounded-3 bg-secondary bg-opacity-25 d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-secondary" style="font-size:.7rem;">Categorías</div>
+            <div class="fw-bold fs-4">4</div>
+            <div class="text-secondary" style="font-size:.65rem;">activas</div>
+          </div>
+          <span class="bg-warning rounded-circle" style="width:10px;height:10px;"></span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="mt-auto text-secondary text-center" style="font-size:.65rem;">CYS Ltda © 2026</div>
   </div>
-</nav>
+</div>
