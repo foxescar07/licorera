@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UsuarioForm
@@ -25,3 +26,4 @@ def registro_usuario(request):
                     messages.error(request, error)
  
     return render(request, 'registro_usuario.html', {'form': form})
+
