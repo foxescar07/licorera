@@ -45,7 +45,15 @@
     {% endif %}
 
     <section class="col-12">
-      <h4 class="fw-bold mb-4 py-3 text-uppercase text-center text-md-start">Inventario por Categoría</h4>
+      <div class="d-flex justify-content-between align-items-center mb-4 py-3">
+  <h4 class="fw-bold text-uppercase mb-0">Inventario por Categoría</h4>
+ <button class="fw-bold shadow border-0 px-4 py-2 rounded"
+        style="background-color: #404590; color: white;"
+        data-bs-toggle="modal"
+        data-bs-target="#modalNuevoProducto">
+  <i class="bi bi-plus-lg me-2"></i> REGISTRAR PRODUCTO
+</button>
+</div>
       <div class="row g-4 mb-5">
         {% for cat in resumen_categorias %}
           <div class="col-6 col-md-4 col-lg-2">
@@ -76,48 +84,12 @@
       </div>
     </section>
 
-    <section class="col-12 mb-4">
-      <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-        <div class="card-header bg-danger text-white fw-semibold py-3">
-          <i class="bi bi-box-arrow-in-down me-2"></i> Ingresar Mercancía
-        </div>
-        <div class="card-body">
-          <form method="POST" action="{% url 'producto:producto_ingreso' %}">
-            {% csrf_token %}
-            <div class="row g-3 align-items-end">
-
-              <div class="col-12 col-md-4">
-                <label class="form-label fw-medium text-dark">Producto</label>
-                <select name="producto" class="form-select" required>
-                  <option value="" disabled selected>Seleccione producto...</option>
-                  {% for producto in productos %}
-                    <option value="{{ producto.pk }}">{{ producto.nombre }} ({{ producto.codigo }})</option>
-                  {% endfor %}
-                </select>
-              </div>
-
-              <div class="col-12 col-md-2">
-                <label class="form-label fw-medium text-dark">Cantidad</label>
-                <input type="number" name="cantidad" id="cantidad" class="form-control" min="1" placeholder="0" required oninput="validarCantidad(this)">
-                <div id="error-cantidad" class="text-danger small mt-1" style="display:none;">Ingresa un número válido mayor a 0.</div>
-              </div>
-
-              <div class="col-12 col-md-4">
-                <label class="form-label fw-medium text-dark">Notas (opcional)</label>
-                <input type="text" name="notas" class="form-control" placeholder="Ej: Pedido proveedor X...">
-              </div>
-
-              <div class="col-12 col-md-2">
-                <button type="submit" class="btn btn-danger w-100 fw-bold">
-                  <i class="bi bi-plus-lg me-1"></i> Ingresar
-                </button>
-              </div>
-
             </div>
           </form>
         </div>
       </div>
     </section>
+
 
     <section class="col-12">
       <h4 class="fw-bold mb-3 text-uppercase">Inventario</h4>
