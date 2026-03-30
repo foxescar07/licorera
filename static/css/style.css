@@ -34,6 +34,13 @@ body {
   min-height: 100vh;
 }
 
+/* PERMITIR INTERACCIÓN CON MENÚ ABIERTO */
+body.offcanvas-open,
+body.sidebar-open {
+  overflow: auto !important;
+  padding-right: 0 !important;
+}
+
 /* ── SCROLLBAR ───────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -97,7 +104,6 @@ body {
   text-transform: uppercase;
 }
 
-/* Indicador online */
 .cys-dot {
   width: 9px;
   height: 9px;
@@ -113,7 +119,6 @@ body {
   100% { box-shadow: 0 0 0 0   rgba(46,204,113,0); }
 }
 
-/* Reloj */
 .cys-header__clock { text-align: right; }
 
 .cys-header__clock-time {
@@ -173,7 +178,6 @@ body {
   box-shadow: 0 0 8px var(--rojo-glow);
 }
 
-/* Botón menú */
 .cys-menu-btn {
   display: flex;
   align-items: center;
@@ -203,10 +207,6 @@ body {
 /* ============================================================
    MENÚ EMPUJA CONTENIDO
    ============================================================ */
-.cys-main {
-  transition: margin-right .3s ease;
-}
-
 body.sidebar-open .cys-header,
 body.sidebar-open .cys-subnav,
 body.sidebar-open .cys-main {
@@ -223,7 +223,6 @@ body.sidebar-open .cys-main {
   box-shadow: -8px 0 32px rgba(0,0,0,.6) !important;
 }
 
-/* Header sidebar */
 .cys-sb-header {
   height: 80px;
   padding: 0 1rem;
@@ -233,13 +232,8 @@ body.sidebar-open .cys-main {
   justify-content: space-between;
 }
 
-.cys-sb-brand {
-  display: flex;
-  align-items: center;
-  gap: .65rem;
-}
+.cys-sb-brand { display: flex; align-items: center; gap: .65rem; }
 
-/* Logo sidebar */
 .cys-sb-logo {
   width: 40px;
   height: 40px;
@@ -280,7 +274,6 @@ body.sidebar-open .cys-main {
 
 .cys-sb-close:hover { color: var(--blanco); background: rgba(255,255,255,.06); }
 
-/* Body sidebar */
 .cys-sb-body {
   padding: 1rem;
   display: flex;
@@ -290,7 +283,6 @@ body.sidebar-open .cys-main {
   overflow-y: auto;
 }
 
-/* Usuario */
 .cys-sb-user {
   display: flex;
   align-items: center;
@@ -329,7 +321,6 @@ body.sidebar-open .cys-main {
   text-transform: uppercase;
 }
 
-/* Label secciones */
 .cys-sb-label {
   font-size: .58rem;
   font-weight: 700;
@@ -339,7 +330,6 @@ body.sidebar-open .cys-main {
   margin-bottom: .4rem;
 }
 
-/* Nav */
 .cys-sb-nav { display: flex; flex-direction: column; gap: .25rem; }
 
 .cys-sb-link {
@@ -373,7 +363,6 @@ body.sidebar-open .cys-main {
   box-shadow: 0 0 12px var(--rojo-glow), inset 0 0 12px rgba(192,57,43,.05);
 }
 
-/* Divisor */
 .cys-sb-divider {
   height: 1px;
   background: var(--azul-borde);
@@ -381,7 +370,6 @@ body.sidebar-open .cys-main {
   margin: 0;
 }
 
-/* Stats resumen */
 .cys-sb-stat {
   display: flex;
   align-items: center;
@@ -428,7 +416,6 @@ body.sidebar-open .cys-main {
   flex-shrink: 0;
 }
 
-/* Footer sidebar */
 .cys-sb-footer {
   margin-top: auto;
   text-align: center;
@@ -445,6 +432,7 @@ body.sidebar-open .cys-main {
 .cys-main {
   padding: 1rem 1.25rem;
   max-width: 100%;
+  transition: margin-right .3s ease;
 }
 
 /* ── CARDS ────────────────────────────────────────────────── */
@@ -549,7 +537,6 @@ body.sidebar-open .cys-main {
 .cys-btn--primary:hover {
   background: #6dc0e8;
   color: var(--azul-oscuro);
-  border-color: #6dc0e8;
   box-shadow: 0 6px 22px rgba(77,168,218,.6);
   transform: scale(1.04);
 }
@@ -564,7 +551,6 @@ body.sidebar-open .cys-main {
 .cys-btn--danger:hover {
   background: var(--rojo-hover);
   color: var(--blanco);
-  border-color: var(--rojo-hover);
   box-shadow: 0 6px 22px rgba(192,57,43,.6);
   transform: scale(1.04);
 }
@@ -583,10 +569,7 @@ body.sidebar-open .cys-main {
   transition: var(--trans);
 }
 
-.table tbody tr:hover {
-  background: var(--azul-glow) !important;
-}
-
+.table tbody tr:hover { background: var(--azul-glow) !important; }
 .table td { border-color: rgba(77,168,218,.08) !important; }
 
 /* ── UTILIDADES ───────────────────────────────────────────── */
@@ -597,3 +580,37 @@ body.sidebar-open .cys-main {
 
 /* Fix offcanvas */
 #sidebarRight.show { transform: none !important; }
+
+/* ── BOTONES CARRUSEL ─────────────────────────────────────── */
+.cys-carousel-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  color: var(--texto-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+  cursor: pointer;
+  transition: var(--trans);
+  flex-shrink: 0;
+}
+
+.cys-carousel-btn:hover {
+  background: var(--azul-claro);
+  color: var(--azul-oscuro);
+  border-color: var(--azul-claro);
+  box-shadow: 0 0 12px var(--azul-glow);
+}
+
+/* Quitar ::before del título cuando está dentro del flex */
+.cys-card__title.mb-0 {
+  margin-bottom: 0 !important;
+}
+
+/* CIERRE RÁPIDO SIDEBAR */
+.offcanvas {
+  transition: transform .15s ease !important;
+}

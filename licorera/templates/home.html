@@ -22,7 +22,17 @@
   <!-- INVENTARIO POR CATEGORÍA -->
   <section class="cys-card mb-4">
 
-    <div class="cys-card__title">Resumen de Inventario por Categoría</div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="cys-card__title mb-0">Resumen de Inventario por Categoría</div>
+      <div class="d-flex gap-2">
+        <button class="cys-carousel-btn" data-bs-target="#inventarioCarousel" data-bs-slide="prev">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <button class="cys-carousel-btn" data-bs-target="#inventarioCarousel" data-bs-slide="next">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
 
     <div id="inventarioCarousel" class="carousel slide" data-bs-ride="false">
       <div class="carousel-inner">
@@ -100,18 +110,6 @@
         </div>
 
       </div>
-
-      <!-- CONTROLES CARRUSEL -->
-      <button class="carousel-control-prev" type="button"
-              data-bs-target="#inventarioCarousel" data-bs-slide="prev"
-              style="filter: invert(1);">
-        <span class="carousel-control-prev-icon"></span>
-      </button>
-      <button class="carousel-control-next" type="button"
-              data-bs-target="#inventarioCarousel" data-bs-slide="next"
-              style="filter: invert(1);">
-        <span class="carousel-control-next-icon"></span>
-      </button>
     </div>
 
   </section>
@@ -130,11 +128,11 @@
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead>
-          <tr style="border-bottom: 2px solid var(--dorado);">
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-txt); font-weight:600;">Producto</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-txt); font-weight:600;">Tipo</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-txt); font-weight:600;">Cantidad</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-txt); font-weight:600;">Fecha</th>
+          <tr style="border-bottom: 2px solid var(--azul-borde);">
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Producto</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Tipo</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Cantidad</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Fecha</th>
           </tr>
         </thead>
         <tbody>
@@ -142,13 +140,13 @@
             <td style="font-size:.85rem;">Aguardiente Antioqueño</td>
             <td><span class="badge" style="background:var(--rojo); font-size:.7rem;">Venta</span></td>
             <td style="font-size:.85rem;">3</td>
-            <td style="font-size:.85rem; color:var(--gris-txt);">06/03/2026</td>
+            <td style="font-size:.85rem; color:var(--gris-claro);">06/03/2026</td>
           </tr>
           <tr>
             <td style="font-size:.85rem;">Cerveza Club Colombia</td>
             <td><span class="badge bg-success" style="font-size:.7rem;">Entrada</span></td>
             <td style="font-size:.85rem;">10</td>
-            <td style="font-size:.85rem; color:var(--gris-txt);">06/03/2026</td>
+            <td style="font-size:.85rem; color:var(--gris-claro);">06/03/2026</td>
           </tr>
         </tbody>
       </table>
