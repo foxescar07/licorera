@@ -614,3 +614,77 @@ body.sidebar-open .cys-main {
 .offcanvas {
   transition: transform .15s ease !important;
 }
+
+/* ── FORMULARIOS MODALES ──────────────────────────────────── */
+.cys-form-label {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--gris-claro);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: .35rem;
+  display: block;
+}
+
+.cys-form-error {
+  font-size: .72rem;
+  color: var(--rojo);
+  margin-top: .25rem;
+}
+
+/* Inputs del modal */
+.modal .form-control,
+.modal .form-select {
+  background: var(--fondo-card2) !important;
+  border: 1px solid var(--azul-borde) !important;
+  color: var(--texto) !important;
+  border-radius: var(--radius) !important;
+  font-size: .85rem !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.modal .form-control:focus,
+.modal .form-select:focus {
+  background: var(--fondo-card2) !important;
+  border-color: var(--azul-claro) !important;
+  box-shadow: 0 0 0 3px var(--azul-glow) !important;
+  color: var(--texto) !important;
+}
+
+.modal .form-control::placeholder {
+  color: var(--texto-muted) !important;
+}
+
+.modal .form-select option {
+  background: var(--fondo-card2);
+  color: var(--texto);
+}
+
+/* Backdrop modal oscuro */
+.modal-backdrop {
+  background: rgba(0,0,0,.7) !important;
+}
+
+/* Botón primario tabla */
+.cys-btn-sm--primary {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--azul-borde);
+  background: rgba(77,168,218,.15);
+  color: var(--azul-claro);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .78rem;
+  cursor: pointer;
+  transition: var(--trans);
+  margin: 0 2px;
+  text-decoration: none;
+}
+
+.cys-btn-sm--primary:hover {
+  background: var(--azul-claro);
+  color: var(--azul-oscuro);
+  border-color: var(--azul-claro);
+}
