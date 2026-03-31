@@ -53,6 +53,10 @@ def home(request):
         'data': data,
     }
 
+        return render(request, 'usuario.html', context)
+    
+
+
     return render(request, 'home.html', context)
 
 
@@ -65,6 +69,7 @@ def categorias_json(request):
         for c in categorias_qs
     ]
     return JsonResponse({"categorias": categorias})
+
 
 
 def proveedores(request):
