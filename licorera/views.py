@@ -53,9 +53,6 @@ def home(request):
         'data': data,
     }
 
-        return render(request, 'usuario.html', context)
-    
-
 
     return render(request, 'home.html', context)
 
