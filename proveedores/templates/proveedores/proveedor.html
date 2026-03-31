@@ -1,171 +1,140 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 
-{% block header_title %}GESTIÓN DE PROVEEDORES{% endblock %}
-
 {% block content %}
-<section class="container-fluid px-4 pt-5">
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold text-dark">Proveedores Registrados</h2>
-    <button type="button" class="btn btn-danger px-4 py-2 rounded-3 shadow-sm"
-            data-bs-toggle="modal" data-bs-target="#modalProveedor">
-      <i class="bi bi-plus-circle me-2"></i> Nuevo Proveedor
-    </button>
-  </div>
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  {% endfor %}
+{% endif %}
 
-  <!-- Tabla -->
-  <div class="card border-0 shadow-sm rounded-4 p-3">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle text-center mb-0">
-        <thead class="table-dark">
-          <tr>
-            <th>ID</th>
-            <th>Empresa</th>
-            <th>Contacto</th>
-            <th>Teléfono</th>
-            <th>Correo</th>
-            <th>Última Modificación</th>
-            <th>Responsable</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for p in proveedores %}
-          <tr>
-            <td><span class="badge bg-secondary rounded-pill">{{ p.id }}</span></td>
-            <td class="fw-bold">{{ p.nombre_empresa }}</td>
-            <td><span class="badge bg-light text-dark border">{{ p.nombre_contacto }}</span></td>
-            <td>{{ p.telefono }}</td>
-            <td class="text-muted">{{ p.email }}</td>
-            <td class="text-muted small">{{ p.fecha_registro|date:"d/m/Y H:i" }}</td>
-            <td>
-              {% if p.registrado_por %}
-                <span class="badge bg-info text-dark">
-                  {{ p.registrado_por.get_full_name|default:p.registrado_por.username }}
-                </span>
-              {% else %}
-                <span class="text-muted">—</span>
-              {% endif %}
-            </td>
-            <td>
-              <!-- Botón editar -->
-              <a href="{% url 'editar_proveedor' p.id %}"
-                 class="btn btn-sm btn-dark rounded-2 me-1">
-                <i class="bi bi-pencil-square"></i>
-              </a>
+<section class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-5 pt-5">
+        <h2 class="fw-bold" style="color: #912F40;">Proveedores Registrados</h2>
+        <button type="button" class="btn text-white px-4 py-2 shadow-sm" 
+                style="background-color: #912F40; border-radius: 12px;" 
+                data-bs-toggle="modal" data-bs-target="#modalProveedor">
+            <i class="bi bi-plus-circle me-2"></i> Nuevo Proveedor
+        </button>
+    </div>
 
-              <!-- Botón eliminar abre modal -->
-              <button type="button"
-                      class="btn btn-sm btn-danger rounded-2"
-                      data-bs-toggle="modal"
-                      data-bs-target="#modalEliminar{{ p.id }}">
-                <i class="bi bi-trash"></i>
-              </button>
+    <div class="card border-0 shadow-sm" style="border-radius: 20px; padding: 20px;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle text-center mb-0">
+                <thead style="background-color: #912F40; color: white;">
+                    <tr>
+                        <th class="py-3">ID</th>
+                        <th>Empresa</th>
+                        <th>Contacto</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Responsable</th>
+                        <th>Última modificación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in proveedores %}
+                    <tr>
+                        <td>{{ p.id }}</td>
+                        <td class="fw-bold">{{ p.nombre_empresa }}</td>
+                        <td>{{ p.nombre_contacto }}</td>
+                        <td>{{ p.telefono }}</td>
+                        <td class="text-muted">{{ p.email }}</td>
 
-              <!-- Modal confirmación eliminar -->
-              <div class="modal fade" id="modalEliminar{{ p.id }}" tabindex="-1">
-                <div class="modal-dialog modal-dialog-centered">
-                  <div class="modal-content rounded-4 border-0">
-                    <div class="modal-header border-0">
-                      <h5 class="modal-title fw-bold text-danger">¿Eliminar proveedor?</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <td>
+                            <small class="badge bg-light text-dark">
+                                {% if p.modificado_por %}
+                                    {{ p.modificado_por.email }}
+                                {% elif p.registrado_por %}
+                                    {{ p.registrado_por.email }}
+                                {% else %}
+                                    Sistema
+                                {% endif %}
+                            </small>
+                        </td>
+
+                        <td>
+                            <small class="text-muted">
+                                {{ p.fecha_registro|date:"d/m/Y H:i" }}
+                            </small>
+                        </td>
+
+                        <td>
+                            <a href="{% url 'editar_proveedor' p.id %}" class="btn btn-sm btn-dark">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#del{{ p.id }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Modal eliminar — FUERA del tr -->
+                    <div class="modal fade" id="del{{ p.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <form method="POST" action="{% url 'eliminar_proveedor' p.id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body p-4 text-center">
+                                        <i class="bi bi-exclamation-triangle-fill text-danger fs-1 mb-3 d-block"></i>
+                                        <h4>¿Eliminar a {{ p.nombre_empresa }}?</h4>
+                                        <p class="text-muted">Esta acción no se puede deshacer.</p>
+                                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-danger">Confirmar Eliminación</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                    <div class="modal-body">
-                      ¿Estás seguro de que deseas eliminar a
-                      <strong>{{ p.nombre_empresa }}</strong>?
-                      Esta acción no se puede deshacer.
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            No hay proveedores registrados aún.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal nuevo proveedor -->
+    <div class="modal fade {% if error_registro %}show{% endif %}" id="modalProveedor" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="border-radius: 20px;">
+                <div class="modal-header border-0">
+                    <h3 class="fw-bold" style="color: #912F40;">Nuevo Proveedor</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body px-4">
+                        {{ form|crispy }}
                     </div>
                     <div class="modal-footer border-0">
-                      <button type="button" class="btn btn-light border rounded-3"
-                              data-bs-dismiss="modal">Cancelar</button>
-                      <form method="POST" action="{% url 'eliminar_proveedor' p.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger rounded-3">
-                          Sí, eliminar
+                        <button type="submit" class="btn text-white w-100" style="background-color: #912F40; border-radius: 10px;">
+                            GUARDAR PROVEEDOR
                         </button>
-                      </form>
                     </div>
-                  </div>
-                </div>
-              </div>
-
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="8" class="text-muted py-4">No hay proveedores registrados.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Modal Nuevo / Editar Proveedor -->
-  <div class="modal fade {% if form.errors or editando %}show{% endif %}"
-       id="modalProveedor" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content rounded-4 border-0">
-
-        <div class="modal-header border-0 px-4 pt-4">
-          <h3 class="fw-bold text-danger mb-0">
-            {% if editando %}Editar Proveedor{% else %}Registro de Proveedor{% endif %}
-          </h3>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </form>
+            </div>
         </div>
-
-        <form method="POST"
-              action="{% if editando %}{% url 'editar_proveedor' proveedor_editado.id %}{% else %}{% url 'proveedores' %}{% endif %}">
-          {% csrf_token %}
-          <div class="modal-body px-4">
-
-            {% if form.errors %}
-              <div class="alert alert-danger py-2 small">
-                Por favor, corrige los errores en el formulario.
-              </div>
-            {% endif %}
-
-            {% if editando %}
-              <div class="alert alert-secondary py-2 small mb-3">
-                Última modificación:
-                <strong>{{ proveedor_editado.fecha_registro|date:"d/m/Y H:i" }}</strong>
-                por
-                <strong>
-                  {{ proveedor_editado.registrado_por.get_full_name|default:proveedor_editado.registrado_por.username|default:"—" }}
-                </strong>
-              </div>
-            {% endif %}
-
-            <div class="row">
-              <div class="col-md-6 mb-2">{{ form.nombre_empresa|as_crispy_field }}</div>
-              <div class="col-md-6 mb-2">{{ form.nombre_contacto|as_crispy_field }}</div>
-            </div>
-            <div class="row">
-              <div class="col-md-6 mb-2">{{ form.telefono|as_crispy_field }}</div>
-              <div class="col-md-6 mb-2">{{ form.email|as_crispy_field }}</div>
-            </div>
-          </div>
-
-          <div class="modal-footer border-0 px-4 pb-4">
-            <a href="{% url 'proveedores' %}" class="btn btn-light border rounded-3">
-              CANCELAR
-            </a>
-            <button type="submit" class="btn btn-danger fw-bold rounded-3 shadow-sm">
-              {% if editando %}GUARDAR CAMBIOS{% else %}GUARDAR PROVEEDOR{% endif %}
-            </button>
-          </div>
-        </form>
-
-      </div>
     </div>
-  </div>
 
 </section>
 
-{% if form.errors or editando %}
+{% if error_registro %}
 <script>
-  new bootstrap.Modal(document.getElementById('modalProveedor')).show();
+    var myModal = new bootstrap.Modal(document.getElementById('modalProveedor'));
+    myModal.show();
 </script>
 {% endif %}
+
 {% endblock %}

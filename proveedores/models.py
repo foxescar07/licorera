@@ -13,11 +13,17 @@ class Proveedor(models.Model):
     )
     telefono        = models.CharField(validators=[telefono_regex], max_length=10, verbose_name="Celular")
 
-    # direccion eliminada
-    fecha_registro  = models.DateTimeField(auto_now=True)  # auto_now → se actualiza al editar
+    fecha_registro  = models.DateTimeField(auto_now=True, verbose_name="Última modificación")
     registrado_por  = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='proveedores_registrados',
         verbose_name="Registrado por"
+    )
+    # ✅ NUEVO: quién hizo la última edición
+    modificado_por  = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='proveedores_modificados',
+        verbose_name="Modificado por"
     )
 
     class Meta:

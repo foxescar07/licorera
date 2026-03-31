@@ -4,10 +4,10 @@ from .models import Proveedor
 class ProveedorForm(forms.ModelForm):
     class Meta:
         model  = Proveedor
-        fields = ['nombre_empresa', 'nombre_contacto', 'email', 'telefono']
+        fields = ['nombre_contacto', 'nombre_empresa', 'email', 'telefono',]
         widgets = {
-            'nombre_empresa': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Bavaria S.A.'}),
             'nombre_contacto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del asesor'}),
+            'nombre_empresa': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Bavaria S.A.'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'correo@empresa.com'}),
             'telefono': forms.TextInput(attrs={
                 'class': 'form-control',
