@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inventario — CYS Ltda{% endblock %}
+{% block page_title %}Inventario{% endblock %}
+{% block nav_inventario %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/inventario.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-dismissible fade show mb-3"
+           style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:var(--radius);">
+        {{ message }}
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- ACCESOS RÁPIDOS -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <a href="{% url 'inventario:conteo_inventario' %}" class="inv-quick-card">
+        <i class="bi bi-upc-scan"></i>
+        <div>
+          <div class="inv-quick-card__title">Iniciar Conteo</div>
+          <div class="inv-quick-card__sub">Escanear o ingresar cantidades físicas</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-6">
+      <a href="{% url 'inventario:comparar_inventario' %}" class="inv-quick-card">
+        <i class="bi bi-arrow-left-right"></i>
+        <div>
+          <div class="inv-quick-card__title">Comparar Inventario</div>
+          <div class="inv-quick-card__sub">Ver discrepancias físico vs sistema</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- FORMULARIO AGENDAR -->
+    <div class="col-md-5">
+      <section class="cys-card h-100">
+        <div class="cys-card__title">
+          <i class="bi bi-calendar-plus me-2" style="color:var(--azul-claro);"></i>
+          Agendar Inventario
+        </div>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="d-flex flex-column gap-3">
+            <div>
+              <label class="cys-form-label">Título</label>
+              <input type="text" name="titulo" class="cys-input form-control"
+                     placeholder="Ej: Inventario mensual Junio" required>
+            </div>
+            <div>
+              <label class="cys-form-label">Fecha y hora</label>
+              <input type="datetime-local" name="fecha_programada"
+                     class="cys-input form-control" required>
+            </div>
+            <div>
+              <label class="cys-form-label">Descripción (opcional)</label>
+              <textarea name="descripcion" class="cys-input form-control"
+                        rows="3" placeholder="Notas adicionales..."></textarea>
+            </div>
+            <button type="submit" class="cys-btn cys-btn--primary w-100">
+              <i class="bi bi-calendar-check me-1"></i> Agendar
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <!-- LISTA DE AGENDAS -->
+    <div class="col-md-7">
+      <section class="cys-card">
+        <div class="cys-card__title">
+          <i class="bi bi-calendar2-week me-2" style="color:var(--azul-claro);"></i>
+          Inventarios Programados
+        </div>
+        {% for agenda in agendas %}
+          <div class="inv-agenda-item">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div>
+                <div class="inv-agenda-item__titulo">{{ agenda.titulo }}</div>
+                <div class="inv-agenda-item__fecha">
+                  <i class="bi bi-clock me-1"></i>
+                  {{ agenda.fecha_programada|date:"d/m/Y H:i" }}
+                </div>
+                {% if agenda.descripcion %}
+                  <div class="inv-agenda-item__desc">{{ agenda.descripcion }}</div>
+                {% endif %}
+              </div>
+              <div class="d-flex flex-column align-items-end gap-2">
+                <span class="inv-badge inv-badge--{{ agenda.estado }}">
+                  {{ agenda.get_estado_display }}
+                </span>
+                <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
+                  {% csrf_token %}
+                  <select name="estado" class="cys-input form-select form-select-sm"
+                          style="font-size:.72rem; padding:.25rem .5rem;"
+                          onchange="this.form.submit()">
+                    <option value="pendiente"  {% if agenda.estado == 'pendiente'  %}selected{% endif %}>Pendiente</option>
+                    <option value="en_proceso" {% if agenda.estado == 'en_proceso' %}selected{% endif %}>En Proceso</option>
+                    <option value="completado" {% if agenda.estado == 'completado' %}selected{% endif %}>Completado</option>
+                    <option value="cancelado"  {% if agenda.estado == 'cancelado'  %}selected{% endif %}>Cancelado</option>
+                  </select>
+                </form>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
+            <i class="bi bi-calendar-x d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
+            No hay inventarios programados.
+          </div>
+        {% endfor %}
+      </section>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
