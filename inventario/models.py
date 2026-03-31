@@ -3,7 +3,6 @@ from producto.models import Producto
 
 
 class SesionConteo(models.Model):
-    """Una 'sesión' es como una hoja donde vas anotando el conteo."""
     fecha_inicio = models.DateTimeField(auto_now_add=True)
     activa       = models.BooleanField(default=True)
 
@@ -16,7 +15,6 @@ class SesionConteo(models.Model):
 
 
 class ConteoProducto(models.Model):
-    """Guarda cuántas unidades contaste físicamente de cada producto."""
     sesion           = models.ForeignKey(SesionConteo, on_delete=models.CASCADE, related_name='conteos')
     producto         = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad_contada = models.IntegerField(default=0)
