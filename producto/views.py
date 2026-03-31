@@ -102,12 +102,19 @@ def categoria_crear(request):
         nombre      = request.POST.get("nombre")
         codigo      = request.POST.get("codigo")
         descripcion = request.POST.get("descripcion")
-        Categoria.objects.create(
-            nombre=nombre,
-            codigo=codigo,
-            descripcion=descripcion
-        )
-        messages.success(request, "✅ Categoría creada correctamente.")
+
+        # 1. Verifica si ya existe una categoría con ese código
+        if Categoria.objects.filter(codigo=codigo).exists():
+            messages.error(request, f"⚠️ Ya existe una categoría con el código '{codigo}'.")
+        else:
+            # 2. Solo guarda si el código es nuevo
+            Categoria.objects.create(
+                nombre=nombre,
+                codigo=codigo,
+                descripcion=descripcion
+            )
+            messages.success(request, "✅ Categoría creada correctamente.")
+
     return redirect("producto:producto_lista")
 
 def producto_ingreso(request):

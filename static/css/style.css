@@ -34,6 +34,13 @@ body {
   min-height: 100vh;
 }
 
+/* PERMITIR INTERACCIÓN CON MENÚ ABIERTO */
+body.offcanvas-open,
+body.sidebar-open {
+  overflow: auto !important;
+  padding-right: 0 !important;
+}
+
 /* ── SCROLLBAR ───────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -54,6 +61,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
+  transition: margin-right .3s ease;
 }
 
 .cys-header__brand {
@@ -73,7 +81,7 @@ body {
 
 .cys-header__title {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 1.6rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--blanco);
   letter-spacing: .08em;
@@ -96,7 +104,6 @@ body {
   text-transform: uppercase;
 }
 
-/* Indicador online */
 .cys-dot {
   width: 9px;
   height: 9px;
@@ -112,12 +119,11 @@ body {
   100% { box-shadow: 0 0 0 0   rgba(46,204,113,0); }
 }
 
-/* Reloj */
 .cys-header__clock { text-align: right; }
 
 .cys-header__clock-time {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 700;
   color: var(--blanco);
   letter-spacing: .06em;
@@ -126,9 +132,9 @@ body {
 }
 
 .cys-header__clock-date {
-  font-size: .78rem;
+  font-size: .7rem;
   font-weight: 700;
-  letter-spacing: .28em;
+  letter-spacing: .2em;
   text-transform: uppercase;
   color: var(--blanco);
   margin-top: 3px;
@@ -172,7 +178,6 @@ body {
   box-shadow: 0 0 8px var(--rojo-glow);
 }
 
-/* Botón menú */
 .cys-menu-btn {
   display: flex;
   align-items: center;
@@ -202,12 +207,6 @@ body {
 /* ============================================================
    MENÚ EMPUJA CONTENIDO
    ============================================================ */
-.cys-header,
-.cys-subnav,
-.cys-main {
-  transition: margin-right .3s ease;
-}
-
 body.sidebar-open .cys-header,
 body.sidebar-open .cys-subnav,
 body.sidebar-open .cys-main {
@@ -225,7 +224,8 @@ body.sidebar-open .cys-main {
 }
 
 .cys-sb-header {
-  padding: 1.1rem 1.25rem;
+  height: 80px;
+  padding: 0 1rem;
   border-bottom: 1px solid var(--azul-borde);
   display: flex;
   align-items: center;
@@ -234,20 +234,14 @@ body.sidebar-open .cys-main {
 
 .cys-sb-brand { display: flex; align-items: center; gap: .65rem; }
 
-.cys-sb-badge {
-  width: 36px;
-  height: 36px;
-  background: var(--rojo);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--blanco);
+.cys-sb-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--azul-claro);
+  box-shadow: 0 0 0 3px var(--azul-glow);
   flex-shrink: 0;
-  box-shadow: 0 0 12px var(--rojo-glow);
 }
 
 .cys-sb-brand-name {
@@ -281,11 +275,11 @@ body.sidebar-open .cys-main {
 .cys-sb-close:hover { color: var(--blanco); background: rgba(255,255,255,.06); }
 
 .cys-sb-body {
-  padding: 1.1rem 1rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  height: calc(100% - 65px);
+  height: calc(100% - 80px);
   overflow-y: auto;
 }
 
@@ -342,7 +336,7 @@ body.sidebar-open .cys-main {
   display: flex;
   align-items: center;
   gap: .6rem;
-  padding: .6rem .85rem;
+  padding: .6rem 1rem;
   border-radius: 8px;
   font-size: .82rem;
   font-weight: 500;
@@ -373,6 +367,7 @@ body.sidebar-open .cys-main {
   height: 1px;
   background: var(--azul-borde);
   border: none;
+  margin: 0;
 }
 
 .cys-sb-stat {
@@ -435,8 +430,9 @@ body.sidebar-open .cys-main {
    MAIN CONTENT
    ============================================================ */
 .cys-main {
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.25rem;
   max-width: 100%;
+  transition: margin-right .3s ease;
 }
 
 /* ── CARDS ────────────────────────────────────────────────── */
@@ -506,14 +502,14 @@ body.sidebar-open .cys-main {
 
 .cys-stat-card__val {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 2.6rem;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--azul-claro);
   line-height: 1;
   text-shadow: 0 0 20px rgba(77,168,218,.4);
 }
 
-/* ── BOTONES rellenos con animación scale ─────────────────── */
+/* ── BOTONES ──────────────────────────────────────────────── */
 .cys-btn {
   display: inline-flex;
   align-items: center;
@@ -541,7 +537,6 @@ body.sidebar-open .cys-main {
 .cys-btn--primary:hover {
   background: #6dc0e8;
   color: var(--azul-oscuro);
-  border-color: #6dc0e8;
   box-shadow: 0 6px 22px rgba(77,168,218,.6);
   transform: scale(1.04);
 }
@@ -556,7 +551,6 @@ body.sidebar-open .cys-main {
 .cys-btn--danger:hover {
   background: var(--rojo-hover);
   color: var(--blanco);
-  border-color: var(--rojo-hover);
   box-shadow: 0 6px 22px rgba(192,57,43,.6);
   transform: scale(1.04);
 }
@@ -575,10 +569,7 @@ body.sidebar-open .cys-main {
   transition: var(--trans);
 }
 
-.table tbody tr:hover {
-  background: var(--azul-glow) !important;
-}
-
+.table tbody tr:hover { background: var(--azul-glow) !important; }
 .table td { border-color: rgba(77,168,218,.08) !important; }
 
 /* ── UTILIDADES ───────────────────────────────────────────── */
@@ -587,19 +578,113 @@ body.sidebar-open .cys-main {
 .glow-azul  { box-shadow: 0 0 16px var(--azul-glow); }
 .glow-rojo  { box-shadow: 0 0 16px var(--rojo-glow); }
 
+/* Fix offcanvas */
+#sidebarRight.show { transform: none !important; }
 
-/* Evita bug visual del offcanvas */
-#sidebarRight.show {
-  transform: none !important;
+/* ── BOTONES CARRUSEL ─────────────────────────────────────── */
+.cys-carousel-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  color: var(--texto-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+  cursor: pointer;
+  transition: var(--trans);
+  flex-shrink: 0;
 }
 
+.cys-carousel-btn:hover {
+  background: var(--azul-claro);
+  color: var(--azul-oscuro);
+  border-color: var(--azul-claro);
+  box-shadow: 0 0 12px var(--azul-glow);
+}
 
-/* 🔥 LOGO SIDEBAR */
-.cys-sb-logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--azul-claro);
-  box-shadow: 0 0 0 3px var(--azul-glow);
+/* Quitar ::before del título cuando está dentro del flex */
+.cys-card__title.mb-0 {
+  margin-bottom: 0 !important;
+}
+
+/* CIERRE RÁPIDO SIDEBAR */
+.offcanvas {
+  transition: transform .15s ease !important;
+}
+
+/* ── FORMULARIOS MODALES ──────────────────────────────────── */
+.cys-form-label {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--gris-claro);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: .35rem;
+  display: block;
+}
+
+.cys-form-error {
+  font-size: .72rem;
+  color: var(--rojo);
+  margin-top: .25rem;
+}
+
+/* Inputs del modal */
+.modal .form-control,
+.modal .form-select {
+  background: var(--fondo-card2) !important;
+  border: 1px solid var(--azul-borde) !important;
+  color: var(--texto) !important;
+  border-radius: var(--radius) !important;
+  font-size: .85rem !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.modal .form-control:focus,
+.modal .form-select:focus {
+  background: var(--fondo-card2) !important;
+  border-color: var(--azul-claro) !important;
+  box-shadow: 0 0 0 3px var(--azul-glow) !important;
+  color: var(--texto) !important;
+}
+
+.modal .form-control::placeholder {
+  color: var(--texto-muted) !important;
+}
+
+.modal .form-select option {
+  background: var(--fondo-card2);
+  color: var(--texto);
+}
+
+/* Backdrop modal oscuro */
+.modal-backdrop {
+  background: rgba(0,0,0,.7) !important;
+}
+
+/* Botón primario tabla */
+.cys-btn-sm--primary {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--azul-borde);
+  background: rgba(77,168,218,.15);
+  color: var(--azul-claro);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .78rem;
+  cursor: pointer;
+  transition: var(--trans);
+  margin: 0 2px;
+  text-decoration: none;
+}
+
+.cys-btn-sm--primary:hover {
+  background: var(--azul-claro);
+  color: var(--azul-oscuro);
+  border-color: var(--azul-claro);
 }

@@ -22,96 +22,44 @@
   <!-- INVENTARIO POR CATEGORÍA -->
   <section class="cys-card mb-4">
 
-    <div class="cys-card__title">Resumen de Inventario por Categoría</div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="cys-card__title mb-0">Resumen de Inventario por Categoría</div>
+      <div class="d-flex gap-2">
+        <button class="cys-carousel-btn" data-bs-target="#inventarioCarousel" data-bs-slide="prev">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <button class="cys-carousel-btn" data-bs-target="#inventarioCarousel" data-bs-slide="next">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
 
     <div id="inventarioCarousel" class="carousel slide" data-bs-ride="false">
       <div class="carousel-inner">
 
-        <!-- SLIDE 1 -->
-        <div class="carousel-item active">
+        {% for grupo in grupos_categorias %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
           <div class="row gx-3 gy-3">
+            {% for cat in grupo %}
             <div class="col-md-4">
-              <div class="cys-stat-card">
-                <div class="cys-stat-card__label">Aguardiente</div>
-                <div class="cys-stat-card__val">42</div>
+              <div class="cys-stat-card text-center">
+                <div class="cys-stat-card__label">{{ cat.nombre }}</div>
+                <div class="cys-stat-card__val">{{ cat.total }}</div>
+                <div style="font-size:.65rem; color:var(--texto-muted);">unidades</div>
               </div>
             </div>
-            <div class="col-md-4">
-              <div class="cys-stat-card">
-                <div class="cys-stat-card__label">Cervezas</div>
-                <div class="cys-stat-card__val">120</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="cys-stat-card">
-                <div class="cys-stat-card__label">Rones</div>
-                <div class="cys-stat-card__val">28</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="cys-stat-card">
-                <div class="cys-stat-card__label">Vinos</div>
-                <div class="cys-stat-card__val">15</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="cys-stat-card">
-                <div class="cys-stat-card__label">Whisky</div>
-                <div class="cys-stat-card__val">10</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="cys-stat-card">
-                <div class="cys-stat-card__label">Tequila</div>
-                <div class="cys-stat-card__val">8</div>
-              </div>
-            </div>
+            {% endfor %}
           </div>
         </div>
-
-        <!-- SLIDE 2 -->
-        <div class="carousel-item">
-          <div class="row gx-3 gy-3 justify-content-center">
-            <div class="col-md-6">
-              <div class="cys-stat-card">
-                <div class="cys-stat-card__label">Vodka</div>
-                <div class="cys-stat-card__val">5</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="cys-stat-card">
-                <div class="cys-stat-card__label">Ginebra</div>
-                <div class="cys-stat-card__val">12</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="cys-stat-card">
-                <div class="cys-stat-card__label">Licores</div>
-                <div class="cys-stat-card__val">18</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="cys-stat-card">
-                <div class="cys-stat-card__label">Otros</div>
-                <div class="cys-stat-card__val">7</div>
-              </div>
-            </div>
+        {% empty %}
+        <div class="carousel-item active">
+          <div class="text-center py-4" style="color:var(--texto-muted);">
+            No hay categorías registradas
           </div>
         </div>
+        {% endfor %}
 
       </div>
-
-      <!-- CONTROLES CARRUSEL -->
-      <button class="carousel-control-prev" type="button"
-              data-bs-target="#inventarioCarousel" data-bs-slide="prev"
-              style="filter: invert(1);">
-        <span class="carousel-control-prev-icon"></span>
-      </button>
-      <button class="carousel-control-next" type="button"
-              data-bs-target="#inventarioCarousel" data-bs-slide="next"
-              style="filter: invert(1);">
-        <span class="carousel-control-next-icon"></span>
-      </button>
     </div>
 
   </section>
@@ -130,26 +78,37 @@
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead>
-          <tr style="border-bottom: 2px solid var(--dorado);">
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-txt); font-weight:600;">Producto</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-txt); font-weight:600;">Tipo</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-txt); font-weight:600;">Cantidad</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-txt); font-weight:600;">Fecha</th>
+          <tr style="border-bottom: 2px solid var(--azul-borde);">
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Producto</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Tipo</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Cantidad</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Fecha</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td style="font-size:.85rem;">Aguardiente Antioqueño</td>
-            <td><span class="badge" style="background:var(--rojo); font-size:.7rem;">Venta</span></td>
-            <td style="font-size:.85rem;">3</td>
-            <td style="font-size:.85rem; color:var(--gris-txt);">06/03/2026</td>
-          </tr>
-          <tr>
-            <td style="font-size:.85rem;">Cerveza Club Colombia</td>
-            <td><span class="badge bg-success" style="font-size:.7rem;">Entrada</span></td>
-            <td style="font-size:.85rem;">10</td>
-            <td style="font-size:.85rem; color:var(--gris-txt);">06/03/2026</td>
-          </tr>
+          {% for mov in movimientos %}
+            <tr>
+              <td style="font-size:.85rem;">{{ mov.producto.nombre }}</td>
+              <td>
+                {% if mov.cantidad > 0 %}
+                  <span class="badge bg-success" style="font-size:.7rem;">Entrada</span>
+                {% else %}
+                  <span class="badge" style="background:var(--rojo); font-size:.7rem;">Salida</span>
+                {% endif %}
+              </td>
+              <td style="font-size:.85rem;">{{ mov.cantidad }}</td>
+              <td style="font-size:.85rem; color:var(--gris-claro);">
+                {{ mov.fecha_actualizada|date:"d/m/Y" }}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" class="text-center py-4" style="color:var(--texto-muted);">
+                <i class="bi bi-clock-history d-block mb-2" style="font-size:2rem; color:var(--azul-borde);"></i>
+                No hay movimientos registrados
+              </td>
+            </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
@@ -161,5 +120,94 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{% static 'js/home.js' %}"></script>
+<script>
+  // GRÁFICA
+  const labels = {{ labels|safe|default:"[]" }};
+  const data   = {{ data|safe|default:"[]" }};
+  const ctx    = document.getElementById('tendenciaChart');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Ventas',
+        data: data,
+        borderColor: '#4DA8DA',
+        backgroundColor: 'rgba(77,168,218,.1)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: '#4DA8DA',
+        pointBorderColor: '#4DA8DA',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#E8EDF2', font: { family: 'Inter' } } }
+      },
+      scales: {
+        x: { ticks: { color: '#ADB5BD' }, grid: { color: 'rgba(77,168,218,.1)' } },
+        y: { ticks: { color: '#ADB5BD' }, grid: { color: 'rgba(77,168,218,.1)' } }
+      }
+    }
+  });
+
+  // REFRESCA CARRUSEL AL GUARDAR NUEVA CATEGORÍA
+  function agrupar(arr, size) {
+    const grupos = [];
+    for (let i = 0; i < arr.length; i += size) {
+      grupos.push(arr.slice(i, i + size));
+    }
+    return grupos;
+  }
+
+  function renderCarrusel(categorias) {
+    const inner = document.querySelector('#inventarioCarousel .carousel-inner');
+    inner.innerHTML = '';
+
+    if (categorias.length === 0) {
+      inner.innerHTML = `
+        <div class="carousel-item active">
+          <div class="text-center py-4" style="color:var(--texto-muted);">
+            No hay categorías registradas
+          </div>
+        </div>`;
+      return;
+    }
+
+    const grupos = agrupar(categorias, 2);
+
+    grupos.forEach((grupo, idx) => {
+      const cols = grupo.map(cat => `
+        <div class="col-6">
+          <div class="cys-stat-card text-center">
+            <div class="cys-stat-card__label">${cat.nombre}</div>
+            <div class="cys-stat-card__val">${cat.total}</div>
+            <div style="font-size:.65rem; color:var(--texto-muted);">unidades</div>
+          </div>
+        </div>`).join('');
+
+      inner.innerHTML += `
+        <div class="carousel-item ${idx === 0 ? 'active' : ''}">
+          <div class="row gx-3 gy-3">${cols}</div>
+        </div>`;
+    });
+  }
+
+  function actualizarCategorias() {
+    fetch("/categorias-json/")
+      .then(res => res.json())
+      .then(data => renderCarrusel(data.categorias))
+      .catch(err => console.error('Error:', err));
+  }
+
+  const formCategoria = document.getElementById('form-nueva-categoria');
+  if (formCategoria) {
+    formCategoria.addEventListener('submit', function() {
+      setTimeout(actualizarCategorias, 800);
+    });
+  }
+</script>
 {% endblock %}
