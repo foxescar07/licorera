@@ -1,6 +1,3 @@
-from email.header import Header
-from xml.etree.ElementInclude import include # type: ignore
-
 from django.contrib import admin
 from django.urls import path, include
 from licorera import views
@@ -13,6 +10,4 @@ urlpatterns = [
     path('reportes/', include('reportes.urls')),
     path('proveedores/', include('proveedores.urls')),
     path('dashboard/', views.dashboard, name='dashboard'),
-
-
 ]
