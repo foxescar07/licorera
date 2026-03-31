@@ -7,7 +7,7 @@ def home(request):
         'nombre': nombre,
         'titulo': 'Home'
     }
-        return render(request, 'home.html', context)
+        return render(request, 'usuario.html', context)
     
 def proveedores(request):
     return render(request, 'proveedor.html')
