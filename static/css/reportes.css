@@ -1,0 +1,20 @@
+/* ============================================================
+   REPORTES.HTML — TARJETAS RESUMEN
+   ============================================================ */
+.cys-reporte-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--azul-claro);
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(77,168,218,.4);
+}
+
+.cys-reporte-label {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--gris-claro);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: .4rem;
+}
