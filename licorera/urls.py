@@ -16,6 +16,7 @@ urlpatterns = [
     path('reportes/', include('reportes.urls')),
     path('proveedores/', include('proveedores.urls')),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('inventario/', include('inventario.urls')),
 
     path('categorias-json/', views.categorias_json, name='categorias_json'),
 ]
