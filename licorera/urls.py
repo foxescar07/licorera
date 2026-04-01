@@ -19,3 +19,4 @@ urlpatterns = [
 
     path('categorias-json/', views.categorias_json, name='categorias_json'),
 
+]
