@@ -4,18 +4,19 @@ from licorera import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
-  
-    path('', views.home, name='usuario'), 
-    
-    path('usuario/', views.home, name='usuario_link'), 
+
+    # HOME REAL
+    path('', views.home, name='home'),
+
+    # APP USUARIO
+    path('usuario/', include('usuario.urls')),
 
     path('prueba/', views.prueba, name='prueba'),
     path('producto/', include('producto.urls')),
     path('reportes/', include('reportes.urls')),
     path('proveedores/', include('proveedores.urls')),
     path('dashboard/', views.dashboard, name='dashboard'),
-
+    path('inventario/', include('inventario.urls')),
 
     path('categorias-json/', views.categorias_json, name='categorias_json'),
 

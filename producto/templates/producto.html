@@ -5,13 +5,18 @@
 {% block page_title %}Productos{% endblock %}
 {% block nav_productos %}active{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/producto.css' %}">
+{% endblock %}
+
 {% block content %}
+
 <div class="container-fluid p-0">
 
   <!-- MENSAJES -->
   {% if messages %}
     {% for message in messages %}
-      <div class="alert alert-dismissible fade show mb-3 shadow-sm"
+      <div class="alert alert-dismissible fade show mb-3"
            style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:var(--radius);"
            role="alert">
         {{ message }}
@@ -43,21 +48,31 @@
     </div>
   {% endif %}
 
+  <!-- BOTÓN REGISTRAR PRODUCTO (ARRIBA) -->
+  <div class="d-flex justify-content-end mb-3">
+    <button class="cys-btn cys-btn--primary"
+            data-bs-toggle="modal"
+            data-bs-target="#modalNuevoProducto">
+      <i class="bi bi-plus-lg"></i> Registrar Producto
+    </button>
+  </div>
+
   <!-- CATEGORÍAS -->
   <section class="cys-card mb-4">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div class="cys-card__title mb-0">Inventario por Categoría</div>
-      <button class="cys-btn cys-btn--primary"
+      <button class="cys-btn-sm cys-btn-sm--primary"
               data-bs-toggle="modal"
-              data-bs-target="#modalNuevoProducto">
-        <i class="bi bi-plus-lg"></i> Registrar Producto
+              data-bs-target="#modalNuevaCategoria"
+              style="width:auto; padding:.4rem .8rem; border-radius:8px; font-size:.75rem; gap:.3rem;">
+        <i class="bi bi-plus"></i> Nueva Categoría
       </button>
     </div>
 
     <div class="row g-3">
       {% for cat in resumen_categorias %}
-        <div class="col-6 col-md-4 col-lg-2">
+        <div class="col-md-4">
           <div class="cys-stat-card text-center">
             <div class="cys-stat-card__label">{{ cat.nombre }}</div>
             <div class="cys-stat-card__val">{{ cat.total }}</div>
@@ -65,19 +80,10 @@
           </div>
         </div>
       {% empty %}
-        <p style="color:var(--texto-muted); font-size:.85rem;">No hay categorías registradas.</p>
-      {% endfor %}
-
-      <!-- NUEVA CATEGORÍA -->
-      <div class="col-6 col-md-4 col-lg-2">
-        <div class="cys-stat-card text-center"
-             data-bs-toggle="modal"
-             data-bs-target="#modalNuevaCategoria"
-             style="cursor:pointer; border-style:dashed; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:90px;">
-          <i class="bi bi-plus-circle mb-1" style="font-size:1.5rem; color:var(--azul-claro);"></i>
-          <div class="cys-stat-card__label">Nueva Categoría</div>
+        <div class="col-12 text-center py-4" style="color:var(--texto-muted); font-size:.85rem;">
+          No hay categorías registradas.
         </div>
-      </div>
+      {% endfor %}
     </div>
 
   </section>
@@ -85,9 +91,7 @@
   <!-- TABLA INVENTARIO -->
   <section class="cys-card mb-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div class="cys-card__title mb-0">Inventario</div>
-    </div>
+    <div class="cys-card__title">Inventario</div>
 
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
@@ -137,7 +141,7 @@
           {% empty %}
             <tr>
               <td colspan="7" class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
-                <i class="bi bi-box-seam d-block mb-2" style="font-size:2rem; color:var(--azul-borde);"></i>
+                <i class="bi bi-box-seam d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
                 No hay productos registrados.
               </td>
             </tr>
@@ -154,9 +158,11 @@
 <div class="modal fade" id="modalNuevoProducto" tabindex="-1"
      {% if form.errors %}data-open="true"{% endif %}>
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+    <div class="modal-content border-0 shadow-lg"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
 
-      <div class="modal-header border-0 pb-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+      <div class="modal-header border-0"
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
         <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
           <i class="bi bi-plus-circle me-2" style="color:var(--azul-claro);"></i> Registrar Nuevo Producto
         </div>
@@ -219,9 +225,11 @@
 <!-- MODAL: Nueva Categoría -->
 <div class="modal fade" id="modalNuevaCategoria" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+    <div class="modal-content border-0 shadow-lg"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
 
-      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+      <div class="modal-header border-0"
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
         <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
           <i class="bi bi-tag me-2" style="color:var(--azul-claro);"></i> Nueva Categoría
         </div>

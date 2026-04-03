@@ -1,0 +1,84 @@
+/* ── QUICK CARDS ─────────────────────────────────── */
+.inv-quick-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--texto);
+  transition: var(--trans);
+  box-shadow: 0 2px 12px rgba(0,0,0,.2);
+}
+.inv-quick-card:hover {
+  border-color: var(--azul-claro);
+  box-shadow: 0 8px 28px rgba(0,0,0,.3);
+  color: var(--azul-claro);
+  transform: translateY(-2px);
+}
+.inv-quick-card i {
+  font-size: 2rem;
+  color: var(--azul-claro);
+  flex-shrink: 0;
+}
+.inv-quick-card__title {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.inv-quick-card__sub {
+  font-size: .75rem;
+  color: var(--texto-muted);
+  margin-top: .15rem;
+}
+
+/* ── AGENDA ITEMS ────────────────────────────────── */
+.inv-agenda-item {
+  padding: 1rem;
+  border: 1px solid var(--azul-borde);
+  border-radius: var(--radius);
+  margin-bottom: .75rem;
+  background: var(--fondo-card2);
+  transition: var(--trans);
+}
+.inv-agenda-item:hover {
+  border-color: rgba(77,168,218,.4);
+}
+.inv-agenda-item__titulo {
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--texto);
+}
+.inv-agenda-item__fecha {
+  font-size: .75rem;
+  color: var(--azul-claro);
+  margin-top: .2rem;
+}
+.inv-agenda-item__desc {
+  font-size: .75rem;
+  color: var(--texto-muted);
+  margin-top: .3rem;
+}
+
+/* ── BADGES ESTADO ───────────────────────────────── */
+.inv-badge {
+  display: inline-block;
+  padding: .25rem .7rem;
+  border-radius: 20px;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.inv-badge--pendiente  { background: rgba(52,152,219,.15);  color:#3498db; border:1px solid rgba(52,152,219,.4); }
+.inv-badge--en_proceso { background: rgba(243,156,18,.15);  color:#f39c12; border:1px solid rgba(243,156,18,.4); }
+.inv-badge--completado { background: rgba(39,174,96,.15);   color:#27ae60; border:1px solid rgba(39,174,96,.4); }
+.inv-badge--cancelado  { background: rgba(192,57,43,.15);   color:var(--rojo); border:1px solid rgba(192,57,43,.4); }
+.inv-badge--ok         { background: rgba(39,174,96,.15);   color:#27ae60; border:1px solid rgba(39,174,96,.4); }
+.inv-badge--sobrante   { background: rgba(243,156,18,.15);  color:#f39c12; border:1px solid rgba(243,156,18,.4); }
+.inv-badge--faltante   { background: rgba(192,57,43,.15);   color:var(--rojo); border:1px solid rgba(192,57,43,.4); }

@@ -1,5 +1,7 @@
 from django.db import models
 
+from producto import forms
+
 class Usuario(models.Model):
     # Campos básicos del usuario
     identificacion = models.CharField(max_length=20, unique=True)

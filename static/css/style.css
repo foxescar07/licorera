@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ── TOKENS ─────────────────────────────────────────────── */
+/* ============================================================
+   TOKENS GLOBALES
+   ============================================================ */
 :root {
   --azul-oscuro:   #011936;
   --azul-medio:    #0A2A52;
@@ -24,7 +26,9 @@
   --trans:         all .22s ease;
 }
 
-/* ── RESET / BASE ────────────────────────────────────────── */
+/* ============================================================
+   RESET / BASE GLOBAL
+   ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -34,20 +38,18 @@ body {
   min-height: 100vh;
 }
 
-/* PERMITIR INTERACCIÓN CON MENÚ ABIERTO */
 body.offcanvas-open,
 body.sidebar-open {
   overflow: auto !important;
   padding-right: 0 !important;
 }
 
-/* ── SCROLLBAR ───────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--azul-claro); border-radius: 99px; }
 
 /* ============================================================
-   HEADER
+   BASE.HTML — HEADER
    ============================================================ */
 .cys-header {
   position: sticky;
@@ -143,7 +145,7 @@ body.sidebar-open {
 }
 
 /* ============================================================
-   SUBNAV
+   BASE.HTML — SUBNAV
    ============================================================ */
 .cys-subnav {
   height: var(--nav-h);
@@ -205,22 +207,19 @@ body.sidebar-open {
 }
 
 /* ============================================================
-   MENÚ EMPUJA CONTENIDO
-   ============================================================ */
-body.sidebar-open .cys-header,
-body.sidebar-open .cys-subnav,
-body.sidebar-open .cys-main {
-  margin-right: 290px;
-}
-
-/* ============================================================
-   SIDEBAR OFFCANVAS
+   BASE.HTML — SIDEBAR OFFCANVAS
    ============================================================ */
 #sidebarRight {
   width: 290px !important;
   background: var(--azul-oscuro) !important;
   border-left: 1px solid var(--azul-borde) !important;
   box-shadow: -8px 0 32px rgba(0,0,0,.6) !important;
+}
+
+#sidebarRight.show { transform: none !important; }
+
+.offcanvas {
+  transition: transform .15s ease !important;
 }
 
 .cys-sb-header {
@@ -427,15 +426,32 @@ body.sidebar-open .cys-main {
 }
 
 /* ============================================================
-   MAIN CONTENT
+   BASE.HTML — SIDEBAR EMPUJA CONTENIDO
+   ============================================================ */
+body.sidebar-open .cys-header,
+body.sidebar-open .cys-subnav {
+  margin-right: 290px;
+}
+
+body.sidebar-open .cys-main {
+  margin-right: 290px;
+  max-width: 100%;
+  margin-left: 0;
+}
+
+/* ============================================================
+   BASE.HTML — MAIN CONTENIDO
    ============================================================ */
 .cys-main {
-  padding: 1rem 1.25rem;
-  max-width: 100%;
+  padding: 1.5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
   transition: margin-right .3s ease;
 }
 
-/* ── CARDS ────────────────────────────────────────────────── */
+/* ============================================================
+   COMPONENTES GLOBALES — CARDS
+   ============================================================ */
 .cys-card {
   background: var(--fondo-card);
   border-radius: 14px;
@@ -443,6 +459,7 @@ body.sidebar-open .cys-main {
   box-shadow: 0 4px 24px rgba(0,0,0,.3), 0 0 0 1px rgba(77,168,218,.06);
   padding: 1.5rem;
   transition: var(--trans);
+  margin-bottom: 1.5rem;
 }
 
 .cys-card:hover {
@@ -473,43 +490,11 @@ body.sidebar-open .cys-main {
   box-shadow: 0 0 8px var(--azul-claro);
 }
 
-/* ── STAT CARDS ───────────────────────────────────────────── */
-.cys-stat-card {
-  background: var(--fondo-card2);
-  border: 1px solid var(--azul-borde);
-  border-radius: var(--radius);
-  padding: 1.25rem 1rem;
-  text-align: left;
-  transition: var(--trans);
-  cursor: default;
-  box-shadow: 0 2px 12px rgba(0,0,0,.2);
-}
+.cys-card__title.mb-0 { margin-bottom: 0 !important; }
 
-.cys-stat-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(192,57,43,.5);
-  box-shadow: 0 8px 28px rgba(0,0,0,.3), 0 0 20px var(--rojo-glow);
-}
-
-.cys-stat-card__label {
-  font-size: .72rem;
-  font-weight: 600;
-  color: var(--gris-claro);
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  margin-bottom: .4rem;
-}
-
-.cys-stat-card__val {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--azul-claro);
-  line-height: 1;
-  text-shadow: 0 0 20px rgba(77,168,218,.4);
-}
-
-/* ── BOTONES ──────────────────────────────────────────────── */
+/* ============================================================
+   COMPONENTES GLOBALES — BOTONES
+   ============================================================ */
 .cys-btn {
   display: inline-flex;
   align-items: center;
@@ -555,7 +540,73 @@ body.sidebar-open .cys-main {
   transform: scale(1.04);
 }
 
-/* ── TABLA ────────────────────────────────────────────────── */
+.cys-btn--outline {
+  background: transparent;
+  color: var(--texto-muted);
+  border-color: var(--azul-borde);
+}
+
+.cys-btn--outline:hover {
+  background: var(--azul-glow);
+  color: var(--blanco);
+  border-color: var(--azul-borde);
+}
+
+/* ============================================================
+   COMPONENTES GLOBALES — BOTONES PEQUEÑOS TABLA
+   ============================================================ */
+.cys-btn-sm {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .78rem;
+  cursor: pointer;
+  transition: var(--trans);
+  margin: 0 2px;
+  text-decoration: none;
+}
+
+.cys-btn-sm--primary {
+  background: rgba(77,168,218,.15);
+  border-color: var(--azul-borde);
+  color: var(--azul-claro);
+}
+
+.cys-btn-sm--primary:hover {
+  background: var(--azul-claro);
+  color: var(--azul-oscuro);
+  border-color: var(--azul-claro);
+}
+
+.cys-btn-sm--warning {
+  background: rgba(201,168,76,.15);
+  border-color: rgba(201,168,76,.3);
+  color: #C9A84C;
+}
+
+.cys-btn-sm--warning:hover {
+  background: #C9A84C;
+  color: #111;
+}
+
+.cys-btn-sm--danger {
+  background: rgba(192,57,43,.15);
+  border-color: rgba(192,57,43,.3);
+  color: var(--rojo);
+}
+
+.cys-btn-sm--danger:hover {
+  background: var(--rojo);
+  color: var(--blanco);
+}
+
+/* ============================================================
+   COMPONENTES GLOBALES — TABLA
+   ============================================================ */
 .table { color: var(--texto) !important; }
 
 .table thead th {
@@ -572,16 +623,41 @@ body.sidebar-open .cys-main {
 .table tbody tr:hover { background: var(--azul-glow) !important; }
 .table td { border-color: rgba(77,168,218,.08) !important; }
 
-/* ── UTILIDADES ───────────────────────────────────────────── */
+/* ============================================================
+   COMPONENTES GLOBALES — INPUTS
+   ============================================================ */
+.cys-input {
+  background: var(--fondo-card2) !important;
+  border: 1px solid var(--azul-borde) !important;
+  color: var(--texto) !important;
+  border-radius: var(--radius) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: .85rem !important;
+}
+
+.cys-input:focus {
+  background: var(--fondo-card2) !important;
+  border-color: var(--azul-claro) !important;
+  box-shadow: 0 0 0 3px var(--azul-glow) !important;
+  color: var(--texto) !important;
+}
+
+.cys-input option {
+  background: var(--fondo-card2);
+  color: var(--texto);
+}
+
+/* ============================================================
+   COMPONENTES GLOBALES — UTILIDADES
+   ============================================================ */
 .text-azul  { color: var(--azul-claro) !important; }
 .text-rojo  { color: var(--rojo) !important; }
 .glow-azul  { box-shadow: 0 0 16px var(--azul-glow); }
 .glow-rojo  { box-shadow: 0 0 16px var(--rojo-glow); }
 
-/* Fix offcanvas */
-#sidebarRight.show { transform: none !important; }
-
-/* ── BOTONES CARRUSEL ─────────────────────────────────────── */
+/* ============================================================
+   HOME.HTML — CARRUSEL CATEGORÍAS
+   ============================================================ */
 .cys-carousel-btn {
   width: 32px;
   height: 32px;
@@ -605,17 +681,51 @@ body.sidebar-open .cys-main {
   box-shadow: 0 0 12px var(--azul-glow);
 }
 
-/* Quitar ::before del título cuando está dentro del flex */
-.cys-card__title.mb-0 {
-  margin-bottom: 0 !important;
+/* ============================================================
+   HOME.HTML + PRODUCTO.HTML — STAT CARDS CATEGORÍAS
+   ============================================================ */
+.cys-stat-card {
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  border-radius: var(--radius);
+  padding: 2rem 1rem;
+  text-align: center;
+  transition: var(--trans);
+  cursor: default;
+  box-shadow: 0 2px 12px rgba(0,0,0,.2);
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-/* CIERRE RÁPIDO SIDEBAR */
-.offcanvas {
-  transition: transform .15s ease !important;
+.cys-stat-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(192,57,43,.5);
+  box-shadow: 0 8px 28px rgba(0,0,0,.3), 0 0 20px var(--rojo-glow);
 }
 
-/* ── FORMULARIOS MODALES ──────────────────────────────────── */
+.cys-stat-card__label {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--gris-claro);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: .4rem;
+}
+
+.cys-stat-card__val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--azul-claro);
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(77,168,218,.4);
+}
+
+/* ============================================================
+   PRODUCTO.HTML — MODALES
+   ============================================================ */
 .cys-form-label {
   font-size: .72rem;
   font-weight: 600;
@@ -632,7 +742,6 @@ body.sidebar-open .cys-main {
   margin-top: .25rem;
 }
 
-/* Inputs del modal */
 .modal .form-control,
 .modal .form-select {
   background: var(--fondo-card2) !important;
@@ -660,31 +769,17 @@ body.sidebar-open .cys-main {
   color: var(--texto);
 }
 
-/* Backdrop modal oscuro */
 .modal-backdrop {
   background: rgba(0,0,0,.7) !important;
 }
-
-/* Botón primario tabla */
-.cys-btn-sm--primary {
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  border: 1px solid var(--azul-borde);
-  background: rgba(77,168,218,.15);
-  color: var(--azul-claro);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .78rem;
-  cursor: pointer;
-  transition: var(--trans);
-  margin: 0 2px;
-  text-decoration: none;
+/* LIMITAR ANCHO CONTENIDO */
+.cys-main .container-fluid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
-.cys-btn-sm--primary:hover {
-  background: var(--azul-claro);
-  color: var(--azul-oscuro);
-  border-color: var(--azul-claro);
+body.sidebar-open .cys-main .container-fluid {
+  max-width: 100%;
 }
