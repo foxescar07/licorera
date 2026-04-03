@@ -20,7 +20,6 @@ INSTALLED_APPS = [
     'reportes',
     'usuario',
     'producto',
-    'prueba',
     'inventario',
     
 ]

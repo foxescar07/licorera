@@ -81,9 +81,6 @@ def reportes(request):
     return render(request, 'reportes.html')
 
 
-def prueba(request):
-    return render(request, 'prueba.html')
-
 
 def dashboard(request):
     return render(request, 'dashboard.html')

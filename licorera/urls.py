@@ -11,7 +11,6 @@ urlpatterns = [
     # APP USUARIO
     path('usuario/', include('usuario.urls')),
 
-    path('prueba/', views.prueba, name='prueba'),
     path('producto/', include('producto.urls')),
     path('reportes/', include('reportes.urls')),
     path('proveedores/', include('proveedores.urls')),
