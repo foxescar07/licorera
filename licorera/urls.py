@@ -19,4 +19,5 @@ urlpatterns = [
     path('inventario/', include('inventario.urls')),
 
     path('categorias-json/', views.categorias_json, name='categorias_json'),
+
 ]
