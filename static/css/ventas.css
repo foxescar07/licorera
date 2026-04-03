@@ -1,0 +1,27 @@
+/* ============================================================
+   VENTAS.HTML — STOCK BADGE
+   ============================================================ */
+.cys-stock-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(77,168,218,.08);
+  border: 1px solid var(--azul-borde);
+  border-radius: var(--radius);
+  padding: .5rem 1rem;
+  font-size: .82rem;
+  color: var(--azul-claro);
+}
+
+/* ============================================================
+   VENTAS.HTML — TOTAL PREVIEW
+   ============================================================ */
+.cys-total-preview {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(192,57,43,.08);
+  border: 1px solid rgba(192,57,43,.3);
+  border-radius: var(--radius);
+  padding: .5rem 1rem;
+  font-size: .82rem;
+  color: var(--rojo);
+}

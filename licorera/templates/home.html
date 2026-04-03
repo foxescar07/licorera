@@ -131,6 +131,15 @@
   const data   = {{ data|safe|default:"[]" }};
   const ctx    = document.getElementById('tendenciaChart');
 
+  // 🔥 AGREGADO: CONTROL SI NO HAY DATOS
+  if (!labels || labels.length === 0) {
+    labels.push('Sin datos');
+  }
+
+  if (!data || data.length === 0) {
+    data.push(0);
+  }
+
   new Chart(ctx, {
     type: 'line',
     data: {
@@ -182,6 +191,7 @@
       return;
     }
 
+    // 🔥 OPCIONAL: puedes cambiar 2 por 6 si quieres igualar con Django
     const grupos = agrupar(categorias, 2);
 
     grupos.forEach((grupo, idx) => {

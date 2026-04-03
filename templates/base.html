@@ -208,6 +208,26 @@
     });
   </script>
 
+  <script>
+  function toggleVentas(el) {
+    const submenu = document.getElementById('submenuVentas');
+    const chevron = el.querySelector('.cys-chevron');
+    submenu.classList.toggle('open');
+    chevron.classList.toggle('open');
+  }
+
+  // Mantener submenú abierto si estamos en ventas
+  document.addEventListener('DOMContentLoaded', function() {
+    const path = window.location.pathname;
+    if (path.startsWith('/ventas/')) {
+      const submenu = document.getElementById('submenuVentas');
+      const chevron = document.querySelector('.cys-chevron');
+      if (submenu) submenu.classList.add('open');
+      if (chevron) chevron.classList.add('open');
+    }
+  });
+  </script>
+
   {% block extra_js %}{% endblock %}
 
 </body>
