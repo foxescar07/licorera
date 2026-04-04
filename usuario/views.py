@@ -5,7 +5,7 @@ from .models import Usuario
 
 def lista_usuarios(request):
     usuarios = Usuario.objects.all().order_by('-fecha_registro')
-    return render(request, 'lista_usuarios.html', {'usuarios': usuarios})
+    return render(request, 'usuario.html', {'usuarios': usuarios})
 
 def registro_usuario(request):
     form = UsuarioForm()
