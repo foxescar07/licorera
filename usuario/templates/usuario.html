@@ -4,88 +4,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CYS - Gestión Licorera</title>
+    <title>CYS - Acceso al Sistema</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --fondo-dark: #050a12;      /* Azul casi negro del tablero */
+            --fondo-card: #0d1b2e;      /* Azul un poco más claro para la tarjeta */
+            --azul-neon: #4da8da;       /* El azul cian de tus botones */
+            --rojo-neon: #b7372a;       /* El rojo de "Registrar Venta" */
+            --borde-glow: rgba(77, 168, 218, 0.2);
+        }
+
+        body {
+            background-color: var(--fondo-dark) !important;
+            color: #e8edf2;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Tarjeta con estilo Tablero */
+        .cys-card-dark {
+            background-color: var(--fondo-card) !important;
+            border: 1px solid rgba(77, 168, 218, 0.3) !important;
+            border-radius: 14px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 15px var(--borde-glow);
+            max-width: 420px;
+            width: 90%;
+            padding: 2.5rem !important;
+        }
+
+        /* Títulos Tecnológicos */
+        .cys-titulo-neon {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #ffffff;
+            text-shadow: 0 0 10px var(--borde-glow);
+        }
+
+        /* Inputs Oscuros */
+        .form-control {
+            background-color: #111f33 !important;
+            border: 1px solid rgba(77, 168, 218, 0.2) !important;
+            color: #ffffff !important;
+            border-radius: 8px !important;
+            padding: 12px !important;
+        }
+
+        .form-control:focus {
+            border-color: var(--azul-neon) !important;
+            box-shadow: 0 0 10px rgba(77, 168, 218, 0.4) !important;
+            outline: none;
+        }
+
+        /* Botón estilo "Registrar Entrada" (Azul Neón) */
+        .btn-azul-neon {
+            background-color: var(--azul-neon) !important;
+            color: #050a12 !important;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            border-radius: 8px !important;
+            border: none !important;
+            box-shadow: 0 0 15px rgba(77, 168, 218, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-azul-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(77, 168, 218, 0.6);
+            filter: brightness(1.1);
+        }
+
+        /* Botón estilo "Registrar Venta" (Rojo Neón) */
+        .btn-rojo-neon {
+            background-color: var(--rojo-neon) !important;
+            color: white !important;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            border-radius: 8px !important;
+            border: none !important;
+            box-shadow: 0 0 15px rgba(183, 55, 42, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-rojo-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(183, 55, 42, 0.6);
+        }
+
+        .logo-tablero {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid var(--azul-neon);
+            box-shadow: 0 0 15px var(--borde-glow);
+            margin-bottom: 1.5rem;
+        }
+    </style>
 </head>
-<body class="d-flex flex-column min-vh-100" style="background-color: #E8C898; font-family: 'Roboto', sans-serif;">
+<body class="justify-content-center align-items-center">
 
-    <div class="container-fluid d-flex justify-content-between p-4">
-        <button class="btn btn-danger px-4 shadow-sm fw-bold border-0" 
-                style="background-color: #B7372A; border-radius: 15px; font-family: 'Oswald', sans-serif;" 
-                data-bs-toggle="collapse" data-bs-target="#seccionRecuperar">
-            Olvidé mi contraseña
-        </button>
+    <div class="cys-card-dark text-center" id="contenedorPrincipal">
         
-        <button class="btn btn-danger px-4 shadow-sm fw-bold border-0" 
-                style="background-color: #B7372A; border-radius: 15px; font-family: 'Oswald', sans-serif;" 
-                data-bs-toggle="collapse" data-bs-target="#seccionRegistro">
-            Crear cuenta
-        </button>
-    </div>
+        <img src="{% static 'img/logo.jpeg' %}" class="logo-tablero">
 
-    <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center" style="margin-top: -50px;">
-        
-        <div class="card border-0 p-5 text-center shadow-lg" id="contenedorPrincipal" 
-             style="background-color: #f1e9dc; width: 100%; max-width: 400px; border-radius: 20px;">
-            
-            <div class="mb-4">
-                <img src="{% static 'img/logo.jpeg' %}" alt="Logo" 
-                     class="rounded-circle border border-danger border-3 shadow-sm" 
-                     style="width: 110px; height: 110px; object-fit: cover;">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger py-2 small border-0 bg-transparent text-danger">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="collapse show" id="seccionLogin" data-bs-parent="#contenedorPrincipal">
+            <h2 class="cys-titulo-neon h4 mb-4">Acceso al Sistema</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="login">
+                <input type="text" name="usuario_input" class="form-control mb-3 text-center" placeholder="USUARIO" required>
+                <input type="password" name="clave_input" class="form-control mb-4 text-center" placeholder="CONTRASEÑA" required>
+                <button type="submit" class="btn btn-azul-neon w-100 py-2">INICIAR SESIÓN</button>
+            </form>
+            <div class="mt-4 d-flex justify-content-between">
+                <button class="btn btn-link text-info text-decoration-none small p-0" data-bs-toggle="collapse" data-bs-target="#seccionRecuperar">Olvidé mi clave</button>
+                <button class="btn btn-link text-info text-decoration-none small p-0" data-bs-toggle="collapse" data-bs-target="#seccionRegistro">Crear cuenta</button>
             </div>
-
-            <div class="collapse show" id="seccionLogin" data-bs-parent="#contenedorPrincipal">
-                <h2 class="fw-bold mb-4 display-6" style="color: #B7372A; font-family: 'Oswald', sans-serif;">CYS</h2>
-                
-                <form method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="accion" value="login">
-                    <div class="mb-3">
-                        <input type="text" name="usuario_input" class="form-control text-center py-2 border-0 shadow-sm" 
-                               placeholder="Usuario" style="border-radius: 12px;" required>
-                    </div>
-                    <div class="mb-4">
-                        <input type="password" name="clave_input" class="form-control text-center py-2 border-0 shadow-sm" 
-                               placeholder="Contraseña" style="border-radius: 12px;" required>
-                    </div>
-                    <button type="submit" class="btn btn-danger w-100 py-2 fw-bold shadow" 
-                            style="background-color: #B7372A; border-radius: 12px; font-family: 'Oswald', sans-serif;">
-                        ENTRAR
-                    </button>
-                </form>
-            </div>
-
-            <div class="collapse" id="seccionRegistro" data-bs-parent="#contenedorPrincipal">
-                <h3 class="fw-bold mb-3 h4" style="color: #B7372A; font-family: 'Oswald', sans-serif;">REGISTRARSE</h3>
-                <form method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="accion" value="registrar">
-                    <input type="text" name="nombre_input" class="form-control mb-2 text-center shadow-sm border-0" placeholder="Nombre completo" style="border-radius: 12px;">
-                    <input type="text" name="user_nuevo" class="form-control mb-2 text-center shadow-sm border-0" placeholder="Usuario" style="border-radius: 12px;">
-                    <input type="password" name="pass_nueva" class="form-control mb-3 text-center shadow-sm border-0" placeholder="Clave" style="border-radius: 12px;">
-                    
-                    <select name="rol_nuevo" class="form-select mb-3 text-center shadow-sm border-0" style="border-radius: 12px;">
-                        <option value="empleado">Empleado</option>
-                        <option value="admin">Administrador</option>
-                    </select>
-                    <button type="submit" class="btn btn-danger w-100 py-2 fw-bold" style="background-color: #B7372A; border-radius: 12px;">GUARDAR</button>
-                </form>
-                <button class="btn btn-link text-danger mt-2 fw-bold text-decoration-none btn-sm" data-bs-toggle="collapse" data-bs-target="#seccionLogin">Volver</button>
-            </div>
-
-            <div class="collapse" id="seccionRecuperar" data-bs-parent="#contenedorPrincipal">
-                <h3 class="fw-bold mb-3 h4" style="color: #B7372A; font-family: 'Oswald', sans-serif;">RECUPERAR</h3>
-                <form method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="accion" value="recuperar">
-                    <input type="text" name="user_recuperar" class="form-control mb-3 text-center shadow-sm border-0" placeholder="Tu Usuario" style="border-radius: 12px;">
-                    <button type="submit" class="btn btn-danger w-100 py-2 fw-bold" style="background-color: #B7372A; border-radius: 12px;">ENVIAR</button>
-                </form>
-                <button class="btn btn-link text-danger mt-2 fw-bold text-decoration-none btn-sm" data-bs-toggle="collapse" data-bs-target="#seccionLogin">Volver</button>
-            </div>
-
         </div>
+
+        <div class="collapse" id="seccionRegistro" data-bs-parent="#contenedorPrincipal">
+            <h2 class="cys-titulo-neon h4 mb-4">Nuevo Registro</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="registrar">
+                <input type="text" name="nombre_input" class="form-control mb-2 text-center" placeholder="NOMBRE COMPLETO">
+                <input type="text" name="user_nuevo" class="form-control mb-2 text-center" placeholder="USUARIO">
+                <input type="password" name="pass_nueva" class="form-control mb-3 text-center" placeholder="CONTRASEÑA">
+                
+                <select name="rol_nuevo" class="form-control mb-3 text-center">
+                    <option value="empleado">EMPLEADO</option>
+                    <option value="admin">ADMINISTRADOR</option>
+                </select>
+
+                <button type="submit" class="btn btn-rojo-neon w-100 py-2">GUARDAR USUARIO</button>
+            </form>
+            <button class="btn btn-link text-info mt-3 text-decoration-none small" data-bs-toggle="collapse" data-bs-target="#seccionLogin">Volver al Inicio</button>
+        </div>
+
+        <div class="collapse" id="seccionRecuperar" data-bs-parent="#contenedorPrincipal">
+            <h2 class="cys-titulo-neon h4 mb-4">Recuperar</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="recuperar">
+                <input type="text" name="user_recuperar" class="form-control mb-4 text-center" placeholder="TU USUARIO">
+                <button type="submit" class="btn btn-azul-neon w-100 py-2">SOLICITAR ACCESO</button>
+            </form>
+            <button class="btn btn-link text-info mt-3 text-decoration-none small" data-bs-toggle="collapse" data-bs-target="#seccionLogin">Volver al Inicio</button>
+        </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
