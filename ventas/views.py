@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from django.template import loader  # 🔥 AGREGADO
-from .models import Venta, DetalleVenta
+from ventas.models import Venta, DetalleVenta # pyright: ignore[reportMissingImports]
 from .forms import VentaForm, DetalleVentaForm
 from producto.models import Producto, Inventario
 
