@@ -10,199 +10,77 @@
 {% endblock %}
 
 {% block content %}
-
-
 <div class="container-fluid p-0">
 
   <!-- TARJETAS RESUMEN -->
   <div class="row gx-3 gy-3 mb-4">
     <div class="col-md-4">
       <div class="cys-card text-center">
-        <div class="cys-stat-card__label mb-2">Total Ventas</div>
-        <div class="cys-stat-card__val" id="totalVentas">$0</div>
+        <div class="cys-reporte-label">Total Ventas</div>
+        <div class="cys-reporte-val">${{ total_ventas|floatformat:0 }}</div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="cys-card text-center">
-        <div class="cys-stat-card__label mb-2">Productos Vendidos</div>
-        <div class="cys-stat-card__val" id="totalProductos">0</div>
+        <div class="cys-reporte-label">Productos Vendidos</div>
+        <div class="cys-reporte-val">{{ total_productos }}</div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="cys-card text-center">
-        <div class="cys-stat-card__label mb-2">Total Clientes</div>
-        <div class="cys-stat-card__val" id="totalClientes">0</div>
+        <div class="cys-reporte-label">Total Clientes</div>
+        <div class="cys-reporte-val">{{ total_clientes }}</div>
       </div>
     </div>
   </div>
 
-  <!-- TABLA DE VENTAS -->
+  <!-- HISTORIAL -->
   <section class="cys-card mb-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div class="cys-card__title mb-0">Listado de Ventas</div>
-      <button class="cys-btn cys-btn--primary" onclick="mostrarFormulario()">
-        <i class="bi bi-plus-lg"></i> Nuevo Reporte
-      </button>
-    </div>
+    <div class="cys-card__title">Historial de Ventas</div>
 
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead>
           <tr style="border-bottom: 2px solid var(--azul-borde);">
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">ID</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
             <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Cliente</th>
             <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Producto</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Cant.</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Precio</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Cantidad</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Precio Unit.</th>
             <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Total</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Acciones</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Fecha</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Hora</th>
           </tr>
         </thead>
-        <tbody id="tablaVentasBody"></tbody>
+        <tbody>
+          {% for venta in ventas %}
+            {% for det in venta.detalles.all %}
+            <tr>
+              <td style="font-size:.85rem; color:var(--texto-muted);">{{ forloop.parentloop.counter }}</td>
+              <td style="font-size:.85rem; font-weight:600;">{{ venta.cliente }}</td>
+              <td style="font-size:.85rem;">{{ det.producto.nombre }}</td>
+              <td style="font-size:.85rem;">{{ det.cantidad }}</td>
+              <td style="font-size:.85rem;">${{ det.precio_unitario|floatformat:0 }}</td>
+              <td style="font-size:.85rem; font-weight:600; color:var(--azul-claro);">
+                ${{ det.subtotal|floatformat:0 }}
+              </td>
+              <td style="font-size:.85rem; color:var(--gris-claro);">{{ venta.fecha|date:"d/m/Y" }}</td>
+              <td style="font-size:.85rem; color:var(--gris-claro);">{{ venta.fecha|date:"H:i" }}</td>
+            </tr>
+            {% endfor %}
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
+              <i class="bi bi-bar-chart d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
+              No hay ventas registradas aún.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
 
   </section>
 
-  <!-- FORMULARIO NUEVA VENTA (oculto por defecto) -->
-  <section class="cys-card mb-4 d-none" id="formularioVenta">
-
-    <div class="cys-card__title">Nuevo Reporte de Venta</div>
-
-    <form id="formNuevaVenta">
-      <div class="mb-3">
-        <label class="form-label" style="font-size:.78rem; color:var(--gris-claro); font-weight:600; letter-spacing:.08em; text-transform:uppercase;">
-          Nombre del Cliente
-        </label>
-        <input type="text" id="cliente" class="cys-input form-control" required>
-      </div>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label" style="font-size:.78rem; color:var(--gris-claro); font-weight:600; letter-spacing:.08em; text-transform:uppercase;">
-            Producto
-          </label>
-          <select id="producto" class="cys-input form-select">
-            <option>Cerveza Águila Light</option>
-            <option>Cerveza Poker</option>
-            <option>Cerveza Club Colombia</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label" style="font-size:.78rem; color:var(--gris-claro); font-weight:600; letter-spacing:.08em; text-transform:uppercase;">
-            Cantidad
-          </label>
-          <input type="number" id="cantidad" class="cys-input form-control" min="1" required>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label" style="font-size:.78rem; color:var(--gris-claro); font-weight:600; letter-spacing:.08em; text-transform:uppercase;">
-            Precio Unitario
-          </label>
-          <input type="number" id="precio" class="cys-input form-control" required>
-        </div>
-      </div>
-      <div class="mt-4 d-flex gap-3">
-        <button type="submit" class="cys-btn cys-btn--danger">
-          <i class="bi bi-save"></i> Guardar Reporte
-        </button>
-        <button type="button" class="cys-btn cys-btn--outline" onclick="ocultarFormulario()">
-          <i class="bi bi-x"></i> Cancelar
-        </button>
-      </div>
-    </form>
-
-  </section>
-
 </div>
-
 {% endblock %}
-
-{% block extra_js %}
-<script>
-  let ventas = JSON.parse(localStorage.getItem('ventas')) || [
-    { id: 1, cliente: 'Juan Pérez', producto: 'Cerveza Poker', cantidad: 10, precio: 3000 }
-  ];
-
-  function mostrarFormulario() {
-    document.getElementById('formularioVenta').classList.remove('d-none');
-    document.getElementById('formularioVenta').scrollIntoView({ behavior: 'smooth' });
-  }
-
-  function ocultarFormulario() {
-    document.getElementById('formularioVenta').classList.add('d-none');
-  }
-
-  function actualizarSistema() {
-    const tbody = document.getElementById('tablaVentasBody');
-    if (!tbody) return;
-
-    tbody.innerHTML = '';
-    let sumaV = 0, sumaP = 0, cSet = new Set();
-
-    ventas.forEach((v, index) => {
-      const totalFila = v.cantidad * v.precio;
-      sumaV += totalFila;
-      sumaP += v.cantidad;
-      cSet.add(v.cliente);
-
-      tbody.innerHTML += `
-        <tr>
-          <td style="font-size:.85rem;">${v.id}</td>
-          <td style="font-size:.85rem;">${v.cliente}</td>
-          <td style="font-size:.85rem;">${v.producto}</td>
-          <td style="font-size:.85rem;">${v.cantidad}</td>
-          <td style="font-size:.85rem;">$${v.precio.toLocaleString()}</td>
-          <td style="font-size:.85rem; font-weight:600; color:var(--azul-claro);">$${totalFila.toLocaleString()}</td>
-          <td>
-            <button class="cys-btn-sm cys-btn-sm--warning" onclick="editarVenta(${index})">
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button class="cys-btn-sm cys-btn-sm--danger" onclick="eliminarVenta(${index})">
-              <i class="bi bi-trash"></i>
-            </button>
-          </td>
-        </tr>`;
-    });
-
-    document.getElementById('totalVentas').textContent = '$' + sumaV.toLocaleString();
-    document.getElementById('totalProductos').textContent = sumaP;
-    document.getElementById('totalClientes').textContent = cSet.size;
-    localStorage.setItem('ventas', JSON.stringify(ventas));
-  }
-
-  window.eliminarVenta = function(index) {
-    if (confirm('¿Seguro que deseas eliminar este registro?')) {
-      ventas.splice(index, 1);
-      actualizarSistema();
-    }
-  };
-
-  window.editarVenta = function(index) {
-    let v = ventas[index];
-    let n = prompt('Nombre del Cliente:', v.cliente);
-    if (n) {
-      v.cliente = n;
-      v.cantidad = parseInt(prompt('Cantidad:', v.cantidad)) || v.cantidad;
-      v.precio = parseInt(prompt('Precio:', v.precio)) || v.precio;
-      actualizarSistema();
-    }
-  };
-
-  document.getElementById('formNuevaVenta').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const nueva = {
-      id: ventas.length > 0 ? ventas[ventas.length - 1].id + 1 : 1,
-      cliente: document.getElementById('cliente').value,
-      producto: document.getElementById('producto').value,
-      cantidad: parseInt(document.getElementById('cantidad').value),
-      precio: parseInt(document.getElementById('precio').value),
-    };
-    ventas.push(nueva);
-    localStorage.setItem('ventas', JSON.stringify(ventas));
-    ocultarFormulario();
-    actualizarSistema();
-  });
-
-  actualizarSistema();
-</script>
-{% endblock %} 

@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.template import loader  # 🔥 AGREGADO
 from ventas.models import Venta, DetalleVenta # pyright: ignore[reportMissingImports]
-from .forms import VentaForm, DetalleVentaForm # pyright: ignore[reportMissingImports]
+from .forms import VentaForm, DetalleVentaForm
 from producto.models import Producto, Inventario
 
 
