@@ -7,7 +7,14 @@ from .models import ConteoProducto, SesionConteo
 def inventario_home(request):
     agendas = AgendaInventario.objects.all()
     sesion = SesionConteo.objects.filter(activa=True).first()
-    productos = Producto.objects.select_related('categoria').all()
+    
+    # Filtro por categoría
+    categoria_id = request.GET.get('categoria')
+    if categoria_id:
+        productos = Producto.objects.select_related('categoria').filter(categoria__pk=categoria_id)
+    else:
+        productos = Producto.objects.select_related('categoria').all()
+    
     conteos = ConteoProducto.objects.filter(sesion=sesion) if sesion else []
 
     discrepancias = []
@@ -21,6 +28,24 @@ def inventario_home(request):
                 'diferencia': diff,
                 'estado':     'ok' if diff == 0 else ('sobrante' if diff > 0 else 'faltante'),
             })
+
+    if request.method == 'POST':
+        AgendaInventario.objects.create(
+            titulo=request.POST.get('titulo'),
+            descripcion=request.POST.get('descripcion', ''),
+            fecha_programada=request.POST.get('fecha_programada'),
+        )
+        messages.success(request, '✅ Inventario agendado correctamente.')
+        return redirect('inventario:inventario_home')
+
+    return render(request, 'inventario/inventario_home.html', {
+        'agendas': agendas,
+        'sesion': sesion,
+        'productos': productos,
+        'conteos': conteos,
+        'discrepancias': discrepancias,
+        'categoria_activa': categoria_id,
+    })
 
     if request.method == 'POST':
         AgendaInventario.objects.create(
