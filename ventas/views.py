@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
+from django.template import loader  # 🔥 AGREGADO
 from .models import Venta, DetalleVenta
 from .forms import VentaForm, DetalleVentaForm
 from producto.models import Producto, Inventario
+
 
 def ventas_lista(request):
     ventas   = Venta.objects.prefetch_related('detalles__producto').all()
@@ -11,12 +13,16 @@ def ventas_lista(request):
     detalle  = DetalleVentaForm()
     productos = Producto.objects.all()
 
-    return render(request, 'ventas.html', {
+   
+    template = loader.get_template('ventas.html')
+
+    return render(request, template.template.name, {
         'ventas':   ventas,
         'form':     form,
         'detalle':  detalle,
         'productos': productos,
     })
+
 
 def nueva_venta(request):
     if request.method == 'POST':
@@ -56,6 +62,7 @@ def nueva_venta(request):
 
     return redirect('ventas:ventas_lista')
 
+
 def eliminar_venta(request, pk):
     venta = get_object_or_404(Venta, pk=pk)
 
@@ -66,6 +73,7 @@ def eliminar_venta(request, pk):
     venta.delete()
     messages.success(request, "Venta eliminada y stock restaurado.")
     return redirect('ventas:ventas_lista')
+
 
 def producto_stock_json(request, pk):
     producto = get_object_or_404(Producto, pk=pk)

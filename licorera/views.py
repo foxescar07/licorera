@@ -66,3 +66,6 @@ def proveedores(request):
 
 def reportes(request):
     return render(request, 'reportes.html')
+
+def reportes(request):
+    return render(request, 'ventas.html')
