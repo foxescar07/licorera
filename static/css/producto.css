@@ -52,3 +52,11 @@
   color: var(--gris-claro);
   font-weight: 600;
 }
+.table tbody tr td {
+  color: #1a2a4a !important;
+}
+
+.table tbody tr td:nth-child(2) {
+  color: #1a2a4a !important;
+  font-weight: 600;
+}

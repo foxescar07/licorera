@@ -13,7 +13,6 @@
 
 <div class="container-fluid p-0">
 
-  <!-- MENSAJES -->
   {% if messages %}
     {% for message in messages %}
       <div class="alert alert-dismissible fade show mb-3"
@@ -48,7 +47,7 @@
     </div>
   {% endif %}
 
-  <!-- BOTÓN REGISTRAR PRODUCTO (ARRIBA) -->
+  <!-- BOTÓN REGISTRAR PRODUCTO -->
   <div class="d-flex justify-content-end mb-3">
     <button class="cys-btn cys-btn--primary"
             data-bs-toggle="modal"
@@ -59,7 +58,6 @@
 
   <!-- CATEGORÍAS -->
   <section class="cys-card mb-4">
-
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div class="cys-card__title mb-0">Inventario por Categoría</div>
       <button class="cys-btn-sm cys-btn-sm--primary"
@@ -69,11 +67,11 @@
         <i class="bi bi-plus"></i> Nueva Categoría
       </button>
     </div>
-
     <div class="row g-3">
       {% for cat in resumen_categorias %}
         <div class="col-md-4">
-          <div class="cys-stat-card text-center">
+          <div class="cys-stat-card text-center" style="cursor:pointer;"
+               onclick="abrirCategoria('{{ cat.pk }}', '{{ cat.nombre }}')">
             <div class="cys-stat-card__label">{{ cat.nombre }}</div>
             <div class="cys-stat-card__val">{{ cat.total }}</div>
             <div style="font-size:.62rem; color:var(--texto-muted); margin-top:.25rem;">unidades</div>
@@ -85,71 +83,6 @@
         </div>
       {% endfor %}
     </div>
-
-  </section>
-
-  <!-- TABLA INVENTARIO -->
-  <section class="cys-card mb-4">
-
-    <div class="cys-card__title">Inventario</div>
-
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead>
-          <tr style="border-bottom:2px solid var(--azul-borde);">
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Producto</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Categoría</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Stock</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Precio</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Últ. Entrada</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for producto in productos %}
-            <tr style="{% if producto.stock_critico %}border-left:3px solid var(--rojo);{% endif %}">
-              <td style="font-size:.85rem; color:var(--texto-muted);">{{ forloop.counter }}</td>
-              <td style="font-size:.85rem; font-weight:600; color:var(--texto);">{{ producto.nombre }}</td>
-              <td style="font-size:.85rem; color:var(--texto-muted);">{{ producto.categoria.nombre }}</td>
-              <td>
-                {% if producto.stock_critico %}
-                  <span class="badge" style="background:rgba(192,57,43,.2); color:var(--rojo); border:1px solid rgba(192,57,43,.4); font-size:.75rem; padding:.35rem .6rem;">
-                    {{ producto.cantidad_disponible }} {{ producto.unidad }}
-                  </span>
-                {% else %}
-                  <span style="font-size:.85rem; color:var(--azul-claro); font-weight:600;">
-                    {{ producto.cantidad_disponible }} {{ producto.unidad }}
-                  </span>
-                {% endif %}
-              </td>
-              <td style="font-size:.85rem; color:var(--texto);">${{ producto.precio_unitario|floatformat:0 }}</td>
-              <td style="font-size:.85rem; color:var(--texto-muted);">
-                {% with ultimo=producto.movimientos.first %}
-                  {% if ultimo %}{{ ultimo.fecha_actualizada|date:"d/m/Y" }}{% else %}—{% endif %}
-                {% endwith %}
-              </td>
-              <td>
-                <a href="{% url 'producto:producto_editar' producto.pk %}" class="cys-btn-sm cys-btn-sm--warning">
-                  <i class="bi bi-pencil"></i>
-                </a>
-                <a href="{% url 'producto:producto_detalle' producto.pk %}" class="cys-btn-sm cys-btn-sm--primary">
-                  <i class="bi bi-eye"></i>
-                </a>
-              </td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="7" class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
-                <i class="bi bi-box-seam d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
-                No hay productos registrados.
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
   </section>
 
 </div>
@@ -160,7 +93,6 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg"
          style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-
       <div class="modal-header border-0"
            style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
         <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
@@ -168,7 +100,6 @@
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-
       <div class="modal-body p-4">
         <form id="form-nuevo-producto" method="POST" action="{% url 'producto:producto_lista' %}">
           {% csrf_token %}
@@ -210,14 +141,12 @@
           </div>
         </form>
       </div>
-
       <div class="modal-footer border-0 pt-0 px-4 pb-4">
         <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
         <button type="submit" form="form-nuevo-producto" class="cys-btn cys-btn--danger">
           <i class="bi bi-save me-1"></i> Guardar Producto
         </button>
       </div>
-
     </div>
   </div>
 </div>
@@ -227,7 +156,6 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg"
          style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-
       <div class="modal-header border-0"
            style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
         <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
@@ -235,7 +163,6 @@
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-
       <div class="modal-body p-4">
         <form id="form-nueva-categoria" method="POST" action="{% url 'producto:categoria_crear' %}">
           {% csrf_token %}
@@ -255,14 +182,160 @@
           </div>
         </form>
       </div>
-
       <div class="modal-footer border-0 pt-0 px-4 pb-4">
         <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
         <button type="submit" form="form-nueva-categoria" class="cys-btn cys-btn--primary">
           <i class="bi bi-save me-1"></i> Guardar Categoría
         </button>
       </div>
+    </div>
+  </div>
+</div>
 
+<!-- MODAL EDITAR PRODUCTO -->
+<div class="modal fade" id="modalEditarProducto" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+      <div class="modal-header border-0"
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-pencil me-2" style="color:var(--azul-claro);"></i> Editar Producto
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form id="form-editar" method="POST" action="">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="cys-form-label">Nombre</label>
+              <input type="text" name="nombre" id="edit-nombre" class="cys-input form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="cys-form-label">Código</label>
+              <input type="text" name="codigo" id="edit-codigo" class="cys-input form-control" required>
+            </div>
+            <div class="col-md-12">
+              <label class="cys-form-label">Categoría</label>
+              <select name="categoria" id="edit-categoria" class="cys-input form-select">
+                {% for cat in resumen_categorias %}
+                  <option value="{{ cat.pk }}">{{ cat.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="cys-form-label">Precio</label>
+              <input type="number" name="precio_unitario" id="edit-precio" class="cys-input form-control" step="0.01">
+            </div>
+            <div class="col-md-4">
+              <label class="cys-form-label">Cantidad</label>
+              <input type="number" name="cantidad_disponible" id="edit-cantidad" class="cys-input form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="cys-form-label">Unidad</label>
+              <select name="unidad" id="edit-unidad" class="cys-input form-select">
+                <option value="UND">Unidad</option>
+                <option value="CAJA">Caja</option>
+                <option value="PAQ">Paquete</option>
+                <option value="LITRO">Litro</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0 pt-0 px-4 pb-4">
+        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" form="form-editar" class="cys-btn cys-btn--warning">
+          <i class="bi bi-save me-1"></i> Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE PRODUCTO -->
+<div class="modal fade" id="modalDetalleProducto" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+      <div class="modal-header border-0"
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-eye me-2" style="color:var(--azul-claro);"></i> Detalle Producto
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="d-flex flex-column gap-3">
+          <div>
+            <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Nombre</div>
+            <div id="det-nombre" style="font-size:1rem; font-weight:600; color:var(--texto);"></div>
+          </div>
+          <div class="row g-3">
+            <div class="col-6">
+              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Código</div>
+              <div id="det-codigo" style="font-size:.9rem; color:var(--azul-claro); font-weight:600;"></div>
+            </div>
+            <div class="col-6">
+              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Categoría</div>
+              <div id="det-categoria" style="font-size:.9rem; color:var(--texto);"></div>
+            </div>
+            <div class="col-6">
+              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Precio</div>
+              <div id="det-precio" style="font-size:.9rem; color:var(--texto); font-weight:600;"></div>
+            </div>
+            <div class="col-6">
+              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Stock</div>
+              <div id="det-cantidad" style="font-size:.9rem; color:var(--azul-claro); font-weight:700;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Descripción</div>
+            <div id="det-descripcion" style="font-size:.85rem; color:var(--texto-muted);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0 px-4 pb-4">
+        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PRODUCTOS POR CATEGORÍA -->
+<div class="modal fade" id="modalProductosCategoria" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+      <div class="modal-header border-0"
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-box-seam me-2" style="color:var(--azul-claro);"></i>
+          Productos — <span id="titulo-categoria"></span>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr style="border-bottom:2px solid var(--azul-borde);">
+                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
+                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Nombre</th>
+                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Stock</th>
+                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Precio</th>
+                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Últ. Entrada</th>
+                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo-categoria"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0 px-4 pb-4">
+        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -271,11 +344,99 @@
 
 {% block extra_js %}
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const modalEl = document.getElementById("modalNuevoProducto");
-    if (modalEl && modalEl.dataset.open === "true") {
-      new bootstrap.Modal(modalEl).show();
-    }
-  });
+const todoProductos = [
+  {% for producto in productos %}
+  {
+    pk: {{ producto.pk }},
+    nombre: "{{ producto.nombre }}",
+    codigo: "{{ producto.codigo }}",
+    categoria_pk: {{ producto.categoria.pk }},
+    categoria_nombre: "{{ producto.categoria.nombre }}",
+    stock: "{{ producto.cantidad_disponible }} {{ producto.unidad }}",
+    cantidad: "{{ producto.cantidad_disponible }}",
+    unidad: "{{ producto.unidad }}",
+    precio: "${{ producto.precio_unitario|floatformat:0 }}",
+    precio_raw: "{{ producto.precio_unitario }}",
+    descripcion: "{{ producto.descripcion|default:'' }}",
+    ultima_entrada: "{% with ultimo=producto.movimientos.first %}{% if ultimo %}{{ ultimo.fecha_actualizada|date:'d/m/Y' }}{% else %}—{% endif %}{% endwith %}",
+    stock_critico: {% if producto.stock_critico %}true{% else %}false{% endif %}
+  }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+];
+
+function abrirCategoria(categoriaPk, categoriaNombre) {
+  document.getElementById('titulo-categoria').textContent = categoriaNombre;
+  const filtrados = todoProductos.filter(p => p.categoria_pk == categoriaPk);
+  const tbody = document.getElementById('cuerpo-categoria');
+  if (filtrados.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4" style="color:var(--texto-muted); font-size:.85rem;">No hay productos en esta categoría.</td></tr>`;
+  } else {
+    tbody.innerHTML = filtrados.map((p, i) => `
+      <tr style="${p.stock_critico ? 'border-left:3px solid var(--rojo);' : ''}">
+        <td style="font-size:.85rem; color:#1a2a4a;">${i + 1}</td>
+        <td style="font-size:.85rem; font-weight:600; color:#1a2a4a;">${p.nombre}</td>
+        <td style="font-size:.85rem; color:#1a2a4a; font-weight:600;">${p.stock}</td>
+        <td style="font-size:.85rem; color:#1a2a4a;">${p.precio}</td>
+        <td style="font-size:.85rem; color:#1a2a4a;">${p.ultima_entrada}</td>
+        <td>
+          <td>
+  <button class="cys-btn-sm cys-btn-sm--warning"
+          onclick="cerrarYEditar('${p.pk}', '${p.nombre}', '${p.codigo}', '${p.categoria_pk}', '${p.precio_raw}', '${p.cantidad}', '${p.unidad}')">
+    <i class="bi bi-pencil"></i>
+  </button>
+  <button class="cys-btn-sm cys-btn-sm--primary"
+          onclick="cerrarYDetalle('${p.nombre}', '${p.codigo}', '${p.categoria_nombre}', '${p.precio_raw}', '${p.cantidad}', '${p.unidad}', '${p.descripcion}')">
+    <i class="bi bi-eye"></i>
+  </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+  new bootstrap.Modal(document.getElementById('modalProductosCategoria')).show();
+}
+
+function abrirEditar(pk, nombre, codigo, categoriaPk, precio, cantidad, unidad) {
+  document.getElementById('edit-nombre').value = nombre;
+  document.getElementById('edit-codigo').value = codigo;
+  document.getElementById('edit-precio').value = precio;
+  document.getElementById('edit-cantidad').value = cantidad;
+  document.getElementById('edit-unidad').value = unidad;
+  document.getElementById('edit-categoria').value = categoriaPk;
+  document.getElementById('form-editar').action = `/producto/producto/${pk}/editar/`;
+  new bootstrap.Modal(document.getElementById('modalEditarProducto')).show();
+}
+
+function abrirDetalle(pk, nombre, codigo, categoria, precio, cantidad, unidad, descripcion) {
+  document.getElementById('det-nombre').textContent = nombre;
+  document.getElementById('det-codigo').textContent = codigo;
+  document.getElementById('det-categoria').textContent = categoria;
+  document.getElementById('det-precio').textContent = '$' + parseInt(precio).toLocaleString();
+  document.getElementById('det-cantidad').textContent = cantidad + ' ' + unidad;
+  document.getElementById('det-descripcion').textContent = descripcion || 'Sin descripción';
+  new bootstrap.Modal(document.getElementById('modalDetalleProducto')).show();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const modalEl = document.getElementById("modalNuevoProducto");
+  if (modalEl && modalEl.dataset.open === "true") {
+    new bootstrap.Modal(modalEl).show();
+  }
+});
+
+function cerrarYEditar(pk, nombre, codigo, categoriaPk, precio, cantidad, unidad) {
+  const modalCat = bootstrap.Modal.getInstance(document.getElementById('modalProductosCategoria'));
+  if (modalCat) modalCat.hide();
+  setTimeout(() => {
+    abrirEditar(pk, nombre, codigo, categoriaPk, precio, cantidad, unidad);
+  }, 400);
+}
+
+function cerrarYDetalle(nombre, codigo, categoria, precio, cantidad, unidad, descripcion) {
+  const modalCat = bootstrap.Modal.getInstance(document.getElementById('modalProductosCategoria'));
+  if (modalCat) modalCat.hide();
+  setTimeout(() => {
+    abrirDetalle(nombre, codigo, categoria, precio, cantidad, unidad, descripcion);
+  }, 400);
+}
 </script>
 {% endblock %}
