@@ -20,8 +20,8 @@ INSTALLED_APPS = [
     'reportes',
     'usuario',
     'producto',
-    'prueba',
     'inventario',
+    'ventas',
     
 ]
 CRISPY_ALLOWED_TEMPLATE_PACKS='bootstrap5'
@@ -38,11 +38,15 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'licorera.urls'
 
+import os
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [
+            BASE_DIR / 'templates',
+            BASE_DIR / 'ventas' / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -54,7 +58,6 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {

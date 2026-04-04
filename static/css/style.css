@@ -783,3 +783,57 @@ body.sidebar-open .cys-main {
 body.sidebar-open .cys-main .container-fluid {
   max-width: 100%;
 }
+/* ============================================================
+   SIDEBAR — SUBMENÚ VENTAS
+   ============================================================ */
+.cys-sb-link--parent {
+  cursor: pointer;
+  user-select: none;
+}
+
+.cys-chevron {
+  font-size: .7rem;
+  transition: transform .2s ease;
+}
+
+.cys-chevron.open {
+  transform: rotate(180deg);
+}
+
+.cys-sb-submenu {
+  display: none;
+  flex-direction: column;
+  gap: .15rem;
+  padding-left: 1rem;
+  margin-top: .15rem;
+}
+
+.cys-sb-submenu.open {
+  display: flex;
+}
+
+.cys-sb-sublink {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .45rem 1rem;
+  border-radius: 8px;
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--texto-muted);
+  text-decoration: none;
+  transition: var(--trans);
+  border: 1px solid transparent;
+}
+
+.cys-sb-sublink:hover {
+  background: var(--azul-glow);
+  color: var(--blanco);
+  border-color: var(--azul-borde);
+}
+
+.cys-sb-sublink i {
+  font-size: .8rem;
+  width: 14px;
+  text-align: center;
+}
