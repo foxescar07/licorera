@@ -4,8 +4,6 @@ from .models  import Producto, Categoria, Inventario, AgendaInventario
 from .forms   import ProductoForm
 
 
-
-
 def producto_lista(request):
     form = ProductoForm()
 
@@ -25,6 +23,7 @@ def producto_lista(request):
         resumen_categorias.append({
             "nombre": cat.nombre,
             "total":  cat.productos.count(),
+             "pk":    cat.pk, 
         })
 
     stock_critico = Producto.objects.filter(cantidad_disponible__lte=5)
@@ -50,22 +49,15 @@ def producto_detalle(request, pk):
 
 def producto_editar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
-
     if request.method == "POST":
         form = ProductoForm(request.POST, instance=producto)
         if form.is_valid():
             form.save()
             messages.success(request, "✅ Producto actualizado correctamente.")
-            # 3. CAMBIO: Agregamos "producto:" aquí también
-            return redirect("producto:producto_lista") 
-    else:
-        form = ProductoForm(instance=producto)
+        else:
+            messages.error(request, "⚠️ Revisa los campos del formulario.")
+    return redirect("producto:producto_lista")
 
-    return render(request, "producto_editar.html", {
-        "form":     form,
-        "producto": producto,
-    })
-    
 from .models  import Producto, Categoria, Inventario, AgendaInventario
 from .forms   import ProductoForm, AgendaInventarioForm
 
