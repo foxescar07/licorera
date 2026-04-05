@@ -23,160 +23,253 @@
     {% endfor %}
   {% endif %}
 
-  <!-- FORMULARIO NUEVA VENTA -->
-  <section class="cys-card mb-4">
-    <div class="cys-card__title">Registrar Nueva Venta</div>
+  <div class="row g-4">
 
-    <form method="POST" action="{% url 'ventas:nueva_venta' %}">
-      {% csrf_token %}
-      <div class="row g-3">
+    <!-- COLUMNA IZQUIERDA -->
+    <div class="col-lg-7">
+      <section class="cys-card" style="min-height:600px;">
+        <div class="cys-card__title">Selecciona un Producto</div>
 
-        <!-- CLIENTE -->
-        <div class="col-md-4">
-          <label class="cys-form-label">Cliente</label>
-          {{ form.cliente }}
+        <!-- BUSCADOR -->
+        <div class="cys-venta-search mb-4">
+          <i class="bi bi-search cys-venta-search__icon"></i>
+          <input type="text" id="buscadorProducto"
+                 class="cys-venta-search__input"
+                 placeholder="Buscar producto por nombre...">
         </div>
 
-        <!-- PRODUCTO -->
-        <div class="col-md-4">
-          <label class="cys-form-label">Producto</label>
-          {{ detalle.producto }}
-        </div>
-
-        <!-- CANTIDAD -->
-        <div class="col-md-2">
-          <label class="cys-form-label">Cantidad</label>
-          {{ detalle.cantidad }}
-        </div>
-
-        <!-- PRECIO -->
-        <div class="col-md-2">
-          <label class="cys-form-label">Precio Unitario</label>
-          {{ detalle.precio_unitario }}
-        </div>
-
-      </div>
-
-      <!-- STOCK DISPONIBLE -->
-      <div id="stockInfo" class="mt-3" style="display:none;">
-        <div class="cys-stock-badge">
-          <i class="bi bi-boxes me-1"></i>
-          Stock disponible: <strong id="stockVal">0</strong> unidades
-          &nbsp;|&nbsp;
-          Precio sugerido: <strong id="precioVal">$0</strong>
-        </div>
-      </div>
-
-      <!-- TOTAL PREVIEW -->
-      <div id="totalPreview" class="mt-2" style="display:none;">
-        <div class="cys-total-preview">
-          Total estimado: <strong id="totalVal">$0</strong>
-        </div>
-      </div>
-
-      <div class="mt-4 d-flex gap-3">
-        <button type="submit" class="cys-btn cys-btn--danger">
-          <i class="bi bi-save"></i> Registrar Venta
-        </button>
-      </div>
-
-    </form>
-  </section>
-
-  <!-- HISTORIAL VENTAS -->
-  <section class="cys-card mb-4">
-
-    <div class="cys-card__title">Historial de Ventas</div>
-
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead>
-          <tr style="border-bottom: 2px solid var(--azul-borde);">
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Cliente</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Producto</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Cantidad</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Precio Unit.</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Total</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Fecha</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Hora</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for venta in ventas %}
-            {% for det in venta.detalles.all %}
-            <tr>
-              <td style="font-size:.85rem; color:var(--texto-muted);">{{ forloop.parentloop.counter }}</td>
-              <td style="font-size:.85rem; font-weight:600;">{{ venta.cliente }}</td>
-              <td style="font-size:.85rem;">{{ det.producto.nombre }}</td>
-              <td style="font-size:.85rem;">{{ det.cantidad }}</td>
-              <td style="font-size:.85rem;">${{ det.precio_unitario|floatformat:0 }}</td>
-              <td style="font-size:.85rem; font-weight:600; color:var(--azul-claro);">${{ det.subtotal|floatformat:0 }}</td>
-              <td style="font-size:.85rem; color:var(--gris-claro);">{{ venta.fecha|date:"d/m/Y" }}</td>
-              <td style="font-size:.85rem; color:var(--gris-claro);">{{ venta.fecha|date:"H:i" }}</td>
-              <td>
-                <a href="{% url 'ventas:eliminar_venta' venta.pk %}"
-                   class="cys-btn-sm cys-btn-sm--danger"
-                   onclick="return confirm('¿Eliminar esta venta y restaurar stock?')">
-                  <i class="bi bi-trash"></i>
-                </a>
-              </td>
-            </tr>
+        <!-- VISTA CATEGORÍAS -->
+        <div id="vistaCategorias">
+          <div class="cys-cat-grid">
+            {% for cat in categorias %}
+            <div class="cys-cat-card" onclick="mostrarProductos('{{ cat.id }}', '{{ cat.nombre }}')">
+              <div class="cys-cat-card__icon">
+                <i class="bi bi-tag-fill"></i>
+              </div>
+              <div class="cys-cat-card__nombre">{{ cat.nombre }}</div>
+              <div class="cys-cat-card__count">{{ cat.productos.count }} productos</div>
+            </div>
+            {% empty %}
+            <div class="text-center py-4" style="color:var(--texto-muted);">
+              No hay categorías registradas.
+            </div>
             {% endfor %}
-          {% empty %}
-          <tr>
-            <td colspan="9" class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
-              <i class="bi bi-receipt d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
-              No hay ventas registradas.
-            </td>
-          </tr>
+          </div>
+        </div>
+
+        <!-- VISTA PRODUCTOS DE CATEGORÍA -->
+        <div id="vistaProductos" style="display:none;">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <button class="cys-btn-volver" onclick="volverCategorias()">
+              <i class="bi bi-arrow-left"></i>
+            </button>
+            <span class="cys-cat-titulo" id="catTitulo">Categoría</span>
+          </div>
+          <div class="cys-producto-lista" id="productoLista"></div>
+        </div>
+
+        <!-- DATOS DE TODOS LOS PRODUCTOS (ocultos para JS) -->
+        <div id="datosProductos" style="display:none;">
+          {% for cat in categorias %}
+            {% for p in cat.productos.all %}
+            <div class="dato-producto"
+                 data-cat="{{ cat.id }}"
+                 data-id="{{ p.id }}"
+                 data-nombre="{{ p.nombre }}"
+                 data-precio="{{ p.precio_unitario }}"
+                 data-stock="{{ p.cantidad_disponible }}"
+                 data-unidad="{{ p.unidad }}"
+                 data-critico="{% if p.stock_critico %}1{% else %}0{% endif %}">
+            </div>
+            {% endfor %}
           {% endfor %}
-        </tbody>
-      </table>
+        </div>
+
+      </section>
     </div>
 
-  </section>
+    <!-- COLUMNA DERECHA: FORMULARIO -->
+    <div class="col-lg-5">
+      <section class="cys-card" style="min-height:600px;">
+        <div class="cys-card__title">Registrar Venta</div>
 
+        <form method="POST" action="{% url 'ventas:nueva_venta' %}">
+          {% csrf_token %}
+
+          <!-- PRODUCTO SELECCIONADO -->
+          <div class="cys-venta-seleccionado mb-4" id="productoSeleccionado">
+            <div class="cys-venta-seleccionado__vacio" id="selVacio">
+              <i class="bi bi-hand-index" style="font-size:1.5rem; color:var(--azul-borde);"></i>
+              <span>Selecciona un producto del panel izquierdo</span>
+            </div>
+            <div class="cys-venta-seleccionado__info" id="selInfo" style="display:none;">
+              <div class="cys-venta-seleccionado__nombre" id="selNombre">—</div>
+              <div class="cys-venta-seleccionado__stock" id="selStock">Stock: 0</div>
+            </div>
+          </div>
+
+          <input type="hidden" name="producto" id="productoId">
+
+          <!-- CLIENTE -->
+          <div class="mb-3">
+            <label class="cys-form-label">Cliente</label>
+            {{ form.cliente }}
+          </div>
+
+          <!-- CANTIDAD -->
+          <div class="mb-3">
+            <label class="cys-form-label">Cantidad</label>
+            {{ detalle.cantidad }}
+          </div>
+
+          <!-- PRECIO -->
+          <div class="mb-3">
+            <label class="cys-form-label">Precio Unitario</label>
+            {{ detalle.precio_unitario }}
+          </div>
+
+          <!-- TOTAL -->
+          <div class="cys-venta-total mb-4" id="totalBox" style="display:none;">
+            <span class="cys-venta-total__label">Total estimado</span>
+            <span class="cys-venta-total__val" id="totalVal">$0</span>
+          </div>
+
+          <button type="submit" class="cys-btn cys-btn--danger w-100"
+                  id="btnRegistrar" disabled>
+            <i class="bi bi-save"></i> Registrar Venta
+          </button>
+
+        </form>
+      </section>
+    </div>
+
+  </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  const select    = document.getElementById('productoSelect');
-  const stockDiv  = document.getElementById('stockInfo');
-  const stockVal  = document.getElementById('stockVal');
-  const precioVal = document.getElementById('precioVal');
-  const totalDiv  = document.getElementById('totalPreview');
-  const totalVal  = document.getElementById('totalVal');
   const cantInput = document.querySelector('input[name="cantidad"]');
   const precInput = document.querySelector('input[name="precio_unitario"]');
+  const totalVal  = document.getElementById('totalVal');
+  const totalBox  = document.getElementById('totalBox');
+  const btnReg    = document.getElementById('btnRegistrar');
+  const buscador  = document.getElementById('buscadorProducto');
 
   function calcularTotal() {
     const cant  = parseFloat(cantInput.value) || 0;
     const prec  = parseFloat(precInput.value) || 0;
-    totalVal.textContent = '$' + (cant * prec).toLocaleString('es-CO');
-    totalDiv.style.display = cant > 0 && prec > 0 ? 'block' : 'none';
+    const total = cant * prec;
+    totalVal.textContent = '$' + total.toLocaleString('es-CO');
+    totalBox.style.display = total > 0 ? 'flex' : 'none';
   }
 
-  if (select) {
-    select.addEventListener('change', function() {
-      const id = this.value;
-      if (!id) { stockDiv.style.display = 'none'; return; }
+  function seleccionarProducto(id, nombre, precio, stock, unidad) {
+    document.querySelectorAll('.cys-producto-item').forEach(i => i.classList.remove('cys-producto-item--selected'));
+    const el = document.querySelector(`.cys-producto-item[data-id="${id}"]`);
+    if (el) el.classList.add('cys-producto-item--selected');
 
-      fetch(`/ventas/stock/${id}/`)
-        .then(res => res.json())
-        .then(data => {
-          stockVal.textContent  = data.stock;
-          precioVal.textContent = '$' + data.precio.toLocaleString('es-CO');
-          precInput.value       = data.precio;
-          stockDiv.style.display = 'block';
-          calcularTotal();
-        });
-    });
+    document.getElementById('productoId').value      = id;
+    document.getElementById('selNombre').textContent = nombre;
+    document.getElementById('selStock').textContent  = `Stock: ${stock} ${unidad}`;
+    document.getElementById('selVacio').style.display = 'none';
+    document.getElementById('selInfo').style.display  = 'flex';
+
+    precInput.value  = precio;
+    btnReg.disabled  = false;
+    calcularTotal();
+  }
+
+  function mostrarProductos(catId, catNombre) {
+    const datos = document.querySelectorAll(`.dato-producto[data-cat="${catId}"]`);
+    const lista = document.getElementById('productoLista');
+    document.getElementById('catTitulo').textContent = catNombre;
+    lista.innerHTML = '';
+
+    if (datos.length === 0) {
+      lista.innerHTML = `<div style="color:var(--texto-muted); font-size:.85rem; padding:1rem;">No hay productos en esta categoría.</div>`;
+    } else {
+      datos.forEach(d => {
+        const critico = d.dataset.critico === '1';
+        lista.innerHTML += `
+          <div class="cys-producto-item ${critico ? 'cys-producto-item--critico' : ''}"
+               data-id="${d.dataset.id}"
+               onclick="seleccionarProducto('${d.dataset.id}','${d.dataset.nombre}','${d.dataset.precio}','${d.dataset.stock}','${d.dataset.unidad}')">
+            <div class="cys-producto-item__icon">
+              <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="cys-producto-item__info">
+              <div class="cys-producto-item__nombre">${d.dataset.nombre}</div>
+              <div class="cys-producto-item__cat">${critico ? '⚠ Stock crítico' : 'Disponible'}</div>
+            </div>
+            <div class="cys-producto-item__meta">
+              <div class="cys-producto-item__precio">$${parseInt(d.dataset.precio).toLocaleString('es-CO')}</div>
+              <div class="cys-producto-item__stock ${critico ? 'cys-producto-item__stock--bajo' : ''}">
+                ${d.dataset.stock} ${d.dataset.unidad}
+              </div>
+            </div>
+          </div>`;
+      });
+    }
+
+    document.getElementById('vistaCategorias').style.display = 'none';
+    document.getElementById('vistaProductos').style.display  = 'block';
+  }
+
+  function volverCategorias() {
+    document.getElementById('vistaProductos').style.display  = 'none';
+    document.getElementById('vistaCategorias').style.display = 'block';
+    buscador.value = '';
   }
 
   if (cantInput) cantInput.addEventListener('input', calcularTotal);
   if (precInput) precInput.addEventListener('input', calcularTotal);
+
+  // BUSCADOR — busca en todas las categorías
+  buscador.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    if (!q) {
+      volverCategorias();
+      return;
+    }
+
+    const todos = document.querySelectorAll('.dato-producto');
+    const lista = document.getElementById('productoLista');
+    document.getElementById('catTitulo').textContent = `Resultados para "${q}"`;
+    lista.innerHTML = '';
+
+    let encontrados = 0;
+    todos.forEach(d => {
+      if (d.dataset.nombre.toLowerCase().includes(q)) {
+        const critico = d.dataset.critico === '1';
+        lista.innerHTML += `
+          <div class="cys-producto-item ${critico ? 'cys-producto-item--critico' : ''}"
+               data-id="${d.dataset.id}"
+               onclick="seleccionarProducto('${d.dataset.id}','${d.dataset.nombre}','${d.dataset.precio}','${d.dataset.stock}','${d.dataset.unidad}')">
+            <div class="cys-producto-item__icon">
+              <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="cys-producto-item__info">
+              <div class="cys-producto-item__nombre">${d.dataset.nombre}</div>
+              <div class="cys-producto-item__cat">${critico ? '⚠ Stock crítico' : 'Disponible'}</div>
+            </div>
+            <div class="cys-producto-item__meta">
+              <div class="cys-producto-item__precio">$${parseInt(d.dataset.precio).toLocaleString('es-CO')}</div>
+              <div class="cys-producto-item__stock ${critico ? 'cys-producto-item__stock--bajo' : ''}">
+                ${d.dataset.stock} ${d.dataset.unidad}
+              </div>
+            </div>
+          </div>`;
+        encontrados++;
+      }
+    });
+
+    if (encontrados === 0) {
+      lista.innerHTML = `<div style="color:var(--texto-muted); font-size:.85rem; padding:1rem;">No se encontraron productos.</div>`;
+    }
+
+    document.getElementById('vistaCategorias').style.display = 'none';
+    document.getElementById('vistaProductos').style.display  = 'block';
+  });
 </script>
 {% endblock %}

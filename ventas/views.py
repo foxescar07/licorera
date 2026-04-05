@@ -1,60 +1,65 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
-from django.template import loader  # 🔥 AGREGADO
-from ventas.models import Venta, DetalleVenta # pyright: ignore[reportMissingImports]
+from decimal import Decimal
+from .models import Venta, DetalleVenta
 from .forms import VentaForm, DetalleVentaForm
-from producto.models import Producto, Inventario
+from producto.models import Producto, Inventario, Categoria
 
 
 def ventas_lista(request):
-    ventas   = Venta.objects.prefetch_related('detalles__producto').all()
-    form     = VentaForm()
-    detalle  = DetalleVentaForm()
-    productos = Producto.objects.all()
+    ventas     = Venta.objects.prefetch_related('detalles__producto').all()
+    form       = VentaForm()
+    detalle    = DetalleVentaForm()
+    categorias = Categoria.objects.prefetch_related('productos').all()
 
-   
-    template = loader.get_template('ventas.html')
-
-    return render(request, template.template.name, {
-        'ventas':   ventas,
-        'form':     form,
-        'detalle':  detalle,
-        'productos': productos,
+    return render(request, 'ventas.html', {
+        'ventas':     ventas,
+        'form':       form,
+        'detalle':    detalle,
+        'categorias': categorias,
     })
 
 
 def nueva_venta(request):
     if request.method == 'POST':
-        form    = VentaForm(request.POST)
-        detalle = DetalleVentaForm(request.POST)
+        form        = VentaForm(request.POST)
+        producto_id = request.POST.get('producto')
+        cantidad    = request.POST.get('cantidad')
+        precio      = request.POST.get('precio_unitario')
 
-        if form.is_valid() and detalle.is_valid():
-            producto = detalle.cleaned_data['producto']
-            cantidad = detalle.cleaned_data['cantidad']
+        try:
+            producto = Producto.objects.get(pk=producto_id)
+            cantidad = int(cantidad)
+            precio   = Decimal(precio)
+        except Exception:
+            messages.error(request, "Datos inválidos. Selecciona un producto e intenta de nuevo.")
+            return redirect('ventas:ventas_lista')
 
+        if form.is_valid():
             if cantidad > producto.cantidad_disponible:
                 messages.error(request, f"Stock insuficiente. Solo hay {producto.cantidad_disponible} unidades de {producto.nombre}.")
                 return redirect('ventas:ventas_lista')
 
             venta = form.save()
 
-            det = detalle.save(commit=False)
-            det.venta = venta
-            det.save()
+            DetalleVenta.objects.create(
+                venta=venta,
+                producto=producto,
+                cantidad=cantidad,
+                precio_unitario=precio
+            )
 
-            # Descontar stock
             producto.cantidad_disponible -= cantidad
             producto.save()
 
-            # Registrar movimiento
             Inventario.objects.create(
                 producto=producto,
                 cantidad=-cantidad,
                 ubicacion="Venta"
             )
 
-            messages.success(request, f"Venta registrada correctamente.")
+            messages.success(request, f"Venta de {producto.nombre} registrada correctamente.")
             return redirect('ventas:ventas_lista')
 
         messages.error(request, "Revisa los campos del formulario.")
@@ -65,11 +70,9 @@ def nueva_venta(request):
 
 def eliminar_venta(request, pk):
     venta = get_object_or_404(Venta, pk=pk)
-
     for det in venta.detalles.all():
         det.producto.cantidad_disponible += det.cantidad
         det.producto.save()
-
     venta.delete()
     messages.success(request, "Venta eliminada y stock restaurado.")
     return redirect('ventas:ventas_lista')
@@ -78,7 +81,7 @@ def eliminar_venta(request, pk):
 def producto_stock_json(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     return JsonResponse({
-        'stock': producto.cantidad_disponible,
+        'stock':  producto.cantidad_disponible,
         'precio': float(producto.precio_unitario),
         'unidad': producto.unidad,
     })
