@@ -44,11 +44,8 @@
     </button>
   </nav>
 
- 
-
   <!-- ASIDE -->
   {% include 'partials/aside.html' %}
-
 
   <!-- CONTENIDO -->
   <main class="cys-main">
@@ -57,8 +54,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+  <!-- RELOJ -->
   <script>
-    // RELOJ
     let relojIntervalo = null;
     function actualizarReloj() {
       const ahora = new Date();
@@ -79,28 +76,28 @@
       actualizarReloj();
       relojIntervalo = setInterval(actualizarReloj, 60000);
     }
+  </script>
 
-    // SIDEBAR PERSISTENTE
+  <!-- SIDEBAR -->
+  <script>
     const sidebar = document.getElementById('sidebarRight');
     const bsSidebar = new bootstrap.Offcanvas(sidebar);
 
-    // Reabrir si estaba abierto
     if (localStorage.getItem('sidebarOpen') === 'true') {
       bsSidebar.show();
       document.body.classList.add('sidebar-open');
     }
 
-    // Guardar estado
     sidebar.addEventListener('show.bs.offcanvas', () => {
       document.body.classList.add('sidebar-open');
       localStorage.setItem('sidebarOpen', 'true');
     });
+
     sidebar.addEventListener('hidden.bs.offcanvas', () => {
       document.body.classList.remove('sidebar-open');
       localStorage.setItem('sidebarOpen', 'false');
     });
 
-    // BOTÓN MENÚ — toggle abre/cierra
     document.getElementById('menuBtn').addEventListener('click', function() {
       if (sidebar.classList.contains('show')) {
         bsSidebar.hide();
@@ -109,28 +106,32 @@
       }
     });
 
-    // BOTÓN X — cierre directo
     document.querySelectorAll('[data-bs-dismiss="offcanvas"]').forEach(btn => {
       btn.addEventListener('click', () => bsSidebar.hide());
     });
   </script>
 
+  <!-- 🔥 VENTAS FIX -->
   <script>
-  function toggleVentas(el) {
+  function toggleVentas(e, el) {
     const submenu = document.getElementById('submenuVentas');
     const chevron = el.querySelector('.cys-chevron');
-    submenu.classList.toggle('open');
-    chevron.classList.toggle('open');
+
+    const path = window.location.pathname;
+
+    if (path.startsWith('/ventas/')) {
+      e.preventDefault();
+      submenu.classList.toggle('open');
+      chevron.classList.toggle('open');
+    }
   }
 
-  // Mantener submenú abierto si estamos en ventas
   document.addEventListener('DOMContentLoaded', function() {
     const path = window.location.pathname;
-    if (path.startsWith('/ventas/')) {
-      const submenu = document.getElementById('submenuVentas');
-      const chevron = document.querySelector('.cys-chevron');
+    const submenu = document.getElementById('submenuVentas');
+
+    if (path.startsWith('/ventas/') || path.startsWith('/reportes')) {
       if (submenu) submenu.classList.add('open');
-      if (chevron) chevron.classList.add('open');
     }
   });
   </script>
@@ -138,4 +139,4 @@
   {% block extra_js %}{% endblock %}
 
 </body>
-</html>
+</html> 
