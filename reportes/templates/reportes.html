@@ -1,345 +1,611 @@
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Distribuidora c y s</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
 
-    <style>
-      :root {
-        --rojo: #b7372a;
-        --mostaza: #e9c36f;
-        --naranja: #d75833;
-        --beige: #e8c898;
-        --sidebar-width: 280px;
-      }
-      body {
-        background-color: var(--beige);
-        font-family: "Inter", sans-serif;
-        margin: 0;
-        display: flex;
-      }
+<style>
+.card-custom {
+    height: 120px;
+    display: flex;
+    justify-content: center;
+}
+.bg-primary-custom {
+    background-color: #011936 !important;
+    color: #fff;
+}
+.bg-secondary-custom {
+    background-color: #AF8D86 !important;
+    color: #fff;
+}
+.bg-dark-custom {
+    background-color: #011936 !important;
+    color: #fff;
+}
+.table thead th {
+    background-color: #011936 !important;
+    color: #fff !important;
+}
+.btn-danger {
+    background-color: #011936 !important;
+    border-color: #011936 !important;
+    color: #fff !important;
+}
+.btn-danger:hover {
+    background-color: #022550 !important;
+    border-color: #022550 !important;
+}
+.btn-warning {
+    background-color: #AF8D86 !important;
+    border-color: #AF8D86 !important;
+    color: #fff !important;
+}
+.btn-warning:hover {
+    background-color: #9a7b74 !important;
+    border-color: #9a7b74 !important;
+}
+.btn-secondary {
+    background-color: #AF8D86 !important;
+    border-color: #AF8D86 !important;
+    color: #fff !important;
+}
+.btn-secondary:hover {
+    background-color: #9a7b74 !important;
+    border-color: #9a7b74 !important;
+}
+.btn-light {
+    background-color: #fff !important;
+    color: #011936 !important;
+    border-color: #AF8D86 !important;
+    font-weight: bold;
+}
+.btn-light:hover {
+    background-color: #AF8D86 !important;
+    color: #fff !important;
+}
+.card-header.bg-danger {
+    background-color: #011936 !important;
+    color: #fff !important;
+}
+.card-footer {
+    background-color: #f5f0ef !important;
+    border-top: 2px solid #AF8D86 !important;
+}
+.badge.bg-danger { background-color: #011936 !important; }
+.badge.bg-warning { background-color: #AF8D86 !important; color: #fff !important; }
+.badge.bg-success { background-color: #AF8D86 !important; color: #fff !important; }
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: rgba(175, 141, 134, 0.1) !important;
+}
+.table-hover > tbody > tr:hover > * {
+    background-color: rgba(1, 25, 54, 0.08) !important;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #AF8D86 !important;
+    box-shadow: 0 0 0 0.2rem rgba(175, 141, 134, 0.3) !important;
+}
+.form-label {
+    color: #011936 !important;
+    font-weight: 600;
+}
+#alertaProveedorSeleccionado {
+    background-color: #fff !important;
+    border-left: 4px solid #AF8D86 !important;
+    color: #011936 !important;
+}
 
-      /* Sidebar Fija */
-      .sidebar {
-        width: var(--sidebar-width);
-        background-color: #ffffff;
-        height: 100vh;
-        position: fixed;
-        left: 0;
-        top: 0;
-        z-index: 1000;
-        border-right: 1px solid rgba(0, 0, 0, 0.1);
-      }
-      .user-profile {
-        padding: 40px 20px;
-        text-align: center;
-      }
-      .user-avatar {
-        width: 80px;
-        height: 80px;
-        background-color: #ff0000;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 15px;
-      }
-      .user-name {
-        font-weight: 700;
-        font-size: 1.4rem;
-        color: #201e1f;
-      }
-      .nav-link {
-        color: #333 !important;
-        padding: 12px 25px !important;
-        border-right: 5px solid transparent;
-      }
-      .nav-link.active {
-        background-color: #ffebee !important;
-        color: var(--rojo) !important;
-        border-right: 5px solid var(--rojo) !important;
-        font-weight: 600;
-      }
+/* ESTILOS REPORTE IMPRESIÓN */
+@media print {
+    .no-print { display: none !important; }
+    body { background: #fff !important; }
+    .modal { position: relative !important; }
+    .modal-dialog { max-width: 100% !important; margin: 0 !important; }
+    .modal-content { border: none !important; box-shadow: none !important; }
+}
+</style>
 
-      /* Contenido Principal */
-      .main-content {
-        margin-left: var(--sidebar-width);
-        width: calc(100% - var(--sidebar-width));
-        min-height: 100vh;
-      }
-      .bg-rojo {
-        background-color: var(--rojo) !important;
-      }
-      .bg-mostaza {
-        background-color: var(--mostaza) !important;
-      }
-      .bg-naranja {
-        background-color: var(--naranja) !important;
-      }
+<div class="container-fluid px-4">
 
-      .card {
-        border: none;
-        border-radius: 10px;
-      }
-      .btn-custom {
-        background-color: var(--rojo);
-        color: white;
-        border: none;
-      }
-
-      @media (max-width: 992px) {
-        .sidebar {
-          width: 80px;
-        }
-        .user-name,
-        .nav-link span {
-          display: none;
-        }
-        .main-content {
-          margin-left: 80px;
-          width: calc(100% - 80px);
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="sidebar shadow">
-      <div class="user-profile">
-        <div class="user-avatar">
-          <svg viewBox="0 0 24 24" fill="white" width="45" height="45">
-            <path
-              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
-            />
-          </svg>
+    {% if messages %}
+    <div class="mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-        <div class="user-name">Usuario</div>
-      </div>
-      <nav class="nav flex-column">
-        <a class="nav-link" href="#">Tablero Principal</a>
-        <a class="nav-link" href="#">Productos</a>
-        <a class="nav-link" href="#">Proveedores</a>
-        <a class="nav-link active" href="?">Reportes</a>
-      </nav>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- TARJETAS -->
+    <div class="row g-4 mb-4 mt-1">
+        <div class="col-md-4">
+            <div class="card bg-primary-custom text-white shadow p-3 card-custom">
+                <h5><i class="bi bi-cash-stack me-2"></i>Total Ventas</h5>
+                <h2>${{ total_ventas }}</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-secondary-custom shadow p-3 card-custom">
+                <h5><i class="bi bi-box-seam me-2"></i>Total Productos</h5>
+                <h2>{{ total_productos }}</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark-custom text-white shadow p-3 card-custom">
+                <h5><i class="bi bi-people-fill me-2"></i>Total Clientes</h5>
+                <h2>{{ total_clientes }}</h2>
+            </div>
+        </div>
     </div>
 
-    <div class="main-content">
-      <nav class="navbar navbar-expand-lg bg-rojo shadow py-3 mb-4">
-        <div class="container-fluid px-4">
-          <span class="navbar-brand text-white fs-2 fw-bold">
-            {% if request.GET.action == 'nuevo' %} Registrar Venta {% else %}
-            Reporte de Ventas {% endif %}
-          </span>
+    <!-- FILTROS -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="GET" action="">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="fecha" class="form-control" value="{{ request.GET.fecha }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Cliente</label>
+                        <input type="text" name="cliente" class="form-control" placeholder="Cliente" value="{{ request.GET.cliente }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Producto</label>
+                        <select name="producto" class="form-select">
+                            <option value="">Todos los productos</option>
+                            {% for producto in productos %}
+                                <option value="{{ producto.id }}"
+                                    {% if request.GET.producto == producto.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ producto.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-search me-1"></i>Filtrar
+                        </button>
+                        <button type="button" class="btn btn-secondary"
+                                data-bs-toggle="modal" data-bs-target="#modalLimpiarFiltros">
+                            <i class="bi bi-x-circle me-1"></i>Limpiar
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
-      </nav>
+    </div>
 
-      <div class="container-fluid px-4">
-        {% if request.GET.action != "nuevo" %}
-        <div class="row g-4 mb-4 text-center">
-          <div class="col-md-4">
-            <div class="card bg-rojo text-white shadow p-3">
-              <h5>Total Ventas</h5>
-              <h2 id="totalVentas">$0</h2>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card bg-mostaza text-dark shadow p-3">
-              <h5>Productos Vendidos</h5>
-              <h2 id="totalProductos">0</h2>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card bg-naranja text-white shadow p-3">
-              <h5>Total Clientes</h5>
-              <h2 id="totalClientes">0</h2>
-            </div>
-          </div>
+    <!-- TABLA VENTAS -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-cart-fill me-2"></i>Listado de Ventas</span>
+            <button type="button" class="btn btn-light fw-bold"
+                    data-bs-toggle="modal" data-bs-target="#modalNuevaVenta">
+                <i class="bi bi-plus-circle me-1"></i>Nueva Venta
+            </button>
         </div>
-
-        <div class="card shadow">
-          <div
-            class="card-header bg-rojo text-white d-flex justify-content-between align-items-center py-3"
-          >
-            <span class="fs-5">Listado de Ventas</span>
-            <a href="?action=nuevo" class="btn btn-light fw-bold"
-              >+ Agregar Nuevo Reporte</a
-            >
-          </div>
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0 text-center">
-                <thead class="bg-mostaza text-dark">
-                  <tr>
-                    <th>ID</th>
-                    <th>Cliente</th>
-                    <th>Producto</th>
-                    <th>Cant.</th>
-                    <th>Precio</th>
-                    <th>Total</th>
-                    <th>Acciones</th>
-                  </tr>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover text-center mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Cliente</th><th>Producto</th>
+                        <th>Cant. Disponible</th><th>Fecha</th>
+                        <th>Cantidad</th><th>Precio</th><th>Total</th><th>Acciones</th>
+                    </tr>
                 </thead>
-                <tbody id="tablaVentasBody"></tbody>
-              </table>
-            </div>
-          </div>
+                <tbody>
+                    {% for venta, form_ev in ventas_con_form %}
+                    <tr>
+                        <td>{{ venta.id }}</td>
+                        <td>{{ venta.cliente }}</td>
+                        <td>{{ venta.producto.nombre }}</td>
+                        <td>
+                            {% with stock=venta.producto.inventario.cantidad_disponible %}
+                            {% if stock == 0 %}
+                                <span class="badge bg-danger">Sin stock</span>
+                            {% elif stock <= 5 %}
+                                <span class="badge bg-warning">{{ stock }}</span>
+                            {% else %}
+                                <span class="badge bg-success">{{ stock }}</span>
+                            {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>{{ venta.fecha|date:"d/m/Y" }}</td>
+                        <td>{{ venta.cantidad }}</td>
+                        <td>${{ venta.precio }}</td>
+                        <td>${{ venta.total }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEditarVenta{{ venta.id }}">
+                                <i class="bi bi-pencil-fill"></i> Editar
+                            </button>
+                            <button class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEliminarVenta{{ venta.id }}">
+                                <i class="bi bi-trash-fill"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-muted py-4">
+                            <i class="bi bi-inbox fs-4 d-block mb-2"></i>No hay ventas registradas.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-
-        {% else %}
-        <div class="row justify-content-center">
-          <div class="col-lg-8">
-            <div class="card shadow">
-              <div class="card-header bg-mostaza text-dark fw-bold py-3">
-                Detalles del Reporte
-              </div>
-              <div class="card-body p-4">
-                <form id="formNuevaVenta">
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Nombre del Cliente</label>
-                    <input
-                      type="text"
-                      id="cliente"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-                  <div class="row g-3">
-                    <div class="col-md-6">
-                      <label class="form-label fw-bold">Producto</label>
-                      <select id="producto" class="form-select">
-                        <option>Cerveza Águila Light</option>
-                        <option>Cerveza Poker</option>
-                        <option>Cerveza Club Colombia</option>
-                      </select>
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label fw-bold">Cantidad</label>
-                      <input
-                        type="number"
-                        id="cantidad"
-                        class="form-control"
-                        min="1"
-                        required
-                      />
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label fw-bold">Precio Unitario</label>
-                      <input
-                        type="number"
-                        id="precio"
-                        class="form-control"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div class="mt-4 d-flex gap-2">
-                    <button type="submit" class="btn btn-danger px-4 fw-bold">
-                      Guardar Reporte
-                    </button>
-                    <a href="?" class="btn btn-outline-secondary px-4"
-                      >Cancelar</a
-                    >
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Total registros: {{ ventas_con_form|length }}</span>
+            <button type="button" class="btn btn-danger"
+                    data-bs-toggle="modal" data-bs-target="#modalReporteDiario">
+                <i class="bi bi-file-earmark-text me-1"></i>Generar Reporte Diario
+            </button>
         </div>
-        {% endif %}
-      </div>
     </div>
 
-    <script>
-      let ventas = JSON.parse(localStorage.getItem("ventas")) || [
-        {
-          id: 1,
-          cliente: "Juan Pérez",
-          producto: "Cerveza Poker",
-          cantidad: 10,
-          precio: 3000,
-        },
-      ];
+    <!-- TABLA PROVEEDORES -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-truck me-2"></i>Proveedores y Suministros</span>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-light fw-bold"
+                        data-bs-toggle="modal" data-bs-target="#modalSeleccionarProveedor">
+                    <i class="bi bi-truck me-1"></i>Seleccionar Proveedor
+                </button>
+                <button type="button" class="btn btn-light fw-bold"
+                        data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
+                    <i class="bi bi-plus-circle me-1"></i>Nuevo Proveedor
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover text-center mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Proveedor</th><th>Producto</th>
+                        <th>Fecha de Entrega</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for proveedor, form_ep in proveedores_con_form %}
+                    <tr>
+                        <td>{{ proveedor.id }}</td>
+                        <td>{{ proveedor.nombre }}</td>
+                        <td>{{ proveedor.producto.nombre }}</td>
+                        <td>{{ proveedor.fecha_entrega|date:"d/m/Y" }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEditarProveedor{{ proveedor.id }}">
+                                <i class="bi bi-pencil-fill"></i> Editar
+                            </button>
+                            <button class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEliminarProveedor{{ proveedor.id }}">
+                                <i class="bi bi-trash-fill"></i> Eliminar
+                            </button>
+                            <button class="btn btn-sm"
+                                    style="background-color:#AF8D86; color:#fff; border-color:#AF8D86;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalProductosProveedor{{ proveedor.id }}">
+                                <i class="bi bi-box-seam"></i> Ver Productos
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-muted py-4">
+                            <i class="bi bi-inbox fs-4 d-block mb-2"></i>No hay proveedores registrados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-      function actualizarSistema() {
-        const tbody = document.getElementById("tablaVentasBody");
-        if (!tbody) return;
+        <!-- NUEVO: BOTÓN REPORTE PROVEEDORES EN FOOTER -->
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Total proveedores: {{ proveedores_con_form|length }}</span>
+            <button type="button" class="btn btn-danger"
+                    data-bs-toggle="modal" data-bs-target="#modalReporteProveedores">
+                <i class="bi bi-file-earmark-text me-1"></i>Generar Reporte de Proveedores
+            </button>
+        </div>
+    </div>
 
-        tbody.innerHTML = "";
-        let sumaV = 0,
-          sumaP = 0,
-          cSet = new Set();
+</div>
 
-        ventas.forEach((v, index) => {
-          const totalFila = v.cantidad * v.precio;
-          sumaV += totalFila;
-          sumaP += v.cantidad;
-          cSet.add(v.cliente);
+<!-- MODALES VER PRODUCTOS -->
+{% for proveedor, form_ep in proveedores_con_form %}
+<div class="modal fade" id="modalProductosProveedor{{ proveedor.id }}"
+     tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color:#011936;">
+                <h5 class="modal-title">
+                    <i class="bi bi-box-seam me-2"></i>
+                    Productos de: {{ proveedor.nombre }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-hover text-center">
+                    <thead style="background-color:#011936; color:#fff;">
+                        <tr>
+                            <th>ID Producto</th>
+                            <th>Nombre del Producto</th>
+                            <th>Fecha de Entrega</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ proveedor.producto.id }}</td>
+                            <td>{{ proveedor.producto.nombre }}</td>
+                            <td>{{ proveedor.fecha_entrega|date:"d/m/Y" }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer" style="background-color:#AF8D86;">
+                <button type="button" class="btn fw-bold text-white"
+                        style="background-color:#011936; border-color:#011936;"
+                        data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
-          tbody.innerHTML += `
-                <tr>
-                    <td>${v.id}</td>
-                    <td>${v.cliente}</td>
-                    <td>${v.producto}</td>
-                    <td>${v.cantidad}</td>
-                    <td>$${v.precio.toLocaleString()}</td>
-                    <td class="fw-bold">$${totalFila.toLocaleString()}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning me-1" onclick="editarVenta(${index})">Editar</button>
-                        <button class="btn btn-sm btn-danger" onclick="eliminarVenta(${index})">Eliminar</button>
-                    </td>
-                </tr>`;
+<!-- MODAL SELECCIONAR PROVEEDOR -->
+<div class="modal fade" id="modalSeleccionarProveedor" tabindex="-1"
+     aria-labelledby="modalSeleccionarProveedorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color:#011936;">
+                <h5 class="modal-title" id="modalSeleccionarProveedorLabel">
+                    <i class="bi bi-truck me-2"></i>Seleccionar Proveedor
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" id="buscarProveedorModal" class="form-control"
+                           placeholder="Buscar proveedor por nombre o producto...">
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover text-center">
+                        <thead style="background-color:#011936; color:#fff;">
+                            <tr>
+                                <th>ID</th><th>Proveedor</th><th>Producto</th>
+                                <th>Fecha de Entrega</th><th>Seleccionar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for proveedor, form_ep in proveedores_con_form %}
+                            <tr class="fila-proveedor-modal">
+                                <td>{{ proveedor.id }}</td>
+                                <td>{{ proveedor.nombre }}</td>
+                                <td>{{ proveedor.producto.nombre }}</td>
+                                <td>{{ proveedor.fecha_entrega|date:"d/m/Y" }}</td>
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-sm btn-warning btn-seleccionar-proveedor"
+                                            data-id="{{ proveedor.id }}"
+                                            data-nombre="{{ proveedor.nombre }}"
+                                            data-producto="{{ proveedor.producto.nombre }}"
+                                            data-bs-dismiss="modal">
+                                        <i class="bi bi-check-circle-fill"></i> Seleccionar
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-muted py-4">
+                                    <i class="bi bi-inbox fs-4 d-block mb-2"></i>No hay proveedores.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer" style="background-color:#AF8D86;">
+                <div id="proveedorSeleccionadoInfo" class="alert w-100 d-none"
+                     style="background-color:#011936; color:#fff; border:none;">
+                    <strong><i class="bi bi-check-circle me-1"></i>Proveedor seleccionado:</strong>
+                    <span id="proveedorSeleccionadoNombre"></span> —
+                    <span id="proveedorSeleccionadoProducto"></span>
+                </div>
+                <button type="button" class="btn fw-bold text-white"
+                        style="background-color:#011936; border-color:#011936;"
+                        data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODAL REPORTE DE PROVEEDORES (NUEVO)                         -->
+<!-- ============================================================ -->
+<div class="modal fade" id="modalReporteProveedores" tabindex="-1"
+     aria-labelledby="modalReporteProveedoresLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color:#011936;">
+                <h5 class="modal-title" id="modalReporteProveedoresLabel">
+                    <i class="bi bi-file-earmark-text me-2"></i>Reporte de Proveedores
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="contenidoReporteProveedores">
+
+                <!-- ENCABEZADO DEL REPORTE -->
+                <div class="text-center mb-4">
+                    <h4 style="color:#011936; font-weight:700;">
+                        <i class="bi bi-truck me-2"></i>Reporte de Proveedores y Suministros
+                    </h4>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-calendar me-1"></i>
+                        Fecha de generación:
+                        <strong id="fechaReporteProveedor"></strong>
+                    </p>
+                    <hr style="border-color:#AF8D86; border-width:2px;">
+                </div>
+
+                <!-- RESUMEN -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="p-3 rounded text-white text-center"
+                             style="background-color:#011936;">
+                            <h6 class="mb-1"><i class="bi bi-truck me-1"></i>Total Proveedores</h6>
+                            <h3 class="mb-0">{{ proveedores_con_form|length }}</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded text-white text-center"
+                             style="background-color:#AF8D86;">
+                            <h6 class="mb-1"><i class="bi bi-box-seam me-1"></i>Total Productos Suministrados</h6>
+                            <h3 class="mb-0">{{ proveedores_con_form|length }}</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLA DEL REPORTE -->
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center">
+                        <thead style="background-color:#011936; color:#fff;">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre del Proveedor</th>
+                                <th>Producto Asociado</th>
+                                <th>ID Producto</th>
+                                <th>Fecha de Entrega</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for proveedor, form_ep in proveedores_con_form %}
+                            <tr>
+                                <td>{{ proveedor.id }}</td>
+                                <td>{{ proveedor.nombre }}</td>
+                                <td>{{ proveedor.producto.nombre }}</td>
+                                <td>{{ proveedor.producto.id }}</td>
+                                <td>{{ proveedor.fecha_entrega|date:"d/m/Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-muted py-4">
+                                    <i class="bi bi-inbox fs-4 d-block mb-2"></i>
+                                    No hay proveedores registrados.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PIE DEL REPORTE -->
+                <div class="mt-3 text-end">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Reporte generado automáticamente por el sistema.
+                    </small>
+                </div>
+            </div>
+
+            <div class="modal-footer no-print" style="background-color:#AF8D86;">
+                <button type="button" class="btn fw-bold text-white"
+                        style="background-color:#011936; border-color:#011936;"
+                        onclick="imprimirReporteProveedores()">
+                    <i class="bi bi-printer me-1"></i>Imprimir
+                </button>
+                <button type="button" class="btn fw-bold text-white"
+                        style="background-color:#011936; border-color:#011936;"
+                        data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ALERTA FLOTANTE -->
+<div id="alertaProveedorSeleccionado"
+     class="shadow position-fixed bottom-0 end-0 m-4 d-none p-3 rounded"
+     style="z-index:9999; min-width:280px; background-color:#fff;
+            border-left:5px solid #AF8D86; color:#011936;">
+    <i class="bi bi-check-circle-fill me-2" style="color:#AF8D86;"></i>
+    <strong>Proveedor seleccionado:</strong><br>
+    <span id="alertaNombreProveedor"></span>
+</div>
+
+<script>
+    // Fecha actual en el reporte
+    document.getElementById('modalReporteProveedores').addEventListener('show.bs.modal', function () {
+        const hoy = new Date();
+        const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('fechaReporteProveedor').textContent =
+            hoy.toLocaleDateString('es-CO', opciones);
+    });
+
+    // Imprimir reporte
+    function imprimirReporteProveedores() {
+        const contenido = document.getElementById('contenidoReporteProveedores').innerHTML;
+        const ventana = window.open('', '_blank');
+        ventana.document.write(`
+            <html>
+            <head>
+                <title>Reporte de Proveedores</title>
+                <link rel="stylesheet"
+                      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+                <style>
+                    body { padding: 20px; font-family: Arial, sans-serif; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th { background-color: #011936 !important; color: #fff !important;
+                         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    td, th { border: 1px solid #dee2e6; padding: 8px; text-align: center; }
+                    .rounded { border-radius: 8px; }
+                    .text-white { color: #fff !important; }
+                    .p-3 { padding: 16px; }
+                    @media print {
+                        body { padding: 0; }
+                    }
+                </style>
+            </head>
+            <body>${contenido}</body>
+            </html>
+        `);
+        ventana.document.close();
+        ventana.focus();
+        setTimeout(() => { ventana.print(); ventana.close(); }, 500);
+    }
+
+    // Buscador modal seleccionar proveedor
+    document.getElementById('buscarProveedorModal').addEventListener('input', function () {
+        const filtro = this.value.toLowerCase();
+        document.querySelectorAll('.fila-proveedor-modal').forEach(function (fila) {
+            fila.style.display = fila.innerText.toLowerCase().includes(filtro) ? '' : 'none';
         });
+    });
 
-        document.getElementById("totalVentas").textContent =
-          "$" + sumaV.toLocaleString();
-        document.getElementById("totalProductos").textContent = sumaP;
-        document.getElementById("totalClientes").textContent = cSet.size;
-        localStorage.setItem("ventas", JSON.stringify(ventas));
-      }
-
-      window.eliminarVenta = function (index) {
-        if (confirm("¿Seguro que deseas eliminar este registro?")) {
-          ventas.splice(index, 1);
-          actualizarSistema();
-        }
-      };
-
-      window.editarVenta = function (index) {
-        let v = ventas[index];
-        let n = prompt("Nombre del Cliente:", v.cliente);
-        if (n) {
-          v.cliente = n;
-          v.cantidad = parseInt(prompt("Cantidad:", v.cantidad)) || v.cantidad;
-          v.precio = parseInt(prompt("Precio:", v.precio)) || v.precio;
-          actualizarSistema();
-        }
-      };
-
-      const form = document.getElementById("formNuevaVenta");
-      if (form) {
-        form.addEventListener("submit", (e) => {
-          e.preventDefault();
-          const nuevaVenta = {
-            id: ventas.length > 0 ? ventas[ventas.length - 1].id + 1 : 1,
-            cliente: document.getElementById("cliente").value,
-            producto: document.getElementById("producto").value,
-            cantidad: parseInt(document.getElementById("cantidad").value),
-            precio: parseInt(document.getElementById("precio").value),
-          };
-          ventas.push(nuevaVenta);
-          localStorage.setItem("ventas", JSON.stringify(ventas));
-          window.location.href = "?";
+    // Seleccionar proveedor
+    document.querySelectorAll('.btn-seleccionar-proveedor').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const nombre = this.dataset.nombre;
+            const producto = this.dataset.producto;
+            document.getElementById('alertaNombreProveedor').textContent = nombre + ' — ' + producto;
+            const alerta = document.getElementById('alertaProveedorSeleccionado');
+            alerta.classList.remove('d-none');
+            setTimeout(function () { alerta.classList.add('d-none'); }, 4000);
+            document.querySelectorAll('.fila-proveedor-modal').forEach(f => f.classList.remove('table-success'));
+            btn.closest('tr').classList.add('table-success');
         });
-      }
-      actualizarSistema();
-    </script>
-  </body>
-</html>
+    });
+</script>
+
+{% endblock %}
