@@ -23,14 +23,78 @@
   <!-- BODY -->
   <div class="cys-sb-body">
 
-    <!-- Usuario -->
-    <div class="cys-sb-user">
-      <div class="cys-sb-avatar">
-        <i class="bi bi-person-fill"></i>
+    <!-- USUARIO — clic para ver perfil -->
+    <div class="cys-sb-user" id="perfilToggle"
+         onclick="togglePerfil()"
+         style="cursor:pointer; user-select:none;">
+      <div class="cys-sb-avatar"
+           style="font-family:'Rajdhani',sans-serif; font-weight:700;
+                  font-size:.9rem; color:var(--azul-claro);">
+        {{ request.session.usuario_user|slice:":1"|upper }}
       </div>
-      <div>
-        <div class="cys-sb-user-name">Usuario</div>
-        <div class="cys-sb-user-role">Administrador</div>
+      <div style="flex:1;">
+        <div class="cys-sb-user-name">
+          @{{ request.session.usuario_user|default:"usuario" }}
+        </div>
+        <div class="cys-sb-user-role">
+          {% if request.session.usuario_rol == 'admin' %}Administrador
+          {% elif request.session.usuario_rol == 'cajero' %}Cajero
+          {% elif request.session.usuario_rol == 'empleado' %}Empleado
+          {% else %}—{% endif %}
+        </div>
+      </div>
+      <i class="bi bi-chevron-down" id="perfilChevron"
+         style="font-size:.65rem; color:var(--texto-muted);
+                transition:transform .2s ease; margin-left:auto;"></i>
+    </div>
+
+    <!-- PANEL PERFIL (oculto por defecto) -->
+    <div id="perfilPanel" style="
+      display:none;
+      background:var(--fondo-card2, #111f33);
+      border:1px solid var(--azul-borde);
+      border-radius:10px;
+      padding:.85rem 1rem;
+      margin-top:.25rem;
+      font-size:.78rem;
+      line-height:1.8;
+    ">
+      <div style="display:flex; flex-direction:column; gap:.3rem;">
+        <div>
+          <span style="color:var(--texto-muted); font-size:.65rem;
+                       text-transform:uppercase; letter-spacing:.08em;">
+            Nombre completo
+          </span>
+          <div style="color:var(--texto); font-weight:600;">
+            {{ request.session.usuario_nombre|default:"—" }}
+          </div>
+        </div>
+        <div>
+          <span style="color:var(--texto-muted); font-size:.65rem;
+                       text-transform:uppercase; letter-spacing:.08em;">
+            Usuario
+          </span>
+          <div style="color:var(--azul-claro);">
+            @{{ request.session.usuario_user|default:"—" }}
+          </div>
+        </div>
+        <div>
+          <span style="color:var(--texto-muted); font-size:.65rem;
+                       text-transform:uppercase; letter-spacing:.08em;">
+            Rol
+          </span>
+          <div>
+            <span style="
+              font-size:.65rem; padding:.15rem .5rem; border-radius:999px;
+              font-weight:600; text-transform:uppercase; letter-spacing:.06em;
+              background:{% if request.session.usuario_rol == 'admin' %}rgba(192,57,43,.15){% elif request.session.usuario_rol == 'cajero' %}rgba(77,168,218,.12){% else %}rgba(77,218,140,.12){% endif %};
+              color:{% if request.session.usuario_rol == 'admin' %}#e87070{% elif request.session.usuario_rol == 'cajero' %}var(--azul-claro){% else %}#5edb97{% endif %};
+              border:1px solid {% if request.session.usuario_rol == 'admin' %}rgba(192,57,43,.3){% elif request.session.usuario_rol == 'cajero' %}var(--azul-borde){% else %}rgba(77,218,140,.25){% endif %};
+            ">
+              {{ request.session.usuario_rol|default:"—" }}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -43,17 +107,17 @@
           <i class="bi bi-grid-1x2-fill"></i> Tablero
         </a>
 
-        <!-- 🔥 VENTAS -->
+        <!-- VENTAS CON SUBMENÚ -->
         <a href="{% url 'ventas:ventas_lista' %}"
            class="cys-sb-link cys-sb-link--parent {% block nav_ventas %}{% endblock %}"
+           id="btnVentas"
            onclick="toggleVentas(event, this)">
           <i class="bi bi-receipt"></i> Ventas
-          <i class="bi bi-chevron-down ms-auto cys-chevron"></i>
+          <i class="bi bi-chevron-down ms-auto cys-chevron" id="chevronVentas"></i>
         </a>
 
-        <!-- SUBMENÚ -->
         <div class="cys-sb-submenu" id="submenuVentas">
-          <a href="{% url 'reportes' %}" class="cys-sb-sublink">
+          <a href="{% url 'reportes' %}" class="cys-sb-sublink {% block nav_reportes %}{% endblock %}">
             <i class="bi bi-bar-chart-fill"></i> Reportes
           </a>
         </div>
@@ -62,7 +126,6 @@
           <i class="bi bi-box-seam-fill"></i> Productos
         </a>
 
-        <!-- ORDEN CORREGIDO -->
         <a href="{% url 'inventario:inventario_home' %}" class="cys-sb-link {% block nav_inventario %}{% endblock %}">
           <i class="bi bi-clipboard-data-fill"></i> Inventario
         </a>
@@ -111,9 +174,57 @@
       </div>
     </div>
 
+    <!-- CERRAR SESIÓN -->
+    <a href="{% url 'logout' %}"
+       class="cys-sb-link"
+       style="color:var(--rojo); border-color:rgba(192,57,43,.3); margin-top:.5rem;">
+      <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+    </a>
+
     <div class="cys-sb-footer">
       CYS Ltda &copy; {% now "Y" %}
     </div>
 
   </div>
 </div>
+
+<script>
+  // ── PERFIL TOGGLE ─────────────────────────────────────
+  function togglePerfil() {
+    const panel   = document.getElementById('perfilPanel');
+    const chevron = document.getElementById('perfilChevron');
+    const abierto = panel.style.display === 'block';
+    panel.style.display   = abierto ? 'none' : 'block';
+    chevron.style.transform = abierto ? 'rotate(0deg)' : 'rotate(180deg)';
+  }
+
+  // ── SUBMENÚ VENTAS ────────────────────────────────────
+  function toggleVentas(e, el) {
+    const submenu = document.getElementById('submenuVentas');
+    const chevron = document.getElementById('chevronVentas');
+    const path    = window.location.pathname;
+
+    if (path.startsWith('/ventas/')) {
+      e.preventDefault();
+    }
+    submenu.classList.toggle('abierto');
+    el.classList.toggle('abierto');
+    chevron.classList.toggle('abierto');
+  }
+
+  // ── ABRIR SUBMENÚ AUTOMÁTICAMENTE ────────────────────
+  // Se ejecuta directo (no en DOMContentLoaded) porque el aside
+  // se incluye como partial y el DOM ya está listo en este punto
+  (function() {
+    const path    = window.location.pathname;
+    const submenu = document.getElementById('submenuVentas');
+    const parent  = document.getElementById('btnVentas');
+    const chevron = document.getElementById('chevronVentas');
+
+    if (path.startsWith('/ventas/') || path.startsWith('/reportes')) {
+      if (submenu) submenu.classList.add('abierto');
+      if (parent)  parent.classList.add('abierto');
+      if (chevron) chevron.classList.add('abierto');
+    }
+  })();
+</script>

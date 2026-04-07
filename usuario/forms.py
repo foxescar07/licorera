@@ -1,27 +1,84 @@
 from django import forms
 from .models import Usuario
- 
+import hashlib
+
+
 class UsuarioForm(forms.ModelForm):
+    clave = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control cys-input',
+            'placeholder': 'Contraseña',
+            'id': 'id_clave',
+        }),
+        label='Contraseña'
+    )
+    clave_confirmar = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control cys-input',
+            'placeholder': 'Confirmar contraseña',
+        }),
+        label='Confirmar Contraseña'
+    )
+
     class Meta:
-        model = Usuario
-        fields = ['identificacion', 'nombre', 'telefono', 'direccion']
- 
+        model  = Usuario
+        fields = ['tipo_id', 'identificacion', 'nombre', 'apellidos',
+                  'email', 'usuario', 'rol']
+        widgets = {
+            'tipo_id':        forms.Select(attrs={'class': 'form-select cys-input'}),
+            'identificacion': forms.TextInput(attrs={'class': 'form-control cys-input', 'placeholder': 'Número de identificación'}),
+            'nombre':         forms.TextInput(attrs={'class': 'form-control cys-input', 'placeholder': 'Nombres'}),
+            'apellidos':      forms.TextInput(attrs={'class': 'form-control cys-input', 'placeholder': 'Apellidos'}),
+            'email':          forms.EmailInput(attrs={'class': 'form-control cys-input', 'placeholder': 'correo@ejemplo.com'}),
+            'usuario':        forms.TextInput(attrs={'class': 'form-control cys-input', 'placeholder': 'Nombre de usuario'}),
+            'rol':            forms.Select(attrs={'class': 'form-select cys-input'}),
+        }
+
     def clean_identificacion(self):
-        identificacion = self.cleaned_data.get('identificacion')
-        if not identificacion.isdigit():
-            raise forms.ValidationError("La identificación solo debe contener números.")
-        if Usuario.objects.filter(identificacion=identificacion).exists():
-            raise forms.ValidationError("Ya existe un usuario con esta identificación.")
-        return identificacion
- 
-    def clean_telefono(self):
-        telefono = self.cleaned_data.get('telefono')
-        if not telefono.isdigit():
-            raise forms.ValidationError("El teléfono solo debe contener números.")
-        return telefono
- 
+        v = self.cleaned_data.get('identificacion', '')
+        if not v.isdigit():
+            raise forms.ValidationError('Solo debe contener números.')
+        # Validar unicidad en español
+        qs = Usuario.objects.filter(identificacion=v)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError('Ya existe un usuario con esta identificación.')
+        return v
+
+    def clean_usuario(self):
+        v = self.cleaned_data.get('usuario', '')
+        # Validar unicidad en español
+        qs = Usuario.objects.filter(usuario=v)
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError('Este nombre de usuario ya está en uso.')
+        return v
+
     def clean_nombre(self):
-        nombre = self.cleaned_data.get('nombre')
-        if any(char.isdigit() for char in nombre):
-            raise forms.ValidationError("El nombre no debe contener números.")
-        return nombre
+        v = self.cleaned_data.get('nombre', '')
+        if any(c.isdigit() for c in v):
+            raise forms.ValidationError('El nombre no debe contener números.')
+        return v
+
+    def clean_apellidos(self):
+        v = self.cleaned_data.get('apellidos', '')
+        if any(c.isdigit() for c in v):
+            raise forms.ValidationError('Los apellidos no deben contener números.')
+        return v
+
+    def clean(self):
+        cleaned = super().clean()
+        c1 = cleaned.get('clave')
+        c2 = cleaned.get('clave_confirmar')
+        if c1 and c2 and c1 != c2:
+            raise forms.ValidationError('Las contraseñas no coinciden.')
+        return cleaned
+
+    def save(self, commit=True):
+        u = super().save(commit=False)
+        u.clave = hashlib.sha256(self.cleaned_data['clave'].encode()).hexdigest()
+        if commit:
+            u.save()
+        return u

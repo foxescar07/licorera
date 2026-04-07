@@ -1,49 +1,39 @@
 from django.db import models
 
-from producto import forms
 
 class Usuario(models.Model):
-    # Campos básicos del usuario
+    ROL_CHOICES = [
+        ('admin',    'Administrador'),
+        ('cajero',   'Cajero'),
+        ('empleado', 'Empleado'),
+    ]
+
+    TIPO_ID_CHOICES = [
+        ('CC',  'Cédula de Ciudadanía'),
+        ('CE',  'Cédula de Extranjería'),
+        ('TI',  'Tarjeta de Identidad'),
+        ('PA',  'Pasaporte'),
+    ]
+
+    tipo_id        = models.CharField(max_length=5, choices=TIPO_ID_CHOICES, default='CC')
     identificacion = models.CharField(max_length=20, unique=True)
-    nombre = models.CharField(max_length=100, verbose_name="Nombre")
-    telefono = models.CharField(max_length=20, verbose_name="Teléfono")
-    direccion = models.CharField(max_length=200, verbose_name="Dirección")
-    
-    # Este campo 'rol' es VITAL para que tu login sepa quién es Admin o Empleado
-    rol = models.CharField(
-        max_length=20, 
-        choices=[('admin', 'Administrador'), ('empleado', 'Empleado')], 
-        default='empleado'
-    )
-    
+    nombre         = models.CharField(max_length=100)
+    apellidos      = models.CharField(max_length=100)
+    email          = models.EmailField(unique=True, blank=True, null=True)
+    usuario        = models.CharField(max_length=50, unique=True)
+    clave          = models.CharField(max_length=128)
+    rol            = models.CharField(max_length=20, choices=ROL_CHOICES, default='empleado')
+    activo         = models.BooleanField(default=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Usuario"
+        verbose_name        = "Usuario"
         verbose_name_plural = "Usuarios"
+        ordering            = ["-fecha_registro"]
 
     def __str__(self):
-        return f"{self.nombre} ({self.identificacion})"
-        fields = ['identificacion', 'nombre', 'telefono', 'direccion']
- 
-    def clean_identificacion(self):
-        identificacion = self.cleaned_data.get('identificacion')
-        if not identificacion.isdigit():
-            raise forms.ValidationError("La identificación solo debe contener números.")
-        if Usuario.objects.filter(identificacion=identificacion).exists():
-            raise forms.ValidationError("Ya existe un usuario con esta identificación.")
-        return identificacion
- 
-    def clean_telefono(self):
-        telefono = self.cleaned_data.get('telefono')
-        if not telefono.isdigit():
-            raise forms.ValidationError("El teléfono solo debe contener números.")
-        return telefono
- 
-    def clean_nombre(self):
-        nombre = self.cleaned_data.get('nombre')
-        if any(char.isdigit() for char in nombre):
-            raise forms.ValidationError("El nombre no debe contener números.")
-        return nombre
-        return f"{self.nombre} ({self.identificacion})"
+        return f"{self.nombre} {self.apellidos} ({self.get_rol_display()})"
 
+    @property
+    def nombre_completo(self):
+        return f"{self.nombre} {self.apellidos}"

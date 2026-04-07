@@ -2,174 +2,296 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CYS - Acceso al Sistema</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --fondo-dark: #050a12;      /* Azul casi negro del tablero */
-            --fondo-card: #0d1b2e;      /* Azul un poco más claro para la tarjeta */
-            --azul-neon: #4da8da;       /* El azul cian de tus botones */
-            --rojo-neon: #b7372a;       /* El rojo de "Registrar Venta" */
-            --borde-glow: rgba(77, 168, 218, 0.2);
-        }
-
-        body {
-            background-color: var(--fondo-dark) !important;
-            color: #e8edf2;
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Tarjeta con estilo Tablero */
-        .cys-card-dark {
-            background-color: var(--fondo-card) !important;
-            border: 1px solid rgba(77, 168, 218, 0.3) !important;
-            border-radius: 14px !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 15px var(--borde-glow);
-            max-width: 420px;
-            width: 90%;
-            padding: 2.5rem !important;
-        }
-
-        /* Títulos Tecnológicos */
-        .cys-titulo-neon {
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: #ffffff;
-            text-shadow: 0 0 10px var(--borde-glow);
-        }
-
-        /* Inputs Oscuros */
-        .form-control {
-            background-color: #111f33 !important;
-            border: 1px solid rgba(77, 168, 218, 0.2) !important;
-            color: #ffffff !important;
-            border-radius: 8px !important;
-            padding: 12px !important;
-        }
-
-        .form-control:focus {
-            border-color: var(--azul-neon) !important;
-            box-shadow: 0 0 10px rgba(77, 168, 218, 0.4) !important;
-            outline: none;
-        }
-
-        /* Botón estilo "Registrar Entrada" (Azul Neón) */
-        .btn-azul-neon {
-            background-color: var(--azul-neon) !important;
-            color: #050a12 !important;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            border-radius: 8px !important;
-            border: none !important;
-            box-shadow: 0 0 15px rgba(77, 168, 218, 0.4);
-            transition: all 0.3s ease;
-        }
-
-        .btn-azul-neon:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 25px rgba(77, 168, 218, 0.6);
-            filter: brightness(1.1);
-        }
-
-        /* Botón estilo "Registrar Venta" (Rojo Neón) */
-        .btn-rojo-neon {
-            background-color: var(--rojo-neon) !important;
-            color: white !important;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            border-radius: 8px !important;
-            border: none !important;
-            box-shadow: 0 0 15px rgba(183, 55, 42, 0.4);
-            transition: all 0.3s ease;
-        }
-
-        .btn-rojo-neon:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 25px rgba(183, 55, 42, 0.6);
-        }
-
-        .logo-tablero {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 2px solid var(--azul-neon);
-            box-shadow: 0 0 15px var(--borde-glow);
-            margin-bottom: 1.5rem;
-        }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CYS — Acceso al Sistema</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/jpeg" href="{% static 'img/logo.jpeg' %}">
+  <style>
+    :root {
+      --azul-oscuro: #011936;
+      --azul-claro:  #4DA8DA;
+      --azul-borde:  rgba(77,168,218,.35);
+      --azul-glow:   rgba(77,168,218,.15);
+      --rojo:        #C0392B;
+      --fondo:       #080F1A;
+      --fondo-card:  #0D1B2E;
+      --fondo-card2: #111f33;
+      --texto:       #E8EDF2;
+      --texto-muted: rgba(232,237,242,.45);
+      --radius:      12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cys-card {
+      background: var(--fondo-card);
+      border: 1px solid var(--azul-borde);
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.6), 0 0 20px var(--azul-glow);
+      width: 100%;
+      max-width: 420px;
+      padding: 2.5rem;
+    }
+    .cys-logo {
+      width: 88px; height: 88px;
+      border-radius: 50%; object-fit: cover;
+      border: 2px solid var(--azul-claro);
+      box-shadow: 0 0 0 4px var(--azul-glow), 0 0 20px var(--azul-glow);
+      display: block; margin: 0 auto 1.5rem;
+    }
+    .cys-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700; font-size: 1.3rem;
+      letter-spacing: .15em; text-transform: uppercase;
+      color: var(--texto); text-align: center; margin-bottom: 1.5rem;
+    }
+    .cys-label {
+      font-size: .68rem; font-weight: 600;
+      color: var(--texto-muted); letter-spacing: .1em;
+      text-transform: uppercase; display: block; margin-bottom: .35rem;
+    }
+    .cys-input {
+      background: var(--fondo-card2) !important;
+      border: 1px solid var(--azul-borde) !important;
+      color: var(--texto) !important;
+      border-radius: var(--radius) !important;
+      padding: .75rem 1rem !important;
+      font-size: .88rem !important;
+      width: 100%;
+      text-align: left;
+      transition: all .22s ease;
+    }
+    .cys-input:focus {
+      border-color: var(--azul-claro) !important;
+      box-shadow: 0 0 0 3px var(--azul-glow) !important;
+      outline: none !important;
+    }
+    .cys-input::placeholder {
+      color: var(--texto-muted) !important;
+      text-align: left;
+    }
+    .cys-btn-primary {
+      background: var(--azul-claro); color: var(--azul-oscuro);
+      border: none; border-radius: var(--radius); padding: .75rem;
+      width: 100%; font-family: 'Rajdhani', sans-serif;
+      font-weight: 700; font-size: .95rem; letter-spacing: .1em;
+      text-transform: uppercase; cursor: pointer;
+      transition: all .22s ease; box-shadow: 0 4px 14px rgba(77,168,218,.4);
+    }
+    .cys-btn-primary:hover {
+      background: #6dc0e8; transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(77,168,218,.6);
+    }
+    .cys-divider { height: 1px; background: var(--azul-borde); margin: 1.25rem 0; }
+    .cys-btn-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      background: transparent;
+      border: 1px solid var(--azul-borde);
+      border-radius: 8px;
+      color: var(--azul-claro);
+      font-size: .75rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      padding: .45rem .85rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .2s ease;
+    }
+    .cys-btn-link:hover {
+      background: var(--azul-glow);
+      border-color: var(--azul-claro);
+      color: var(--azul-claro);
+    }
+    .cys-msg {
+      border-radius: 8px; padding: .65rem .9rem;
+      font-size: .8rem; margin-bottom: 1rem; display: none;
+    }
+    .cys-msg--ok  { background: rgba(46,204,113,.1); border: 1px solid rgba(46,204,113,.35); color: #5edb97; }
+    .cys-msg--err { background: rgba(192,57,43,.1);  border: 1px solid rgba(192,57,43,.35);  color: #e87070; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-8px); }
+      40%       { transform: translateX(8px); }
+      60%       { transform: translateX(-5px); }
+      80%       { transform: translateX(5px); }
+    }
+    .shake { animation: shake .4s ease; }
+  </style>
 </head>
-<body class="justify-content-center align-items-center">
+<body>
 
-    <div class="cys-card-dark text-center" id="contenedorPrincipal">
-        
-        <img src="{% static 'img/logo.jpeg' %}" class="logo-tablero">
+  <div class="cys-card" id="tarjeta">
+    <img src="{% static 'img/logo.jpeg' %}" class="cys-logo" alt="Logo CYS">
+    <div id="msgGlobal" class="cys-msg"></div>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-danger py-2 small border-0 bg-transparent text-danger">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        <div class="collapse show" id="seccionLogin" data-bs-parent="#contenedorPrincipal">
-            <h2 class="cys-titulo-neon h4 mb-4">Acceso al Sistema</h2>
-            <form method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="accion" value="login">
-                <input type="text" name="usuario_input" class="form-control mb-3 text-center" placeholder="USUARIO" required>
-                <input type="password" name="clave_input" class="form-control mb-4 text-center" placeholder="CONTRASEÑA" required>
-                <button type="submit" class="btn btn-azul-neon w-100 py-2">INICIAR SESIÓN</button>
-            </form>
-            <div class="mt-4 d-flex justify-content-between">
-                <button class="btn btn-link text-info text-decoration-none small p-0" data-bs-toggle="collapse" data-bs-target="#seccionRecuperar">Olvidé mi clave</button>
-                <button class="btn btn-link text-info text-decoration-none small p-0" data-bs-toggle="collapse" data-bs-target="#seccionRegistro">Crear cuenta</button>
-            </div>
-        </div>
-
-        <div class="collapse" id="seccionRegistro" data-bs-parent="#contenedorPrincipal">
-            <h2 class="cys-titulo-neon h4 mb-4">Nuevo Registro</h2>
-            <form method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="accion" value="registrar">
-                <input type="text" name="nombre_input" class="form-control mb-2 text-center" placeholder="NOMBRE COMPLETO">
-                <input type="text" name="user_nuevo" class="form-control mb-2 text-center" placeholder="USUARIO">
-                <input type="password" name="pass_nueva" class="form-control mb-3 text-center" placeholder="CONTRASEÑA">
-                
-                <select name="rol_nuevo" class="form-control mb-3 text-center">
-                    <option value="empleado">EMPLEADO</option>
-                    <option value="admin">ADMINISTRADOR</option>
-                </select>
-
-                <button type="submit" class="btn btn-rojo-neon w-100 py-2">GUARDAR USUARIO</button>
-            </form>
-            <button class="btn btn-link text-info mt-3 text-decoration-none small" data-bs-toggle="collapse" data-bs-target="#seccionLogin">Volver al Inicio</button>
-        </div>
-
-        <div class="collapse" id="seccionRecuperar" data-bs-parent="#contenedorPrincipal">
-            <h2 class="cys-titulo-neon h4 mb-4">Recuperar</h2>
-            <form method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="accion" value="recuperar">
-                <input type="text" name="user_recuperar" class="form-control mb-4 text-center" placeholder="TU USUARIO">
-                <button type="submit" class="btn btn-azul-neon w-100 py-2">SOLICITAR ACCESO</button>
-            </form>
-            <button class="btn btn-link text-info mt-3 text-decoration-none small" data-bs-toggle="collapse" data-bs-target="#seccionLogin">Volver al Inicio</button>
-        </div>
-
+    <!-- LOGIN -->
+    <div id="secLogin">
+      <div class="cys-title">Acceso al Sistema</div>
+      <div class="mb-3">
+        <label class="cys-label">Usuario</label>
+        <input type="text" id="loginUser" class="cys-input" placeholder="Tu usuario" autocomplete="off">
+      </div>
+      <div class="mb-4">
+        <label class="cys-label">Contraseña</label>
+        <input type="password" id="loginPass" class="cys-input" placeholder="Tu contraseña">
+      </div>
+      <button class="cys-btn-primary" onclick="hacerLogin()">Iniciar Sesión</button>
+      <div class="cys-divider"></div>
+      <div class="d-flex justify-content-between align-items-center gap-2">
+        <button class="cys-btn-link" onclick="mostrar('secRecuperar')">
+          <i class="bi bi-key" style="font-size:.75rem;"></i> Olvidé mi contraseña
+        </button>
+        <a href="{% url 'crear_usuario' %}" class="cys-btn-link">
+          <i class="bi bi-person-plus" style="font-size:.75rem;"></i> Crear usuario
+        </a>
+      </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- RECUPERAR -->
+    <div id="secRecuperar" style="display:none;">
+      <div class="cys-title">Recuperar Acceso</div>
+      <p style="font-size:.78rem; color:var(--texto-muted); margin-bottom:1.25rem; text-align:center; line-height:1.6;">
+        Ingresa tu correo registrado y te enviaremos un enlace para crear una nueva contraseña.
+      </p>
+      <div class="mb-4">
+        <label class="cys-label">Correo Electrónico</label>
+        <input type="email" id="recCorreo" class="cys-input" placeholder="correo@ejemplo.com" autocomplete="off">
+      </div>
+      <button class="cys-btn-primary mb-3" onclick="hacerRecuperar()">Enviar Enlace</button>
+      <div class="text-center">
+        <button class="cys-btn-link mx-auto" onclick="mostrar('secLogin')">
+          <i class="bi bi-arrow-left" style="font-size:.75rem;"></i> Volver al inicio
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function mostrar(id) {
+      ['secLogin','secRecuperar'].forEach(s => {
+        document.getElementById(s).style.display = 'none';
+      });
+      document.getElementById(id).style.display = 'block';
+      limpiarMsg();
+    }
+
+    function mostrarMsg(texto, tipo) {
+      const el = document.getElementById('msgGlobal');
+      el.textContent = texto;
+      el.className   = `cys-msg cys-msg--${tipo}`;
+      el.style.display = 'block';
+    }
+
+    function limpiarMsg() {
+      const el = document.getElementById('msgGlobal');
+      el.style.display = 'none';
+      el.textContent = '';
+    }
+
+    function sacudir() {
+      const t = document.getElementById('tarjeta');
+      t.classList.remove('shake');
+      void t.offsetWidth;
+      t.classList.add('shake');
+    }
+
+    function getCookie(name) {
+      let v = null;
+      document.cookie.split(';').forEach(c => {
+        c = c.trim();
+        if (c.startsWith(name + '=')) v = decodeURIComponent(c.slice(name.length + 1));
+      });
+      return v;
+    }
+
+    function hacerLogin() {
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value;
+
+      if (!user || !pass) {
+        mostrarMsg('Completa usuario y contraseña.', 'err');
+        sacudir(); return;
+      }
+
+      const fd = new FormData();
+      fd.append('usuario_input', user);
+      fd.append('clave_input', pass);
+      fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+      fetch("{% url 'login' %}", {
+        method: 'POST', body: fd,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          mostrarMsg('✅ Acceso correcto. Redirigiendo...', 'ok');
+          setTimeout(() => window.location.href = data.redirect, 1000);
+        } else {
+          mostrarMsg(data.error, 'err');
+          sacudir();
+          document.getElementById('loginPass').value = '';
+        }
+      })
+      .catch(() => {
+        mostrarMsg('Error de conexión. Intenta de nuevo.', 'err');
+        sacudir();
+      });
+    }
+
+    function hacerRecuperar() {
+      const correo = document.getElementById('recCorreo').value.trim();
+
+      if (!correo) {
+        mostrarMsg('Ingresa tu correo electrónico.', 'err');
+        sacudir(); return;
+      }
+
+      const fd = new FormData();
+      fd.append('correo', correo);
+      fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+      fetch("{% url 'recuperar_clave' %}", {
+        method: 'POST', body: fd,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          mostrarMsg('✅ ' + data.mensaje, 'ok');
+          document.getElementById('recCorreo').value = '';
+        } else {
+          mostrarMsg(data.error, 'err');
+          sacudir();
+          document.getElementById('recCorreo').value = '';
+        }
+      })
+      .catch(() => {
+        mostrarMsg('Error de conexión. Intenta de nuevo.', 'err');
+        sacudir();
+      });
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        if (document.getElementById('secLogin').style.display !== 'none') hacerLogin();
+        else if (document.getElementById('secRecuperar').style.display !== 'none') hacerRecuperar();
+      }
+    });
+  </script>
 </body>
 </html>
