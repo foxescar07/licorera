@@ -142,7 +142,7 @@
   }
 
   function actualizar() {
-    fetch("/producto/stock-status/")
+    fetch("{% url 'producto:stock_status' %}")
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then(data => pintar(data))
       .catch(() => {});

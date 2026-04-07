@@ -2,11 +2,14 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse
 from django.utils.crypto import get_random_string
+from django.utils import timezone
+from datetime import timedelta
 from .models import Usuario
 from .forms import UsuarioForm
 import hashlib
 import ssl
 import smtplib
+import re
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -15,7 +18,6 @@ EMAIL_PASS = 'jmcikwsvajdmbzab'
 
 
 def _enviar_correo(destinatario, asunto, cuerpo):
-    """Envía correo via SMTP directo, sin verificación SSL (fix Windows/Python 3.13)."""
     mensaje = MIMEMultipart()
     mensaje['Subject'] = asunto
     mensaje['From']    = f'CYS Ltda <{EMAIL_USER}>'
@@ -32,6 +34,17 @@ def _enviar_correo(destinatario, asunto, cuerpo):
         server.ehlo()
         server.login(EMAIL_USER, EMAIL_PASS)
         server.sendmail(EMAIL_USER, destinatario, mensaje.as_string())
+
+
+def _validar_clave_segura(clave):
+    """Retorna mensaje de error o None si es válida."""
+    if len(clave) < 6:
+        return 'La contraseña debe tener al menos 6 caracteres.'
+    if len(re.findall(r'\d', clave)) < 2:
+        return 'La contraseña debe contener al menos 2 números.'
+    if not re.search(r'[A-Z]', clave):
+        return 'La contraseña debe contener al menos 1 letra mayúscula.'
+    return None
 
 
 def login_view(request):
@@ -100,15 +113,19 @@ def solicitar_recuperacion(request):
         except Usuario.DoesNotExist:
             return JsonResponse({'ok': False, 'error': 'No existe una cuenta activa con ese correo.'})
 
-        token = get_random_string(32)
-        request.session[f'reset_token_{token}'] = usuario.pk
-        link  = request.build_absolute_uri(f'/usuario/restablecer/{token}/')
+        # Token con expiración de 15 minutos guardado en BD
+        token  = get_random_string(32)
+        expira = timezone.now() + timedelta(minutes=15)
+        usuario.reset_token        = token
+        usuario.reset_token_expira = expira
+        usuario.save(update_fields=['reset_token', 'reset_token_expira'])
+
+        link = request.build_absolute_uri(f'/usuario/restablecer/{token}/')
 
         cuerpo = (
             f'Hola {usuario.nombre},\n\n'
             f'Recibimos una solicitud para restablecer tu contraseña.\n\n'
-            f'Haz clic en el siguiente enlace para crear una nueva contraseña:\n{link}\n\n'
-            f'Este enlace expira cuando cierres el navegador.\n\n'
+            f'Haz clic en el siguiente enlace (válido por 15 minutos):\n{link}\n\n'
             f'Si no solicitaste esto, ignora este mensaje.\n\n'
             f'— Equipo CYS Ltda'
         )
@@ -119,7 +136,7 @@ def solicitar_recuperacion(request):
                 asunto='Recuperación de contraseña — CYS Ltda',
                 cuerpo=cuerpo,
             )
-            return JsonResponse({'ok': True, 'mensaje': f'Enviamos un enlace a {usuario.email}. Revisa tu bandeja.'})
+            return JsonResponse({'ok': True, 'mensaje': f'Enviamos un enlace a {usuario.email}. Válido por 15 minutos.'})
         except Exception as e:
             print(f"ERROR EMAIL: {type(e).__name__}: {e}")
             return JsonResponse({'ok': False, 'error': f'Error al enviar: {type(e).__name__}: {e}'})
@@ -128,34 +145,43 @@ def solicitar_recuperacion(request):
 
 
 def restablecer_clave(request, token):
-    usuario_pk = request.session.get(f'reset_token_{token}')
+    # Buscar token en BD y verificar expiración
+    try:
+        usuario = Usuario.objects.get(reset_token=token, activo=True)
+    except Usuario.DoesNotExist:
+        return render(request, 'restablecer_clave.html', {
+            'error': 'El enlace no es válido o ya fue utilizado.'
+        })
 
-    if not usuario_pk:
-        return render(request, 'restablecer_clave.html', {'error': 'El enlace no es válido o ya expiró.'})
+    if timezone.now() > usuario.reset_token_expira:
+        # Limpiar token vencido
+        usuario.reset_token        = None
+        usuario.reset_token_expira = None
+        usuario.save(update_fields=['reset_token', 'reset_token_expira'])
+        return render(request, 'restablecer_clave.html', {
+            'error': 'El enlace expiró. Solicita uno nuevo.'
+        })
 
     if request.method == 'POST':
         nueva     = request.POST.get('nueva_clave', '')
         confirmar = request.POST.get('confirmar', '')
 
-        if len(nueva) < 6:
+        error = _validar_clave_segura(nueva)
+        if error:
             return render(request, 'restablecer_clave.html', {
-                'token': token,
-                'error': 'La contraseña debe tener al menos 6 caracteres.'
+                'token': token, 'error': error
             })
 
         if nueva != confirmar:
             return render(request, 'restablecer_clave.html', {
-                'token': token,
-                'error': 'Las contraseñas no coinciden.'
+                'token': token, 'error': 'Las contraseñas no coinciden.'
             })
 
-        try:
-            usuario = Usuario.objects.get(pk=usuario_pk)
-            usuario.clave = hashlib.sha256(nueva.encode()).hexdigest()
-            usuario.save()
-            del request.session[f'reset_token_{token}']
-            return render(request, 'restablecer_clave.html', {'exito': True})
-        except Usuario.DoesNotExist:
-            return render(request, 'restablecer_clave.html', {'error': 'Usuario no encontrado.'})
+        usuario.clave              = hashlib.sha256(nueva.encode()).hexdigest()
+        usuario.reset_token        = None
+        usuario.reset_token_expira = None
+        usuario.save(update_fields=['clave', 'reset_token', 'reset_token_expira'])
+
+        return render(request, 'restablecer_clave.html', {'exito': True})
 
     return render(request, 'restablecer_clave.html', {'token': token})

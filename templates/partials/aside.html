@@ -189,7 +189,6 @@
 </div>
 
 <script>
-  // ── PERFIL TOGGLE ─────────────────────────────────────
   function togglePerfil() {
     const panel   = document.getElementById('perfilPanel');
     const chevron = document.getElementById('perfilChevron');
@@ -198,7 +197,6 @@
     chevron.style.transform = abierto ? 'rotate(0deg)' : 'rotate(180deg)';
   }
 
-  // ── SUBMENÚ VENTAS ────────────────────────────────────
   function toggleVentas(e, el) {
     const submenu = document.getElementById('submenuVentas');
     const chevron = document.getElementById('chevronVentas');
@@ -207,24 +205,19 @@
     if (path.startsWith('/ventas/')) {
       e.preventDefault();
     }
-    submenu.classList.toggle('abierto');
-    el.classList.toggle('abierto');
-    chevron.classList.toggle('abierto');
+
+    submenu.classList.toggle('open');   // 🔥 CORREGIDO
+    chevron.classList.toggle('open');   // 🔥 CORREGIDO
   }
 
-  // ── ABRIR SUBMENÚ AUTOMÁTICAMENTE ────────────────────
-  // Se ejecuta directo (no en DOMContentLoaded) porque el aside
-  // se incluye como partial y el DOM ya está listo en este punto
   (function() {
     const path    = window.location.pathname;
     const submenu = document.getElementById('submenuVentas');
-    const parent  = document.getElementById('btnVentas');
     const chevron = document.getElementById('chevronVentas');
 
     if (path.startsWith('/ventas/') || path.startsWith('/reportes')) {
-      if (submenu) submenu.classList.add('abierto');
-      if (parent)  parent.classList.add('abierto');
-      if (chevron) chevron.classList.add('abierto');
+      if (submenu) submenu.classList.add('open');   // 🔥 CORREGIDO
+      if (chevron) chevron.classList.add('open');   // 🔥 CORREGIDO
     }
   })();
 </script>

@@ -1,13 +1,24 @@
 from django import forms
 from .models import Usuario
 import hashlib
+import re
+
+
+def validar_clave_segura(clave):
+    """Mínimo 6 caracteres, 2 números y 1 mayúscula."""
+    if len(clave) < 6:
+        raise forms.ValidationError('La contraseña debe tener al menos 6 caracteres.')
+    if len(re.findall(r'\d', clave)) < 2:
+        raise forms.ValidationError('La contraseña debe contener al menos 2 números.')
+    if not re.search(r'[A-Z]', clave):
+        raise forms.ValidationError('La contraseña debe contener al menos 1 letra mayúscula.')
 
 
 class UsuarioForm(forms.ModelForm):
     clave = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control cys-input',
-            'placeholder': 'Contraseña',
+            'placeholder': 'Mín. 6 caracteres, 2 números, 1 mayúscula',
             'id': 'id_clave',
         }),
         label='Contraseña'
@@ -38,7 +49,6 @@ class UsuarioForm(forms.ModelForm):
         v = self.cleaned_data.get('identificacion', '')
         if not v.isdigit():
             raise forms.ValidationError('Solo debe contener números.')
-        # Validar unicidad en español
         qs = Usuario.objects.filter(identificacion=v)
         if self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
@@ -48,7 +58,6 @@ class UsuarioForm(forms.ModelForm):
 
     def clean_usuario(self):
         v = self.cleaned_data.get('usuario', '')
-        # Validar unicidad en español
         qs = Usuario.objects.filter(usuario=v)
         if self.instance.pk:
             qs = qs.exclude(pk=self.instance.pk)
@@ -67,6 +76,11 @@ class UsuarioForm(forms.ModelForm):
         if any(c.isdigit() for c in v):
             raise forms.ValidationError('Los apellidos no deben contener números.')
         return v
+
+    def clean_clave(self):
+        clave = self.cleaned_data.get('clave', '')
+        validar_clave_segura(clave)
+        return clave
 
     def clean(self):
         cleaned = super().clean()

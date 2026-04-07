@@ -383,7 +383,7 @@
         {
           nombre: "{{ pres.nombre|escapejs }}",
           unidades: {{ pres.unidades }},
-          precio: {{ pres.precio }},
+          precio: "{{ pres.precio }}",
           cantidad: {{ pres.cantidad }}
         }{% if not forloop.last %},{% endif %}
         {% endfor %}
