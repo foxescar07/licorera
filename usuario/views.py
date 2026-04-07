@@ -1,11 +1,37 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse
-from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 from .models import Usuario
 from .forms import UsuarioForm
 import hashlib
+import ssl
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+EMAIL_USER = 'ccanariasogamoso@gmail.com'
+EMAIL_PASS = 'jmcikwsvajdmbzab'
+
+
+def _enviar_correo(destinatario, asunto, cuerpo):
+    """Envía correo via SMTP directo, sin verificación SSL (fix Windows/Python 3.13)."""
+    mensaje = MIMEMultipart()
+    mensaje['Subject'] = asunto
+    mensaje['From']    = f'CYS Ltda <{EMAIL_USER}>'
+    mensaje['To']      = destinatario
+    mensaje.attach(MIMEText(cuerpo, 'plain'))
+
+    contexto = ssl.create_default_context()
+    contexto.check_hostname = False
+    contexto.verify_mode    = ssl.CERT_NONE
+
+    with smtplib.SMTP('smtp.gmail.com', 587) as server:
+        server.ehlo()
+        server.starttls(context=contexto)
+        server.ehlo()
+        server.login(EMAIL_USER, EMAIL_PASS)
+        server.sendmail(EMAIL_USER, destinatario, mensaje.as_string())
 
 
 def login_view(request):
@@ -76,27 +102,27 @@ def solicitar_recuperacion(request):
 
         token = get_random_string(32)
         request.session[f'reset_token_{token}'] = usuario.pk
+        link  = request.build_absolute_uri(f'/usuario/restablecer/{token}/')
 
-        link = request.build_absolute_uri(f'/usuario/restablecer/{token}/')
+        cuerpo = (
+            f'Hola {usuario.nombre},\n\n'
+            f'Recibimos una solicitud para restablecer tu contraseña.\n\n'
+            f'Haz clic en el siguiente enlace para crear una nueva contraseña:\n{link}\n\n'
+            f'Este enlace expira cuando cierres el navegador.\n\n'
+            f'Si no solicitaste esto, ignora este mensaje.\n\n'
+            f'— Equipo CYS Ltda'
+        )
 
         try:
-            send_mail(
-                subject='Recuperación de contraseña — CYS Ltda',
-                message=(
-                    f'Hola {usuario.nombre},\n\n'
-                    f'Recibimos una solicitud para restablecer tu contraseña.\n\n'
-                    f'Haz clic en el siguiente enlace para crear una nueva contraseña:\n{link}\n\n'
-                    f'Este enlace expira cuando cierres el navegador.\n\n'
-                    f'Si no solicitaste esto, ignora este mensaje.\n\n'
-                    f'— Equipo CYS Ltda'
-                ),
-                from_email='CYS Ltda <ccanariasogamoso@gmail.com>',
-                recipient_list=[usuario.email],
-                fail_silently=False,
+            _enviar_correo(
+                destinatario=usuario.email,
+                asunto='Recuperación de contraseña — CYS Ltda',
+                cuerpo=cuerpo,
             )
             return JsonResponse({'ok': True, 'mensaje': f'Enviamos un enlace a {usuario.email}. Revisa tu bandeja.'})
-        except Exception:
-            return JsonResponse({'ok': False, 'error': 'Error al enviar el correo. Intenta de nuevo.'})
+        except Exception as e:
+            print(f"ERROR EMAIL: {type(e).__name__}: {e}")
+            return JsonResponse({'ok': False, 'error': f'Error al enviar: {type(e).__name__}: {e}'})
 
     return JsonResponse({'ok': False, 'error': 'Petición inválida.'})
 
