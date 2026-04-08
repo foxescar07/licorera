@@ -27,6 +27,7 @@ class Producto(models.Model):
     class Meta:
         verbose_name        = "Producto"
         verbose_name_plural = "Productos"
+        
         ordering            = ["nombre"]
 
     def __str__(self):
@@ -86,10 +87,12 @@ class AgendaInventario(models.Model):
     estado           = models.CharField(max_length=20, choices=ESTADO_CHOICES, default="pendiente")
     creado_en        = models.DateTimeField(auto_now_add=True)
 
+
+
     class Meta:
         verbose_name        = "Agenda de Inventario"
         verbose_name_plural = "Agendas de Inventario"
         ordering            = ["fecha_programada"]
-
+    
     def __str__(self):
         return f"{self.titulo} — {self.fecha_programada:%d/%m/%Y %H:%M}"
