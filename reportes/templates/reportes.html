@@ -34,6 +34,13 @@
     </div>
   </div>
 
+  <!-- BOTÓN ABRIR MODAL -->
+  <div class="mb-4">
+    <button class="btn-reporte-inventario" data-bs-toggle="modal" data-bs-target="#modalInventario">
+      <i class="bi bi-box-seam"></i> Generar Reporte de Inventario
+    </button>
+  </div>
+
   <!-- HISTORIAL -->
   <section class="cys-card mb-4">
     <div class="cys-card__title">Historial de Ventas</div>
@@ -83,4 +90,144 @@
   </section>
 
 </div>
+
+<!-- ===== MODAL REPORTE DE INVENTARIO ===== -->
+<div class="modal fade" id="modalInventario" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content cys-modal">
+
+      <!-- HEADER -->
+      <div class="modal-header cys-modal__header">
+        <div class="d-flex align-items-center gap-3">
+          <div class="cys-modal__icon"><i class="bi bi-box-seam"></i></div>
+          <div>
+            <div class="cys-modal__title">Reporte de Inventario</div>
+            <div class="cys-modal__subtitle">CYS Ltda · {{ productos|length }} productos registrados</div>
+          </div>
+        </div>
+        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+      </div>
+
+      <!-- TARJETAS RESUMEN -->
+      <div class="cys-modal__stats">
+        <div class="cys-stat-mini">
+          <div class="cys-stat-mini__val">{{ total_registrados }}</div>
+          <div class="cys-stat-mini__label">Productos Reg.</div>
+        </div>
+        <div class="cys-stat-mini cys-stat-mini--verde">
+          <div class="cys-stat-mini__val">{{ total_en_stock }}</div>
+          <div class="cys-stat-mini__label">En stock</div>
+        </div>
+        <div class="cys-stat-mini cys-stat-mini--amarillo">
+          <div class="cys-stat-mini__val">{{ total_stock_bajo }}</div>
+          <div class="cys-stat-mini__label">Stock bajo</div>
+        </div>
+        <div class="cys-stat-mini cys-stat-mini--rojo">
+          <div class="cys-stat-mini__val">{{ total_agotados }}</div>
+          <div class="cys-stat-mini__label">Agotados</div>
+        </div>
+      </div>
+
+      <!-- FILTRO BÚSQUEDA -->
+      <div class="cys-modal__filters">
+        <input type="text" id="invSearch" class="cys-search" placeholder="Buscar producto…" onkeyup="filtrarInventario()">
+        <select id="invEstado" class="cys-select" onchange="filtrarInventario()">
+          <option value="">Todos</option>
+          <option value="ok">En stock</option>
+          <option value="low">Stock bajo</option>
+          <option value="out">Agotado</option>
+        </select>
+      </div>
+
+      <!-- TABLA -->
+      <div class="modal-body p-0">
+        <table class="cys-inv-table" id="invTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Cantidad disponible</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in productos %}
+              {% if p.cantidad_disponible == 0 %}
+                <tr data-estado="out">
+                  <td class="text-muted">{{ forloop.counter }}</td>
+                  <td><strong>{{ p.nombre }}</strong></td>
+                  <td><span class="cys-tag">{{ p.categoria|default:"—" }}</span></td>
+                  <td class="cys-qty cys-qty--out">{{ p.cantidad_disponible }}</td>
+                  <td><span class="cys-badge cys-badge--rojo">Agotado</span></td>
+                </tr>
+              {% elif p.cantidad_disponible <= 10 %}
+                <tr data-estado="low">
+                  <td class="text-muted">{{ forloop.counter }}</td>
+                  <td><strong>{{ p.nombre }}</strong></td>
+                  <td><span class="cys-tag">{{ p.categoria|default:"—" }}</span></td>
+                  <td class="cys-qty cys-qty--low">{{ p.cantidad_disponible }}</td>
+                  <td><span class="cys-badge cys-badge--amarillo">Stock bajo</span></td>
+                </tr>
+              {% else %}
+                <tr data-estado="ok">
+                  <td class="text-muted">{{ forloop.counter }}</td>
+                  <td><strong>{{ p.nombre }}</strong></td>
+                  <td><span class="cys-tag">{{ p.categoria|default:"—" }}</span></td>
+                  <td class="cys-qty cys-qty--ok">{{ p.cantidad_disponible }}</td>
+                  <td><span class="cys-badge cys-badge--verde">En stock</span></td>
+                </tr>
+              {% endif %}
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-center py-5" style="color:var(--texto-muted);">
+                  No hay productos registrados.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-footer cys-modal__footer">
+        <button class="cys-btn-export" onclick="exportarCSV()">⬇ Exportar CSV</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filtrarInventario() {
+  const q      = document.getElementById('invSearch').value.toLowerCase();
+  const estado = document.getElementById('invEstado').value;
+  const filas  = document.querySelectorAll('#invTable tbody tr[data-estado]');
+
+  filas.forEach(fila => {
+    const texto  = fila.innerText.toLowerCase();
+    const est    = fila.dataset.estado;
+    const matchQ = texto.includes(q);
+    const matchE = estado === '' || est === estado;
+    fila.style.display = (matchQ && matchE) ? '' : 'none';
+  });
+}
+
+function exportarCSV() {
+  const filas = document.querySelectorAll('#invTable tbody tr[data-estado]');
+  let csv = 'Producto,Categoría,Cantidad,Estado\n';
+  filas.forEach(f => {
+    if (f.style.display !== 'none') {
+      const celdas = f.querySelectorAll('td');
+      csv += `"${celdas[1].innerText}","${celdas[2].innerText}","${celdas[3].innerText}","${celdas[4].innerText}"\n`;
+    }
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'inventario_cys.csv'; a.click();
+}
+</script>
 {% endblock %}
