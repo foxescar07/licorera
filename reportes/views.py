@@ -25,8 +25,12 @@ def reportes(request):
 
     # ── Datos generales ────────────────────────────────────────────
     productos   = Producto.objects.all().order_by('nombre')
+
     proveedores = Proveedor.objects.prefetch_related('productos').all().order_by('nombre')
     categorias  = Categoria.objects.all().order_by('nombre')
+
+    proveedores = Proveedor.objects.all().order_by('nombre_empresa')  # ← corregido
+
 
     total_ventas    = sum(v.total() for v in ventas)
     total_productos = sum(det.cantidad for v in ventas for det in v.detalles.all())
@@ -37,7 +41,7 @@ def reportes(request):
     total_stock_bajo  = productos.filter(cantidad_disponible__gt=0, cantidad_disponible__lte=10).count()
     total_agotados    = productos.filter(cantidad_disponible=0).count()
 
-    # ── Movimientos de inventario ──────────────────────────────────
+
     entradas = Inventario.objects.filter(tipo='entrada').select_related('producto').order_by('-fecha_actualizada')
     salidas  = Inventario.objects.filter(tipo='salida').select_related('producto').order_by('-fecha_actualizada')
 
@@ -53,19 +57,25 @@ def reportes(request):
     total_salidas_hoy  = sum(s.cantidad for s in salidas_hoy)
 
     return render(request, 'reportes.html', {
-        # Ventas
+
         'ventas':            ventas,
         'total_ventas':      total_ventas,
         'total_productos':   total_productos,
         'total_clientes':    total_clientes,
+
         # Inventario
         'productos':         productos,
+
+        'productos':         productos,
+        'proveedores':       proveedores,
+
         'total_registrados': total_registrados,
         'total_en_stock':    total_en_stock,
         'total_stock_bajo':  total_stock_bajo,
         'total_agotados':    total_agotados,
         'entradas':          entradas,
         'salidas':           salidas,
+
         # Proveedores
         'proveedores':       proveedores,
         # Categorías
@@ -83,4 +93,5 @@ def reportes(request):
         'salidas_hoy':       salidas_hoy,
         'total_entradas_hoy': total_entradas_hoy,
         'total_salidas_hoy':  total_salidas_hoy,
+
     })

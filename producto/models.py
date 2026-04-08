@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum
 
 
 class Categoria(models.Model):
@@ -33,8 +34,14 @@ class Producto(models.Model):
         return f"{self.nombre} ({self.codigo})"
 
     @property
+    def stock_total(self):
+        """Unidades sueltas + suma del stock de todas las presentaciones"""
+        stock_pres = self.presentaciones.aggregate(total=Sum('cantidad'))['total'] or 0
+        return self.cantidad_disponible + stock_pres
+
+    @property
     def stock_critico(self):
-        return self.cantidad_disponible <= 5
+        return self.stock_total <= 5
 
     def precio_base(self):
         pres = self.presentaciones.order_by('unidades').first()

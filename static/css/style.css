@@ -772,6 +772,7 @@ body.sidebar-open .cys-main {
 .modal-backdrop {
   background: rgba(0,0,0,.7) !important;
 }
+
 /* LIMITAR ANCHO CONTENIDO */
 .cys-main .container-fluid {
   max-width: 1200px;
@@ -783,22 +784,21 @@ body.sidebar-open .cys-main {
 body.sidebar-open .cys-main .container-fluid {
   max-width: 100%;
 }
-/* ============================================================
-   SIDEBAR — SUBMENÚ VENTAS (PRO FIXED)
-   ============================================================ */
 
+/* ============================================================
+   SIDEBAR — SUBMENÚ VENTAS
+   ============================================================ */
 .cys-sb-link--parent {
   cursor: pointer;
   user-select: none;
+  position: relative;
 }
 
-/* 🔄 Flecha SIN animación automática */
 .cys-chevron {
   font-size: .7rem;
-  transition: transform .2s ease; /* solo para click */
+  transition: transform .2s ease;
 }
 
-/* 🚫 Bloquear animación cuando cargue */
 .no-anim .cys-chevron {
   transition: none !important;
 }
@@ -807,43 +807,27 @@ body.sidebar-open .cys-main .container-fluid {
   transform: rotate(180deg);
 }
 
-/* 📦 Submenú animado (esto sí lo dejamos) */
 .cys-sb-submenu {
   display: flex;
   flex-direction: column;
   gap: .2rem;
-
   max-height: 0;
   overflow: hidden;
-
   padding-left: 1.2rem;
   margin-top: .1rem;
-
   opacity: 0;
   transform: translateY(-5px);
-
-  transition: 
+  transition:
     max-height .25s ease,
     opacity .2s ease,
     transform .2s ease;
-}
-
-/* 🔥 Abierto */
-.cys-sb-submenu.open {
-  max-height: 200px;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* 🔹 Línea tipo árbol (FIX posición) */
-.cys-sb-submenu {
   position: relative;
 }
 
 .cys-sb-submenu::before {
   content: "";
   position: absolute;
-  left: 12px; /* ajustado para alineación */
+  left: 12px;
   top: 5px;
   bottom: 5px;
   width: 1px;
@@ -851,15 +835,18 @@ body.sidebar-open .cys-main .container-fluid {
   opacity: .3;
 }
 
-/* 🔗 Sub links */
+.cys-sb-submenu.open {
+  max-height: 200px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .cys-sb-sublink {
   position: relative;
   display: flex;
   align-items: center;
   gap: .6rem;
-
   padding: .45rem 1rem .45rem 1.2rem;
-
   border-radius: 8px;
   font-size: .78rem;
   font-weight: 500;
@@ -869,7 +856,6 @@ body.sidebar-open .cys-main .container-fluid {
   border: 1px solid transparent;
 }
 
-/* Hover pro */
 .cys-sb-sublink:hover {
   background: var(--azul-glow);
   color: var(--blanco);
@@ -877,68 +863,10 @@ body.sidebar-open .cys-main .container-fluid {
   transform: translateX(3px);
 }
 
-/* Iconos */
 .cys-sb-sublink i {
   font-size: .8rem;
   width: 14px;
   text-align: center;
-}
-
-/* 🚫 SIN animación del sidebar NUNCA */
-.offcanvas {
-  transition: none !important;
-}
-
-.offcanvas.show {
-  transform: none !important;
-} 
-
-/* ============================================================
-   ASIDE — SUBMENÚ VENTAS
-   ============================================================ */
-.cys-sb-link--parent {
-  position: relative;
-}
-
-.cys-chevron {
-  font-size: .65rem;
-  transition: transform .2s ease;
-}
-
-.cys-sb-link--parent.abierto .cys-chevron {
-  transform: rotate(180deg);
-}
-
-.cys-sb-submenu {
-  display: none;
-  flex-direction: column;
-  gap: .15rem;
-  padding-left: 1.75rem;
-  margin-top: .15rem;
-}
-
-.cys-sb-submenu.abierto {
-  display: flex;
-}
-
-.cys-sb-sublink {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .45rem .85rem;
-  border-radius: 6px;
-  font-size: .78rem;
-  font-weight: 500;
-  color: var(--texto-muted);
-  text-decoration: none;
-  transition: var(--trans);
-  border: 1px solid transparent;
-}
-
-.cys-sb-sublink:hover {
-  background: var(--azul-glow);
-  color: var(--blanco);
-  border-color: var(--azul-borde);
 }
 
 .cys-sb-sublink.active {
