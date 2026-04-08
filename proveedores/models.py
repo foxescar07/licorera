@@ -13,18 +13,11 @@ class Proveedor(models.Model):
     )
     telefono        = models.CharField(validators=[telefono_regex], max_length=10, verbose_name="Celular")
 
-    fecha_registro  = models.DateTimeField(auto_now=True, verbose_name="Última modificación")
-    registrado_por  = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name='proveedores_registrados',
-        verbose_name="Registrado por"
-    )
-    # ✅ NUEVO: quién hizo la última edición
-    modificado_por  = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name='proveedores_modificados',
-        verbose_name="Modificado por"
-    )
+    fecha_registro  = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Registro") # Usar auto_now_add para la creación
+    ultima_modificacion = models.DateTimeField(auto_now=True, verbose_name="Última modificación")
+    
+    registrado_por  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='proveedores_registrados')
+    modificado_por  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='proveedores_modificados')
 
     class Meta:
         ordering = ['-fecha_registro']
