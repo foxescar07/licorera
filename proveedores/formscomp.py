@@ -1,18 +1,31 @@
 from django import forms
-from .models import Compra
+from .models import Compra, Producto
+
 
 class CompraForm(forms.ModelForm):
+    proveedor = forms.ModelChoiceField(
+        queryset=None,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
     class Meta:
         model = Compra
-        fields = ['proveedor', 'producto', 'cantidad'] # No incluyas proveedor porque lo asignarás desde la vista
+        fields = [ 'producto', 'cantidad']
         widgets = {
-            'producto': forms.TextInput(attrs={
-                'class': 'form-control text-dark',
-                'placeholder': 'Nombre del producto'
-            }),
-            'cantidad': forms.NumberInput(attrs={
-                'class': 'form-control text-dark',
-                'placeholder': 'Cantidad',
-                'min': 1
-            }),
+            'producto': forms.Select(attrs={'class': 'form-select'}),
+            'cantidad': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        proveedor_id = kwargs.pop('proveedor_id', None)
+        super().__init__(*args, **kwargs)
+
+        # cargar proveedores
+        from .models import Proveedor
+        self.fields['proveedor'].queryset = Proveedor.objects.all()
+
+        # filtrar productos
+        if proveedor_id:
+            self.fields['producto'].queryset = Producto.objects.filter(proveedor_id=proveedor_id)
+        else:
+            self.fields['producto'].queryset = Producto.objects.none()

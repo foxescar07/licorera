@@ -20,15 +20,15 @@
 
     <!-- BOTONES -->
     <div class="d-flex flex-wrap justify-content-center gap-3 mb-5">
+{% for proveedor in proveedores %}
 
-    {% for proveedor in proveedores %}
-    <a href="{% url 'registrar_compra' proveedor.id %}"
-       class="btn rounded-pill px-4 fw-semibold"
-       style="background:#4DA8DA; color:#011936;">
-        compra
-    </a>
+<a href="{% url 'registrar_compra' proveedor.id %}"
+   class="btn rounded-pill px-4 fw-semibold border"
+                style="color:#4DA8DA; border-color:#4DA8DA;">
+   Compra
+</a>
+
 {% endfor %}
-
         <button class="btn rounded-pill px-4 fw-semibold border"
                 style="color:#4DA8DA; border-color:#4DA8DA;">
             Detalle de compra

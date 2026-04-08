@@ -22,45 +22,37 @@
             <div class="col-md-1" style="background-color: var(--sasa-rojo, #912F40);"></div>
             
             <div class="col-md-11 p-4 p-lg-5 text-dark">
-                <form method="POST" action="{% url 'editar_proveedor' proveedor.id %}">
-                    {% csrf_token %}
-                    
-                    <div class="row mb-4">
-                        <div class="col-12 mb-3">
-                            <h5 class="fw-bold border-bottom pb-2" style="color: #912F40;">Información de Identificación</h5>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label small fw-bold text-muted">NOMBRE DE EMPRESA / PROVEEDOR</label>
-                            {{ form.nombre_empresa|as_crispy_field }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label small fw-bold text-muted">PERSONA DE CONTACTO</label>
-                            {{ form.nombre_contacto|as_crispy_field }}
-                        </div>
-                    </div>
+                <form method="POST">
+    {% csrf_token %}
 
-                    <div class="row mb-4">
-                        <div class="col-12 mb-3">
-                            <h5 class="fw-bold border-bottom pb-2" style="color: #912F40;">Datos de Comunicación</h5>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label small fw-bold text-muted">TELÉFONO / CELULAR</label>
-                            {{ form.telefono|as_crispy_field }}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label small fw-bold text-muted">CORREO ELECTRÓNICO</label>
-                            {{ form.email|as_crispy_field }}
-                        </div>
-                    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Proveedor</label>
+            <input type="text" class="form-control bg-secondary text-white" 
+                   value="{{ proveedor.nombre_empresa }}" disabled>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Producto</label>
+            {{ form.producto }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Cantidad</label>
+            {{ form.cantidad }}
+        </div>
+    </div>
+
+    <button type="submit" class="btn w-100 fw-semibold mt-3"
+            style="background:#4DA8DA; color:#011936;">
+        Registrar Compra
+    </button>
 
                     <div class="d-flex justify-content-end align-items-center gap-3 mt-5 pt-3 border-top">
                         <a href="{% url 'proveedores' %}" class="btn btn-light px-4 py-2 fw-bold text-muted border rounded-3">
                             CANCELAR
                         </a>
-                        <button type="submit" class="btn text-white px-5 py-2 fw-bold shadow-sm rounded-3" 
-                                style="background-color: #912F40;">
-                            <i class="bi bi-check-lg me-2"></i>GUARDAR CAMBIOS
-                        </button>
+                       
                     </div>
                 </form>
             </div>
