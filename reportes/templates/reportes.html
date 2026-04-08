@@ -87,7 +87,59 @@
       </div>
     </div>
 
+<div class="col-md-4">
+  <div class="cys-card h-100" style="border-top:2px solid #7F77DD; cursor:pointer;"
+       data-bs-toggle="modal" data-bs-target="#modalResumenDiario">
+    <div style="width:36px; height:36px; border-radius:8px; background:rgba(127,119,221,.15);
+                display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
+      <i class="bi bi-calendar-day" style="color:#7F77DD; font-size:16px;"></i>
+    </div>
+    <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
+                color:var(--texto); margin-bottom:4px;">Resumen Diario</div>
+    <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
+      Ingresos, egresos y movimientos de hoy
+    </div>
+    <div style="font-size:.75rem; color:#7F77DD; font-weight:600;">Ver reporte →</div>
   </div>
+</div>
+  </div>
+
+<!-- FILTROS -->
+<section class="cys-card mb-4">
+  <div class="cys-card__title">Filtrar Ventas</div>
+  <form method="GET" class="row gx-3 gy-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Fecha inicio</label>
+      <input type="date" name="fecha_inicio" class="form-control form-control-sm"
+             value="{{ fecha_inicio }}">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Fecha fin</label>
+      <input type="date" name="fecha_fin" class="form-control form-control-sm"
+             value="{{ fecha_fin }}">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Categoría</label>
+      <select name="categoria" class="form-select form-select-sm">
+        <option value="">Todas</option>
+        {% for cat in categorias %}
+          <option value="{{ cat.id }}" {% if categoria_id == cat.id|stringformat:"s" %}selected{% endif %}>
+            {{ cat.nombre }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Cliente</label>
+      <input type="text" name="cliente" class="form-control form-control-sm"
+             placeholder="Nombre cliente…" value="{{ cliente_q }}">
+    </div>
+    <div class="col-12 d-flex gap-2 mt-2">
+      <button type="submit" class="btn btn-sm btn-primary">Aplicar filtros</button>
+      <a href="{% url 'reportes' %}" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+    </div>
+  </form>
+</section>
 
   <!-- HISTORIAL -->
   <section class="cys-card mb-4">
@@ -378,7 +430,146 @@
     </div>
   </div>
 </div>
+<!-- ===== MODAL RESUMEN DIARIO ===== -->
+<div class="modal fade" id="modalResumenDiario" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable" style="max-width:92vw; width:92vw;">
+    <div class="modal-content cys-modal">
 
+      <div class="modal-header cys-modal__header" style="background:linear-gradient(135deg,#26215C,#534AB7);">
+        <div class="d-flex align-items-center gap-3">
+          <div class="cys-modal__icon" style="background:rgba(127,119,221,.25);">
+            <i class="bi bi-calendar-day" style="color:#AFA9EC;"></i>
+          </div>
+          <div>
+            <div class="cys-modal__title">Resumen Diario</div>
+            <div class="cys-modal__subtitle">CYS Ltda · {{ hoy|date:"d/m/Y" }}</div>
+          </div>
+        </div>
+        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+      </div>
+
+      <div class="cys-modal__stats">
+        <div class="cys-stat-mini cys-stat-mini--verde">
+          <div class="cys-stat-mini__val">${{ ingresos_hoy|floatformat:0 }}</div>
+          <div class="cys-stat-mini__label">Ingresos hoy</div>
+        </div>
+        <div class="cys-stat-mini">
+          <div class="cys-stat-mini__val">{{ ventas_hoy|length }}</div>
+          <div class="cys-stat-mini__label">Ventas hoy</div>
+        </div>
+        <div class="cys-stat-mini cys-stat-mini--verde">
+          <div class="cys-stat-mini__val">{{ total_entradas_hoy }}</div>
+          <div class="cys-stat-mini__label">Unidades entrada</div>
+        </div>
+        <div class="cys-stat-mini cys-stat-mini--rojo">
+          <div class="cys-stat-mini__val">{{ total_salidas_hoy }}</div>
+          <div class="cys-stat-mini__label">Unidades salida</div>
+        </div>
+      </div>
+
+      <div class="modal-body p-0">
+
+        <!-- Ventas del día -->
+        <div style="padding:14px 20px 0;">
+          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
+                      color:#AFA9EC; padding-bottom:10px; display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#7F77DD;display:inline-block;"></span>
+            Ventas del día
+          </div>
+        </div>
+        <table class="cys-inv-table">
+          <thead>
+            <tr><th>#</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Total</th><th>Hora</th></tr>
+          </thead>
+          <tbody>
+            {% for v in ventas_hoy %}
+              {% for det in v.detalles.all %}
+              <tr>
+                <td class="text-muted">{{ forloop.parentloop.counter }}</td>
+                <td><strong>{{ v.cliente }}</strong></td>
+                <td>{{ det.producto.nombre }}</td>
+                <td>{{ det.cantidad }}</td>
+                <td class="cys-qty cys-qty--ok">${{ det.subtotal|floatformat:0 }}</td>
+                <td style="font-size:.85rem; color:var(--gris-claro);">{{ v.fecha|date:"H:i" }}</td>
+              </tr>
+              {% endfor %}
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4" style="color:var(--texto-muted);">
+                No hay ventas hoy.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- Entradas del día -->
+        <div style="padding:14px 20px 0;">
+          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
+                      color:#5DCAA5; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
+                      display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#5DCAA5;display:inline-block;"></span>
+            Entradas de inventario hoy
+          </div>
+        </div>
+        <table class="cys-inv-table">
+          <thead>
+            <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th></tr>
+          </thead>
+          <tbody>
+            {% for e in entradas_hoy %}
+            <tr>
+              <td class="text-muted">{{ forloop.counter }}</td>
+              <td><strong>{{ e.producto.nombre }}</strong></td>
+              <td class="cys-qty cys-qty--ok">+{{ e.cantidad }}</td>
+              <td style="font-size:.85rem; color:var(--texto-muted);">{{ e.motivo|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center py-4" style="color:var(--texto-muted);">No hay entradas hoy.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- Salidas del día -->
+        <div style="padding:14px 20px 0;">
+          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
+                      color:#E24B4A; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
+                      display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#E24B4A;display:inline-block;"></span>
+            Salidas de inventario hoy
+          </div>
+        </div>
+        <table class="cys-inv-table">
+          <thead>
+            <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th></tr>
+          </thead>
+          <tbody>
+            {% for s in salidas_hoy %}
+            <tr>
+              <td class="text-muted">{{ forloop.counter }}</td>
+              <td><strong>{{ s.producto.nombre }}</strong></td>
+              <td class="cys-qty cys-qty--out">-{{ s.cantidad }}</td>
+              <td style="font-size:.85rem; color:var(--texto-muted);">{{ s.motivo|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center py-4" style="color:var(--texto-muted);">No hay salidas hoy.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
+
+      <div class="modal-footer cys-modal__footer">
+        <button class="cys-btn-export" onclick="exportarCSVResumen()">⬇ Exportar CSV</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
