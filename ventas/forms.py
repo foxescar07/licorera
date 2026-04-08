@@ -2,6 +2,7 @@ from django import forms
 from .models import Venta, DetalleVenta
 from producto.models import Producto
 
+
 class VentaForm(forms.ModelForm):
     cliente = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -17,19 +18,12 @@ class VentaForm(forms.ModelForm):
 
 
 class DetalleVentaForm(forms.ModelForm):
-    producto = forms.ModelChoiceField(
-        queryset=Producto.objects.all(),
-        widget=forms.Select(attrs={
-            'class': 'cys-input form-select',
-            'id': 'productoSelect'
-        }),
-        label="Producto"
-    )
     cantidad = forms.IntegerField(
         min_value=1,
         widget=forms.NumberInput(attrs={
             'class': 'cys-input form-control',
-            'placeholder': '0'
+            'placeholder': '0',
+            'id': 'id_cantidad'
         }),
         label="Cantidad"
     )
@@ -37,11 +31,12 @@ class DetalleVentaForm(forms.ModelForm):
         max_digits=12, decimal_places=2,
         widget=forms.NumberInput(attrs={
             'class': 'cys-input form-control',
-            'placeholder': '0'
+            'placeholder': '0',
+            'id': 'id_precio_unitario'
         }),
         label="Precio Unitario"
     )
 
     class Meta:
         model  = DetalleVenta
-        fields = ['producto', 'cantidad', 'precio_unitario']
+        fields = ['cantidad', 'precio_unitario']

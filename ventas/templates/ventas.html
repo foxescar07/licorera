@@ -15,7 +15,9 @@
   {% if messages %}
     {% for message in messages %}
       <div class="alert alert-dismissible fade show mb-3"
-           style="background:var(--fondo-card); border:1px solid {% if message.tags == 'error' %}rgba(192,57,43,.4){% else %}var(--azul-borde){% endif %}; color:var(--texto); border-radius:var(--radius);"
+           style="background:var(--fondo-card);
+                  border:1px solid {% if message.tags == 'error' %}rgba(192,57,43,.4){% else %}var(--azul-borde){% endif %};
+                  color:var(--texto); border-radius:var(--radius);"
            role="alert">
         {{ message }}
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
@@ -25,12 +27,12 @@
 
   <div class="row g-4">
 
-    <!-- COLUMNA IZQUIERDA -->
+    <!-- ══ COLUMNA IZQUIERDA: selector de productos ══ -->
     <div class="col-lg-7">
       <section class="cys-card" style="min-height:600px;">
         <div class="cys-card__title">Selecciona un Producto</div>
 
-        <!-- BUSCADOR -->
+        <!-- Buscador -->
         <div class="cys-venta-search mb-4">
           <i class="bi bi-search cys-venta-search__icon"></i>
           <input type="text" id="buscadorProducto"
@@ -38,14 +40,13 @@
                  placeholder="Buscar producto por nombre...">
         </div>
 
-        <!-- VISTA CATEGORÍAS -->
+        <!-- Vista: Categorías -->
         <div id="vistaCategorias">
           <div class="cys-cat-grid">
             {% for cat in categorias %}
-            <div class="cys-cat-card" onclick="mostrarProductos('{{ cat.id }}', '{{ cat.nombre }}')">
-              <div class="cys-cat-card__icon">
-                <i class="bi bi-tag-fill"></i>
-              </div>
+            <div class="cys-cat-card"
+                 onclick="mostrarProductos('{{ cat.id }}', '{{ cat.nombre }}')">
+              <div class="cys-cat-card__icon"><i class="bi bi-tag-fill"></i></div>
               <div class="cys-cat-card__nombre">{{ cat.nombre }}</div>
               <div class="cys-cat-card__count">{{ cat.productos.count }} productos</div>
             </div>
@@ -57,7 +58,7 @@
           </div>
         </div>
 
-        <!-- VISTA PRODUCTOS DE CATEGORÍA -->
+        <!-- Vista: Productos de categoría / búsqueda -->
         <div id="vistaProductos" style="display:none;">
           <div class="d-flex align-items-center gap-2 mb-3">
             <button class="cys-btn-volver" onclick="volverCategorias()">
@@ -68,7 +69,7 @@
           <div class="cys-producto-lista" id="productoLista"></div>
         </div>
 
-        <!-- DATOS DE TODOS LOS PRODUCTOS (ocultos para JS) -->
+        <!-- Datos ocultos para JS -->
         <div id="datosProductos" style="display:none;">
           {% for cat in categorias %}
             {% for p in cat.productos.all %}
@@ -76,10 +77,11 @@
                  data-cat="{{ cat.id }}"
                  data-id="{{ p.id }}"
                  data-nombre="{{ p.nombre }}"
-                 data-precio="{{ p.precio_unitario }}"
                  data-stock="{{ p.cantidad_disponible }}"
+                 data-precio-unitario="{{ p.precio_unitario }}"
                  data-unidad="{{ p.unidad }}"
-                 data-critico="{% if p.stock_critico %}1{% else %}0{% endif %}">
+                 data-critico="{% if p.stock_critico %}1{% else %}0{% endif %}"
+                 data-presentaciones='[{% for pr in p.presentaciones.all %}{"id":{{ pr.id }},"nombre":"{{ pr.nombre|escapejs }}","unidades":{{ pr.unidades }},"cantidad":{{ pr.cantidad }},"precio":"{{ pr.precio }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
             </div>
             {% endfor %}
           {% endfor %}
@@ -88,16 +90,16 @@
       </section>
     </div>
 
-    <!-- COLUMNA DERECHA: FORMULARIO -->
+    <!-- ══ COLUMNA DERECHA: formulario de venta ══ -->
     <div class="col-lg-5">
       <section class="cys-card" style="min-height:600px;">
         <div class="cys-card__title">Registrar Venta</div>
 
-        <form method="POST" action="{% url 'ventas:nueva_venta' %}">
+        <form method="POST" action="{% url 'ventas:nueva_venta' %}" id="formVenta">
           {% csrf_token %}
 
-          <!-- PRODUCTO SELECCIONADO -->
-          <div class="cys-venta-seleccionado mb-4" id="productoSeleccionado">
+          <!-- Producto seleccionado (indicador visual) -->
+          <div class="cys-venta-seleccionado mb-3" id="productoSeleccionado">
             <div class="cys-venta-seleccionado__vacio" id="selVacio">
               <i class="bi bi-hand-index" style="font-size:1.5rem; color:var(--azul-borde);"></i>
               <span>Selecciona un producto del panel izquierdo</span>
@@ -108,27 +110,46 @@
             </div>
           </div>
 
-          <input type="hidden" name="producto" id="productoId">
+          <!-- Campos hidden -->
+          <input type="hidden" name="producto"      id="productoId">
+          <input type="hidden" name="presentacion"  id="presentacionId">
 
-          <!-- CLIENTE -->
+          <!-- Selector de presentación (se muestra cuando el producto tiene presentaciones) -->
+          <div class="mb-3" id="wrapPresentacion" style="display:none;">
+            <label class="cys-form-label">
+              <i class="bi bi-layers me-1" style="color:var(--azul-claro);"></i>
+              Presentación / Jerarquía
+            </label>
+            <div id="listaPresentaciones" class="d-flex flex-column gap-2"></div>
+          </div>
+
+          <!-- Stock disponible de la presentación elegida -->
+          <div class="mb-3" id="wrapStockPres" style="display:none;">
+            <div style="font-size:.78rem; color:var(--texto-muted); background:var(--fondo-card2);
+                        border:1px solid var(--azul-borde); border-radius:8px; padding:.6rem .9rem;">
+              Stock disponible: <strong id="stockPresDisp" style="color:var(--azul-claro);">0</strong>
+            </div>
+          </div>
+
+          <!-- Cliente -->
           <div class="mb-3">
             <label class="cys-form-label">Cliente</label>
             {{ form.cliente }}
           </div>
 
-          <!-- CANTIDAD -->
+          <!-- Cantidad -->
           <div class="mb-3">
             <label class="cys-form-label">Cantidad</label>
             {{ detalle.cantidad }}
           </div>
 
-          <!-- PRECIO -->
+          <!-- Precio unitario -->
           <div class="mb-3">
-            <label class="cys-form-label">Precio Unitario</label>
+            <label class="cys-form-label">Precio Unitario (COP)</label>
             {{ detalle.precio_unitario }}
           </div>
 
-          <!-- TOTAL -->
+          <!-- Total estimado -->
           <div class="cys-venta-total mb-4" id="totalBox" style="display:none;">
             <span class="cys-venta-total__label">Total estimado</span>
             <span class="cys-venta-total__val" id="totalVal">$0</span>
@@ -138,138 +159,339 @@
                   id="btnRegistrar" disabled>
             <i class="bi bi-save"></i> Registrar Venta
           </button>
-
         </form>
       </section>
     </div>
 
   </div>
+
+  <!-- ══ HISTORIAL DE VENTAS ══ -->
+  {% if ventas %}
+  <section class="cys-card mt-4">
+    <div class="cys-card__title">Historial de Ventas</div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr style="border-bottom:2px solid var(--azul-borde);">
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Fecha</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Cliente</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Productos</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Total</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in ventas %}
+          <tr>
+            <td style="font-size:.85rem; color:var(--texto-muted);">{{ forloop.counter }}</td>
+            <td style="font-size:.82rem; color:var(--texto-muted);">{{ v.fecha|date:"d/m/Y H:i" }}</td>
+            <td style="font-size:.85rem; font-weight:600; color:var(--texto);">{{ v.cliente }}</td>
+            <td>
+              {% for det in v.detalles.all %}
+                <span class="badge me-1"
+                      style="background:rgba(77,168,218,.12); color:var(--azul-claro);
+                             border:1px solid var(--azul-borde); font-size:.68rem; padding:.3rem .5rem;">
+                  {{ det.producto.nombre }}
+                  {% if det.presentacion %}({{ det.presentacion.nombre }}){% endif %}
+                  × {{ det.cantidad }}
+                </span>
+              {% endfor %}
+            </td>
+            <td style="font-size:.9rem; font-weight:700; color:var(--azul-claro);">
+              ${{ v.total|floatformat:0 }}
+            </td>
+            <td>
+              <form method="POST" action="{% url 'ventas:eliminar_venta' v.pk %}"
+                    onsubmit="return confirm('¿Eliminar esta venta y restaurar stock?')">
+                {% csrf_token %}
+                <button type="submit" class="cys-btn-sm cys-btn-sm--danger" title="Eliminar">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  const cantInput = document.querySelector('input[name="cantidad"]');
-  const precInput = document.querySelector('input[name="precio_unitario"]');
-  const totalVal  = document.getElementById('totalVal');
-  const totalBox  = document.getElementById('totalBox');
-  const btnReg    = document.getElementById('btnRegistrar');
-  const buscador  = document.getElementById('buscadorProducto');
+// ═══════════════════════════════════════════════
+//  Estado global de la selección actual
+// ═══════════════════════════════════════════════
+let seleccion = {
+  productoId:      null,
+  presentacionId:  null,
+  stockDisponible: 0,
+  precio:          0,
+};
 
-  function calcularTotal() {
-    const cant  = parseFloat(cantInput.value) || 0;
-    const prec  = parseFloat(precInput.value) || 0;
-    const total = cant * prec;
-    totalVal.textContent = '$' + total.toLocaleString('es-CO');
-    totalBox.style.display = total > 0 ? 'flex' : 'none';
-  }
+const cantInput   = document.getElementById('id_cantidad');
+const precInput   = document.getElementById('id_precio_unitario');
+const totalVal    = document.getElementById('totalVal');
+const totalBox    = document.getElementById('totalBox');
+const btnReg      = document.getElementById('btnRegistrar');
+const buscador    = document.getElementById('buscadorProducto');
+const presWrap    = document.getElementById('wrapPresentacion');
+const presLista   = document.getElementById('listaPresentaciones');
+const stockWrap   = document.getElementById('wrapStockPres');
+const stockDisp   = document.getElementById('stockPresDisp');
 
-  function seleccionarProducto(id, nombre, precio, stock, unidad) {
-    document.querySelectorAll('.cys-producto-item').forEach(i => i.classList.remove('cys-producto-item--selected'));
-    const el = document.querySelector(`.cys-producto-item[data-id="${id}"]`);
-    if (el) el.classList.add('cys-producto-item--selected');
+// ─── Cálculo del total ───────────────────────────────────────────────────────
+function calcularTotal() {
+  const cant  = parseFloat(cantInput.value)  || 0;
+  const prec  = parseFloat(precInput.value) || 0;
+  const total = cant * prec;
+  totalVal.textContent   = '$' + total.toLocaleString('es-CO');
+  totalBox.style.display = total > 0 ? 'flex' : 'none';
+}
 
-    document.getElementById('productoId').value      = id;
-    document.getElementById('selNombre').textContent = nombre;
-    document.getElementById('selStock').textContent  = `Stock: ${stock} ${unidad}`;
-    document.getElementById('selVacio').style.display = 'none';
-    document.getElementById('selInfo').style.display  = 'flex';
+// ─── Mostrar/ocultar info de producto seleccionado ───────────────────────────
+function mostrarInfoProducto(nombre, stockTexto) {
+  document.getElementById('selVacio').style.display = 'none';
+  document.getElementById('selInfo').style.display  = 'flex';
+  document.getElementById('selNombre').textContent  = nombre;
+  document.getElementById('selStock').textContent   = stockTexto;
+}
 
-    precInput.value  = precio;
-    btnReg.disabled  = false;
-    calcularTotal();
-  }
+// ─── Seleccionar presentación ────────────────────────────────────────────────
+function seleccionarPresentacion(presId, presNombre, cantidad, precio) {
+  seleccion.presentacionId  = presId;
+  seleccion.stockDisponible = cantidad;
+  seleccion.precio          = precio;
 
-  function mostrarProductos(catId, catNombre) {
-    const datos = document.querySelectorAll(`.dato-producto[data-cat="${catId}"]`);
-    const lista = document.getElementById('productoLista');
-    document.getElementById('catTitulo').textContent = catNombre;
-    lista.innerHTML = '';
+  // Resaltar botón activo
+  presLista.querySelectorAll('.pres-btn').forEach(b => b.classList.remove('pres-btn--activa'));
+  const btn = presLista.querySelector(`.pres-btn[data-id="${presId}"]`);
+  if (btn) btn.classList.add('pres-btn--activa');
 
-    if (datos.length === 0) {
-      lista.innerHTML = `<div style="color:var(--texto-muted); font-size:.85rem; padding:1rem;">No hay productos en esta categoría.</div>`;
-    } else {
-      datos.forEach(d => {
-        const critico = d.dataset.critico === '1';
-        lista.innerHTML += `
-          <div class="cys-producto-item ${critico ? 'cys-producto-item--critico' : ''}"
-               data-id="${d.dataset.id}"
-               onclick="seleccionarProducto('${d.dataset.id}','${d.dataset.nombre}','${d.dataset.precio}','${d.dataset.stock}','${d.dataset.unidad}')">
-            <div class="cys-producto-item__icon">
-              <i class="bi bi-box-seam"></i>
-            </div>
-            <div class="cys-producto-item__info">
-              <div class="cys-producto-item__nombre">${d.dataset.nombre}</div>
-              <div class="cys-producto-item__cat">${critico ? '⚠ Stock crítico' : 'Disponible'}</div>
-            </div>
-            <div class="cys-producto-item__meta">
-              <div class="cys-producto-item__precio">$${parseInt(d.dataset.precio).toLocaleString('es-CO')}</div>
-              <div class="cys-producto-item__stock ${critico ? 'cys-producto-item__stock--bajo' : ''}">
-                ${d.dataset.stock} ${d.dataset.unidad}
-              </div>
-            </div>
-          </div>`;
-      });
+  // Actualizar hidden + precio + stock display
+  document.getElementById('presentacionId').value = presId;
+  precInput.value = precio;
+
+  stockWrap.style.display = 'block';
+  stockDisp.textContent   = cantidad;
+
+  mostrarInfoProducto(
+    document.getElementById('selNombre').textContent,
+    `Stock (${presNombre}): ${cantidad}`
+  );
+
+  btnReg.disabled = false;
+  calcularTotal();
+}
+
+// ─── Seleccionar producto ────────────────────────────────────────────────────
+function seleccionarProducto(id, nombre, stockSuelto, precioUnitario, unidad, presentaciones) {
+  // Limpiar selección anterior
+  document.querySelectorAll('.cys-producto-item').forEach(i => i.classList.remove('cys-producto-item--selected'));
+  const el = document.querySelector(`.cys-producto-item[data-id="${id}"]`);
+  if (el) el.classList.add('cys-producto-item--selected');
+
+  seleccion.productoId     = id;
+  seleccion.presentacionId = null;
+  document.getElementById('productoId').value    = id;
+  document.getElementById('presentacionId').value = '';
+
+  // ── Con presentaciones ────────────────────────────────────────────────────
+  if (presentaciones && presentaciones.length > 0) {
+    presLista.innerHTML = '';
+
+    // Opción: unidad suelta (solo si hay stock suelto)
+    if (stockSuelto > 0) {
+      const btnSuelta = document.createElement('button');
+      btnSuelta.type = 'button';
+      btnSuelta.className = 'pres-btn';
+      btnSuelta.dataset.id = '';
+      btnSuelta.innerHTML = `
+        <div class="pres-btn__nombre">Unidad suelta</div>
+        <div class="pres-btn__meta">
+          <span class="pres-btn__stock">Stock: ${stockSuelto} ${unidad}</span>
+          <span class="pres-btn__precio">$${parseFloat(precioUnitario).toLocaleString('es-CO')}</span>
+        </div>`;
+      btnSuelta.onclick = () => {
+        seleccion.presentacionId  = null;
+        seleccion.stockDisponible = stockSuelto;
+        seleccion.precio          = precioUnitario;
+
+        presLista.querySelectorAll('.pres-btn').forEach(b => b.classList.remove('pres-btn--activa'));
+        btnSuelta.classList.add('pres-btn--activa');
+
+        document.getElementById('presentacionId').value = '';
+        precInput.value = precioUnitario;
+        stockWrap.style.display = 'block';
+        stockDisp.textContent   = stockSuelto;
+        mostrarInfoProducto(nombre, `Stock suelto: ${stockSuelto} ${unidad}`);
+        btnReg.disabled = false;
+        calcularTotal();
+      };
+      presLista.appendChild(btnSuelta);
     }
 
-    document.getElementById('vistaCategorias').style.display = 'none';
-    document.getElementById('vistaProductos').style.display  = 'block';
-  }
+    // Opciones: cada presentación
+    presentaciones.forEach(pr => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pres-btn';
+      btn.dataset.id = pr.id;
+      btn.innerHTML = `
+        <div class="pres-btn__nombre">${pr.nombre} <span style="color:var(--texto-muted); font-size:.72rem;">(${pr.unidades} uds)</span></div>
+        <div class="pres-btn__meta">
+          <span class="pres-btn__stock ${pr.cantidad === 0 ? 'pres-btn__stock--agotado' : ''}">
+            Stock: ${pr.cantidad}${pr.cantidad === 0 ? ' — Agotado' : ''}
+          </span>
+          <span class="pres-btn__precio">$${parseFloat(pr.precio).toLocaleString('es-CO')}</span>
+        </div>`;
 
-  function volverCategorias() {
-    document.getElementById('vistaProductos').style.display  = 'none';
-    document.getElementById('vistaCategorias').style.display = 'block';
-    buscador.value = '';
-  }
-
-  if (cantInput) cantInput.addEventListener('input', calcularTotal);
-  if (precInput) precInput.addEventListener('input', calcularTotal);
-
-  // BUSCADOR — busca en todas las categorías
-  buscador.addEventListener('input', function() {
-    const q = this.value.toLowerCase().trim();
-    if (!q) {
-      volverCategorias();
-      return;
-    }
-
-    const todos = document.querySelectorAll('.dato-producto');
-    const lista = document.getElementById('productoLista');
-    document.getElementById('catTitulo').textContent = `Resultados para "${q}"`;
-    lista.innerHTML = '';
-
-    let encontrados = 0;
-    todos.forEach(d => {
-      if (d.dataset.nombre.toLowerCase().includes(q)) {
-        const critico = d.dataset.critico === '1';
-        lista.innerHTML += `
-          <div class="cys-producto-item ${critico ? 'cys-producto-item--critico' : ''}"
-               data-id="${d.dataset.id}"
-               onclick="seleccionarProducto('${d.dataset.id}','${d.dataset.nombre}','${d.dataset.precio}','${d.dataset.stock}','${d.dataset.unidad}')">
-            <div class="cys-producto-item__icon">
-              <i class="bi bi-box-seam"></i>
-            </div>
-            <div class="cys-producto-item__info">
-              <div class="cys-producto-item__nombre">${d.dataset.nombre}</div>
-              <div class="cys-producto-item__cat">${critico ? '⚠ Stock crítico' : 'Disponible'}</div>
-            </div>
-            <div class="cys-producto-item__meta">
-              <div class="cys-producto-item__precio">$${parseInt(d.dataset.precio).toLocaleString('es-CO')}</div>
-              <div class="cys-producto-item__stock ${critico ? 'cys-producto-item__stock--bajo' : ''}">
-                ${d.dataset.stock} ${d.dataset.unidad}
-              </div>
-            </div>
-          </div>`;
-        encontrados++;
+      if (pr.cantidad === 0) {
+        btn.disabled = true;
+        btn.style.opacity = '.45';
+      } else {
+        btn.onclick = () => seleccionarPresentacion(pr.id, pr.nombre, pr.cantidad, pr.precio);
       }
+      presLista.appendChild(btn);
     });
 
-    if (encontrados === 0) {
-      lista.innerHTML = `<div style="color:var(--texto-muted); font-size:.85rem; padding:1rem;">No se encontraron productos.</div>`;
+    presWrap.style.display = 'block';
+    stockWrap.style.display = 'none';
+    btnReg.disabled = true;   // debe elegir presentación primero
+
+    mostrarInfoProducto(nombre, 'Elige una presentación →');
+    precInput.value = '';
+
+  } else {
+    // ── Sin presentaciones: usa stock suelto directamente ─────────────────
+    presWrap.style.display  = 'none';
+    stockWrap.style.display = 'block';
+    stockDisp.textContent   = stockSuelto;
+
+    seleccion.presentacionId  = null;
+    seleccion.stockDisponible = stockSuelto;
+    seleccion.precio          = precioUnitario;
+
+    precInput.value = precioUnitario;
+    btnReg.disabled = false;
+
+    mostrarInfoProducto(nombre, `Stock: ${stockSuelto} ${unidad}`);
+    calcularTotal();
+  }
+}
+
+// ─── Renderizar lista de productos ───────────────────────────────────────────
+function renderizarProductos(datos) {
+  const lista = document.getElementById('productoLista');
+  lista.innerHTML = '';
+
+  if (datos.length === 0) {
+    lista.innerHTML = `<div style="color:var(--texto-muted); font-size:.85rem; padding:1rem;">
+      No hay productos en esta categoría.</div>`;
+    return;
+  }
+
+  datos.forEach(d => {
+    const critico = d.dataset.critico === '1';
+    let presentaciones = [];
+    try { presentaciones = JSON.parse(d.dataset.presentaciones || '[]'); } catch(e) {}
+
+    // Calcular stock total visible
+    const stockSuelto = parseInt(d.dataset.stock) || 0;
+    const stockTotal  = presentaciones.reduce((s, p) => s + p.cantidad, stockSuelto);
+    const sinStock    = stockTotal === 0;
+
+    const div = document.createElement('div');
+    div.className = `cys-producto-item ${critico ? 'cys-producto-item--critico' : ''} ${sinStock ? 'cys-producto-item--agotado' : ''}`;
+    div.dataset.id = d.dataset.id;
+
+    const etiquetaStock = presentaciones.length > 0
+      ? `${presentaciones.length} presentación${presentaciones.length > 1 ? 'es' : ''}`
+      : `${stockSuelto} ${d.dataset.unidad}`;
+
+    const precioBase = presentaciones.length > 0
+      ? parseFloat(presentaciones[0].precio)
+      : parseFloat(d.dataset.precioUnitario);
+
+    div.innerHTML = `
+      <div class="cys-producto-item__icon"><i class="bi bi-box-seam"></i></div>
+      <div class="cys-producto-item__info">
+        <div class="cys-producto-item__nombre">${d.dataset.nombre}</div>
+        <div class="cys-producto-item__cat">
+          ${sinStock ? '🚫 Sin stock' : critico ? '⚠ Stock bajo' : 'Disponible'}
+        </div>
+      </div>
+      <div class="cys-producto-item__meta">
+        <div class="cys-producto-item__precio">$${precioBase.toLocaleString('es-CO')}</div>
+        <div class="cys-producto-item__stock ${critico ? 'cys-producto-item__stock--bajo' : ''}">
+          ${etiquetaStock}
+        </div>
+      </div>`;
+
+    if (!sinStock) {
+      div.onclick = () => seleccionarProducto(
+        d.dataset.id,
+        d.dataset.nombre,
+        stockSuelto,
+        d.dataset.precioUnitario,
+        d.dataset.unidad,
+        presentaciones
+      );
+      div.style.cursor = 'pointer';
     }
 
-    document.getElementById('vistaCategorias').style.display = 'none';
-    document.getElementById('vistaProductos').style.display  = 'block';
+    lista.appendChild(div);
   });
+}
+
+// ─── Navegación de categorías ─────────────────────────────────────────────────
+function mostrarProductos(catId, catNombre) {
+  document.getElementById('catTitulo').textContent = catNombre;
+  const datos = Array.from(document.querySelectorAll(`.dato-producto[data-cat="${catId}"]`));
+  renderizarProductos(datos);
+  document.getElementById('vistaCategorias').style.display = 'none';
+  document.getElementById('vistaProductos').style.display  = 'block';
+}
+
+function volverCategorias() {
+  document.getElementById('vistaProductos').style.display  = 'none';
+  document.getElementById('vistaCategorias').style.display = 'block';
+  buscador.value = '';
+}
+
+// ─── Buscador ─────────────────────────────────────────────────────────────────
+buscador.addEventListener('input', function () {
+  const q = this.value.toLowerCase().trim();
+  if (!q) { volverCategorias(); return; }
+
+  document.getElementById('catTitulo').textContent = `Resultados para "${q}"`;
+  const datos = Array.from(document.querySelectorAll('.dato-producto'))
+    .filter(d => d.dataset.nombre.toLowerCase().includes(q));
+  renderizarProductos(datos);
+  document.getElementById('vistaCategorias').style.display = 'none';
+  document.getElementById('vistaProductos').style.display  = 'block';
+});
+
+// ─── Recalcular al escribir ───────────────────────────────────────────────────
+if (cantInput) cantInput.addEventListener('input', calcularTotal);
+if (precInput) precInput.addEventListener('input', calcularTotal);
+
+// ─── Validación antes de enviar ───────────────────────────────────────────────
+document.getElementById('formVenta').addEventListener('submit', function (e) {
+  const cant = parseInt(cantInput.value) || 0;
+  if (cant > seleccion.stockDisponible && seleccion.stockDisponible > 0) {
+    e.preventDefault();
+    alert(`Stock insuficiente. Máximo disponible: ${seleccion.stockDisponible}`);
+    return;
+  }
+  if (!document.getElementById('productoId').value) {
+    e.preventDefault();
+    alert('Selecciona un producto.');
+  }
+});
 </script>
 {% endblock %}

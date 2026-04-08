@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum
 
 
 class Categoria(models.Model):
@@ -27,15 +28,20 @@ class Producto(models.Model):
     class Meta:
         verbose_name        = "Producto"
         verbose_name_plural = "Productos"
-        
         ordering            = ["nombre"]
 
     def __str__(self):
         return f"{self.nombre} ({self.codigo})"
 
     @property
+    def stock_total(self):
+        """Unidades sueltas + suma del stock de todas las presentaciones"""
+        stock_pres = self.presentaciones.aggregate(total=Sum('cantidad'))['total'] or 0
+        return self.cantidad_disponible + stock_pres
+
+    @property
     def stock_critico(self):
-        return self.cantidad_disponible <= 5
+        return self.stock_total <= 5
 
     def precio_base(self):
         pres = self.presentaciones.order_by('unidades').first()
@@ -93,12 +99,10 @@ class AgendaInventario(models.Model):
     estado           = models.CharField(max_length=20, choices=ESTADO_CHOICES, default="pendiente")
     creado_en        = models.DateTimeField(auto_now_add=True)
 
-
-
     class Meta:
         verbose_name        = "Agenda de Inventario"
         verbose_name_plural = "Agendas de Inventario"
         ordering            = ["fecha_programada"]
-    
+
     def __str__(self):
         return f"{self.titulo} — {self.fecha_programada:%d/%m/%Y %H:%M}"
