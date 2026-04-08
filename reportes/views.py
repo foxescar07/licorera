@@ -26,7 +26,7 @@ def reportes(request):
     # ── Datos generales ────────────────────────────────────────────
     productos   = Producto.objects.all().order_by('nombre')
 
-    proveedores = Proveedor.objects.prefetch_related('productos').all().order_by('nombre')
+    proveedores = Proveedor.objects.prefetch_related('productos').all().order_by('nombre_empresa')
     categorias  = Categoria.objects.all().order_by('nombre')
 
     proveedores = Proveedor.objects.all().order_by('nombre_empresa')  # ← corregido
