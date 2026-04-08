@@ -1,0 +1,155 @@
+<div id="stock-widget" class="mb-4 p-3 d-flex align-items-center justify-content-between"
+     style="border-radius:var(--radius); transition:background .4s ease, border-color .4s ease;
+            border:1px solid transparent; min-height:56px;">
+
+  <div class="d-flex align-items-center gap-3" style="flex:1; min-width:0;">
+
+    <!-- Ícono semáforo -->
+    <div id="sw-icono" style="flex-shrink:0; font-size:1.4rem; transition:opacity .3s;"></div>
+
+    <div style="flex:1; min-width:0;">
+      <!-- Título / estado -->
+      <div id="sw-titulo"
+           style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.9rem;
+                  letter-spacing:.08em; text-transform:uppercase; transition:color .3s;">
+      </div>
+      <!-- Carrusel vertical -->
+      <div style="overflow:hidden; height:1.25rem; position:relative; margin-top:.1rem;">
+        <div id="sw-carrusel"
+             style="position:absolute; width:100%;
+                    transition:transform .55s cubic-bezier(.4,0,.2,1);">
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Badge contador -->
+  <div id="sw-badge"
+       style="flex-shrink:0; margin-left:1rem; font-family:'Rajdhani',sans-serif;
+              font-weight:700; font-size:.75rem; letter-spacing:.06em;
+              padding:.35rem .85rem; border-radius:20px; white-space:nowrap;
+              transition:background .3s, color .3s, border-color .3s;">
+  </div>
+
+</div>
+
+<script>
+(function () {
+
+  const INTERVALO_POLLING = 8000;
+  const INTERVALO_SLIDE   = 3500;
+
+  const widget   = document.getElementById('stock-widget');
+  const swIcono  = document.getElementById('sw-icono');
+  const swTitulo = document.getElementById('sw-titulo');
+  const swCarr   = document.getElementById('sw-carrusel');
+  const swBadge  = document.getElementById('sw-badge');
+
+  const P = {
+    verde: {
+      bg:     'rgba(39,174,96,.08)',
+      border: 'rgba(39,174,96,.35)',
+      color:  '#27ae60',
+      badgeBg:'rgba(39,174,96,.15)',
+      icono:  '<i class="bi bi-check-circle-fill" style="color:#27ae60;"></i>',
+      titulo: 'Stock en Estado Normal',
+      badge:  'Todo en orden ✓',
+    },
+    amarillo: {
+      bg:     'rgba(241,196,15,.08)',
+      border: 'rgba(241,196,15,.4)',
+      color:  '#c9a800',
+      badgeBg:'rgba(241,196,15,.18)',
+      icono:  '<i class="bi bi-exclamation-circle-fill" style="color:#c9a800;"></i>',
+      titulo: 'Stock Bajo',
+      badge:  null,
+    },
+    rojo: {
+      bg:     'rgba(192,57,43,.10)',
+      border: 'rgba(192,57,43,.40)',
+      color:  '#c0392b',
+      badgeBg:'rgba(192,57,43,.15)',
+      icono:  '<i class="bi bi-exclamation-triangle-fill" style="color:#c0392b;"></i>',
+      titulo: '¡Atención — Stock Crítico!',
+      badge:  null,
+    },
+  };
+
+  let timerSlide  = null;
+  let slideActual = 0;
+  let listaSlides = [];
+
+  function pintar(data) {
+    const pal = P[data.estado];
+
+    widget.style.background  = pal.bg;
+    widget.style.borderColor = pal.border;
+    swIcono.innerHTML        = pal.icono;
+    swTitulo.style.color     = pal.color;
+    swTitulo.textContent     = pal.titulo;
+    swBadge.style.background = pal.badgeBg;
+    swBadge.style.color      = pal.color;
+    swBadge.style.border     = `1px solid ${pal.border}`;
+    swBadge.textContent      = pal.badge
+      || `${data.total_alertas} producto${data.total_alertas !== 1 ? 's' : ''} con alerta`;
+
+    if (data.estado === 'verde') {
+      arrancarCarrusel([]);
+    } else {
+      const todos = [
+        ...data.criticos.map(p => ({ ...p, nivel: 'critico' })),
+        ...data.bajos.map(p    => ({ ...p, nivel: 'bajo'    })),
+      ];
+      arrancarCarrusel(todos);
+    }
+  }
+
+  function arrancarCarrusel(lista) {
+    clearInterval(timerSlide);
+    swCarr.style.transform = 'translateY(0)';
+    swCarr.innerHTML       = '';
+    listaSlides            = lista;
+    slideActual            = 0;
+
+    if (lista.length === 0) {
+      swCarr.innerHTML = `
+        <div style="height:1.25rem; line-height:1.25rem; font-size:.78rem; color:var(--texto-muted);">
+          Todos los productos tienen stock suficiente.
+        </div>`;
+      return;
+    }
+
+    lista.forEach(item => {
+      const color = item.nivel === 'critico' ? '#c0392b' : '#c9a800';
+      const div   = document.createElement('div');
+      div.style.cssText = `
+        height:1.25rem; line-height:1.25rem; font-size:.78rem;
+        color:var(--texto-muted); white-space:nowrap;
+        overflow:hidden; text-overflow:ellipsis;`;
+      div.innerHTML =
+        `<strong style="color:${color};">${item.nombre}</strong>` +
+        ` — Solo <strong style="color:${color};">${item.cantidad}</strong> unidad${item.cantidad !== 1 ? 'es' : ''} restante${item.cantidad !== 1 ? 's' : ''}`;
+      swCarr.appendChild(div);
+    });
+
+    if (lista.length === 1) return;
+
+    timerSlide = setInterval(() => {
+      slideActual = (slideActual + 1) % lista.length;
+      swCarr.style.transform = `translateY(-${slideActual * 1.25}rem)`;
+    }, INTERVALO_SLIDE);
+  }
+
+  function actualizar() {
+    fetch("{% url 'producto:stock_status' %}")
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(data => pintar(data))
+      .catch(() => {});
+  }
+
+  actualizar();
+  setInterval(actualizar, INTERVALO_POLLING);
+
+})();
+</script>

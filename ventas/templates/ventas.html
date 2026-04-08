@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ventas — CYS Ltda{% endblock %}
+{% block page_title %}Ventas{% endblock %}
+{% block nav_ventas %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ventas.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-dismissible fade show mb-3"
+           style="background:var(--fondo-card); border:1px solid {% if message.tags == 'error' %}rgba(192,57,43,.4){% else %}var(--azul-borde){% endif %}; color:var(--texto); border-radius:var(--radius);"
+           role="alert">
+        {{ message }}
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row g-4">
+
+    <!-- COLUMNA IZQUIERDA -->
+    <div class="col-lg-7">
+      <section class="cys-card" style="min-height:600px;">
+        <div class="cys-card__title">Selecciona un Producto</div>
+
+        <!-- BUSCADOR -->
+        <div class="cys-venta-search mb-4">
+          <i class="bi bi-search cys-venta-search__icon"></i>
+          <input type="text" id="buscadorProducto"
+                 class="cys-venta-search__input"
+                 placeholder="Buscar producto por nombre...">
+        </div>
+
+        <!-- VISTA CATEGORÍAS -->
+        <div id="vistaCategorias">
+          <div class="cys-cat-grid">
+            {% for cat in categorias %}
+            <div class="cys-cat-card" onclick="mostrarProductos('{{ cat.id }}', '{{ cat.nombre }}')">
+              <div class="cys-cat-card__icon">
+                <i class="bi bi-tag-fill"></i>
+              </div>
+              <div class="cys-cat-card__nombre">{{ cat.nombre }}</div>
+              <div class="cys-cat-card__count">{{ cat.productos.count }} productos</div>
+            </div>
+            {% empty %}
+            <div class="text-center py-4" style="color:var(--texto-muted);">
+              No hay categorías registradas.
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- VISTA PRODUCTOS DE CATEGORÍA -->
+        <div id="vistaProductos" style="display:none;">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <button class="cys-btn-volver" onclick="volverCategorias()">
+              <i class="bi bi-arrow-left"></i>
+            </button>
+            <span class="cys-cat-titulo" id="catTitulo">Categoría</span>
+          </div>
+          <div class="cys-producto-lista" id="productoLista"></div>
+        </div>
+
+        <!-- DATOS DE TODOS LOS PRODUCTOS (ocultos para JS) -->
+        <div id="datosProductos" style="display:none;">
+          {% for cat in categorias %}
+            {% for p in cat.productos.all %}
+            <div class="dato-producto"
+                 data-cat="{{ cat.id }}"
+                 data-id="{{ p.id }}"
+                 data-nombre="{{ p.nombre }}"
+                 data-precio="{{ p.precio_unitario }}"
+                 data-stock="{{ p.cantidad_disponible }}"
+                 data-unidad="{{ p.unidad }}"
+                 data-critico="{% if p.stock_critico %}1{% else %}0{% endif %}">
+            </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+
+      </section>
+    </div>
+
+    <!-- COLUMNA DERECHA: FORMULARIO -->
+    <div class="col-lg-5">
+      <section class="cys-card" style="min-height:600px;">
+        <div class="cys-card__title">Registrar Venta</div>
+
+        <form method="POST" action="{% url 'ventas:nueva_venta' %}">
+          {% csrf_token %}
+
+          <!-- PRODUCTO SELECCIONADO -->
+          <div class="cys-venta-seleccionado mb-4" id="productoSeleccionado">
+            <div class="cys-venta-seleccionado__vacio" id="selVacio">
+              <i class="bi bi-hand-index" style="font-size:1.5rem; color:var(--azul-borde);"></i>
+              <span>Selecciona un producto del panel izquierdo</span>
+            </div>
+            <div class="cys-venta-seleccionado__info" id="selInfo" style="display:none;">
+              <div class="cys-venta-seleccionado__nombre" id="selNombre">—</div>
+              <div class="cys-venta-seleccionado__stock" id="selStock">Stock: 0</div>
+            </div>
+          </div>
+
+          <input type="hidden" name="producto" id="productoId">
+
+          <!-- CLIENTE -->
+          <div class="mb-3">
+            <label class="cys-form-label">Cliente</label>
+            {{ form.cliente }}
+          </div>
+
+          <!-- CANTIDAD -->
+          <div class="mb-3">
+            <label class="cys-form-label">Cantidad</label>
+            {{ detalle.cantidad }}
+          </div>
+
+          <!-- PRECIO -->
+          <div class="mb-3">
+            <label class="cys-form-label">Precio Unitario</label>
+            {{ detalle.precio_unitario }}
+          </div>
+
+          <!-- TOTAL -->
+          <div class="cys-venta-total mb-4" id="totalBox" style="display:none;">
+            <span class="cys-venta-total__label">Total estimado</span>
+            <span class="cys-venta-total__val" id="totalVal">$0</span>
+          </div>
+
+          <button type="submit" class="cys-btn cys-btn--danger w-100"
+                  id="btnRegistrar" disabled>
+            <i class="bi bi-save"></i> Registrar Venta
+          </button>
+
+        </form>
+      </section>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const cantInput = document.querySelector('input[name="cantidad"]');
+  const precInput = document.querySelector('input[name="precio_unitario"]');
+  const totalVal  = document.getElementById('totalVal');
+  const totalBox  = document.getElementById('totalBox');
+  const btnReg    = document.getElementById('btnRegistrar');
+  const buscador  = document.getElementById('buscadorProducto');
+
+  function calcularTotal() {
+    const cant  = parseFloat(cantInput.value) || 0;
+    const prec  = parseFloat(precInput.value) || 0;
+    const total = cant * prec;
+    totalVal.textContent = '$' + total.toLocaleString('es-CO');
+    totalBox.style.display = total > 0 ? 'flex' : 'none';
+  }
+
+  function seleccionarProducto(id, nombre, precio, stock, unidad) {
+    document.querySelectorAll('.cys-producto-item').forEach(i => i.classList.remove('cys-producto-item--selected'));
+    const el = document.querySelector(`.cys-producto-item[data-id="${id}"]`);
+    if (el) el.classList.add('cys-producto-item--selected');
+
+    document.getElementById('productoId').value      = id;
+    document.getElementById('selNombre').textContent = nombre;
+    document.getElementById('selStock').textContent  = `Stock: ${stock} ${unidad}`;
+    document.getElementById('selVacio').style.display = 'none';
+    document.getElementById('selInfo').style.display  = 'flex';
+
+    precInput.value  = precio;
+    btnReg.disabled  = false;
+    calcularTotal();
+  }
+
+  function mostrarProductos(catId, catNombre) {
+    const datos = document.querySelectorAll(`.dato-producto[data-cat="${catId}"]`);
+    const lista = document.getElementById('productoLista');
+    document.getElementById('catTitulo').textContent = catNombre;
+    lista.innerHTML = '';
+
+    if (datos.length === 0) {
+      lista.innerHTML = `<div style="color:var(--texto-muted); font-size:.85rem; padding:1rem;">No hay productos en esta categoría.</div>`;
+    } else {
+      datos.forEach(d => {
+        const critico = d.dataset.critico === '1';
+        lista.innerHTML += `
+          <div class="cys-producto-item ${critico ? 'cys-producto-item--critico' : ''}"
+               data-id="${d.dataset.id}"
+               onclick="seleccionarProducto('${d.dataset.id}','${d.dataset.nombre}','${d.dataset.precio}','${d.dataset.stock}','${d.dataset.unidad}')">
+            <div class="cys-producto-item__icon">
+              <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="cys-producto-item__info">
+              <div class="cys-producto-item__nombre">${d.dataset.nombre}</div>
+              <div class="cys-producto-item__cat">${critico ? '⚠ Stock crítico' : 'Disponible'}</div>
+            </div>
+            <div class="cys-producto-item__meta">
+              <div class="cys-producto-item__precio">$${parseInt(d.dataset.precio).toLocaleString('es-CO')}</div>
+              <div class="cys-producto-item__stock ${critico ? 'cys-producto-item__stock--bajo' : ''}">
+                ${d.dataset.stock} ${d.dataset.unidad}
+              </div>
+            </div>
+          </div>`;
+      });
+    }
+
+    document.getElementById('vistaCategorias').style.display = 'none';
+    document.getElementById('vistaProductos').style.display  = 'block';
+  }
+
+  function volverCategorias() {
+    document.getElementById('vistaProductos').style.display  = 'none';
+    document.getElementById('vistaCategorias').style.display = 'block';
+    buscador.value = '';
+  }
+
+  if (cantInput) cantInput.addEventListener('input', calcularTotal);
+  if (precInput) precInput.addEventListener('input', calcularTotal);
+
+  // BUSCADOR — busca en todas las categorías
+  buscador.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    if (!q) {
+      volverCategorias();
+      return;
+    }
+
+    const todos = document.querySelectorAll('.dato-producto');
+    const lista = document.getElementById('productoLista');
+    document.getElementById('catTitulo').textContent = `Resultados para "${q}"`;
+    lista.innerHTML = '';
+
+    let encontrados = 0;
+    todos.forEach(d => {
+      if (d.dataset.nombre.toLowerCase().includes(q)) {
+        const critico = d.dataset.critico === '1';
+        lista.innerHTML += `
+          <div class="cys-producto-item ${critico ? 'cys-producto-item--critico' : ''}"
+               data-id="${d.dataset.id}"
+               onclick="seleccionarProducto('${d.dataset.id}','${d.dataset.nombre}','${d.dataset.precio}','${d.dataset.stock}','${d.dataset.unidad}')">
+            <div class="cys-producto-item__icon">
+              <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="cys-producto-item__info">
+              <div class="cys-producto-item__nombre">${d.dataset.nombre}</div>
+              <div class="cys-producto-item__cat">${critico ? '⚠ Stock crítico' : 'Disponible'}</div>
+            </div>
+            <div class="cys-producto-item__meta">
+              <div class="cys-producto-item__precio">$${parseInt(d.dataset.precio).toLocaleString('es-CO')}</div>
+              <div class="cys-producto-item__stock ${critico ? 'cys-producto-item__stock--bajo' : ''}">
+                ${d.dataset.stock} ${d.dataset.unidad}
+              </div>
+            </div>
+          </div>`;
+        encontrados++;
+      }
+    });
+
+    if (encontrados === 0) {
+      lista.innerHTML = `<div style="color:var(--texto-muted); font-size:.85rem; padding:1rem;">No se encontraron productos.</div>`;
+    }
+
+    document.getElementById('vistaCategorias').style.display = 'none';
+    document.getElementById('vistaProductos').style.display  = 'block';
+  });
+</script>
+{% endblock %}

@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ── TOKENS ─────────────────────────────────────────────── */
+/* ============================================================
+   TOKENS GLOBALES
+   ============================================================ */
 :root {
   --azul-oscuro:   #011936;
   --azul-medio:    #0A2A52;
@@ -22,11 +24,11 @@
   --nav-h:         48px;
   --radius:        12px;
   --trans:         all .22s ease;
-<<<<<<< Updated upstream
-=======
 }
 
-/* ── RESET / BASE ────────────────────────────────────────── */
+/* ============================================================
+   RESET / BASE GLOBAL
+   ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -35,6 +37,7 @@ body {
   color: var(--texto);
   min-height: 100vh;
 }
+
 
 /* ── SCROLLBAR ───────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
@@ -593,223 +596,12 @@ body.sidebar-open .cys-main {
 /* Evita bug visual del offcanvas */
 #sidebarRight.show {
   transform: none !important;
->>>>>>> Stashed changes
 }
 
 /* ── RESET / BASE ────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<<<<<<< Updated upstream
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--fondo);
-  color: var(--texto);
-  min-height: 100vh;
-}
-
-/* PERMITIR INTERACCIÓN CON MENÚ ABIERTO */
-body.offcanvas-open,
-body.sidebar-open {
-  overflow: auto !important;
-  padding-right: 0 !important;
-}
-
-/* ── SCROLLBAR ───────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--azul-claro); border-radius: 99px; }
-
-/* ============================================================
-   HEADER
-   ============================================================ */
-.cys-header {
-  position: sticky;
-  top: 0;
-  z-index: 1030;
-  height: var(--header-h);
-  background: var(--azul-oscuro);
-  border-bottom: 1px solid var(--azul-borde);
-  box-shadow: 0 4px 24px rgba(0,0,0,.5);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1.5rem;
-  transition: margin-right .3s ease;
-}
-
-.cys-header__brand {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.cys-header__logo {
-  height: 52px;
-  width: 52px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--azul-claro);
-  box-shadow: 0 0 0 4px var(--azul-glow), 0 0 16px var(--azul-glow);
-}
-
-.cys-header__title {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--blanco);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  line-height: 1;
-}
-
-.cys-header__sub {
-  display: flex;
-  align-items: center;
-  gap: .45rem;
-  margin-top: 4px;
-}
-
-.cys-header__sub span {
-  font-size: .7rem;
-  font-weight: 600;
-  color: var(--azul-claro);
-  letter-spacing: .2em;
-  text-transform: uppercase;
-}
-
-.cys-dot {
-  width: 9px;
-  height: 9px;
-  background: #2ecc71;
-  border-radius: 50%;
-  flex-shrink: 0;
-  animation: pulse-dot 1.8s ease infinite;
-}
-
-@keyframes pulse-dot {
-  0%   { box-shadow: 0 0 0 0   rgba(46,204,113,.7); }
-  70%  { box-shadow: 0 0 0 8px rgba(46,204,113,0); }
-  100% { box-shadow: 0 0 0 0   rgba(46,204,113,0); }
-}
-
-.cys-header__clock { text-align: right; }
-
-.cys-header__clock-time {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: var(--blanco);
-  letter-spacing: .06em;
-  line-height: 1;
-  text-shadow: 0 0 24px rgba(255,255,255,.35);
-}
-
-.cys-header__clock-date {
-  font-size: .7rem;
-  font-weight: 700;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: var(--blanco);
-  margin-top: 3px;
-  text-shadow: 0 0 10px rgba(255,255,255,.25);
-  opacity: .9;
-}
-
-/* ============================================================
-   SUBNAV
-   ============================================================ */
-.cys-subnav {
-  height: var(--nav-h);
-  background: var(--azul-medio);
-  border-bottom: 1px solid var(--azul-borde);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1.5rem;
-  transition: margin-right .3s ease;
-}
-
-.cys-subnav__page {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: .9rem;
-  font-weight: 700;
-  letter-spacing: .15em;
-  text-transform: uppercase;
-  color: var(--azul-claro);
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-}
-
-.cys-subnav__page::before {
-  content: '';
-  display: inline-block;
-  width: 3px;
-  height: 16px;
-  background: var(--rojo);
-  border-radius: 2px;
-  box-shadow: 0 0 8px var(--rojo-glow);
-}
-
-.cys-menu-btn {
-  display: flex;
-  align-items: center;
-  gap: .45rem;
-  padding: .38rem .9rem;
-  background: transparent;
-  border: 1px solid var(--azul-borde);
-  border-radius: var(--radius);
-  color: var(--azul-claro);
-  font-size: .78rem;
-  font-weight: 600;
-  font-family: 'Rajdhani', sans-serif;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: var(--trans);
-  box-shadow: 0 0 10px var(--azul-glow);
-}
-
-.cys-menu-btn:hover {
-  background: var(--azul-claro);
-  color: var(--azul-oscuro);
-  border-color: var(--azul-claro);
-  box-shadow: 0 0 18px var(--azul-borde);
-}
-
-/* ============================================================
-   MENÚ EMPUJA CONTENIDO
-   ============================================================ */
-body.sidebar-open .cys-header,
-body.sidebar-open .cys-subnav,
-body.sidebar-open .cys-main {
-  margin-right: 290px;
-}
-
-/* ============================================================
-   SIDEBAR OFFCANVAS
-   ============================================================ */
-#sidebarRight {
-  width: 290px !important;
-  background: var(--azul-oscuro) !important;
-  border-left: 1px solid var(--azul-borde) !important;
-  box-shadow: -8px 0 32px rgba(0,0,0,.6) !important;
-}
-
-.cys-sb-header {
-  height: 80px;
-  padding: 0 1rem;
-  border-bottom: 1px solid var(--azul-borde);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.cys-sb-brand { display: flex; align-items: center; gap: .65rem; }
-
-=======
 /* 🔥 LOGO SIDEBAR */
->>>>>>> Stashed changes
 .cys-sb-logo {
   width: 40px;
   height: 40px;
@@ -817,7 +609,7 @@ body.sidebar-open .cys-main {
   object-fit: cover;
   border: 2px solid var(--azul-claro);
   box-shadow: 0 0 0 3px var(--azul-glow);
-<<<<<<< Updated upstream
+
   flex-shrink: 0;
 }
 
@@ -1004,15 +796,32 @@ body.sidebar-open .cys-main {
 }
 
 /* ============================================================
-   MAIN CONTENT
+   BASE.HTML — SIDEBAR EMPUJA CONTENIDO
+   ============================================================ */
+body.sidebar-open .cys-header,
+body.sidebar-open .cys-subnav {
+  margin-right: 290px;
+}
+
+body.sidebar-open .cys-main {
+  margin-right: 290px;
+  max-width: 100%;
+  margin-left: 0;
+}
+
+/* ============================================================
+   BASE.HTML — MAIN CONTENIDO
    ============================================================ */
 .cys-main {
-  padding: 1rem 1.25rem;
-  max-width: 100%;
+  padding: 1.5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
   transition: margin-right .3s ease;
 }
 
-/* ── CARDS ────────────────────────────────────────────────── */
+/* ============================================================
+   COMPONENTES GLOBALES — CARDS
+   ============================================================ */
 .cys-card {
   background: var(--fondo-card);
   border-radius: 14px;
@@ -1020,6 +829,7 @@ body.sidebar-open .cys-main {
   box-shadow: 0 4px 24px rgba(0,0,0,.3), 0 0 0 1px rgba(77,168,218,.06);
   padding: 1.5rem;
   transition: var(--trans);
+  margin-bottom: 1.5rem;
 }
 
 .cys-card:hover {
@@ -1050,43 +860,11 @@ body.sidebar-open .cys-main {
   box-shadow: 0 0 8px var(--azul-claro);
 }
 
-/* ── STAT CARDS ───────────────────────────────────────────── */
-.cys-stat-card {
-  background: var(--fondo-card2);
-  border: 1px solid var(--azul-borde);
-  border-radius: var(--radius);
-  padding: 1.25rem 1rem;
-  text-align: left;
-  transition: var(--trans);
-  cursor: default;
-  box-shadow: 0 2px 12px rgba(0,0,0,.2);
-}
+.cys-card__title.mb-0 { margin-bottom: 0 !important; }
 
-.cys-stat-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(192,57,43,.5);
-  box-shadow: 0 8px 28px rgba(0,0,0,.3), 0 0 20px var(--rojo-glow);
-}
-
-.cys-stat-card__label {
-  font-size: .72rem;
-  font-weight: 600;
-  color: var(--gris-claro);
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  margin-bottom: .4rem;
-}
-
-.cys-stat-card__val {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--azul-claro);
-  line-height: 1;
-  text-shadow: 0 0 20px rgba(77,168,218,.4);
-}
-
-/* ── BOTONES ──────────────────────────────────────────────── */
+/* ============================================================
+   COMPONENTES GLOBALES — BOTONES
+   ============================================================ */
 .cys-btn {
   display: inline-flex;
   align-items: center;
@@ -1132,7 +910,73 @@ body.sidebar-open .cys-main {
   transform: scale(1.04);
 }
 
-/* ── TABLA ────────────────────────────────────────────────── */
+.cys-btn--outline {
+  background: transparent;
+  color: var(--texto-muted);
+  border-color: var(--azul-borde);
+}
+
+.cys-btn--outline:hover {
+  background: var(--azul-glow);
+  color: var(--blanco);
+  border-color: var(--azul-borde);
+}
+
+/* ============================================================
+   COMPONENTES GLOBALES — BOTONES PEQUEÑOS TABLA
+   ============================================================ */
+.cys-btn-sm {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .78rem;
+  cursor: pointer;
+  transition: var(--trans);
+  margin: 0 2px;
+  text-decoration: none;
+}
+
+.cys-btn-sm--primary {
+  background: rgba(77,168,218,.15);
+  border-color: var(--azul-borde);
+  color: var(--azul-claro);
+}
+
+.cys-btn-sm--primary:hover {
+  background: var(--azul-claro);
+  color: var(--azul-oscuro);
+  border-color: var(--azul-claro);
+}
+
+.cys-btn-sm--warning {
+  background: rgba(201,168,76,.15);
+  border-color: rgba(201,168,76,.3);
+  color: #C9A84C;
+}
+
+.cys-btn-sm--warning:hover {
+  background: #C9A84C;
+  color: #111;
+}
+
+.cys-btn-sm--danger {
+  background: rgba(192,57,43,.15);
+  border-color: rgba(192,57,43,.3);
+  color: var(--rojo);
+}
+
+.cys-btn-sm--danger:hover {
+  background: var(--rojo);
+  color: var(--blanco);
+}
+
+/* ============================================================
+   COMPONENTES GLOBALES — TABLA
+   ============================================================ */
 .table { color: var(--texto) !important; }
 
 .table thead th {
@@ -1149,16 +993,41 @@ body.sidebar-open .cys-main {
 .table tbody tr:hover { background: var(--azul-glow) !important; }
 .table td { border-color: rgba(77,168,218,.08) !important; }
 
-/* ── UTILIDADES ───────────────────────────────────────────── */
+/* ============================================================
+   COMPONENTES GLOBALES — INPUTS
+   ============================================================ */
+.cys-input {
+  background: var(--fondo-card2) !important;
+  border: 1px solid var(--azul-borde) !important;
+  color: var(--texto) !important;
+  border-radius: var(--radius) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: .85rem !important;
+}
+
+.cys-input:focus {
+  background: var(--fondo-card2) !important;
+  border-color: var(--azul-claro) !important;
+  box-shadow: 0 0 0 3px var(--azul-glow) !important;
+  color: var(--texto) !important;
+}
+
+.cys-input option {
+  background: var(--fondo-card2);
+  color: var(--texto);
+}
+
+/* ============================================================
+   COMPONENTES GLOBALES — UTILIDADES
+   ============================================================ */
 .text-azul  { color: var(--azul-claro) !important; }
 .text-rojo  { color: var(--rojo) !important; }
 .glow-azul  { box-shadow: 0 0 16px var(--azul-glow); }
 .glow-rojo  { box-shadow: 0 0 16px var(--rojo-glow); }
 
-/* Fix offcanvas */
-#sidebarRight.show { transform: none !important; }
-
-/* ── BOTONES CARRUSEL ─────────────────────────────────────── */
+/* ============================================================
+   HOME.HTML — CARRUSEL CATEGORÍAS
+   ============================================================ */
 .cys-carousel-btn {
   width: 32px;
   height: 32px;
@@ -1182,14 +1051,211 @@ body.sidebar-open .cys-main {
   box-shadow: 0 0 12px var(--azul-glow);
 }
 
-/* Quitar ::before del título cuando está dentro del flex */
-.cys-card__title.mb-0 {
-  margin-bottom: 0 !important;
+/* ============================================================
+   HOME.HTML + PRODUCTO.HTML — STAT CARDS CATEGORÍAS
+   ============================================================ */
+.cys-stat-card {
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  border-radius: var(--radius);
+  padding: 2rem 1rem;
+  text-align: center;
+  transition: var(--trans);
+  cursor: default;
+  box-shadow: 0 2px 12px rgba(0,0,0,.2);
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-/* CIERRE RÁPIDO SIDEBAR */
+.cys-stat-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(192,57,43,.5);
+  box-shadow: 0 8px 28px rgba(0,0,0,.3), 0 0 20px var(--rojo-glow);
+}
+
+.cys-stat-card__label {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--gris-claro);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: .4rem;
+}
+
+.cys-stat-card__val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--azul-claro);
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(77,168,218,.4);
+}
+
+/* ============================================================
+   PRODUCTO.HTML — MODALES
+   ============================================================ */
+.cys-form-label {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--gris-claro);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: .35rem;
+  display: block;
+}
+
+.cys-form-error {
+  font-size: .72rem;
+  color: var(--rojo);
+  margin-top: .25rem;
+}
+
+.modal .form-control,
+.modal .form-select {
+  background: var(--fondo-card2) !important;
+  border: 1px solid var(--azul-borde) !important;
+  color: var(--texto) !important;
+  border-radius: var(--radius) !important;
+  font-size: .85rem !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.modal .form-control:focus,
+.modal .form-select:focus {
+  background: var(--fondo-card2) !important;
+  border-color: var(--azul-claro) !important;
+  box-shadow: 0 0 0 3px var(--azul-glow) !important;
+  color: var(--texto) !important;
+}
+
+.modal .form-control::placeholder {
+  color: var(--texto-muted) !important;
+}
+
+.modal .form-select option {
+  background: var(--fondo-card2);
+  color: var(--texto);
+}
+
+.modal-backdrop {
+  background: rgba(0,0,0,.7) !important;
+}
+/* LIMITAR ANCHO CONTENIDO */
+.cys-main .container-fluid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+body.sidebar-open .cys-main .container-fluid {
+  max-width: 100%;
+}
+/* ============================================================
+   SIDEBAR — SUBMENÚ VENTAS (PRO FIXED)
+   ============================================================ */
+
+.cys-sb-link--parent {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* 🔄 Flecha SIN animación automática */
+.cys-chevron {
+  font-size: .7rem;
+  transition: transform .2s ease; /* solo para click */
+}
+
+/* 🚫 Bloquear animación cuando cargue */
+.no-anim .cys-chevron {
+  transition: none !important;
+}
+
+.cys-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* 📦 Submenú animado (esto sí lo dejamos) */
+.cys-sb-submenu {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+
+  max-height: 0;
+  overflow: hidden;
+
+  padding-left: 1.2rem;
+  margin-top: .1rem;
+
+  opacity: 0;
+  transform: translateY(-5px);
+
+  transition: 
+    max-height .25s ease,
+    opacity .2s ease,
+    transform .2s ease;
+}
+
+/* 🔥 Abierto */
+.cys-sb-submenu.open {
+  max-height: 200px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 🔹 Línea tipo árbol (FIX posición) */
+.cys-sb-submenu {
+  position: relative;
+}
+
+.cys-sb-submenu::before {
+  content: "";
+  position: absolute;
+  left: 12px; /* ajustado para alineación */
+  top: 5px;
+  bottom: 5px;
+  width: 1px;
+  background: var(--azul-borde);
+  opacity: .3;
+}
+
+/* 🔗 Sub links */
+.cys-sb-sublink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+
+  padding: .45rem 1rem .45rem 1.2rem;
+
+  border-radius: 8px;
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--texto-muted);
+  text-decoration: none;
+  transition: var(--trans);
+  border: 1px solid transparent;
+}
+
+/* Hover pro */
+.cys-sb-sublink:hover {
+  background: var(--azul-glow);
+  color: var(--blanco);
+  border-color: var(--azul-borde);
+  transform: translateX(3px);
+}
+
+/* Iconos */
+.cys-sb-sublink i {
+  font-size: .8rem;
+  width: 14px;
+  text-align: center;
+}
+
+/* 🚫 SIN animación del sidebar NUNCA */
 .offcanvas {
   transition: transform .15s ease !important;
-=======
->>>>>>> Stashed changes
+
 }

@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Usuarios — CYS Ltda{% endblock %}
+{% block page_title %}Usuarios{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-dismissible fade show mb-3"
+           style="background:var(--fondo-card); border:1px solid {% if message.tags == 'error' %}rgba(192,57,43,.4){% else %}var(--azul-borde){% endif %}; color:var(--texto); border-radius:var(--radius);"
+           role="alert">
+        {{ message }}
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="d-flex justify-content-end mb-3">
+    <a href="{% url 'crear_usuario' %}" class="cys-btn cys-btn--primary">
+      <i class="bi bi-person-plus me-1"></i> Nuevo Usuario
+    </a>
+  </div>
+
+  <section class="cys-card mb-4">
+    <div class="cys-card__title">Usuarios Registrados</div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--azul-borde);">
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Nombre Completo</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Identificación</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Usuario</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Correo</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Rol</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in usuarios %}
+          <tr>
+            <td style="font-size:.85rem; color:var(--texto-muted);">{{ forloop.counter }}</td>
+            <td style="font-size:.85rem; font-weight:600; color:var(--texto);">{{ u.nombre_completo }}</td>
+            <td style="font-size:.85rem; color:var(--texto-muted);">
+              <span style="font-size:.7rem; color:var(--azul-claro);">{{ u.get_tipo_id_display }}</span><br>
+              {{ u.identificacion }}
+            </td>
+            <td style="font-size:.85rem; color:var(--azul-claro);">{{ u.usuario }}</td>
+            <td style="font-size:.85rem; color:var(--texto-muted);">{{ u.email|default:"—" }}</td>
+            <td>
+              <span class="badge"
+                style="font-size:.72rem; padding:.35rem .65rem;
+                background:{% if u.rol == 'admin' %}rgba(192,57,43,.2){% elif u.rol == 'cajero' %}rgba(77,168,218,.15){% else %}rgba(77,218,140,.15){% endif %};
+                color:{% if u.rol == 'admin' %}var(--rojo){% elif u.rol == 'cajero' %}var(--azul-claro){% else %}#5edb97{% endif %};
+                border:1px solid {% if u.rol == 'admin' %}rgba(192,57,43,.4){% elif u.rol == 'cajero' %}var(--azul-borde){% else %}rgba(77,218,140,.3){% endif %};">
+                {{ u.get_rol_display }}
+              </span>
+            </td>
+            <td>
+              {% if u.activo %}
+                <span style="font-size:.75rem; color:#5edb97;">
+                  <i class="bi bi-circle-fill me-1" style="font-size:.5rem;"></i>Activo
+                </span>
+              {% else %}
+                <span style="font-size:.75rem; color:var(--texto-muted);">
+                  <i class="bi bi-circle me-1" style="font-size:.5rem;"></i>Inactivo
+                </span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
+              <i class="bi bi-people d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
+              No hay usuarios registrados.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+</div>
+{% endblock %}

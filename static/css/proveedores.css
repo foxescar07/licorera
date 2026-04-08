@@ -1,0 +1,25 @@
+/* ============================================================
+   PROVEEDORES.HTML — BADGES TABLA
+   ============================================================ */
+.cys-badge-id {
+  display: inline-block;
+  background: rgba(77,168,218,.12);
+  border: 1px solid var(--azul-borde);
+  color: var(--azul-claro);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: .2rem .55rem;
+  border-radius: 99px;
+}
+
+.cys-badge-empresa {
+  display: inline-block;
+  background: rgba(77,168,218,.08);
+  border: 1px solid var(--azul-borde);
+  color: var(--texto-muted);
+  font-size: .75rem;
+  padding: .2rem .55rem;
+  border-radius: 6px;
+}
