@@ -128,3 +128,15 @@
   letter-spacing: .08em; text-transform: uppercase; cursor: pointer; transition: all .15s;
 }
 .cys-btn-export:hover { border-color: var(--azul-claro); color: var(--azul-claro); }
+
+/* Modal más grande */
+#modalInventario .modal-content,
+#modalProveedores .modal-content {
+  min-height: 85vh;
+}
+
+#modalInventario .modal-body,
+#modalProveedores .modal-body {
+  max-height: 60vh;
+  overflow-y: auto;
+}
