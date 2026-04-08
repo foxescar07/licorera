@@ -17,6 +17,13 @@ class Venta(models.Model):
     def total(self):
         return sum(d.subtotal() for d in self.detalles.all())
 
+    @property
+    def total_venta(self):
+        return sum(
+            det.cantidad * det.precio_unitario
+            for det in self.detalles.all()
+        )
+
 
 class DetalleVenta(models.Model):
     venta           = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
