@@ -104,46 +104,60 @@ def eliminar_proveedor(request, id):
         messages.warning(request, f'Proveedor "{nombre}" eliminado correctamente 🗑️')
     return redirect('proveedores')
 
-# ===============================
-# VISTA PARA REGISTRAR COMPRA (CORREGIDA)
-# ===============================
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.utils import timezone
+from datetime import timedelta
+
+from producto.models import Producto, Inventario
+from .models import Proveedor, Compra
+from .forms import ProveedorForm
+from .formscomp import CompraForm
+
+
 def registrar_compra(request, proveedor_id):
     proveedor_obj = get_object_or_404(Proveedor, id=proveedor_id)
-    
+
     if request.method == 'POST':
-        # Captura manual de datos del POST
         id_prod = request.POST.get('producto')
         cant = request.POST.get('cantidad')
 
-        if id_prod and cant:
-            try:
-                # 1. Obtenemos el producto real
-                producto_instancia = Producto.objects.get(id=int(id_prod))
-                
-                # 2. CREACIÓN MANUAL (Ignoramos el objeto Form para asegurar el guardado)
-                nueva_compra = Compra.objects.create(
-                    proveedor=proveedor_obj,
-                    producto=producto_instancia,
-                    cantidad=int(cant)
-                )
-                
-                # 3. ACTUALIZAMOS STOCK
-                producto_instancia.cantidad_disponible += int(cant)
-                producto_instancia.save()
+        print("ID PRODUCTO RECIBIDO:", id_prod)
+        print("CANTIDAD RECIBIDA:", cant)
 
-                messages.success(request, "✅ Registro guardado en la tabla.")
-                return redirect('registrar_compra', proveedor_id=proveedor_id)
-            except Exception as e:
-                messages.error(request, f"Error al insertar en tabla: {e}")
-        else:
+        if not id_prod or not cant:
             messages.warning(request, "Asegúrate de seleccionar producto y cantidad.")
+            form = CompraForm()
+            form.fields['producto'].queryset = Producto.objects.all()
+            compras = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
+            return render(request, 'proveedores/compra.html', {
+                'form': form,
+                'compras': compras,
+                'proveedor': proveedor_obj
+            })
 
-    # --- CARGA DE DATOS PARA LA VISTA ---
+        try:
+            producto_instancia = Producto.objects.get(id=int(id_prod))
+            cantidad_int = int(cant)
+
+            Compra.objects.create(
+                proveedor=proveedor_obj,
+                producto=producto_instancia,
+                cantidad=cantidad_int
+            )
+
+            producto_instancia.cantidad_disponible += cantidad_int
+            producto_instancia.save()
+
+            messages.success(request, "✅ Registro guardado en la tabla.")
+            return redirect('registrar_compra', proveedor_id=proveedor_id)
+
+        except Exception as e:
+            print("ERROR REAL:", e)
+            messages.error(request, f"Error real: {e}")
+
     form = CompraForm()
-    # Filtramos el selector para que no esté vacío
-    form.fields['producto'].queryset = Producto.objects.filter(proveedor=proveedor_obj)
-    
-    # ESTO ES LO QUE LLENA TU TABLA:
+    form.fields['producto'].queryset = Producto.objects.all()
     compras = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
 
     return render(request, 'proveedores/compra.html', {

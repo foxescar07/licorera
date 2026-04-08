@@ -2,7 +2,6 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from producto.models import Producto
-
 # =======================
 # MODELO PROVEEDOR
 # =======================
@@ -48,27 +47,14 @@ class Proveedor(models.Model):
 # =======================
 # MODELO COMPRA
 # =======================
-class Producto(models.Model):
-    # ... tus otros campos (nombre, codigo, etc) ...
-    nombre = models.CharField(max_length=150)
-    
-    # CORRECCIÓN AQUÍ:
-    # 'proveedores' es el nombre de tu APP
-    # 'Proveedor' es el nombre de tu MODELO
-    proveedor = models.ForeignKey(
-        'proveedores.Proveedor', 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
-        related_name="productos_lista"
-    )
+
 
     def __str__(self):
         return self.nombre
 
 class Compra(models.Model):
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    producto = models.ForeignKey('producto.Producto', on_delete=models.CASCADE)
     cantidad = models.IntegerField()
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
