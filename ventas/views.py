@@ -53,10 +53,13 @@ def nueva_venta(request):
             producto.cantidad_disponible -= cantidad
             producto.save()
 
+            # ← Aquí solo agregamos tipo y motivo
             Inventario.objects.create(
                 producto=producto,
-                cantidad=-cantidad,
-                ubicacion="Venta"
+                tipo='salida',
+                cantidad=cantidad,
+                motivo='Venta registrada',
+                ubicacion='Venta'
             )
 
             messages.success(request, f"Venta de {producto.nombre} registrada correctamente.")

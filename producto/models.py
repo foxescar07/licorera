@@ -60,9 +60,15 @@ class PresentacionProducto(models.Model):
 
 
 class Inventario(models.Model):
+    TIPO_CHOICES = [
+        ('entrada', 'Entrada'),
+        ('salida',  'Salida'),
+    ]
     producto          = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name="movimientos")
+    tipo              = models.CharField(max_length=10, choices=TIPO_CHOICES, default='entrada')
     ubicacion         = models.CharField(max_length=100, blank=True, null=True)
-    cantidad          = models.IntegerField(help_text="Positivo = entrada, Negativo = salida")
+    cantidad          = models.PositiveIntegerField(default=0)
+    motivo            = models.CharField(max_length=255, blank=True, null=True)
     fecha_actualizada = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -71,7 +77,7 @@ class Inventario(models.Model):
         ordering            = ["-fecha_actualizada"]
 
     def __str__(self):
-        return f"{self.producto.nombre} | {self.cantidad} | {self.fecha_actualizada:%d/%m/%Y}"
+        return f"{self.tipo} | {self.producto.nombre} | {self.cantidad} | {self.fecha_actualizada:%d/%m/%Y}"
 
 
 class AgendaInventario(models.Model):

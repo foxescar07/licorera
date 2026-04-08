@@ -34,21 +34,68 @@
     </div>
   </div>
 
-  <!-- BOTÓN ABRIR MODAL -->
-  <div class="mb-4">
-    <button class="btn-reporte-inventario" data-bs-toggle="modal" data-bs-target="#modalInventario">
-      <i class="bi bi-box-seam"></i> Generar Reporte de Inventario
-    </button>
+  <!-- TARJETAS DE REPORTES -->
+  <div class="row gx-3 gy-3 mb-4">
+
+    <!-- Inventario -->
+    <div class="col-md-4">
+      <div class="cys-card h-100" style="border-top:2px solid var(--azul-claro); cursor:pointer;"
+           data-bs-toggle="modal" data-bs-target="#modalInventario">
+        <div style="width:36px; height:36px; border-radius:8px; background:rgba(77,168,218,.15);
+                    display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
+          <i class="bi bi-box-seam" style="color:var(--azul-claro); font-size:16px;"></i>
+        </div>
+        <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
+                    color:var(--texto); margin-bottom:4px;">Inventario</div>
+        <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
+          Stock, niveles y productos agotados
+        </div>
+        <div style="font-size:.75rem; color:var(--azul-claro); font-weight:600;">Ver reporte →</div>
+      </div>
+    </div>
+
+    <!-- Proveedores -->
+    <div class="col-md-4">
+      <div class="cys-card h-100" style="border-top:2px solid #1D9E75; cursor:pointer;"
+           data-bs-toggle="modal" data-bs-target="#modalProveedores">
+        <div style="width:36px; height:36px; border-radius:8px; background:rgba(29,158,117,.15);
+                    display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
+          <i class="bi bi-truck" style="color:#1D9E75; font-size:16px;"></i>
+        </div>
+        <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
+                    color:var(--texto); margin-bottom:4px;">Proveedores</div>
+        <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
+          Lista y datos de proveedores activos
+        </div>
+        <div style="font-size:.75rem; color:#1D9E75; font-weight:600;">Ver reporte →</div>
+      </div>
+    </div>
+
+    <!-- Productos por proveedor (próximamente) -->
+    <div class="col-md-4">
+      <div class="cys-card h-100" style="border-top:2px solid #BA7517; cursor:default; opacity:.55;">
+        <div style="width:36px; height:36px; border-radius:8px; background:rgba(186,117,23,.15);
+                    display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
+          <i class="bi bi-list-ul" style="color:#BA7517; font-size:16px;"></i>
+        </div>
+        <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
+                    color:var(--texto); margin-bottom:4px;">Productos por proveedor</div>
+        <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
+          Qué productos suministra cada uno
+        </div>
+        <div style="font-size:.75rem; color:#BA7517; font-weight:600;">Próximamente</div>
+      </div>
+    </div>
+
   </div>
 
   <!-- HISTORIAL -->
   <section class="cys-card mb-4">
     <div class="cys-card__title">Historial de Ventas</div>
-
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead>
-          <tr style="border-bottom: 2px solid var(--azul-borde);">
+          <tr style="border-bottom:2px solid var(--azul-borde);">
             <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
             <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Cliente</th>
             <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Producto</th>
@@ -86,17 +133,15 @@
         </tbody>
       </table>
     </div>
-
   </section>
 
 </div>
 
-<!-- ===== MODAL REPORTE DE INVENTARIO ===== -->
+<!-- ===== MODAL INVENTARIO ===== -->
 <div class="modal fade" id="modalInventario" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-scrollable" style="max-width:92vw; width:92vw;">
     <div class="modal-content cys-modal">
 
-      <!-- HEADER -->
       <div class="modal-header cys-modal__header">
         <div class="d-flex align-items-center gap-3">
           <div class="cys-modal__icon"><i class="bi bi-box-seam"></i></div>
@@ -108,7 +153,6 @@
         <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
 
-      <!-- TARJETAS RESUMEN -->
       <div class="cys-modal__stats">
         <div class="cys-stat-mini">
           <div class="cys-stat-mini__val">{{ total_registrados }}</div>
@@ -128,7 +172,6 @@
         </div>
       </div>
 
-      <!-- FILTRO BÚSQUEDA -->
       <div class="cys-modal__filters">
         <input type="text" id="invSearch" class="cys-search" placeholder="Buscar producto…" onkeyup="filtrarInventario()">
         <select id="invEstado" class="cys-select" onchange="filtrarInventario()">
@@ -139,8 +182,9 @@
         </select>
       </div>
 
-      <!-- TABLA -->
       <div class="modal-body p-0">
+
+        <!-- TABLA INVENTARIO -->
         <table class="cys-inv-table" id="invTable">
           <thead>
             <tr>
@@ -187,16 +231,154 @@
             {% endfor %}
           </tbody>
         </table>
+
+        <!-- TABLA ENTRADAS -->
+        <div style="padding: 14px 20px 0;">
+          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
+                      color:#5DCAA5; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
+                      display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#5DCAA5;display:inline-block;"></span>
+            Entradas de productos
+          </div>
+        </div>
+        <table class="cys-inv-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in entradas %}
+            <tr>
+              <td class="text-muted">{{ forloop.counter }}</td>
+              <td><strong>{{ e.producto.nombre }}</strong></td>
+              <td class="cys-qty cys-qty--ok">+{{ e.cantidad }}</td>
+              <td style="font-size:.85rem; color:var(--texto-muted);">{{ e.motivo|default:"—" }}</td>
+              <td style="font-size:.85rem; color:var(--gris-claro);">{{ e.fecha_actualizada|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">
+                No hay entradas registradas.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- TABLA SALIDAS -->
+        <div style="padding: 14px 20px 0;">
+          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
+                      color:#E24B4A; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
+                      display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#E24B4A;display:inline-block;"></span>
+            Salidas de productos
+          </div>
+        </div>
+        <table class="cys-inv-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in salidas %}
+            <tr>
+              <td class="text-muted">{{ forloop.counter }}</td>
+              <td><strong>{{ s.producto.nombre }}</strong></td>
+              <td class="cys-qty cys-qty--out">-{{ s.cantidad }}</td>
+              <td style="font-size:.85rem; color:var(--texto-muted);">{{ s.motivo|default:"—" }}</td>
+              <td style="font-size:.85rem; color:var(--gris-claro);">{{ s.fecha_actualizada|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">
+                No hay salidas registradas.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
       </div>
 
-      <!-- FOOTER -->
       <div class="modal-footer cys-modal__footer">
-        <button class="cys-btn-export" onclick="exportarCSV()">⬇ Exportar CSV</button>
+        <button class="cys-btn-export" onclick="exportarCSVInventario()">⬇ Exportar CSV</button>
       </div>
 
     </div>
   </div>
 </div>
+
+<!-- ===== MODAL PROVEEDORES ===== -->
+<div class="modal fade" id="modalProveedores" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content cys-modal">
+
+      <div class="modal-header cys-modal__header" style="background:linear-gradient(135deg,#085041,#0F6E56);">
+        <div class="d-flex align-items-center gap-3">
+          <div class="cys-modal__icon" style="background:rgba(29,158,117,.25);">
+            <i class="bi bi-truck" style="color:#5DCAA5;"></i>
+          </div>
+          <div>
+            <div class="cys-modal__title">Reporte de Proveedores</div>
+            <div class="cys-modal__subtitle">CYS Ltda · {{ proveedores|length }} proveedores registrados</div>
+          </div>
+        </div>
+        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+      </div>
+
+      <div class="cys-modal__stats">
+        <div class="cys-stat-mini cys-stat-mini--verde">
+          <div class="cys-stat-mini__val">{{ proveedores|length }}</div>
+          <div class="cys-stat-mini__label">Total registrados</div>
+        </div>
+      </div>
+
+      <div class="cys-modal__filters">
+        <input type="text" id="provSearch" class="cys-search" placeholder="Buscar proveedor…" onkeyup="filtrarProveedores()">
+      </div>
+
+      <div class="modal-body p-0">
+        <table class="cys-inv-table" id="provTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>Empresa</th>
+              <th>Teléfono</th>
+              <th>Correo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for prov in proveedores %}
+              <tr>
+                <td class="text-muted">{{ forloop.counter }}</td>
+                <td><strong>{{ prov.nombre }}</strong></td>
+                <td><span class="cys-tag">{{ prov.empresa }}</span></td>
+                <td style="font-size:.85rem; color:var(--texto);">{{ prov.telefono }}</td>
+                <td style="font-size:.85rem; color:var(--azul-claro);">{{ prov.correo }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-center py-5" style="color:var(--texto-muted);">
+                  <i class="bi bi-truck d-block mb-2" style="font-size:2rem; color:var(--azul-borde);"></i>
+                  No hay proveedores registrados.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer cys-modal__footer">
+        <button class="cys-btn-export" onclick="exportarCSVProveedores()">⬇ Exportar CSV</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -204,30 +386,49 @@
 function filtrarInventario() {
   const q      = document.getElementById('invSearch').value.toLowerCase();
   const estado = document.getElementById('invEstado').value;
-  const filas  = document.querySelectorAll('#invTable tbody tr[data-estado]');
-
-  filas.forEach(fila => {
-    const texto  = fila.innerText.toLowerCase();
-    const est    = fila.dataset.estado;
-    const matchQ = texto.includes(q);
-    const matchE = estado === '' || est === estado;
+  document.querySelectorAll('#invTable tbody tr[data-estado]').forEach(fila => {
+    const matchQ = fila.innerText.toLowerCase().includes(q);
+    const matchE = estado === '' || fila.dataset.estado === estado;
     fila.style.display = (matchQ && matchE) ? '' : 'none';
   });
 }
 
-function exportarCSV() {
+function filtrarProveedores() {
+  const q = document.getElementById('provSearch').value.toLowerCase();
+  document.querySelectorAll('#provTable tbody tr').forEach(fila => {
+    fila.style.display = fila.innerText.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+function exportarCSVInventario() {
   const filas = document.querySelectorAll('#invTable tbody tr[data-estado]');
   let csv = 'Producto,Categoría,Cantidad,Estado\n';
   filas.forEach(f => {
     if (f.style.display !== 'none') {
-      const celdas = f.querySelectorAll('td');
-      csv += `"${celdas[1].innerText}","${celdas[2].innerText}","${celdas[3].innerText}","${celdas[4].innerText}"\n`;
+      const c = f.querySelectorAll('td');
+      csv += `"${c[1].innerText}","${c[2].innerText}","${c[3].innerText}","${c[4].innerText}"\n`;
     }
   });
+  descargarCSV(csv, 'inventario_cys.csv');
+}
+
+function exportarCSVProveedores() {
+  const filas = document.querySelectorAll('#provTable tbody tr');
+  let csv = 'Nombre,Empresa,Teléfono,Correo\n';
+  filas.forEach(f => {
+    if (f.style.display !== 'none') {
+      const c = f.querySelectorAll('td');
+      csv += `"${c[1].innerText}","${c[2].innerText}","${c[3].innerText}","${c[4].innerText}"\n`;
+    }
+  });
+  descargarCSV(csv, 'proveedores_cys.csv');
+}
+
+function descargarCSV(csv, nombre) {
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
-  a.href = url; a.download = 'inventario_cys.csv'; a.click();
+  a.href = url; a.download = nombre; a.click();
 }
 </script>
 {% endblock %}
