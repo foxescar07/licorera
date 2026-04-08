@@ -188,33 +188,42 @@
 
                         <div class="row g-3">
 
-                            <div class="col-md-6">
-                                <label>Contacto</label>
-                                {{ form.nombre_contacto }}
-                            </div>
-
-                            <div class="col-md-6">
-                                <label>Empresa</label>
-                                {{ form.nombre_empresa }}
-                            </div>
-
-                            <div class="col-md-6">
-                                <label>Correo</label>
-                                {{ form.email }}
-                                {% if form.email.errors %}
-                                    <div class="text-danger small">
-                                        {{ form.email.errors  }}
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <div class="col-md-6">
-                                <label>Teléfono</label>
-                                {{ form.telefono }}
-                            </div>
-
+                            <div class="col-md-6 text-danger">
+                             <label>Contacto</label>
+                              {{ form.nombre_contacto }}
+                            {% if form.nombre_contacto.errors %}
+                         <div class="text-danger">
+                              {{ form.nombre_contacto.errors }}
+                             </div>
+                         {% endif %}
                         </div>
 
+                    <div class="col-md-6 text-danger">
+                    <label>Empresa</label>
+                     {{ form.nombre_empresa }}
+                     {% if form.nombre_empresa.errors %}
+                      {{ form.nombre_empresa.errors }}
+                     </div>
+                      {% endif %}
+</div>
+
+<div class="col-md-6 text-danger">
+    <label>Correo</label>
+    {{ form.email }}
+    {% if form.email.errors %}
+            {{ form.email.errors }}
+        </div>
+    {% endif %}
+</div>
+
+<div class="col-md-6 text-danger">
+    <label>Teléfono</label>
+    {{ form.telefono }}
+    {% if form.telefono.errors %}
+            {{ form.telefono.errors }}
+        </div>
+    {% endif %}
+</div>
                         <div class="text-end mt-4">
                             <button class="btn rounded-pill px-4"
                                     style="background:#4DA8DA; color:#011936;">
