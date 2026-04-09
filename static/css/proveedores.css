@@ -1,25 +1,243 @@
-/* ============================================================
-   PROVEEDORES.HTML — BADGES TABLA
-   ============================================================ */
-.cys-badge-id {
-  display: inline-block;
-  background: rgba(77,168,218,.12);
-  border: 1px solid var(--azul-borde);
-  color: var(--azul-claro);
-  font-family: 'Rajdhani', sans-serif;
-  font-size: .75rem;
-  font-weight: 700;
-  letter-spacing: .06em;
-  padding: .2rem .55rem;
-  border-radius: 99px;
+/* ================================
+   FUENTES
+================================ */
+body {
+  font-family: 'Inter', sans-serif;
 }
 
-.cys-badge-empresa {
-  display: inline-block;
-  background: rgba(77,168,218,.08);
-  border: 1px solid var(--azul-borde);
-  color: var(--texto-muted);
-  font-size: .75rem;
-  padding: .2rem .55rem;
-  border-radius: 6px;
+h1, h2, h3 {
+  font-family: 'Rajdhani', sans-serif;
+}
+
+/* ================================
+   BOTONES (MÁS VISIBLES Y PRO)
+================================ */
+.btn.rounded-pill.border {
+  border: 2px solid #4DA8DA !important;
+  color: #4DA8DA !important;
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+
+.btn.rounded-pill.border:hover {
+  background: #4DA8DA;
+  color: #011936 !important;
+  box-shadow: 0 0 20px #4DA8DA;
+  transform: scale(1.05);
+}
+
+/* BOTÓN PRINCIPAL */
+button[style*="background:#4DA8DA"] {
+  font-weight: 700;
+  letter-spacing: .1em;
+  box-shadow: 0 0 20px rgba(77,168,218,.6);
+}
+
+button[style*="background:#4DA8DA"]:hover {
+  box-shadow: 0 0 30px rgba(77,168,218,1);
+  transform: scale(1.05);
+}
+
+/* ================================
+   TARJETAS (QUE RESALTEN)
+================================ */
+.card {
+  border: 1.5px solid rgba(77,168,218,.4);
+  transition: .3s;
+}
+
+.card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 0 25px rgba(77,168,218,.4);
+}
+
+/* NÚMEROS GRANDES */
+.card h2 {
+  color: #4DA8DA;
+  font-size: 2.3rem;
+  font-weight: 700;
+}
+
+/* ================================
+   ⭐ TARJETA ÚLTIMA ACTUALIZACIÓN (AQUÍ ESTÁ EL CAMBIO REAL)
+================================ */
+.row .col-md-3:last-child .card {
+  border: 2px solid #4DA8DA;
+  box-shadow: 0 0 30px rgba(77,168,218,.5);
+  background: linear-gradient(135deg, #0A2A52, #123a70);
+}
+
+/* TEXTO SUPERIOR */
+.row .col-md-3:last-child small {
+  color: #9CA3AF;
+  font-weight: 600;
+  letter-spacing: .15em;
+}
+
+/* FECHA (MUCHO MÁS VISIBLE) */
+.row .col-md-3:last-child h5 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #4DA8DA;
+  text-shadow: 0 0 20px rgba(77,168,218,.8);
+}
+
+/* ================================
+   TABLA (COLOR TOTALMENTE DIFERENTE)
+================================ */
+.table {
+  background: #0A2A52;
+}
+
+/* HEADER */
+.table thead {
+  background: #020c1b !important;
+}
+
+.table thead th {
+  color: #4DA8DA !important;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+
+/* BODY */
+.table tbody {
+  background: #0A2A52;
+}
+
+/* FILAS */
+.table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+/* HOVER */
+.table tbody tr:hover {
+  background: rgba(77,168,218,.15);
+}
+
+/* TEXTO GENERAL (ESTO ES LO QUE PEDISTE) */
+.table td {
+  color: #000000 !important;
+  font-size: .95rem;
+}
+
+/* EMPRESA RESALTADA */
+.table td:nth-child(2) {
+  color: #4DA8DA !important;
+  font-weight: 700;
+}
+/* ================================
+TIPOGRAFÍA
+================================ */
+body {
+font-family: 'Inter', sans-serif;
+}
+
+h1 {
+font-family: 'Rajdhani', sans-serif;
+letter-spacing: .5px;
+}
+
+/* ================================
+CARD PRINCIPAL
+================================ */
+.card {
+border-radius: 18px !important;
+border: 1px solid rgba(77,168,218,.2);
+box-shadow: 0 15px 40px rgba(0,0,0,.35);
+overflow: hidden;
+}
+
+/* Barra lateral */
+.col-md-1 {
+background: linear-gradient(180deg, #912F40, #c4455d) !important;
+}
+
+/* ================================
+LABELS
+================================ */
+.form-label {
+font-size: .8rem;
+letter-spacing: .08em;
+color: #6b7280;
+margin-bottom: 6px;
+}
+
+/* ================================
+INPUTS
+================================ */
+.form-control,
+select,
+textarea {
+border-radius: 12px !important;
+border: 1px solid rgba(0,0,0,.15);
+padding: 10px 14px;
+font-size: .9rem;
+transition: all .2s ease;
+}
+
+/* Focus */
+.form-control:focus,
+select:focus {
+border-color: #4DA8DA;
+box-shadow: 0 0 0 3px rgba(77,168,218,.2);
+}
+
+/* Disabled */
+input[disabled] {
+background: #1e293b !important;
+color: #e2e8f0 !important;
+border: none;
+}
+
+/* ================================
+BOTÓN PRINCIPAL
+================================ */
+button[type="submit"] {
+border-radius: 999px;
+font-weight: 700;
+letter-spacing: .05em;
+padding: 12px;
+box-shadow: 0 0 15px rgba(77,168,218,.5);
+transition: all .25s ease;
+}
+
+button[type="submit"]:hover {
+transform: translateY(-2px);
+box-shadow: 0 0 25px rgba(77,168,218,.9);
+}
+
+/* ================================
+BOTÓN CANCELAR
+================================ */
+.btn-light {
+border-radius: 999px;
+transition: .2s;
+}
+
+.btn-light:hover {
+background: #f1f5f9;
+transform: translateY(-1px);
+}
+
+/* ================================
+SEPARADOR
+================================ */
+.border-top {
+border-color: rgba(0,0,0,.1) !important;
+}
+
+/* ================================
+TEXTO SECUNDARIO
+================================ */
+.text-white-50 {
+font-size: .85rem;
+}
+
+/* ================================
+ALERTAS (si agregas mensajes)
+================================ */
+.alert {
+border-radius: 12px;
 }
