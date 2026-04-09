@@ -11,17 +11,33 @@
 
 {% block content %}
 
-
 <div class="container-fluid p-0">
 
-  <!-- BOTONES ACCIÓN -->
+  <!-- MENSAJE ACCESO DENEGADO -->
+  {% if acceso_denegado %}
+  <div class="alert alert-danger alert-dismissible fade show mx-0 mb-3" role="alert"
+       style="background:rgba(192,57,43,.12); border:1px solid rgba(192,57,43,.35);
+              color:#e87070; border-radius:10px; font-size:.85rem;">
+    <i class="bi bi-shield-lock-fill me-2"></i> {{ acceso_denegado }}
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+  </div>
+  {% endif %}
+
+  <!-- BOTONES ACCIÓN según rol -->
   <div class="d-flex justify-content-center align-items-center gap-5 my-4 flex-wrap">
+
+    {% if request.session.usuario_rol == 'admin' %}
     <a href="{% url 'producto:producto_ingreso' %}" class="cys-btn cys-btn--primary">
       <i class="bi bi-box-arrow-in-down"></i> Registrar Entrada
     </a>
+    {% endif %}
+
+    {% if request.session.usuario_rol == 'admin' or request.session.usuario_rol == 'cajero' or request.session.usuario_rol == 'empleado' %}
     <a href="{% url 'producto:agenda_lista' %}" class="cys-btn cys-btn--danger">
       <i class="bi bi-receipt"></i> Registrar Venta
     </a>
+    {% endif %}
+
   </div>
 
   <!-- INVENTARIO POR CATEGORÍA -->
@@ -126,19 +142,12 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // GRÁFICA
   const labels = {{ labels|safe|default:"[]" }};
   const data   = {{ data|safe|default:"[]" }};
   const ctx    = document.getElementById('tendenciaChart');
 
-  // 🔥 AGREGADO: CONTROL SI NO HAY DATOS
-  if (!labels || labels.length === 0) {
-    labels.push('Sin datos');
-  }
-
-  if (!data || data.length === 0) {
-    data.push(0);
-  }
+  if (!labels || labels.length === 0) labels.push('Sin datos');
+  if (!data   || data.length === 0)   data.push(0);
 
   new Chart(ctx, {
     type: 'line',
@@ -168,19 +177,15 @@
     }
   });
 
-  // REFRESCA CARRUSEL AL GUARDAR NUEVA CATEGORÍA
   function agrupar(arr, size) {
     const grupos = [];
-    for (let i = 0; i < arr.length; i += size) {
-      grupos.push(arr.slice(i, i + size));
-    }
+    for (let i = 0; i < arr.length; i += size) grupos.push(arr.slice(i, i + size));
     return grupos;
   }
 
   function renderCarrusel(categorias) {
     const inner = document.querySelector('#inventarioCarousel .carousel-inner');
     inner.innerHTML = '';
-
     if (categorias.length === 0) {
       inner.innerHTML = `
         <div class="carousel-item active">
@@ -190,10 +195,7 @@
         </div>`;
       return;
     }
-
-    // 🔥 OPCIONAL: puedes cambiar 2 por 6 si quieres igualar con Django
     const grupos = agrupar(categorias, 2);
-
     grupos.forEach((grupo, idx) => {
       const cols = grupo.map(cat => `
         <div class="col-6">
@@ -203,7 +205,6 @@
             <div style="font-size:.65rem; color:var(--texto-muted);">unidades</div>
           </div>
         </div>`).join('');
-
       inner.innerHTML += `
         <div class="carousel-item ${idx === 0 ? 'active' : ''}">
           <div class="row gx-3 gy-3">${cols}</div>
@@ -225,4 +226,4 @@
     });
   }
 </script>
-{% endblock %}
+{% endblock %}  
