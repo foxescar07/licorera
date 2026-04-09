@@ -27,7 +27,7 @@ def reportes(request):
         ventas = ventas.filter(cliente__icontains=cliente_q)
 
     productos   = Producto.objects.all().order_by('nombre')
-    proveedores = Proveedor.objects.prefetch_related('productos').all().order_by('nombre_empresa')
+    proveedores = Proveedor.objects.all().order_by('nombre_empresa')
     categorias  = Categoria.objects.all().order_by('nombre')
 
     total_ventas    = sum(v.total_venta for v in ventas)
