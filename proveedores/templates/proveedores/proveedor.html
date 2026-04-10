@@ -2,81 +2,62 @@
 {% load static %}
 
 {% block content %}
+{% if messages %}
+  {% for message in messages %}
+    {% if message.tags == 'success' %}
+      <div class="alert alert-success alert-dismissible fade show">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endif %}
+  {% endfor %}
+{% endif %}
 
 <link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
 <div class="container-fluid p-0">
 
-  <!-- BOTÓN SUPERIOR -->
-  <div class="d-flex justify-content-center align-items-center gap-4 my-4 flex-wrap">
-    {% if proveedores %}
-    <a href="{% url 'registrar_compra' proveedores.0.id %}" class="cys-btn cys-btn--primary">
-      <i class="bi bi-box-seam"></i> Detalle de Compra
-    </a>
-    {% endif %}
-  </div>
-
   <!-- CARDS -->
   <section class="cys-card mb-4">
     <div class="row g-3">
-
       <div class="col-md-3">
         <div class="cys-stat-card text-center">
-          <div class="cys-stat-card__label">
-            <i class="bi bi-people"></i> Total Proveedores
-          </div>
+          <div class="cys-stat-card__label"><i class="bi bi-people"></i> Total Proveedores</div>
           <div class="cys-stat-card__val">{{ total_proveedores }}</div>
           <div class="small text-success">↑ 1 este mes</div>
         </div>
       </div>
-
       <div class="col-md-3">
         <div class="cys-stat-card text-center">
-          <div class="cys-stat-card__label">
-            <i class="bi bi-check-circle"></i> Activos
-          </div>
+          <div class="cys-stat-card__label"><i class="bi bi-check-circle"></i> Activos</div>
           <div class="cys-stat-card__val text-success">{{ proveedores_activos }}</div>
           <div class="small text-success">100% activos</div>
         </div>
       </div>
-
       <div class="col-md-3">
         <div class="cys-stat-card text-center">
-          <div class="cys-stat-card__label">
-            <i class="bi bi-exclamation-triangle"></i> Pendientes
-          </div>
+          <div class="cys-stat-card__label"><i class="bi bi-exclamation-triangle"></i> Pendientes</div>
           <div class="cys-stat-card__val text-danger">{{ ordenes_pendientes }}</div>
           <div class="small text-danger">0 hoy</div>
         </div>
       </div>
-
       <div class="col-md-3">
         <div class="cys-stat-card text-center">
-          <div class="cys-stat-card__label">
-            <i class="bi bi-clock"></i> Actualización
-          </div>
-          <div class="small">
-            {% now "l" %}, {% now "j" %} DE {% now "F" %}
-          </div>
-          <div class="fw-bold">
-            {% now "g:i a" %}
-          </div>
+          <div class="cys-stat-card__label"><i class="bi bi-clock"></i> Actualización</div>
+          <div class="small">{% now "l" %}, {% now "j" %} DE {% now "F" %}</div>
+          <div class="fw-bold">{% now "g:i a" %}</div>
         </div>
       </div>
-
     </div>
   </section>
 
   <!-- TABLA -->
   <section class="cys-card mb-4">
-
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div class="cys-card__title d-flex align-items-center gap-2">
-        <i class="bi bi-building"></i>
-        Lista de Proveedores
+        <i class="bi bi-building"></i> Lista de Proveedores
       </div>
-
       <button class="cys-btn cys-btn--primary" data-bs-toggle="modal" data-bs-target="#nuevoModal">
         <i class="bi bi-plus-lg"></i> Nuevo
       </button>
@@ -84,81 +65,43 @@
 
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0 cys-table">
-
         <thead>
           <tr>
-            <th>#</th>
-            <th>EMPRESA</th>
-            <th>CONTACTO</th>
-            <th>TELÉFONO</th>
-            <th>CORREO</th>
-            <th>RESPONSABLE</th>
-            <th>FECHA</th>
-            <th>ACCIONES</th>
+            <th>#</th><th>EMPRESA</th><th>CONTACTO</th><th>TELÉFONO</th>
+            <th>CORREO</th><th>RESPONSABLE</th><th>FECHA</th><th>ACCIONES</th>
           </tr>
         </thead>
-
         <tbody>
           {% for p in proveedores %}
           <tr class="cys-row">
-
             <td>{{ forloop.counter }}</td>
-
-            <td>
-              <i class="bi bi-building me-2"></i>
-              {{ p.nombre_empresa }}
-            </td>
-
+            <td><i class="bi bi-building me-2"></i>{{ p.nombre_empresa }}</td>
             <td>{{ p.nombre_contacto }}</td>
-
-            <td>
-              <i class="bi bi-telephone me-1"></i>
-              {{ p.telefono }}
-            </td>
-
-            <td>
-              <i class="bi bi-envelope me-1"></i>
-              {{ p.email }}
-            </td>
-
+            <td><i class="bi bi-telephone me-1"></i>{{ p.telefono }}</td>
+            <td><i class="bi bi-envelope me-1"></i>{{ p.email }}</td>
             <td>
               <span class="badge-cyber">
-                <i class="bi bi-person me-1"></i>
-                {{ p.registrado_por.email|default:"Admin" }}
+                <i class="bi bi-person me-1"></i>{{ p.registrado_por.email|default:"Admin" }}
               </span>
             </td>
-
-            <td>
-              <i class="bi bi-calendar-event me-1"></i>
-              {{ p.ultima_modificacion|date:"d/m/Y" }}
-            </td>
-
+            <td><i class="bi bi-calendar-event me-1"></i>{{ p.ultima_modificacion|date:"d/m/Y" }}</td>
             <td>
               <div class="d-flex gap-2">
-
-  <a href="{% url 'detalle_venta' p.id %}" class="btn-action view">
-    <i class="bi bi-receipt"></i>
-  </a>
-
-  <a href="{% url 'editar_proveedor' p.id %}" class="btn-action edit">
-    <i class="bi bi-pencil"></i>
-  </a>
-
-  <form method="POST" action="{% url 'eliminar_proveedor' p.id %}">
-    {% csrf_token %}
-    <button class="btn-action delete"
-      onclick="return confirm('¿Eliminar proveedor?')">
-      <i class="bi bi-trash"></i>
-    </button>
-  </form>
-
-</div>
-
+                <a href="{% url 'registrar_compra' p.id %}" class="btn-action view">
+                  <i class="bi bi-receipt"></i>
+                </a>
+                <a href="{% url 'editar_proveedor' p.id %}" class="btn-action edit">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <form method="POST" action="{% url 'eliminar_proveedor' p.id %}">
+                  {% csrf_token %}
+                  <button class="btn-action delete" onclick="return confirm('¿Eliminar proveedor?')">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
               </div>
             </td>
-
           </tr>
-
           {% empty %}
           <tr>
             <td colspan="8" class="text-center py-5" style="color:var(--texto-muted);">
@@ -168,12 +111,88 @@
           </tr>
           {% endfor %}
         </tbody>
-
       </table>
     </div>
-
   </section>
 
 </div>
+
+<!-- ✅ MODAL — una sola vez, fuera del container -->
+<div class="modal fade" id="nuevoModal" tabindex="-1" aria-labelledby="nuevoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg"
+      style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:14px;">
+
+      <!-- HEADER -->
+      <div class="modal-header border-0"
+        style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-person-plus me-2" style="color:var(--azul-claro);"></i>
+          Registrar Nuevo Proveedor
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- FORM -->
+      <form method="POST" action="{% url 'proveedores' %}">
+        {% csrf_token %}
+
+        <!-- BODY -->
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="cys-form-label">Empresa</label>
+              {{ form.nombre_empresa }}
+              {% if form.nombre_empresa.errors %}
+                <div class="cys-form-error">{{ form.nombre_empresa.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="cys-form-label">Contacto</label>
+              {{ form.nombre_contacto }}
+              {% if form.nombre_contacto.errors %}
+                <div class="cys-form-error">{{ form.nombre_contacto.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="cys-form-label">Correo</label>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <div class="cys-form-error">{{ form.email.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="cys-form-label">Teléfono</label>
+              {{ form.telefono }}
+              {% if form.telefono.errors %}
+                <div class="cys-form-error">{{ form.telefono.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex justify-content-between">
+          <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="submit" class="cys-btn cys-btn--danger">
+            <i class="bi bi-save me-1"></i> Guardar Proveedor
+          </button>
+        </div>
+
+      </form>
+      <!-- ✅ form cierra ANTES de cerrar modal-content -->
+
+    </div>
+  </div>
+</div>
+
+{% if form.errors %}
+<script>
+  var myModal = new bootstrap.Modal(document.getElementById('nuevoModal'));
+  myModal.show();
+</script>
+{% endif %}
 
 {% endblock %}
