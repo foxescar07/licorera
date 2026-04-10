@@ -108,26 +108,28 @@ def eliminar_proveedor(request, id):
 # ===============================
 def registrar_compra(request, proveedor_id):
     proveedor_obj = get_object_or_404(Proveedor, id=proveedor_id)
+    productos = Producto.objects.prefetch_related('presentaciones').all()
+    compras = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
 
     if request.method == 'POST':
         id_prod = request.POST.get('producto')
         cant = request.POST.get('cantidad')
+        precio = request.POST.get('precio_unitario')
 
-        if not id_prod or not cant:
-            messages.warning(request, "Asegúrate de seleccionar producto y cantidad.")
+        if not id_prod or not cant or not precio:
+            messages.warning(request, "Completa todos los campos.")
         else:
             try:
                 producto_instancia = Producto.objects.get(id=int(id_prod))
                 cantidad_int = int(cant)
 
-                # 🧾 Guardar compra
                 Compra.objects.create(
                     proveedor=proveedor_obj,
                     producto=producto_instancia,
-                    cantidad=cantidad_int
+                    cantidad=cantidad_int,
+                    precio_unitario=precio
                 )
 
-                # 📦 Actualizar inventario
                 producto_instancia.cantidad_disponible += cantidad_int
                 producto_instancia.save()
 
@@ -137,15 +139,8 @@ def registrar_compra(request, proveedor_id):
             except Exception as e:
                 messages.error(request, f"Error: {e}")
 
-    form = CompraForm()
-    form.fields['producto'].queryset = Producto.objects.all()
-
-    compras = Compra.objects.filter(
-        proveedor=proveedor_obj
-    ).order_by('-fecha_registro')
-
     return render(request, 'proveedores/compra.html', {
-        'form': form,
+        'proveedor': proveedor_obj,
+        'productos': productos,
         'compras': compras,
-        'proveedor': proveedor_obj
     })

@@ -163,41 +163,45 @@
           </span>
         </div>
 
-        <div class="table-responsive">
-          <table class="table-cyber w-100">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th style="text-align:left;">PRODUCTO</th>
-                <th>CANTIDAD</th>
-                <th>FECHA</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for compra in compras %}
-              <tr>
-                <td>{{ forloop.counter }}</td>
-                <td style="text-align:left;">
-                  <i class="bi bi-box me-2" style="color:#4DA8DA;"></i>
-                  {{ compra.producto.nombre }}
-                </td>
-                <td>
-                  <span style="background:rgba(77,168,218,0.1); color:#4DA8DA;
-                               padding:3px 12px; border-radius:20px; font-weight:700; font-size:0.82rem;">
-                    +{{ compra.cantidad }}
-                  </span>
-                </td>
-                <td style="color:#64748b; font-size:0.82rem;">
-                  {{ compra.fecha_registro|date:"d/m/Y H:i" }}
-                </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="4" class="text-center py-5">
-                  <i class="bi bi-inbox d-block mb-2" style="font-size:2rem; color:#1e293b;"></i>
-                  <span style="color:#475569; font-size:0.88rem;">Sin compras registradas aún</span>
-                </td>
-              </tr>
+      <div class="table-responsive">
+  <table class="table-cyber w-100">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th style="text-align:left;">PRODUCTO</th>
+        <th>CANTIDAD</th>
+        <th>PRECIO UNIT.</th>
+        <th>TOTAL</th>
+        <th>FECHA</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for compra in compras %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td style="text-align:left;">
+          <i class="bi bi-box me-2" style="color:#4DA8DA;"></i>
+          {{ compra.producto.nombre }}
+        </td>
+        <td>
+          <span style="background:rgba(77,168,218,0.1); color:#4DA8DA;
+                       padding:3px 12px; border-radius:20px; font-weight:700; font-size:0.82rem;">
+            {{ compra.cantidad }}
+          </span>
+        </td>
+        <td style="color:#94a3b8; font-size:0.85rem; font-weight:600;">
+          ${{ compra.precio_unitario }}
+        </td>
+        <td style="color:#4ade80; font-weight:700; font-size:0.85rem;">
+          ${{ compra.total }}
+        </td>
+        <td style="color:#64748b; font-size:0.82rem;">
+          {{ compra.fecha_registro|date:"d/m/Y H:i" }}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        
               {% endfor %}
             </tbody>
           </table>

@@ -58,52 +58,94 @@
       <div class="cys-card__title d-flex align-items-center gap-2">
         <i class="bi bi-building"></i> Lista de Proveedores
       </div>
-      <button class="cys-btn cys-btn--primary" data-bs-toggle="modal" data-bs-target="#nuevoModal">
-        <i class="bi bi-plus-lg"></i> Nuevo
-      </button>
+      <div class="d-flex gap-2">
+
+        <!-- ✅ BUSCADOR -->
+        <div class="position-relative">
+          <i class="bi bi-search position-absolute"
+             style="top:50%; left:12px; transform:translateY(-50%);
+                    color:#4DA8DA; font-size:0.85rem; pointer-events:none;"></i>
+          <input type="text" id="buscadorProveedores"
+                 placeholder="Buscar proveedor..."
+                 style="background:#0b1220; border:1px solid rgba(77,168,218,0.25);
+                        color:#e2e8f0; border-radius:8px; padding:8px 14px 8px 34px;
+                        font-size:0.85rem; outline:none; width:220px; transition:0.2s;"
+                 onfocus="this.style.borderColor='#4DA8DA'"
+                 onblur="this.style.borderColor='rgba(77,168,218,0.25)'">
+        </div>
+
+        <button class="cys-btn cys-btn--primary" data-bs-toggle="modal" data-bs-target="#nuevoModal">
+          <i class="bi bi-plus-lg"></i> Nuevo
+        </button>
+      </div>
+    </div>
+
+    <!-- CONTADOR RESULTADOS -->
+    <div id="contadorResultados" class="mb-2"
+         style="font-size:0.78rem; color:#64748b; display:none;">
+      <i class="bi bi-funnel me-1"></i>
+      Mostrando <span id="numResultados"></span> resultado(s) para "<span id="terminoBusqueda"></span>"
     </div>
 
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0 cys-table">
         <thead>
           <tr>
-            <th>#</th><th>EMPRESA</th><th>CONTACTO</th><th>TELÉFONO</th>
-            <th>CORREO</th><th>RESPONSABLE</th><th>FECHA</th><th>ACCIONES</th>
+            <th>#</th>
+            <th>EMPRESA</th>
+            <th>CONTACTO</th>
+            <th>TELÉFONO</th>
+            <th>CORREO</th>
+            <th>RESPONSABLE</th>
+            <th>FECHA</th>
+            <th>ACCIONES</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="tablaProveedores">
           {% for p in proveedores %}
-          <tr class="cys-row">
+          <tr class="cys-row fila-proveedor"
+              data-empresa="{{ p.nombre_empresa|lower }}"
+              data-contacto="{{ p.nombre_contacto|lower }}"
+              data-email="{{ p.email|lower }}"
+              data-telefono="{{ p.telefono }}">
             <td>{{ forloop.counter }}</td>
-            <td><i class="bi bi-building me-2"></i>{{ p.nombre_empresa }}</td>
+            <td>{{ p.nombre_empresa }}</td>
             <td>{{ p.nombre_contacto }}</td>
-            <td><i class="bi bi-telephone me-1"></i>{{ p.telefono }}</td>
-            <td><i class="bi bi-envelope me-1"></i>{{ p.email }}</td>
+            <td>{{ p.telefono }}</td>
+            <td>{{ p.email }}</td>
             <td>
               <span class="badge-cyber">
-                <i class="bi bi-person me-1"></i>{{ p.registrado_por.email|default:"Admin" }}
+                {{ p.registrado_por.email|default:"Admin" }}
               </span>
             </td>
-            <td><i class="bi bi-calendar-event me-1"></i>{{ p.ultima_modificacion|date:"d/m/Y" }}</td>
+            <td>{{ p.ultima_modificacion|date:"d/m/Y" }}</td>
             <td>
               <div class="d-flex gap-2">
-                <a href="{% url 'registrar_compra' p.id %}" class="btn-action view">
-                  <i class="bi bi-receipt"></i>
+                <a href="{% url 'registrar_compra' p.id %}" class="btn-action view" title="Registrar compra">
+                  <i class="bi bi-cart-plus"></i>
                 </a>
-                <a href="{% url 'editar_proveedor' p.id %}" class="btn-action edit">
-                  <i class="bi bi-pencil"></i>
+                <a href="#" class="btn-action" title="Ver información"
+                   style="background:rgba(77,168,218,0.1); border:1px solid rgba(77,168,218,0.3); color:#4DA8DA; border-radius:6px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; transition:0.2s;"
+                   onclick="verDetalle('{{ p.nombre_empresa }}','{{ p.nombre_contacto }}','{{ p.email }}','{{ p.telefono }}','{{ p.registrado_por.email|default:"Admin" }}','{{ p.fecha_registro|date:"d/m/Y" }}','{{ p.ultima_modificacion|date:"d/m/Y H:i" }}')"
+                   onmouseover="this.style.background='rgba(77,168,218,0.2)'"
+                   onmouseout="this.style.background='rgba(77,168,218,0.1)'">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{% url 'editar_proveedor' p.id %}" class="btn-action edit" title="Editar">
+                  <i class="bi bi-pencil-square"></i>
                 </a>
                 <form method="POST" action="{% url 'eliminar_proveedor' p.id %}">
                   {% csrf_token %}
-                  <button class="btn-action delete" onclick="return confirm('¿Eliminar proveedor?')">
-                    <i class="bi bi-trash"></i>
+                  <button class="btn-action delete" title="Eliminar"
+                          onclick="return confirm('¿Eliminar proveedor?')">
+                    <i class="bi bi-trash3"></i>
                   </button>
                 </form>
               </div>
             </td>
           </tr>
           {% empty %}
-          <tr>
+          <tr id="filaVacia">
             <td colspan="8" class="text-center py-5" style="color:var(--texto-muted);">
               <i class="bi bi-building d-block mb-2" style="font-size:2rem;"></i>
               No hay proveedores registrados
@@ -112,32 +154,107 @@
           {% endfor %}
         </tbody>
       </table>
+
+      <!-- Sin resultados de búsqueda -->
+      <div id="sinResultados" class="text-center py-5" style="display:none; color:#475569;">
+        <i class="bi bi-search d-block mb-2" style="font-size:2rem; color:#334155;"></i>
+        <span style="font-size:0.88rem;">No se encontraron proveedores</span>
+      </div>
+
     </div>
   </section>
 
 </div>
 
-<!-- ✅ MODAL — una sola vez, fuera del container -->
-<div class="modal fade" id="nuevoModal" tabindex="-1" aria-labelledby="nuevoModalLabel" aria-hidden="true">
+<!-- ✅ MODAL DETALLE PROVEEDOR -->
+<div class="modal fade" id="detalleModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:14px;">
+
+      <div class="modal-header border-0"
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+                    color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-building me-2" style="color:var(--azul-claro);"></i>
+          Información del Proveedor
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <div class="d-flex flex-column gap-3">
+
+          <div>
+            <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                        letter-spacing:0.08em; margin-bottom:4px;">Empresa</div>
+            <div id="det-empresa" style="color:#e2e8f0; font-weight:700; font-size:1rem;"></div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-6">
+              <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                          letter-spacing:0.08em; margin-bottom:4px;">Contacto</div>
+              <div id="det-contacto" style="color:#cbd5e1; font-size:0.9rem;"></div>
+            </div>
+            <div class="col-6">
+              <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                          letter-spacing:0.08em; margin-bottom:4px;">Teléfono</div>
+              <div id="det-telefono" style="color:#4DA8DA; font-weight:600; font-size:0.9rem;"></div>
+            </div>
+            <div class="col-12">
+              <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                          letter-spacing:0.08em; margin-bottom:4px;">Correo</div>
+              <div id="det-email" style="color:#cbd5e1; font-size:0.9rem;"></div>
+            </div>
+            <div class="col-6">
+              <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                          letter-spacing:0.08em; margin-bottom:4px;">Registrado por</div>
+              <div id="det-responsable" style="color:#94a3b8; font-size:0.85rem;"></div>
+            </div>
+            <div class="col-6">
+              <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                          letter-spacing:0.08em; margin-bottom:4px;">Fecha registro</div>
+              <div id="det-fecha" style="color:#94a3b8; font-size:0.85rem;"></div>
+            </div>
+            <div class="col-12">
+              <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                          letter-spacing:0.08em; margin-bottom:4px;">Última modificación</div>
+              <div id="det-modificacion" style="color:#94a3b8; font-size:0.85rem;"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 px-4 pb-4">
+        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO PROVEEDOR -->
+<div class="modal fade" id="nuevoModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg"
       style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:14px;">
 
-      <!-- HEADER -->
       <div class="modal-header border-0"
         style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+                    color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
           <i class="bi bi-person-plus me-2" style="color:var(--azul-claro);"></i>
           Registrar Nuevo Proveedor
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
-      <!-- FORM -->
       <form method="POST" action="{% url 'proveedores' %}">
         {% csrf_token %}
-
-        <!-- BODY -->
         <div class="modal-body p-4">
           <div class="row g-3">
             <div class="col-md-6">
@@ -170,19 +287,13 @@
             </div>
           </div>
         </div>
-
-        <!-- FOOTER -->
         <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex justify-content-between">
-          <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">
-            Cancelar
-          </button>
+          <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="cys-btn cys-btn--danger">
             <i class="bi bi-save me-1"></i> Guardar Proveedor
           </button>
         </div>
-
       </form>
-      <!-- ✅ form cierra ANTES de cerrar modal-content -->
 
     </div>
   </div>
@@ -194,5 +305,47 @@
   myModal.show();
 </script>
 {% endif %}
+
+<script>
+  // ✅ BUSCADOR
+  document.getElementById('buscadorProveedores').addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    const filas = document.querySelectorAll('.fila-proveedor');
+    const contador = document.getElementById('contadorResultados');
+    const sinRes = document.getElementById('sinResultados');
+    let visibles = 0;
+
+    filas.forEach(fila => {
+      const coincide = fila.dataset.empresa.includes(q) ||
+                       fila.dataset.contacto.includes(q) ||
+                       fila.dataset.email.includes(q) ||
+                       fila.dataset.telefono.includes(q);
+      fila.style.display = coincide ? '' : 'none';
+      if (coincide) visibles++;
+    });
+
+    if (q === '') {
+      contador.style.display = 'none';
+      sinRes.style.display = 'none';
+    } else {
+      contador.style.display = 'block';
+      document.getElementById('numResultados').textContent = visibles;
+      document.getElementById('terminoBusqueda').textContent = this.value;
+      sinRes.style.display = visibles === 0 ? 'block' : 'none';
+    }
+  });
+
+  // ✅ MODAL DETALLE
+  function verDetalle(empresa, contacto, email, telefono, responsable, fecha, modificacion) {
+    document.getElementById('det-empresa').textContent     = empresa;
+    document.getElementById('det-contacto').textContent    = contacto;
+    document.getElementById('det-email').textContent       = email;
+    document.getElementById('det-telefono').textContent    = telefono;
+    document.getElementById('det-responsable').textContent = responsable;
+    document.getElementById('det-fecha').textContent       = fecha;
+    document.getElementById('det-modificacion').textContent = modificacion;
+    new bootstrap.Modal(document.getElementById('detalleModal')).show();
+  }
+</script>
 
 {% endblock %}
