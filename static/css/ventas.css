@@ -310,3 +310,63 @@
   overflow-y: auto;
   padding-right: 4px;
 }
+/* ── Botones de presentación / jerarquía ─────────────────────────── */
+.pres-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  border-radius: 10px;
+  padding: .65rem 1rem;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  text-align: left;
+  color: var(--texto);
+}
+
+.pres-btn:hover:not(:disabled) {
+  border-color: var(--azul-claro);
+  background: rgba(77,168,218,.07);
+}
+
+.pres-btn--activa {
+  border-color: var(--azul-claro) !important;
+  background: rgba(77,168,218,.14) !important;
+  box-shadow: 0 0 0 2px rgba(77,168,218,.25);
+}
+
+.pres-btn__nombre {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--texto);
+}
+
+.pres-btn__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .15rem;
+}
+
+.pres-btn__precio {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--azul-claro);
+}
+
+.pres-btn__stock {
+  font-size: .72rem;
+  color: var(--texto-muted);
+}
+
+.pres-btn__stock--agotado {
+  color: var(--rojo);
+}
+
+/* Producto sin stock */
+.cys-producto-item--agotado {
+  opacity: .5;
+  cursor: not-allowed !important;
+}

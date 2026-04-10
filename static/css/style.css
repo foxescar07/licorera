@@ -874,3 +874,12 @@ body.sidebar-open .cys-main .container-fluid {
   background: rgba(192,57,43,.1);
   border-color: rgba(192,57,43,.3);
 }
+
+
+.cys-chevron {
+  transition: transform 0.3s;
+}
+
+.cys-chevron.abierto {
+  transform: rotate(180deg);
+}

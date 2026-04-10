@@ -23,11 +23,9 @@ def _enviar_correo(destinatario, asunto, cuerpo):
     mensaje['From']    = f'CYS Ltda <{EMAIL_USER}>'
     mensaje['To']      = destinatario
     mensaje.attach(MIMEText(cuerpo, 'plain'))
-
     contexto = ssl.create_default_context()
     contexto.check_hostname = False
     contexto.verify_mode    = ssl.CERT_NONE
-
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.ehlo()
         server.starttls(context=contexto)
@@ -37,7 +35,6 @@ def _enviar_correo(destinatario, asunto, cuerpo):
 
 
 def _validar_clave_segura(clave):
-    """Retorna mensaje de error o None si es válida."""
     if len(clave) < 6:
         return 'La contraseña debe tener al menos 6 caracteres.'
     if len(re.findall(r'\d', clave)) < 2:
@@ -50,12 +47,10 @@ def _validar_clave_segura(clave):
 def login_view(request):
     if request.session.get('usuario_id'):
         return redirect('home')
-
     if request.method == 'POST':
         usuario_input = request.POST.get('usuario_input', '').strip()
         clave_input   = request.POST.get('clave_input', '')
         clave_hash    = hashlib.sha256(clave_input.encode()).hexdigest()
-
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             try:
                 usuario = Usuario.objects.get(
@@ -68,7 +63,6 @@ def login_view(request):
                 return JsonResponse({'ok': True, 'redirect': '/'})
             except Usuario.DoesNotExist:
                 return JsonResponse({'ok': False, 'error': 'Usuario o contraseña incorrectos.'})
-
     return render(request, 'usuario.html')
 
 
@@ -86,7 +80,6 @@ def lista_usuarios(request):
 
 def crear_usuario(request):
     form = UsuarioForm()
-
     if request.method == 'POST':
         form = UsuarioForm(request.POST)
         if form.is_valid():
@@ -100,28 +93,22 @@ def crear_usuario(request):
             for campo, errores in form.errors.items():
                 for error in errores:
                     messages.error(request, error)
-
     return render(request, 'crear_usuario.html', {'form': form})
 
 
 def solicitar_recuperacion(request):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         correo = request.POST.get('correo', '').strip().lower()
-
         try:
             usuario = Usuario.objects.get(email__iexact=correo, activo=True)
         except Usuario.DoesNotExist:
             return JsonResponse({'ok': False, 'error': 'No existe una cuenta activa con ese correo.'})
-
-        # Token con expiración de 15 minutos guardado en BD
         token  = get_random_string(32)
         expira = timezone.now() + timedelta(minutes=15)
         usuario.reset_token        = token
         usuario.reset_token_expira = expira
         usuario.save(update_fields=['reset_token', 'reset_token_expira'])
-
         link = request.build_absolute_uri(f'/usuario/restablecer/{token}/')
-
         cuerpo = (
             f'Hola {usuario.nombre},\n\n'
             f'Recibimos una solicitud para restablecer tu contraseña.\n\n'
@@ -129,7 +116,6 @@ def solicitar_recuperacion(request):
             f'Si no solicitaste esto, ignora este mensaje.\n\n'
             f'— Equipo CYS Ltda'
         )
-
         try:
             _enviar_correo(
                 destinatario=usuario.email,
@@ -140,48 +126,121 @@ def solicitar_recuperacion(request):
         except Exception as e:
             print(f"ERROR EMAIL: {type(e).__name__}: {e}")
             return JsonResponse({'ok': False, 'error': f'Error al enviar: {type(e).__name__}: {e}'})
-
     return JsonResponse({'ok': False, 'error': 'Petición inválida.'})
 
 
 def restablecer_clave(request, token):
-    # Buscar token en BD y verificar expiración
     try:
         usuario = Usuario.objects.get(reset_token=token, activo=True)
     except Usuario.DoesNotExist:
         return render(request, 'restablecer_clave.html', {
             'error': 'El enlace no es válido o ya fue utilizado.'
         })
-
     if timezone.now() > usuario.reset_token_expira:
-        # Limpiar token vencido
-        usuario.reset_token        = None
-        usuario.reset_token_expira = None
-        usuario.save(update_fields=['reset_token', 'reset_token_expira'])
+        Usuario.objects.filter(pk=usuario.pk).update(
+            reset_token=None, reset_token_expira=None
+        )
         return render(request, 'restablecer_clave.html', {
             'error': 'El enlace expiró. Solicita uno nuevo.'
         })
-
     if request.method == 'POST':
         nueva     = request.POST.get('nueva_clave', '')
         confirmar = request.POST.get('confirmar', '')
-
         error = _validar_clave_segura(nueva)
         if error:
-            return render(request, 'restablecer_clave.html', {
-                'token': token, 'error': error
-            })
-
+            return render(request, 'restablecer_clave.html', {'token': token, 'error': error})
         if nueva != confirmar:
             return render(request, 'restablecer_clave.html', {
                 'token': token, 'error': 'Las contraseñas no coinciden.'
             })
-
-        usuario.clave              = hashlib.sha256(nueva.encode()).hexdigest()
-        usuario.reset_token        = None
-        usuario.reset_token_expira = None
-        usuario.save(update_fields=['clave', 'reset_token', 'reset_token_expira'])
-
+        nueva_hash = hashlib.sha256(nueva.encode()).hexdigest()
+        Usuario.objects.filter(pk=usuario.pk).update(
+            clave=nueva_hash, reset_token=None, reset_token_expira=None
+        )
         return render(request, 'restablecer_clave.html', {'exito': True})
-
     return render(request, 'restablecer_clave.html', {'token': token})
+
+
+def perfil_datos(request):
+    """Devuelve los datos completos del usuario en sesión via AJAX."""
+    if not request.session.get('usuario_id'):
+        return JsonResponse({'ok': False, 'error': 'Sin sesión.'})
+    try:
+        u = Usuario.objects.get(pk=request.session['usuario_id'])
+        return JsonResponse({
+            'ok': True,
+            'nombre':        u.nombre,
+            'apellidos':     u.apellidos,
+            'usuario':       u.usuario,
+            'email':         u.email or '',
+            'tipo_id':       u.tipo_id,
+            'tipo_id_label': u.get_tipo_id_display(),
+            'identificacion': u.identificacion,
+            'rol':           u.rol,
+            'rol_label':     u.get_rol_display(),
+            'fecha_registro': u.fecha_registro.strftime('%d/%m/%Y'),
+        })
+    except Usuario.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Usuario no encontrado.'})
+
+
+def perfil_editar(request):
+    """Guarda los cambios del perfil via AJAX POST."""
+    if not request.session.get('usuario_id'):
+        return JsonResponse({'ok': False, 'error': 'Sin sesión.'})
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
+
+    try:
+        u = Usuario.objects.get(pk=request.session['usuario_id'])
+    except Usuario.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Usuario no encontrado.'})
+
+    nombre     = request.POST.get('nombre', '').strip()
+    apellidos  = request.POST.get('apellidos', '').strip()
+    email      = request.POST.get('email', '').strip().lower()
+    clave_nueva = request.POST.get('clave_nueva', '').strip()
+    clave_actual = request.POST.get('clave_actual', '').strip()
+
+    # Validaciones básicas
+    if not nombre or not apellidos:
+        return JsonResponse({'ok': False, 'error': 'Nombre y apellidos son obligatorios.'})
+    if any(c.isdigit() for c in nombre):
+        return JsonResponse({'ok': False, 'error': 'El nombre no debe contener números.'})
+    if any(c.isdigit() for c in apellidos):
+        return JsonResponse({'ok': False, 'error': 'Los apellidos no deben contener números.'})
+
+    # Validar email único si cambió
+    if email and email != (u.email or '').lower():
+        if Usuario.objects.filter(email__iexact=email).exclude(pk=u.pk).exists():
+            return JsonResponse({'ok': False, 'error': 'Este correo ya está en uso.'})
+
+    # Cambio de contraseña opcional
+    if clave_nueva:
+        clave_actual_hash = hashlib.sha256(clave_actual.encode()).hexdigest()
+        if u.clave != clave_actual_hash:
+            return JsonResponse({'ok': False, 'error': 'La contraseña actual es incorrecta.'})
+        error_clave = _validar_clave_segura(clave_nueva)
+        if error_clave:
+            return JsonResponse({'ok': False, 'error': error_clave})
+
+    # Guardar
+    fields = ['nombre', 'apellidos', 'email']
+    u.nombre    = nombre
+    u.apellidos = apellidos
+    u.email     = email or None
+
+    if clave_nueva:
+        u.clave = hashlib.sha256(clave_nueva.encode()).hexdigest()
+        fields.append('clave')
+
+    u.save(update_fields=fields)
+
+    # Actualizar sesión con nuevo nombre
+    request.session['usuario_nombre'] = u.nombre_completo
+
+    return JsonResponse({
+        'ok': True,
+        'mensaje': 'Perfil actualizado correctamente.',
+        'nombre_completo': u.nombre_completo,
+    })

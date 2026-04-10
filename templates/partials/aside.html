@@ -1,12 +1,49 @@
 {% load static %}
 
+<style>
+  #userHoverWrapper {
+    position: relative;
+  }
+  #userDropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0; right: 0;
+    background: #0D1B2E;
+    border: 1px solid rgba(77,168,218,.25);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+    z-index: 100;
+  }
+  #userHoverWrapper:hover #userDropdown {
+    display: block;
+  }
+  .cys-sb-user {
+    border-radius: 10px 10px 0 0;
+  }
+  #userDropdown a {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .6rem 1rem;
+    font-size: .8rem;
+    color: #4DA8DA;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    transition: background .2s;
+  }
+  #userDropdown a:hover {
+    background: rgba(77,168,218,.1);
+  }
+</style>
+
 <div class="offcanvas offcanvas-end"
      tabindex="-1"
      id="sidebarRight"
      data-bs-backdrop="false"
      data-bs-scroll="true">
 
-  <!-- HEADER -->
   <div class="cys-sb-header">
     <div class="cys-sb-brand">
       <img src="{% static 'img/logo.jpeg' %}" class="cys-sb-logo" alt="Logo">
@@ -20,102 +57,58 @@
     </button>
   </div>
 
-  <!-- BODY -->
   <div class="cys-sb-body">
 
-    <!-- USUARIO — clic para ver perfil -->
-    <div class="cys-sb-user" id="perfilToggle"
-         onclick="togglePerfil()"
-         style="cursor:pointer; user-select:none;">
-      <div class="cys-sb-avatar"
-           style="font-family:'Rajdhani',sans-serif; font-weight:700;
-                  font-size:.9rem; color:var(--azul-claro);">
-        {{ request.session.usuario_user|slice:":1"|upper }}
-      </div>
-      <div style="flex:1;">
-        <div class="cys-sb-user-name">
-          @{{ request.session.usuario_user|default:"usuario" }}
-        </div>
-        <div class="cys-sb-user-role">
-          {% if request.session.usuario_rol == 'admin' %}Administrador
-          {% elif request.session.usuario_rol == 'cajero' %}Cajero
-          {% elif request.session.usuario_rol == 'empleado' %}Empleado
-          {% else %}—{% endif %}
-        </div>
-      </div>
-      <i class="bi bi-chevron-down" id="perfilChevron"
-         style="font-size:.65rem; color:var(--texto-muted);
-                transition:transform .2s ease; margin-left:auto;"></i>
-    </div>
+    <!-- USUARIO con hover desplegable -->
+    <div id="userHoverWrapper">
 
-    <!-- PANEL PERFIL (oculto por defecto) -->
-    <div id="perfilPanel" style="
-      display:none;
-      background:var(--fondo-card2, #111f33);
-      border:1px solid var(--azul-borde);
-      border-radius:10px;
-      padding:.85rem 1rem;
-      margin-top:.25rem;
-      font-size:.78rem;
-      line-height:1.8;
-    ">
-      <div style="display:flex; flex-direction:column; gap:.3rem;">
-        <div>
-          <span style="color:var(--texto-muted); font-size:.65rem;
-                       text-transform:uppercase; letter-spacing:.08em;">
-            Nombre completo
-          </span>
-          <div style="color:var(--texto); font-weight:600;">
-            {{ request.session.usuario_nombre|default:"—" }}
+      <div class="cys-sb-user"
+           onclick="abrirModalPerfil()"
+           style="cursor:pointer; user-select:none;"
+           title="Ver perfil">
+        <div class="cys-sb-avatar"
+             style="font-family:'Rajdhani',sans-serif; font-weight:700;
+                    font-size:.9rem; color:var(--azul-claro);">
+          {{ request.session.usuario_user|slice:":1"|upper }}
+        </div>
+        <div style="flex:1; min-width:0;">
+          <div class="cys-sb-user-name">@{{ request.session.usuario_user|default:"usuario" }}</div>
+          <div class="cys-sb-user-role">
+            {% if request.session.usuario_rol == 'admin' %}Administrador
+            {% elif request.session.usuario_rol == 'cajero' %}Cajero
+            {% elif request.session.usuario_rol == 'empleado' %}Empleado
+            {% else %}—{% endif %}
           </div>
         </div>
-        <div>
-          <span style="color:var(--texto-muted); font-size:.65rem;
-                       text-transform:uppercase; letter-spacing:.08em;">
-            Usuario
-          </span>
-          <div style="color:var(--azul-claro);">
-            @{{ request.session.usuario_user|default:"—" }}
-          </div>
-        </div>
-        <div>
-          <span style="color:var(--texto-muted); font-size:.65rem;
-                       text-transform:uppercase; letter-spacing:.08em;">
-            Rol
-          </span>
-          <div>
-            <span style="
-              font-size:.65rem; padding:.15rem .5rem; border-radius:999px;
-              font-weight:600; text-transform:uppercase; letter-spacing:.06em;
-              background:{% if request.session.usuario_rol == 'admin' %}rgba(192,57,43,.15){% elif request.session.usuario_rol == 'cajero' %}rgba(77,168,218,.12){% else %}rgba(77,218,140,.12){% endif %};
-              color:{% if request.session.usuario_rol == 'admin' %}#e87070{% elif request.session.usuario_rol == 'cajero' %}var(--azul-claro){% else %}#5edb97{% endif %};
-              border:1px solid {% if request.session.usuario_rol == 'admin' %}rgba(192,57,43,.3){% elif request.session.usuario_rol == 'cajero' %}var(--azul-borde){% else %}rgba(77,218,140,.25){% endif %};
-            ">
-              {{ request.session.usuario_rol|default:"—" }}
-            </span>
-          </div>
-        </div>
+        <i class="bi bi-person-circle" style="font-size:1rem; color:var(--azul-claro); opacity:.6; flex-shrink:0;"></i>
       </div>
+
+      <!-- Dropdown solo para admin y cajero -->
+      {% if request.session.usuario_rol == 'admin' or request.session.usuario_rol == 'cajero' %}
+      <div id="userDropdown">
+        <a href="{% url 'usuario' %}">
+          <i class="bi bi-people-fill"></i> Usuarios
+        </a>
+      </div>
+      {% endif %}
+
     </div>
+    <!-- fin userHoverWrapper -->
 
     <!-- NAV -->
-    <div>
+    <div style="margin-top:.75rem;">
       <div class="cys-sb-label">Navegación</div>
       <nav class="cys-sb-nav">
-
         <a href="{% url 'home' %}" class="cys-sb-link {% block nav_tablero %}{% endblock %}">
           <i class="bi bi-grid-1x2-fill"></i> Tablero
         </a>
 
-        <!-- VENTAS CON SUBMENÚ -->
         <a href="{% url 'ventas:ventas_lista' %}"
            class="cys-sb-link cys-sb-link--parent {% block nav_ventas %}{% endblock %}"
-           id="btnVentas"
-           onclick="toggleVentas(event, this)">
+           id="btnVentas" onclick="toggleVentas(event, this)">
           <i class="bi bi-receipt"></i> Ventas
           <i class="bi bi-chevron-down ms-auto cys-chevron" id="chevronVentas"></i>
         </a>
-
         <div class="cys-sb-submenu" id="submenuVentas">
           <a href="{% url 'reportes' %}" class="cys-sb-sublink {% block nav_reportes %}{% endblock %}">
             <i class="bi bi-bar-chart-fill"></i> Reportes
@@ -125,15 +118,12 @@
         <a href="{% url 'producto:producto_lista' %}" class="cys-sb-link {% block nav_productos %}{% endblock %}">
           <i class="bi bi-box-seam-fill"></i> Productos
         </a>
-
         <a href="{% url 'inventario:inventario_home' %}" class="cys-sb-link {% block nav_inventario %}{% endblock %}">
           <i class="bi bi-clipboard-data-fill"></i> Inventario
         </a>
-
         <a href="{% url 'proveedores' %}" class="cys-sb-link {% block nav_proveedores %}{% endblock %}">
           <i class="bi bi-truck"></i> Proveedores
         </a>
-
       </nav>
     </div>
 
@@ -143,7 +133,6 @@
     <div>
       <div class="cys-sb-label">Resumen</div>
       <div class="d-flex flex-column gap-2">
-
         <div class="cys-sb-stat">
           <div>
             <div class="cys-sb-stat-label">Total productos</div>
@@ -152,7 +141,6 @@
           </div>
           <span class="cys-sb-dot bg-success"></span>
         </div>
-
         <div class="cys-sb-stat">
           <div>
             <div class="cys-sb-stat-label">Stock crítico</div>
@@ -161,7 +149,6 @@
           </div>
           <span class="cys-sb-dot bg-danger"></span>
         </div>
-
         <div class="cys-sb-stat">
           <div>
             <div class="cys-sb-stat-label">Categorías</div>
@@ -170,54 +157,406 @@
           </div>
           <span class="cys-sb-dot bg-warning"></span>
         </div>
-
       </div>
     </div>
 
-    <!-- CERRAR SESIÓN -->
-    <a href="{% url 'logout' %}"
-       class="cys-sb-link"
-       style="color:var(--rojo); border-color:rgba(192,57,43,.3); margin-top:.5rem;">
+    <a href="{% url 'logout' %}" class="cys-sb-link"
+       style="color:#e87070; border-color:rgba(192,57,43,.3); margin-top:.5rem;">
       <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
     </a>
 
-    <div class="cys-sb-footer">
-      CYS Ltda &copy; {% now "Y" %}
-    </div>
-
+    <div class="cys-sb-footer">CYS Ltda &copy; {% now "Y" %}</div>
   </div>
 </div>
 
+
+<!-- ══════════════════════════════════════
+     MODAL PERFIL — vista rápida
+══════════════════════════════════════ -->
+<div id="modalPerfil" style="
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,.65); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center; padding:1rem;">
+
+  <div style="
+    background:#0D1B2E; border:1px solid rgba(77,168,218,.35);
+    border-radius:18px; width:100%; max-width:360px;
+    box-shadow:0 16px 48px rgba(0,0,0,.7);
+    overflow:hidden; font-family:'Inter',sans-serif;">
+
+    <div style="padding:1.1rem 1.4rem; display:flex; align-items:center;
+                justify-content:space-between;
+                border-bottom:1px solid rgba(77,168,218,.2);">
+      <span style="font-family:'Rajdhani',sans-serif; font-weight:700;
+                   font-size:.95rem; letter-spacing:.12em; text-transform:uppercase;
+                   color:#E8EDF2;">Mi Perfil</span>
+      <button onclick="cerrarModalPerfil()" style="
+        background:transparent; border:none; cursor:pointer;
+        color:rgba(232,237,242,.4); font-size:1rem; padding:.2rem .4rem;
+        border-radius:6px; transition:color .2s;"
+        onmouseover="this.style.color='#E8EDF2'"
+        onmouseout="this.style.color='rgba(232,237,242,.4)'">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div style="padding:1.25rem 1.4rem .75rem; text-align:center;">
+      <div style="
+        width:64px; height:64px; border-radius:50%;
+        background:rgba(77,168,218,.12); border:2px solid rgba(77,168,218,.4);
+        display:flex; align-items:center; justify-content:center;
+        margin:0 auto .6rem;
+        font-family:'Rajdhani',sans-serif; font-weight:700;
+        font-size:1.6rem; color:#4DA8DA;" id="mpAvatar">—</div>
+      <div style="font-weight:600; font-size:.95rem; color:#E8EDF2;" id="mpNombre">—</div>
+      <div style="font-size:.78rem; color:#4DA8DA; margin-top:.15rem;" id="mpUsuario">—</div>
+      <div style="margin-top:.5rem;" id="mpRolBadge"></div>
+    </div>
+
+    <div style="padding:0 1.4rem .5rem;">
+      <div style="height:1px; background:rgba(77,168,218,.15); margin-bottom:.85rem;"></div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:.6rem .9rem; font-size:.78rem;">
+        <div>
+          <div style="color:rgba(232,237,242,.4); font-size:.62rem; text-transform:uppercase;
+                      letter-spacing:.08em; margin-bottom:.2rem;">Identificación</div>
+          <div style="color:#E8EDF2;" id="mpId">—</div>
+        </div>
+        <div>
+          <div style="color:rgba(232,237,242,.4); font-size:.62rem; text-transform:uppercase;
+                      letter-spacing:.08em; margin-bottom:.2rem;">Correo</div>
+          <div style="color:#E8EDF2; word-break:break-all;" id="mpEmail">—</div>
+        </div>
+        <div>
+          <div style="color:rgba(232,237,242,.4); font-size:.62rem; text-transform:uppercase;
+                      letter-spacing:.08em; margin-bottom:.2rem;">Tipo ID</div>
+          <div style="color:#E8EDF2;" id="mpTipoId">—</div>
+        </div>
+        <div>
+          <div style="color:rgba(232,237,242,.4); font-size:.62rem; text-transform:uppercase;
+                      letter-spacing:.08em; margin-bottom:.2rem;">Miembro desde</div>
+          <div style="color:#E8EDF2;" id="mpFecha">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:.85rem 1.4rem 1.25rem; display:flex; flex-direction:column; gap:.6rem;">
+      <div style="height:1px; background:rgba(77,168,218,.15); margin-bottom:.1rem;"></div>
+      <button onclick="abrirModalEditar()" style="
+        display:flex; align-items:center; justify-content:center; gap:.5rem;
+        background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.35);
+        border-radius:10px; padding:.6rem; cursor:pointer;
+        color:#4DA8DA; font-size:.82rem; font-weight:500;
+        font-family:'Inter',sans-serif; transition:background .2s;"
+        onmouseover="this.style.background='rgba(77,168,218,.22)'"
+        onmouseout="this.style.background='rgba(77,168,218,.12)'">
+        <i class="bi bi-pencil-square"></i> Editar Perfil
+      </button>
+      <a href="{% url 'logout' %}" style="
+        display:flex; align-items:center; justify-content:center; gap:.5rem;
+        background:rgba(192,57,43,.08); border:1px solid rgba(192,57,43,.3);
+        border-radius:10px; padding:.6rem; text-decoration:none;
+        color:#e87070; font-size:.82rem; font-weight:500;
+        transition:background .2s;"
+        onmouseover="this.style.background='rgba(192,57,43,.18)'"
+        onmouseout="this.style.background='rgba(192,57,43,.08)'">
+        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+      </a>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     MODAL EDITAR PERFIL
+══════════════════════════════════════ -->
+<div id="modalEditar" style="
+  display:none; position:fixed; inset:0; z-index:10000;
+  background:rgba(0,0,0,.7); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center; padding:1rem;">
+
+  <div style="
+    background:#0D1B2E; border:1px solid rgba(77,168,218,.35);
+    border-radius:18px; width:100%; max-width:460px;
+    box-shadow:0 16px 48px rgba(0,0,0,.8);
+    overflow:hidden; font-family:'Inter',sans-serif;
+    max-height:90vh; overflow-y:auto;">
+
+    <div style="padding:1.1rem 1.4rem; display:flex; align-items:center;
+                justify-content:space-between;
+                border-bottom:1px solid rgba(77,168,218,.2);
+                position:sticky; top:0; background:#0D1B2E; z-index:1;">
+      <span style="font-family:'Rajdhani',sans-serif; font-weight:700;
+                   font-size:.95rem; letter-spacing:.12em; text-transform:uppercase;
+                   color:#E8EDF2;">Editar Perfil</span>
+      <button onclick="cerrarModalEditar()" style="
+        background:transparent; border:none; cursor:pointer;
+        color:rgba(232,237,242,.4); font-size:1rem; padding:.2rem .4rem;
+        border-radius:6px; transition:color .2s;"
+        onmouseover="this.style.color='#E8EDF2'"
+        onmouseout="this.style.color='rgba(232,237,242,.4)'">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div id="editMsg" style="display:none; margin:1rem 1.4rem 0;
+      border-radius:8px; padding:.6rem .9rem; font-size:.8rem;"></div>
+
+    <div style="padding:1.25rem 1.4rem 1.4rem;">
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:.85rem;">
+        <div>
+          <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.45);
+                        letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
+            Nombres</label>
+          <input type="text" id="editNombre" style="
+            background:#111f33; border:1px solid rgba(77,168,218,.35); color:#E8EDF2;
+            border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%;
+            outline:none; transition:border-color .2s; font-family:'Inter',sans-serif;"
+            onfocus="this.style.borderColor='#4DA8DA'"
+            onblur="this.style.borderColor='rgba(77,168,218,.35)'">
+        </div>
+        <div>
+          <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.45);
+                        letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
+            Apellidos</label>
+          <input type="text" id="editApellidos" style="
+            background:#111f33; border:1px solid rgba(77,168,218,.35); color:#E8EDF2;
+            border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%;
+            outline:none; transition:border-color .2s; font-family:'Inter',sans-serif;"
+            onfocus="this.style.borderColor='#4DA8DA'"
+            onblur="this.style.borderColor='rgba(77,168,218,.35)'">
+        </div>
+      </div>
+
+      <div style="margin-bottom:.85rem;">
+        <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.45);
+                      letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
+          Correo Electrónico</label>
+        <input type="email" id="editEmail" style="
+          background:#111f33; border:1px solid rgba(77,168,218,.35); color:#E8EDF2;
+          border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%;
+          outline:none; transition:border-color .2s; font-family:'Inter',sans-serif;"
+          onfocus="this.style.borderColor='#4DA8DA'"
+          onblur="this.style.borderColor='rgba(77,168,218,.35)'">
+      </div>
+
+      <div style="height:1px; background:rgba(77,168,218,.15); margin:1rem 0 .85rem;"></div>
+      <div style="font-size:.7rem; color:rgba(232,237,242,.35); margin-bottom:.85rem;
+                  text-transform:uppercase; letter-spacing:.08em;">
+        Cambiar contraseña (opcional)
+      </div>
+
+      <div style="margin-bottom:.85rem;">
+        <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.45);
+                      letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
+          Contraseña Actual</label>
+        <input type="password" id="editClaveActual"
+          placeholder="Solo si deseas cambiar la contraseña" style="
+          background:#111f33; border:1px solid rgba(77,168,218,.35); color:#E8EDF2;
+          border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%;
+          outline:none; transition:border-color .2s; font-family:'Inter',sans-serif;"
+          onfocus="this.style.borderColor='#4DA8DA'"
+          onblur="this.style.borderColor='rgba(77,168,218,.35)'">
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:1.1rem;">
+        <div>
+          <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.45);
+                        letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
+            Nueva Contraseña</label>
+          <input type="password" id="editClaveNueva"
+            placeholder="Mín. 6 car., 2 núm., 1 may." style="
+            background:#111f33; border:1px solid rgba(77,168,218,.35); color:#E8EDF2;
+            border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%;
+            outline:none; transition:border-color .2s; font-family:'Inter',sans-serif;"
+            onfocus="this.style.borderColor='#4DA8DA'"
+            onblur="this.style.borderColor='rgba(77,168,218,.35)'">
+        </div>
+        <div>
+          <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.45);
+                        letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
+            Confirmar</label>
+          <input type="password" id="editClaveConfirmar"
+            placeholder="Repite la contraseña" style="
+            background:#111f33; border:1px solid rgba(77,168,218,.35); color:#E8EDF2;
+            border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%;
+            outline:none; transition:border-color .2s; font-family:'Inter',sans-serif;"
+            onfocus="this.style.borderColor='#4DA8DA'"
+            onblur="this.style.borderColor='rgba(77,168,218,.35)'">
+        </div>
+      </div>
+
+      <button onclick="guardarPerfil()" id="btnGuardar" style="
+        background:#4DA8DA; color:#011936; border:none; border-radius:10px;
+        padding:.75rem; width:100%; font-family:'Rajdhani',sans-serif;
+        font-weight:700; font-size:.95rem; letter-spacing:.1em;
+        text-transform:uppercase; cursor:pointer; transition:all .2s;
+        box-shadow:0 4px 14px rgba(77,168,218,.35);"
+        onmouseover="this.style.background='#6dc0e8'"
+        onmouseout="this.style.background='#4DA8DA'">
+        <i class="bi bi-check-lg me-1"></i> Guardar Cambios
+      </button>
+
+    </div>
+  </div>
+</div>
+
+
 <script>
-  function togglePerfil() {
-    const panel   = document.getElementById('perfilPanel');
-    const chevron = document.getElementById('perfilChevron');
-    const abierto = panel.style.display === 'block';
-    panel.style.display   = abierto ? 'none' : 'block';
-    chevron.style.transform = abierto ? 'rotate(0deg)' : 'rotate(180deg)';
+  const PERFIL_URL = "{% url 'perfil_datos' %}";
+  const EDITAR_URL = "{% url 'perfil_editar' %}";
+
+  function getCookie(name) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      c = c.trim();
+      if (c.startsWith(name + '=')) v = decodeURIComponent(c.slice(name.length + 1));
+    });
+    return v;
   }
 
-  function toggleVentas(e, el) {
-    const submenu = document.getElementById('submenuVentas');
-    const chevron = document.getElementById('chevronVentas');
-    const path    = window.location.pathname;
-
-    if (path.startsWith('/ventas/')) {
-      e.preventDefault();
-    }
-
-    submenu.classList.toggle('open');   // 🔥 CORREGIDO
-    chevron.classList.toggle('open');   // 🔥 CORREGIDO
+  function abrirModalPerfil() {
+    fetch(PERFIL_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(r => r.json())
+      .then(d => {
+        if (!d.ok) return;
+        document.getElementById('mpAvatar').textContent  = d.usuario.charAt(0).toUpperCase();
+        document.getElementById('mpNombre').textContent  = d.nombre + ' ' + d.apellidos;
+        document.getElementById('mpUsuario').textContent = '@' + d.usuario;
+        document.getElementById('mpId').textContent      = d.identificacion;
+        document.getElementById('mpEmail').textContent   = d.email || '—';
+        document.getElementById('mpTipoId').textContent  = d.tipo_id_label;
+        document.getElementById('mpFecha').textContent   = d.fecha_registro;
+        const colores = {
+          admin:    { bg:'rgba(192,57,43,.2)',   color:'#e87070', border:'rgba(192,57,43,.35)' },
+          cajero:   { bg:'rgba(77,168,218,.15)', color:'#4DA8DA', border:'rgba(77,168,218,.35)' },
+          empleado: { bg:'rgba(77,218,140,.12)', color:'#5edb97', border:'rgba(77,218,140,.3)' },
+        };
+        const c = colores[d.rol] || colores.empleado;
+        document.getElementById('mpRolBadge').innerHTML = `
+          <span style="display:inline-block; font-size:.65rem; padding:.2rem .65rem;
+            border-radius:999px; font-weight:600; text-transform:uppercase; letter-spacing:.06em;
+            background:${c.bg}; color:${c.color}; border:1px solid ${c.border};">
+            ${d.rol_label}
+          </span>`;
+        document.getElementById('modalPerfil').style.display = 'flex';
+      });
   }
 
-  (function() {
-    const path    = window.location.pathname;
-    const submenu = document.getElementById('submenuVentas');
-    const chevron = document.getElementById('chevronVentas');
+  function cerrarModalPerfil() {
+    document.getElementById('modalPerfil').style.display = 'none';
+  }
 
-    if (path.startsWith('/ventas/') || path.startsWith('/reportes')) {
-      if (submenu) submenu.classList.add('open');   // 🔥 CORREGIDO
-      if (chevron) chevron.classList.add('open');   // 🔥 CORREGIDO
+  function abrirModalEditar() {
+    fetch(PERFIL_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(r => r.json())
+      .then(d => {
+        if (!d.ok) return;
+        document.getElementById('editNombre').value         = d.nombre;
+        document.getElementById('editApellidos').value      = d.apellidos;
+        document.getElementById('editEmail').value          = d.email;
+        document.getElementById('editClaveActual').value    = '';
+        document.getElementById('editClaveNueva').value     = '';
+        document.getElementById('editClaveConfirmar').value = '';
+        ocultarMsgEditar();
+        document.getElementById('modalEditar').style.display = 'flex';
+      });
+  }
+
+  function cerrarModalEditar() {
+    document.getElementById('modalEditar').style.display = 'none';
+  }
+
+  function mostrarMsgEditar(texto, tipo) {
+    const el = document.getElementById('editMsg');
+    el.textContent = texto;
+    el.style.display = 'block';
+    if (tipo === 'ok') {
+      el.style.background = 'rgba(46,204,113,.1)';
+      el.style.border     = '1px solid rgba(46,204,113,.35)';
+      el.style.color      = '#5edb97';
+    } else {
+      el.style.background = 'rgba(192,57,43,.1)';
+      el.style.border     = '1px solid rgba(192,57,43,.35)';
+      el.style.color      = '#e87070';
     }
-  })();
+  }
+
+  function ocultarMsgEditar() {
+    document.getElementById('editMsg').style.display = 'none';
+  }
+
+  function guardarPerfil() {
+    const claveNueva     = document.getElementById('editClaveNueva').value;
+    const claveConfirmar = document.getElementById('editClaveConfirmar').value;
+    if (claveNueva && claveNueva !== claveConfirmar) {
+      mostrarMsgEditar('Las contraseñas nuevas no coinciden.', 'err');
+      return;
+    }
+    const btn = document.getElementById('btnGuardar');
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+    fd.append('nombre',       document.getElementById('editNombre').value.trim());
+    fd.append('apellidos',    document.getElementById('editApellidos').value.trim());
+    fd.append('email',        document.getElementById('editEmail').value.trim());
+    fd.append('clave_actual', document.getElementById('editClaveActual').value);
+    fd.append('clave_nueva',  claveNueva);
+    fetch(EDITAR_URL, {
+      method: 'POST', body: fd,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar Cambios';
+      if (d.ok) {
+        mostrarMsgEditar('✅ ' + d.mensaje, 'ok');
+        setTimeout(() => cerrarModalEditar(), 1500);
+      } else {
+        mostrarMsgEditar(d.error, 'err');
+      }
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar Cambios';
+      mostrarMsgEditar('Error de conexión. Intenta de nuevo.', 'err');
+    });
+  }
+
+  document.getElementById('modalPerfil').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModalPerfil();
+  });
+  document.getElementById('modalEditar').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModalEditar();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { cerrarModalPerfil(); cerrarModalEditar(); }
+  });
+
+function toggleVentas(e, el) {
+  const submenu = document.getElementById('submenuVentas');
+  const chevron = document.getElementById('chevronVentas');
+
+  if (window.location.pathname.startsWith('/ventas/')) {
+    e.preventDefault();
+  }
+
+  submenu.classList.toggle('open');
+  chevron.classList.toggle('open');
+  el.classList.toggle('open');
+}
+  (function () {
+  const path    = window.location.pathname;
+  const submenu = document.getElementById('submenuVentas');
+  const parent  = document.getElementById('btnVentas');
+  const chevron = document.getElementById('chevronVentas');
+
+  if (path.startsWith('/ventas/') || path.startsWith('/reportes')) {
+    if (submenu) submenu.classList.add('open');
+    if (parent)  parent.classList.add('open');
+    if (chevron) chevron.classList.add('open');
+  }
+})();
 </script>
