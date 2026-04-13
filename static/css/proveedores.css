@@ -1,243 +1,239 @@
-/* ================================
-   FUENTES
-================================ */
+/* =========================
+   BASE
+========================= */
 body {
-  font-family: 'Inter', sans-serif;
+    background: #0b1220;
+    color: #cbd5e1;
 }
 
-h1, h2, h3 {
-  font-family: 'Rajdhani', sans-serif;
+/* =========================
+   ACTION CARDS
+========================= */
+.action-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #0f1b2e, #0b1626);
+    border: 1px solid rgba(77,168,218,0.2);
+    transition: 0.3s;
+    cursor: pointer;
 }
 
-/* ================================
-   BOTONES (MÁS VISIBLES Y PRO)
-================================ */
-.btn.rounded-pill.border {
-  border: 2px solid #4DA8DA !important;
-  color: #4DA8DA !important;
-  font-weight: 600;
-  letter-spacing: .08em;
+.action-card:hover {
+    transform: translateY(-4px);
+    border-color: #4DA8DA;
+    box-shadow: 0 0 20px rgba(77,168,218,0.2);
 }
 
-.btn.rounded-pill.border:hover {
-  background: #4DA8DA;
-  color: #011936 !important;
-  box-shadow: 0 0 20px #4DA8DA;
-  transform: scale(1.05);
+.action-card .icon {
+    font-size: 28px;
+    color: #4DA8DA;
 }
 
-/* BOTÓN PRINCIPAL */
-button[style*="background:#4DA8DA"] {
-  font-weight: 700;
-  letter-spacing: .1em;
-  box-shadow: 0 0 20px rgba(77,168,218,.6);
+.action-card h6 {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #e2e8f0;
 }
 
-button[style*="background:#4DA8DA"]:hover {
-  box-shadow: 0 0 30px rgba(77,168,218,1);
-  transform: scale(1.05);
+.action-card p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #94a3b8;
 }
 
-/* ================================
-   TARJETAS (QUE RESALTEN)
-================================ */
-.card {
-  border: 1.5px solid rgba(77,168,218,.4);
-  transition: .3s;
-}
-
-.card:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 0 25px rgba(77,168,218,.4);
-}
-
-/* NÚMEROS GRANDES */
-.card h2 {
-  color: #4DA8DA;
-  font-size: 2.3rem;
-  font-weight: 700;
-}
-
-/* ================================
-   ⭐ TARJETA ÚLTIMA ACTUALIZACIÓN (AQUÍ ESTÁ EL CAMBIO REAL)
-================================ */
-.row .col-md-3:last-child .card {
-  border: 2px solid #4DA8DA;
-  box-shadow: 0 0 30px rgba(77,168,218,.5);
-  background: linear-gradient(135deg, #0A2A52, #123a70);
-}
-
-/* TEXTO SUPERIOR */
-.row .col-md-3:last-child small {
-  color: #9CA3AF;
-  font-weight: 600;
-  letter-spacing: .15em;
-}
-
-/* FECHA (MUCHO MÁS VISIBLE) */
-.row .col-md-3:last-child h5 {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #4DA8DA;
-  text-shadow: 0 0 20px rgba(77,168,218,.8);
-}
-
-/* ================================
-   TABLA (COLOR TOTALMENTE DIFERENTE)
-================================ */
-.table {
-  background: #0A2A52;
+/* =========================
+   CYBER CARD
+========================= */
+.cyber-card {
+    background: #0f1b2e;
+    border-radius: 16px;
+    padding: 0;
+    border: 1px solid rgba(77,168,218,0.15);
+    overflow: hidden;
 }
 
 /* HEADER */
-.table thead {
-  background: #020c1b !important;
+.cyber-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(77,168,218,0.15);
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #4DA8DA;
 }
 
-.table thead th {
-  color: #4DA8DA !important;
-  font-weight: 700;
-  letter-spacing: .1em;
+/* =========================
+   EMPTY STATE
+========================= */
+.empty-state {
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
-/* BODY */
-.table tbody {
-  background: #0A2A52;
+.empty-state .icon {
+    font-size: 40px;
+    opacity: 0.5;
 }
 
-/* FILAS */
-.table tbody tr {
-  border-bottom: 1px solid rgba(255,255,255,.08);
+.empty-state p {
+    color: #64748b;
 }
 
-/* HOVER */
-.table tbody tr:hover {
-  background: rgba(77,168,218,.15);
+/* =========================
+   TABLE
+========================= */
+.table-cyber {
+    color: #cbd5e1;
+    margin: 0;
 }
 
-/* TEXTO GENERAL (ESTO ES LO QUE PEDISTE) */
-.table td {
-  color: #000000 !important;
-  font-size: .95rem;
+.table-cyber thead {
+    color: #4DA8DA;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
 }
 
-/* EMPRESA RESALTADA */
-.table td:nth-child(2) {
-  color: #4DA8DA !important;
-  font-weight: 700;
-}
-/* ================================
-TIPOGRAFÍA
-================================ */
-body {
-font-family: 'Inter', sans-serif;
+.table-cyber tbody tr {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    transition: 0.2s;
 }
 
-h1 {
-font-family: 'Rajdhani', sans-serif;
-letter-spacing: .5px;
+.table-cyber tbody tr:hover {
+    background: rgba(77,168,218,0.05);
 }
 
-/* ================================
-CARD PRINCIPAL
-================================ */
-.card {
-border-radius: 18px !important;
-border: 1px solid rgba(77,168,218,.2);
-box-shadow: 0 15px 40px rgba(0,0,0,.35);
-overflow: hidden;
+.table-cyber td,
+.table-cyber th {
+    padding: 14px;
+    text-align: center;
 }
 
-/* Barra lateral */
-.col-md-1 {
-background: linear-gradient(180deg, #912F40, #c4455d) !important;
+.table-cyber td:first-child {
+    font-weight: bold;
+    color: #4DA8DA;
+}
+/* =========================
+   BOTONES DE ACCIÓN (TABLA)
+========================= */
+.btn-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    border: 1px solid rgba(77,168,218,0.25);
+    background: rgba(77,168,218,0.08);
+    color: #4DA8DA;
+    cursor: pointer;
+    transition: 0.2s;
+    text-decoration: none;
 }
 
-/* ================================
-LABELS
-================================ */
-.form-label {
-font-size: .8rem;
-letter-spacing: .08em;
-color: #6b7280;
-margin-bottom: 6px;
+.btn-action:hover {
+    background: rgba(77,168,218,0.18);
+    border-color: #4DA8DA;
+    color: #4DA8DA;
+    box-shadow: 0 0 8px rgba(77,168,218,0.2);
+    transform: translateY(-1px);
 }
 
-/* ================================
-INPUTS
-================================ */
-.form-control,
-select,
-textarea {
-border-radius: 12px !important;
-border: 1px solid rgba(0,0,0,.15);
-padding: 10px 14px;
-font-size: .9rem;
-transition: all .2s ease;
+/* Editar — mismo azul base */
+.btn-action.edit {
+    border-color: rgba(77,168,218,0.25);
+    background: rgba(77,168,218,0.08);
+    color: #4DA8DA;
 }
 
-/* Focus */
-.form-control:focus,
-select:focus {
-border-color: #4DA8DA;
-box-shadow: 0 0 0 3px rgba(77,168,218,.2);
+.btn-action.edit:hover {
+    background: rgba(77,168,218,0.2);
+    border-color: #4DA8DA;
 }
 
-/* Disabled */
-input[disabled] {
-background: #1e293b !important;
-color: #e2e8f0 !important;
-border: none;
+/* Eliminar — rojo */
+.btn-action.delete {
+    border-color: rgba(248,113,113,0.25);
+    background: rgba(248,113,113,0.08);
+    color: #f87171;
 }
 
-/* ================================
-BOTÓN PRINCIPAL
-================================ */
-button[type="submit"] {
-border-radius: 999px;
-font-weight: 700;
-letter-spacing: .05em;
-padding: 12px;
-box-shadow: 0 0 15px rgba(77,168,218,.5);
-transition: all .25s ease;
+.btn-action.delete:hover {
+    background: rgba(248,113,113,0.2);
+    border-color: #f87171;
+    box-shadow: 0 0 8px rgba(248,113,113,0.2);
+    color: #f87171;
 }
 
-button[type="submit"]:hover {
-transform: translateY(-2px);
-box-shadow: 0 0 25px rgba(77,168,218,.9);
+/* View/Compra — verde */
+.btn-action.view {
+    border-color: rgba(74,222,128,0.25);
+    background: rgba(74,222,128,0.08);
+    color: #4ade80;
 }
 
-/* ================================
-BOTÓN CANCELAR
-================================ */
-.btn-light {
-border-radius: 999px;
-transition: .2s;
+.btn-action.view:hover {
+    background: rgba(74,222,128,0.2);
+    border-color: #4ade80;
+    box-shadow: 0 0 8px rgba(74,222,128,0.2);
+    color: #4ade80;
 }
 
-.btn-light:hover {
-background: #f1f5f9;
-transform: translateY(-1px);
+/* =========================
+   FORM (ESTILO PRODUCTO 🔥)
+========================= */
+
+/* LABEL */
+/* INPUT EXACTO DEL DISEÑO PRODUCTO */
+.cys-input {
+    width: 100%;
+    background: #0f1b2e !important;
+    border: 1px solid rgba(77,168,218,0.25) !important;
+    color: #e2e8f0 !important;
+    border-radius: 14px !important;
+    padding: 16px 20px !important;
+    font-size: 0.95rem;
+    outline: none;
+    box-shadow: none;
 }
 
-/* ================================
-SEPARADOR
-================================ */
-.border-top {
-border-color: rgba(0,0,0,.1) !important;
+/* FOCUS */
+.cys-input:focus {
+    border-color: #4DA8DA !important;
+    box-shadow: 0 0 0 2px rgba(77,168,218,0.15) !important;
 }
 
-/* ================================
-TEXTO SECUNDARIO
-================================ */
-.text-white-50 {
-font-size: .85rem;
+/* PLACEHOLDER */
+.cys-input::placeholder {
+    color: #94a3b8;
+}
+/* =========================
+   EDITAR PROVEEDOR — fix inputs
+========================= */
+.cys-input,
+.cys-input:focus,
+.cys-input:active {
+    background-color: #0b1220 !important;
+    border: 1px solid rgba(77,168,218,0.25) !important;
+    color: #e2e8f0 !important;
+    border-radius: 10px !important;
+    padding: 12px 16px !important;
+    box-shadow: none !important;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* ================================
-ALERTAS (si agregas mensajes)
-================================ */
-.alert {
-border-radius: 12px;
+.cys-input:focus {
+    border-color: #4DA8DA !important;
+    box-shadow: 0 0 0 3px rgba(77,168,218,0.15) !important;
+}
+
+.cys-input::placeholder {
+    color: #475569 !important;
 }
