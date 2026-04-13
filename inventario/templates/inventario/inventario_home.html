@@ -59,42 +59,91 @@
       <i class="bi bi-calendar2-week me-2" style="color:var(--azul-claro);"></i>
       Inventarios Programados
     </div>
+
     {% for agenda in agendas %}
-      <div class="inv-agenda-item">
-        <div class="d-flex justify-content-between align-items-start gap-2">
-          <div>
-            <div class="inv-agenda-item__titulo">{{ agenda.titulo }}</div>
-            <div class="inv-agenda-item__fecha">
-              <i class="bi bi-clock me-1"></i>
-              {{ agenda.fecha_programada|date:"d/m/Y H:i" }}
-            </div>
-            {% if agenda.descripcion %}
-              <div class="inv-agenda-item__desc">{{ agenda.descripcion }}</div>
-            {% endif %}
+    <div class="inv-agenda-item">
+      <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+        <div>
+          <div class="inv-agenda-item__titulo">{{ agenda.titulo }}</div>
+          <div class="inv-agenda-item__fecha">
+            <i class="bi bi-clock me-1"></i>
+            {{ agenda.fecha_programada|date:"d/m/Y H:i" }}
           </div>
-          <div class="d-flex flex-column align-items-end gap-2">
-            <span class="inv-badge inv-badge--{{ agenda.estado }}">
-              {{ agenda.get_estado_display }}
-            </span>
-            <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
-              {% csrf_token %}
-              <select name="estado" class="cys-input form-select form-select-sm"
-                      style="font-size:.72rem; padding:.25rem .5rem;"
-                      onchange="this.form.submit()">
-                <option value="pendiente"  {% if agenda.estado == 'pendiente'  %}selected{% endif %}>Pendiente</option>
-                <option value="en_proceso" {% if agenda.estado == 'en_proceso' %}selected{% endif %}>En Proceso</option>
-                <option value="completado" {% if agenda.estado == 'completado' %}selected{% endif %}>Completado</option>
-                <option value="cancelado"  {% if agenda.estado == 'cancelado'  %}selected{% endif %}>Cancelado</option>
-              </select>
-            </form>
-          </div>
+          {% if agenda.descripcion %}
+            <div class="inv-agenda-item__desc">{{ agenda.descripcion }}</div>
+          {% endif %}
         </div>
+        <span class="inv-badge inv-badge--{{ agenda.estado }}">
+          {{ agenda.get_estado_display }}
+        </span>
       </div>
+
+      <!-- TRACKER HORIZONTAL -->
+      <div class="inv-tracker">
+
+        <!-- PASO 1: Pendiente -->
+        <div class="inv-tracker__step {% if agenda.estado == 'pendiente' %}inv-tracker__step--active-pendiente{% elif agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__step--done-pendiente{% endif %}">
+          <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="estado" value="pendiente">
+            <button type="submit" class="inv-tracker__circle">
+              {% if agenda.estado == 'pendiente' %}⏳{% elif agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}✓{% else %}1{% endif %}
+            </button>
+          </form>
+          <div class="inv-tracker__label">Pendiente</div>
+        </div>
+
+        <div class="inv-tracker__line {% if agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__line--pendiente{% endif %}"></div>
+
+        <!-- PASO 2: En Proceso -->
+        <div class="inv-tracker__step {% if agenda.estado == 'en_proceso' %}inv-tracker__step--active-en_proceso{% elif agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__step--done-en_proceso{% endif %}">
+          <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="estado" value="en_proceso">
+            <button type="submit" class="inv-tracker__circle">
+              {% if agenda.estado == 'en_proceso' %}⚙{% elif agenda.estado == 'completado' or agenda.estado == 'cancelado' %}✓{% else %}2{% endif %}
+            </button>
+          </form>
+          <div class="inv-tracker__label">En Proceso</div>
+        </div>
+
+        <div class="inv-tracker__line {% if agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__line--en_proceso{% endif %}"></div>
+
+        <!-- PASO 3: Completado -->
+        <div class="inv-tracker__step {% if agenda.estado == 'completado' %}inv-tracker__step--active-completado{% endif %}">
+          <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="estado" value="completado">
+            <button type="submit" class="inv-tracker__circle">
+              {% if agenda.estado == 'completado' %}✓{% else %}3{% endif %}
+            </button>
+          </form>
+          <div class="inv-tracker__label">Completado</div>
+        </div>
+
+        <div class="inv-tracker__line {% if agenda.estado == 'cancelado' %}inv-tracker__line--cancelado{% endif %}"></div>
+
+        <!-- PASO 4: Cancelado -->
+        <div class="inv-tracker__step {% if agenda.estado == 'cancelado' %}inv-tracker__step--active-cancelado{% endif %}">
+          <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="estado" value="cancelado">
+            <button type="submit" class="inv-tracker__circle">
+              {% if agenda.estado == 'cancelado' %}✕{% else %}4{% endif %}
+            </button>
+          </form>
+          <div class="inv-tracker__label">Cancelado</div>
+        </div>
+
+      </div>
+      <!-- /TRACKER -->
+
+    </div>
     {% empty %}
-      <div class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
-        <i class="bi bi-calendar-x d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
-        No hay inventarios programados.
-      </div>
+    <div class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
+      <i class="bi bi-calendar-x d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
+      No hay inventarios programados.
+    </div>
     {% endfor %}
   </section>
 
@@ -239,6 +288,7 @@
             </button>
           </form>
         </div>
+
         {% if sesion %}
           <form id="form-conteo" method="POST" action="{% url 'inventario:guardar_conteo' %}">
             {% csrf_token %}
@@ -246,12 +296,17 @@
             <div class="row g-3 align-items-end mb-4">
               <div class="col-md-7">
                 <label class="cys-form-label">Producto</label>
-                <select name="producto_id" class="cys-input form-select" required>
-                  <option value="">— Seleccionar producto —</option>
-                  {% for p in productos %}
-                    <option value="{{ p.pk }}">{{ p.nombre }} ({{ p.codigo }})</option>
-                  {% endfor %}
-                </select>
+                <div class="d-flex gap-2">
+                  <select name="producto_id" id="conteo-select-producto" class="cys-input form-select" required>
+                    <option value="">— Seleccionar producto —</option>
+                    {% for p in productos %}
+                      <option value="{{ p.pk }}" data-codigo="{{ p.codigo }}">{{ p.nombre }} ({{ p.codigo }})</option>
+                    {% endfor %}
+                  </select>
+                  <button type="button" id="btn-scanner" class="cys-btn cys-btn--primary" style="white-space:nowrap; padding:.4rem .9rem;" title="Escanear código de barras">
+                    <i class="bi bi-upc-scan"></i>
+                  </button>
+                </div>
               </div>
               <div class="col-md-3">
                 <label class="cys-form-label">Cantidad física</label>
@@ -263,7 +318,22 @@
                 </button>
               </div>
             </div>
+
+            <!-- VISOR DE CÁMARA -->
+            <div id="scanner-container" style="display:none; margin-bottom:1rem;">
+              <div style="position:relative; width:100%; max-width:480px; margin:0 auto; border:2px solid var(--azul-claro); border-radius:10px; overflow:hidden; background:#000;">
+                <div id="scanner-viewport" style="width:100%; height:240px;"></div>
+                <div style="position:absolute; top:50%; left:5%; width:90%; height:2px; background:var(--azul-claro); box-shadow:0 0 8px var(--azul-claro); animation:scan-line 2s ease-in-out infinite; pointer-events:none;"></div>
+                <div id="scanner-result" style="position:absolute; bottom:8px; left:0; right:0; text-align:center; font-size:.75rem; font-weight:700; color:#fff; text-shadow:0 1px 4px #000; letter-spacing:.08em;">Apunta al código de barras...</div>
+              </div>
+              <div class="d-flex justify-content-center mt-2">
+                <button type="button" id="btn-cerrar-scanner" class="cys-btn cys-btn--outline" style="font-size:.78rem; padding:.35rem .9rem;">
+                  <i class="bi bi-x-circle me-1"></i> Cerrar cámara
+                </button>
+              </div>
+            </div>
           </form>
+
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead>
@@ -290,6 +360,7 @@
               </tbody>
             </table>
           </div>
+
         {% else %}
           <div class="text-center py-3" style="color:var(--texto-muted); font-size:.85rem;">
             <i class="bi bi-play-circle d-block mb-2" style="font-size:2rem; color:var(--azul-borde);"></i>
@@ -365,6 +436,7 @@
                   <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Físico</th>
                   <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Diferencia</th>
                   <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Estado</th>
+                  <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Ajustar</th>
                 </tr>
               </thead>
               <tbody>
@@ -399,6 +471,23 @@
                         <span class="inv-badge inv-badge--sobrante"><i class="bi bi-arrow-up-circle me-1"></i>Sobrante</span>
                       {% else %}
                         <span class="inv-badge inv-badge--faltante"><i class="bi bi-arrow-down-circle me-1"></i>Faltante</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-center">
+                      {% if d.estado != 'ok' %}
+                        <button type="button"
+                                class="cys-btn-sm cys-btn-sm--primary"
+                                title="Ajustar stock"
+                                data-pk="{{ d.producto.pk }}"
+                                data-nombre="{{ d.producto.nombre }}"
+                                data-sistema="{{ d.en_sistema }}"
+                                data-fisico="{{ d.fisico }}"
+                                data-unidad="{{ d.producto.unidad }}"
+                                onclick="abrirConfirmarAjuste(this)">
+                          <i class="bi bi-arrow-repeat"></i>
+                        </button>
+                      {% else %}
+                        <span style="font-size:.7rem; color:var(--texto-muted);">—</span>
                       {% endif %}
                     </td>
                   </tr>
@@ -518,6 +607,55 @@
   </div>
 </div>
 
+<!-- MODAL CONFIRMACIÓN AJUSTE -->
+<div class="modal fade" id="modalConfirmarAjuste" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+    <div class="modal-content border-0 shadow-lg"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+      <div class="modal-header border-0"
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-arrow-repeat me-2" style="color:var(--azul-claro);"></i> Confirmar Ajuste
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="text-center mb-3">
+          <i class="bi bi-exclamation-triangle" style="font-size:2.5rem; color:#f39c12;"></i>
+        </div>
+        <p style="font-size:.9rem; color:var(--texto); text-align:center; margin:0;">
+          ¿Ajustar stock de <strong id="ajuste-nombre" style="color:var(--azul-claro);"></strong>?
+        </p>
+        <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
+          <div class="text-center">
+            <div style="font-size:.65rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.06em;">Sistema</div>
+            <div id="ajuste-sistema" style="font-size:1.4rem; font-weight:700; color:var(--rojo);"></div>
+          </div>
+          <i class="bi bi-arrow-right" style="font-size:1.2rem; color:var(--texto-muted);"></i>
+          <div class="text-center">
+            <div style="font-size:.65rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.06em;">Físico</div>
+            <div id="ajuste-fisico" style="font-size:1.4rem; font-weight:700; color:#27ae60;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex gap-2">
+        <button type="button" class="cys-btn cys-btn--outline flex-fill" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i> Cancelar
+        </button>
+        <button type="button" id="btn-confirmar-ajuste" class="cys-btn cys-btn--primary flex-fill">
+          <i class="bi bi-check-circle me-1"></i> Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Form oculto para enviar el ajuste -->
+<form id="form-ajuste-oculto" method="POST" action="" style="display:none;">
+  {% csrf_token %}
+  <input type="hidden" name="nueva_cantidad" id="ajuste-cantidad-input">
+</form>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -541,5 +679,89 @@ function abrirDetalle(nombre, codigo, categoria, precio, cantidad, unidad, descr
   document.getElementById('inv-det-descripcion').textContent = descripcion || 'Sin descripción';
   new bootstrap.Modal(document.getElementById('modalDetalleProducto')).show();
 }
+
+function abrirConfirmarAjuste(btn) {
+  const pk      = btn.dataset.pk;
+  const nombre  = btn.dataset.nombre;
+  const sistema = btn.dataset.sistema;
+  const fisico  = btn.dataset.fisico;
+  const unidad  = btn.dataset.unidad;
+
+  document.getElementById('ajuste-nombre').textContent   = nombre;
+  document.getElementById('ajuste-sistema').textContent  = sistema + ' ' + unidad;
+  document.getElementById('ajuste-fisico').textContent   = fisico + ' ' + unidad;
+  document.getElementById('ajuste-cantidad-input').value = fisico;
+  document.getElementById('form-ajuste-oculto').action   = `/inventario/ajustar/${pk}/`;
+
+  new bootstrap.Modal(document.getElementById('modalConfirmarAjuste')).show();
+}
+
+document.getElementById('btn-confirmar-ajuste').addEventListener('click', function () {
+  document.getElementById('form-ajuste-oculto').submit();
+});
+
+// ── ESCÁNER DE CÓDIGO DE BARRAS ───────────────────
+(function () {
+  const btnAbrir   = document.getElementById('btn-scanner');
+  const btnCerrar  = document.getElementById('btn-cerrar-scanner');
+  const container  = document.getElementById('scanner-container');
+  const resultDiv  = document.getElementById('scanner-result');
+  const selectProd = document.getElementById('conteo-select-producto');
+
+  if (!btnAbrir) return;
+
+  const codigoMap = {};
+  selectProd.querySelectorAll('option[data-codigo]').forEach(opt => {
+    codigoMap[opt.dataset.codigo.trim()] = opt.value;
+  });
+
+  let scannerActivo = false;
+
+  function iniciarScanner() {
+    container.style.display = 'block';
+    scannerActivo = true;
+    resultDiv.textContent = 'Apunta al código de barras...';
+    Quagga.init({
+      inputStream: {
+        name: 'Live', type: 'LiveStream',
+        target: document.getElementById('scanner-viewport'),
+        constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+      },
+      decoder: { readers: ['code_128_reader','ean_reader','ean_8_reader','code_39_reader','upc_reader','upc_e_reader'] },
+      locate: true,
+    }, function (err) {
+      if (err) { resultDiv.textContent = '❌ No se pudo acceder a la cámara.'; return; }
+      Quagga.start();
+    });
+    Quagga.onDetected(onDetected);
+  }
+
+  function detenerScanner() {
+    if (!scannerActivo) return;
+    Quagga.offDetected(onDetected);
+    Quagga.stop();
+    scannerActivo = false;
+    container.style.display = 'none';
+  }
+
+  function onDetected(result) {
+    const codigo = result.codeResult.code.trim();
+    resultDiv.textContent = '✓ Código: ' + codigo;
+    if (codigoMap[codigo]) {
+      selectProd.value = codigoMap[codigo];
+      detenerScanner();
+      selectProd.style.borderColor = '#5dd87a';
+      setTimeout(() => selectProd.style.borderColor = '', 1500);
+    } else {
+      resultDiv.textContent = '⚠ Código "' + codigo + '" no encontrado en sistema.';
+    }
+  }
+
+  btnAbrir.addEventListener('click', function () {
+    scannerActivo ? detenerScanner() : iniciarScanner();
+  });
+  btnCerrar.addEventListener('click', detenerScanner);
+  document.getElementById('modalConteo').addEventListener('hidden.bs.modal', detenerScanner);
+})();
 </script>
 {% endblock %}

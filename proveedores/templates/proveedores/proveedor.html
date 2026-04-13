@@ -1,249 +1,397 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 {% if messages %}
-<div class="container mb-3">
-    {% for message in messages %}
-    <div class="alert 
-                {% if message.tags == 'success' %}alert-success
-                {% elif message.tags == 'warning' %}alert-warning
-                {% elif message.tags == 'error' %}alert-danger
-                {% endif %} alert-dismissible fade show" role="alert">
-                        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
-</div>
+  {% for message in messages %}
+    {% if message.tags == "success" %}
+      <div class="alert alert-dismissible fade show d-flex align-items-center justify-content-between"
+           style="background:#d1fae5;color:#065f46;border:none;border-radius:10px;padding:14px 20px;font-size:0.92rem;font-weight:500;margin-bottom:1rem;">
+        <span>{{ message }}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endif %}
+  {% endfor %}
 {% endif %}
 
-<section class="container-fluid min-vh-100 px-4 py-4" style="background:#011936;">
+<link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- BOTONES -->
-    <div class="d-flex flex-wrap justify-content-center gap-3 mb-5">
-{% for proveedor in proveedores %}
+<div class="container-fluid p-0">
 
-<a href="{% url 'registrar_compra' proveedor.id %}"
-   class="btn rounded-pill px-4 fw-semibold border"
-                style="color:#4DA8DA; border-color:#4DA8DA;">
-   Compra
-</a>
-
-{% endfor %}
-        <button class="btn rounded-pill px-4 fw-semibold border"
-                style="color:#4DA8DA; border-color:#4DA8DA;">
-            Detalle de compra
-        </button>
-
-        <button class="btn rounded-pill px-4 fw-semibold border"
-                style="color:#4DA8DA; border-color:#4DA8DA;">
-            Entradas
-        </button>
-
-        <button class="btn rounded-pill px-4 fw-semibold border"
-                style="color:#4DA8DA; border-color:#4DA8DA;">
-            Salidas
-        </button>
-
+  <!-- CARDS -->
+  <section class="cys-card mb-4">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="cys-stat-card text-center">
+          <div class="cys-stat-card__label"><i class="bi bi-people"></i> Total Proveedores</div>
+          <div class="cys-stat-card__val">{{ total_proveedores }}</div>
+          <div class="small text-success">↑ 1 este mes</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="cys-stat-card text-center">
+          <div class="cys-stat-card__label"><i class="bi bi-check-circle"></i> Activos</div>
+          <div class="cys-stat-card__val text-success">{{ proveedores_activos }}</div>
+          <div class="small text-success">100% activos</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="cys-stat-card text-center">
+          <div class="cys-stat-card__label"><i class="bi bi-exclamation-triangle"></i> Pendientes</div>
+          <div class="cys-stat-card__val text-danger">{{ ordenes_pendientes }}</div>
+          <div class="small text-danger">0 hoy</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="cys-stat-card text-center">
+          <div class="cys-stat-card__label"><i class="bi bi-clock"></i> Actualización</div>
+          <div class="small">{% now "l" %}, {% now "j" %} DE {% now "F" %}</div>
+          <div class="fw-bold">{% now "g:i a" %}</div>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <!-- TARJETAS -->
-    <div class="row g-4 mb-5">
+  <!-- TABLA -->
+  <section class="cys-card mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="cys-card__title d-flex align-items-center gap-2">
+        <i class="bi bi-building"></i> Lista de Proveedores
+      </div>
+      <div class="d-flex gap-2">
 
-        <div class="col-md-3">
-            <div class="card border-0 rounded-4 shadow h-100 text-white"
-                 style="background:#0A2A52;">
-                <div class="card-body">
-                    <small class="opacity-75 fw-bold">TOTAL PROVEEDORES</small>
-                    <h2>{{ total_proveedores }}</h2>
-                    <span style="color:#22c55e;">↑ {{ nuevos_mes }} este mes</span>
-                </div>
-            </div>
+        <!-- ✅ BUSCADOR -->
+        <div class="position-relative">
+          <i class="bi bi-search position-absolute"
+             style="top:50%; left:12px; transform:translateY(-50%);
+                    color:#4DA8DA; font-size:0.85rem; pointer-events:none;"></i>
+          <input type="text" id="buscadorProveedores"
+                 placeholder="Buscar proveedor..."
+                 style="background:#0b1220; border:1px solid rgba(77,168,218,0.25);
+                        color:#e2e8f0; border-radius:8px; padding:8px 14px 8px 34px;
+                        font-size:0.85rem; outline:none; width:220px; transition:0.2s;"
+                 onfocus="this.style.borderColor='#4DA8DA'"
+                 onblur="this.style.borderColor='rgba(77,168,218,0.25)'">
         </div>
 
-        <div class="col-md-3">
-            <div class="card border-0 rounded-4 shadow h-100 text-white"
-                 style="background:#0A2A52;">
-                <div class="card-body">
-                    <small class="opacity-75 fw-bold">ACTIVOS</small>
-                    <h2>{{ total_proveedores }}</h2>
-                    <span style="color:#22c55e;">100% activos</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-0 rounded-4 shadow h-100 text-white"
-                 style="background:#0A2A52;">
-                <div class="card-body">
-                    <small class="opacity-75 fw-bold">ÓRDENES PENDIENTES</small>
-                    <h2>0</h2>
-                    <span style="color:#ef4444;">0 hoy</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-0 rounded-4 shadow h-100 text-white"
-                 style="background:#0A2A52;">
-                <div class="card-body">
-                    <small class="opacity-75 fw-bold">ÚLTIMA ACTUALIZACIÓN</small>
-                    <h5>{{ ultima_actualizacion|date:"d/m/Y" }}</h5>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- TITULO -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-white fw-bold m-0">Proveedores Registrados</h2>
-
-        <button class="btn rounded-pill px-4 fw-semibold"
-                style="background:#4DA8DA; color:#011936;"
-                data-bs-toggle="modal" data-bs-target="#nuevoModal">
-            + Nuevo proveedor
+        <button class="cys-btn cys-btn--primary" data-bs-toggle="modal" data-bs-target="#nuevoModal">
+          <i class="bi bi-plus-lg"></i> Nuevo
         </button>
+      </div>
     </div>
 
-    <!-- TABLA -->
-    <div class="table-responsive rounded-4 overflow-hidden shadow">
-
-        <table class="table align-middle mb-0">
-
-            <thead class="text-center"
-                   style="background:#011936; color:#4DA8DA;">
-                <tr>
-                    <th>ID</th>
-                    <th>Empresa</th>
-                    <th>Contacto</th>
-                    <th>Teléfono</th>
-                    <th>Correo</th>
-                    <th>Responsable</th>
-                    <th>Fecha</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-
-            <tbody class="text-center bg-white">
-
-                {% for p in proveedores %}
-                <tr>
-                    <td><strong>{{ p.id }}</strong></td>
-                    <td class="fw-bold">{{ p.nombre_empresa }}</td>
-                    <td>{{ p.nombre_contacto }}</td>
-                    <td>{{ p.telefono }}</td>
-                    <td class="small">{{ p.email }}</td>
-
-                   <td>
-    <span class="badge bg-secondary">
-        {{ p.registrado_por.email|default:"Admin" }}
-    </span>
-</td>
-                    <td class="small text-muted">
-                        {{ p.ultima_modificacion|date:"d/m/Y H:i" }}
-                    </td>
-
-
-                    <td>
-                        <div class="d-flex justify-content-center gap-2">
-
-                            <a href="{% url 'editar_proveedor' p.id %}"
-                               class="btn btn-sm btn-outline-primary rounded-pill">
-                                ✏
-                            </a>
-
-                            <form method="POST" action="{% url 'eliminar_proveedor' p.id %}">
-                                {% csrf_token %}
-                                <button class="btn btn-sm btn-outline-danger rounded-pill">
-                                    🗑
-                                </button>
-                            </form>
-
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-
-            </tbody>
-
-        </table>
+    <!-- CONTADOR RESULTADOS -->
+    <div id="contadorResultados" class="mb-2"
+         style="font-size:0.78rem; color:#64748b; display:none;">
+      <i class="bi bi-funnel me-1"></i>
+      Mostrando <span id="numResultados"></span> resultado(s) para "<span id="terminoBusqueda"></span>"
     </div>
 
-    <!-- MODAL -->
-    <div class="modal fade" id="nuevoModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content rounded-4 border-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 cys-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>EMPRESA</th>
+            <th>CONTACTO</th>
+            <th>TELÉFONO</th>
+            <th>CORREO</th>
+            <th>RESPONSABLE</th>
+            <th>FECHA</th>
+            <th>ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody id="tablaProveedores">
+          {% for p in proveedores %}
+          <tr class="cys-row fila-proveedor"
+              data-empresa="{{ p.nombre_empresa|lower }}"
+              data-contacto="{{ p.nombre_contacto|lower }}"
+              data-email="{{ p.email|lower }}"
+              data-telefono="{{ p.telefono }}">
+            <td>{{ forloop.counter }}</td>
+            <td>{{ p.nombre_empresa }}</td>
+            <td>{{ p.nombre_contacto }}</td>
+            <td>{{ p.telefono }}</td>
+            <td>{{ p.email }}</td>
+            <td>
+              <span class="badge-cyber">
+                {{ p.registrado_por.email|default:"Admin" }}
+              </span>
+            </td>
+            <td>{{ p.ultima_modificacion|date:"d/m/Y" }}</td>
+            <td>
+              <div class="d-flex gap-2">
+                <a href="{% url 'registrar_compra' p.id %}" class="btn-action view" title="Registrar compra">
+                  <i class="bi bi-cart-plus"></i>
+                </a>
+                <a href="#" class="btn-action" title="Ver información"
+                   style="background:rgba(77,168,218,0.1); border:1px solid rgba(77,168,218,0.3); color:#4DA8DA; border-radius:6px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; transition:0.2s;"
+                   onclick="verDetalle('{{ p.nombre_empresa }}','{{ p.nombre_contacto }}','{{ p.email }}','{{ p.telefono }}','{{ p.registrado_por.email|default:"Admin" }}','{{ p.fecha_registro|date:"d/m/Y" }}','{{ p.ultima_modificacion|date:"d/m/Y H:i" }}')"
+                   onmouseover="this.style.background='rgba(77,168,218,0.2)'"
+                   onmouseout="this.style.background='rgba(77,168,218,0.1)'">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{% url 'editar_proveedor' p.id %}" class="btn-action edit" title="Editar">
+                  <i class="bi bi-pencil-square"></i>
+                </a>
+                <!-- ✅ BOTÓN ELIMINAR ACTUALIZADO -->
+                <button class="btn-action delete" title="Eliminar"
+                        onclick="confirmarEliminar('{% url 'eliminar_proveedor' p.id %}', '{{ p.nombre_empresa }}')">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr id="filaVacia">
+            <td colspan="8" class="text-center py-5" style="color:var(--texto-muted);">
+              <i class="bi bi-building d-block mb-2" style="font-size:2rem;"></i>
+              No hay proveedores registrados
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
 
-                <div class="modal-header"
-                     style="background:#0A2A52; color:white;">
-                    <h5 class="modal-title">Nuevo proveedor</h5>
-                    <button type="button" class="btn-close btn-close-white"
-                            data-bs-dismiss="modal"></button>
-                </div>
+      <!-- Sin resultados de búsqueda -->
+      <div id="sinResultados" class="text-center py-5" style="display:none; color:#475569;">
+        <i class="bi bi-search d-block mb-2" style="font-size:2rem; color:#334155;"></i>
+        <span style="font-size:0.88rem;">No se encontraron proveedores</span>
+      </div>
 
-                <div class="modal-body">
+    </div>
+  </section>
 
-                    <form method="POST">
-                        {% csrf_token %}
-
-                        <div class="row g-3">
-
-                            <div class="col-md-6 text-danger">
-                             <label>Contacto</label>
-                              {{ form.nombre_contacto }}
-                            {% if form.nombre_contacto.errors %}
-                         <div class="text-danger">
-                              {{ form.nombre_contacto.errors }}
-                             </div>
-                         {% endif %}
-                        </div>
-
-                    <div class="col-md-6 text-danger">
-                    <label>Empresa</label>
-                     {{ form.nombre_empresa }}
-                     {% if form.nombre_empresa.errors %}
-                      {{ form.nombre_empresa.errors }}
-                     </div>
-                      {% endif %}
 </div>
 
-<div class="col-md-6 text-danger">
-    <label>Correo</label>
-    {{ form.email }}
-    {% if form.email.errors %}
-            {{ form.email.errors }}
+<!-- ✅ MODAL DETALLE PROVEEDOR -->
+<div class="modal fade" id="detalleModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:14px;">
+
+      <div class="modal-header border-0"
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+                    color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-building me-2" style="color:var(--azul-claro);"></i>
+          Información del Proveedor
         </div>
-    {% endif %}
-</div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
 
-<div class="col-md-6 text-danger">
-    <label>Teléfono</label>
-    {{ form.telefono }}
-    {% if form.telefono.errors %}
-            {{ form.telefono.errors }}
-        </div>
-    {% endif %}
-</div>
-                        <div class="text-end mt-4">
-                            <button class="btn rounded-pill px-4"
-                                    style="background:#4DA8DA; color:#011936;">
-                                Guardar proveedor
-                            </button>
-                        </div>
+      <div class="modal-body p-4">
+        <div class="d-flex flex-column gap-3">
 
-                    </form>
+          <div>
+            <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                        letter-spacing:0.08em; margin-bottom:4px;">Empresa</div>
+            <div id="det-empresa" style="color:#e2e8f0; font-weight:700; font-size:1rem;"></div>
+          </div>
 
-                </div>
-
+          <div class="row g-3">
+            <div class="col-6">
+              <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                          letter-spacing:0.08em; margin-bottom:4px;">Contacto</div>
+              <div id="det-contacto" style="color:#cbd5e1; font-size:0.9rem;"></div>
             </div>
+            <div class="col-6">
+              <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                          letter-spacing:0.08em; margin-bottom:4px;">Teléfono</div>
+              <div id="det-telefono" style="color:#4DA8DA; font-weight:600; font-size:0.9rem;"></div>
+            </div>
+            <div class="col-12">
+              <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                          letter-spacing:0.08em; margin-bottom:4px;">Correo</div>
+              <div id="det-email" style="color:#cbd5e1; font-size:0.9rem;"></div>
+            </div>
+            <div class="col-6">
+              <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                          letter-spacing:0.08em; margin-bottom:4px;">Registrado por</div>
+              <div id="det-responsable" style="color:#94a3b8; font-size:0.85rem;"></div>
+            </div>
+            <div class="col-6">
+              <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                          letter-spacing:0.08em; margin-bottom:4px;">Fecha registro</div>
+              <div id="det-fecha" style="color:#94a3b8; font-size:0.85rem;"></div>
+            </div>
+            <div class="col-12">
+              <div style="font-size:0.72rem; color:#64748b; text-transform:uppercase;
+                          letter-spacing:0.08em; margin-bottom:4px;">Última modificación</div>
+              <div id="det-modificacion" style="color:#94a3b8; font-size:0.85rem;"></div>
+            </div>
+          </div>
+
         </div>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 px-4 pb-4">
+        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+
     </div>
-    <script>
-setTimeout(() => {
-    document.querySelectorAll('.alert').forEach(alert => alert.remove());
-}, 5000); // desaparece después de 5 segundos
+  </div>
+</div>
+
+<!-- MODAL NUEVO PROVEEDOR -->
+<div class="modal fade" id="nuevoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg"
+      style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:14px;">
+
+      <div class="modal-header border-0"
+        style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+                    color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-person-plus me-2" style="color:var(--azul-claro);"></i>
+          Registrar Nuevo Proveedor
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form method="POST" action="{% url 'proveedores' %}">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="cys-form-label">Empresa</label>
+              {{ form.nombre_empresa }}
+              {% if form.nombre_empresa.errors %}
+                <div class="cys-form-error">{{ form.nombre_empresa.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="cys-form-label">Contacto</label>
+              {{ form.nombre_contacto }}
+              {% if form.nombre_contacto.errors %}
+                <div class="cys-form-error">{{ form.nombre_contacto.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="cys-form-label">Correo</label>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <div class="cys-form-error">{{ form.email.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="cys-form-label">Teléfono</label>
+              {{ form.telefono }}
+              {% if form.telefono.errors %}
+                <div class="cys-form-error">{{ form.telefono.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex justify-content-between">
+          <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="cys-btn cys-btn--danger">
+            <i class="bi bi-save me-1"></i> Guardar Proveedor
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- ✅ MODAL CONFIRMAR ELIMINAR -->
+<div class="modal fade" id="eliminarModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+
+      <div class="modal-header border-0"
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+                    color:#fff; letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-exclamation-triangle me-2" style="color:#f87171;"></i>
+          Confirmar Eliminación
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <p style="color:#cbd5e1; font-size:0.95rem; margin:0;">
+          ¿Estás seguro de que deseas eliminar al proveedor
+          <strong id="nombreEliminar" style="color:#f87171;"></strong>?
+        </p>
+        <p style="color:#64748b; font-size:0.82rem; margin-top:8px;">Esta acción no se puede deshacer.</p>
+      </div>
+
+      <div class="modal-footer border-0 px-4 pb-4 pt-0 d-flex justify-content-between">
+        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
+        <form id="formEliminar" method="POST">
+          {% csrf_token %}
+          <button type="submit" class="cys-btn cys-btn--danger">
+            <i class="bi bi-trash3 me-1"></i> Eliminar
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% if form.errors %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var modalEl = document.getElementById('nuevoModal');
+    var myModal = new bootstrap.Modal(modalEl);
+    myModal.show();
+  });
 </script>
+{% endif %}
+<script>
+  // ✅ BUSCADOR
+  document.getElementById('buscadorProveedores').addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    const filas = document.querySelectorAll('.fila-proveedor');
+    const contador = document.getElementById('contadorResultados');
+    const sinRes = document.getElementById('sinResultados');
+    let visibles = 0;
 
-</section>
+    filas.forEach(fila => {
+      const coincide = fila.dataset.empresa.includes(q) ||
+                       fila.dataset.contacto.includes(q) ||
+                       fila.dataset.email.includes(q) ||
+                       fila.dataset.telefono.includes(q);
+      fila.style.display = coincide ? '' : 'none';
+      if (coincide) visibles++;
+    });
+
+    if (q === '') {
+      contador.style.display = 'none';
+      sinRes.style.display = 'none';
+    } else {
+      contador.style.display = 'block';
+      document.getElementById('numResultados').textContent = visibles;
+      document.getElementById('terminoBusqueda').textContent = this.value;
+      sinRes.style.display = visibles === 0 ? 'block' : 'none';
+    }
+  });
+
+  // ✅ MODAL DETALLE
+  function verDetalle(empresa, contacto, email, telefono, responsable, fecha, modificacion) {
+    document.getElementById('det-empresa').textContent     = empresa;
+    document.getElementById('det-contacto').textContent    = contacto;
+    document.getElementById('det-email').textContent       = email;
+    document.getElementById('det-telefono').textContent    = telefono;
+    document.getElementById('det-responsable').textContent = responsable;
+    document.getElementById('det-fecha').textContent       = fecha;
+    document.getElementById('det-modificacion').textContent = modificacion;
+    new bootstrap.Modal(document.getElementById('detalleModal')).show();
+  }
+
+  // ✅ MODAL ELIMINAR
+  function confirmarEliminar(url, nombre) {
+    document.getElementById('nombreEliminar').textContent = nombre;
+    document.getElementById('formEliminar').action = url;
+    new bootstrap.Modal(document.getElementById('eliminarModal')).show();
+  }
+</script>
 
 {% endblock %}
