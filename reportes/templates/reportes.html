@@ -1,17 +1,19 @@
 {% extends 'base.html' %}
 {% load static %}
-
+ 
 {% block title %}Reportes — CYS Ltda{% endblock %}
 {% block page_title %}Reportes{% endblock %}
 {% block nav_reportes %}active{% endblock %}
-
+ 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/reportes.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 {% endblock %}
-
+ 
 {% block content %}
 <div class="container-fluid p-0">
-
+ 
   <!-- TARJETAS RESUMEN -->
   <div class="row gx-3 gy-3 mb-4">
     <div class="col-md-4">
@@ -33,10 +35,10 @@
       </div>
     </div>
   </div>
-
+ 
   <!-- TARJETAS DE REPORTES -->
   <div class="row gx-3 gy-3 mb-4">
-
+ 
     <!-- Inventario -->
     <div class="col-md-4">
       <div class="cys-card h-100" style="border-top:2px solid var(--azul-claro); cursor:pointer;"
@@ -53,7 +55,7 @@
         <div style="font-size:.75rem; color:var(--azul-claro); font-weight:600;">Ver reporte →</div>
       </div>
     </div>
-
+ 
     <!-- Proveedores -->
     <div class="col-md-4">
       <div class="cys-card h-100" style="border-top:2px solid #1D9E75; cursor:pointer;"
@@ -70,7 +72,7 @@
         <div style="font-size:.75rem; color:#1D9E75; font-weight:600;">Ver reporte →</div>
       </div>
     </div>
-
+ 
     <!-- Productos por proveedor (próximamente) -->
     <div class="col-md-4">
       <div class="cys-card h-100" style="border-top:2px solid #BA7517; cursor:default; opacity:.55;">
@@ -86,61 +88,61 @@
         <div style="font-size:.75rem; color:#BA7517; font-weight:600;">Próximamente</div>
       </div>
     </div>
-
-<div class="col-md-4">
-  <div class="cys-card h-100" style="border-top:2px solid #7F77DD; cursor:pointer;"
-       data-bs-toggle="modal" data-bs-target="#modalResumenDiario">
-    <div style="width:36px; height:36px; border-radius:8px; background:rgba(127,119,221,.15);
-                display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
-      <i class="bi bi-calendar-day" style="color:#7F77DD; font-size:16px;"></i>
+ 
+    <div class="col-md-4">
+      <div class="cys-card h-100" style="border-top:2px solid #7F77DD; cursor:pointer;"
+           data-bs-toggle="modal" data-bs-target="#modalResumenDiario">
+        <div style="width:36px; height:36px; border-radius:8px; background:rgba(127,119,221,.15);
+                    display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
+          <i class="bi bi-calendar-day" style="color:#7F77DD; font-size:16px;"></i>
+        </div>
+        <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
+                    color:var(--texto); margin-bottom:4px;">Resumen Diario</div>
+        <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
+          Ingresos, egresos y movimientos de hoy
+        </div>
+        <div style="font-size:.75rem; color:#7F77DD; font-weight:600;">Ver reporte →</div>
+      </div>
     </div>
-    <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
-                color:var(--texto); margin-bottom:4px;">Resumen Diario</div>
-    <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
-      Ingresos, egresos y movimientos de hoy
-    </div>
-    <div style="font-size:.75rem; color:#7F77DD; font-weight:600;">Ver reporte →</div>
   </div>
-</div>
-  </div>
-
-<!-- FILTROS -->
-<section class="cys-card mb-4">
-  <div class="cys-card__title">Filtrar Ventas</div>
-  <form method="GET" class="row gx-3 gy-2 align-items-end">
-    <div class="col-md-3">
-      <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Fecha inicio</label>
-      <input type="date" name="fecha_inicio" class="form-control form-control-sm"
-             value="{{ fecha_inicio }}">
-    </div>
-    <div class="col-md-3">
-      <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Fecha fin</label>
-      <input type="date" name="fecha_fin" class="form-control form-control-sm"
-             value="{{ fecha_fin }}">
-    </div>
-    <div class="col-md-3">
-      <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Categoría</label>
-      <select name="categoria" class="form-select form-select-sm">
-        <option value="">Todas</option>
-        {% for cat in categorias %}
-          <option value="{{ cat.id }}" {% if categoria_id == cat.id|stringformat:"s" %}selected{% endif %}>
-            {{ cat.nombre }}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-md-3">
-      <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Cliente</label>
-      <input type="text" name="cliente" class="form-control form-control-sm"
-             placeholder="Nombre cliente…" value="{{ cliente_q }}">
-    </div>
-    <div class="col-12 d-flex gap-2 mt-2">
-      <button type="submit" class="btn btn-sm btn-primary">Aplicar filtros</button>
-      <a href="{% url 'reportes' %}" class="btn btn-sm btn-outline-secondary">Limpiar</a>
-    </div>
-  </form>
-</section>
-
+ 
+  <!-- FILTROS -->
+  <section class="cys-card mb-4">
+    <div class="cys-card__title">Filtrar Ventas</div>
+    <form method="GET" class="row gx-3 gy-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Fecha inicio</label>
+        <input type="date" name="fecha_inicio" class="form-control form-control-sm"
+               value="{{ fecha_inicio }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Fecha fin</label>
+        <input type="date" name="fecha_fin" class="form-control form-control-sm"
+               value="{{ fecha_fin }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Categoría</label>
+        <select name="categoria" class="form-select form-select-sm">
+          <option value="">Todas</option>
+          {% for cat in categorias %}
+            <option value="{{ cat.id }}" {% if categoria_id == cat.id|stringformat:"s" %}selected{% endif %}>
+              {{ cat.nombre }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Cliente</label>
+        <input type="text" name="cliente" class="form-control form-control-sm"
+               placeholder="Nombre cliente…" value="{{ cliente_q }}">
+      </div>
+      <div class="col-12 d-flex gap-2 mt-2">
+        <button type="submit" class="btn btn-sm btn-primary">Aplicar filtros</button>
+        <a href="{% url 'reportes' %}" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+      </div>
+    </form>
+  </section>
+ 
   <!-- HISTORIAL -->
   <section class="cys-card mb-4">
     <div class="cys-card__title">Historial de Ventas</div>
@@ -186,14 +188,14 @@
       </table>
     </div>
   </section>
-
+ 
 </div>
-
+ 
 <!-- ===== MODAL INVENTARIO ===== -->
 <div class="modal fade" id="modalInventario" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable" style="max-width:92vw; width:92vw;">
     <div class="modal-content cys-modal">
-
+ 
       <div class="modal-header cys-modal__header">
         <div class="d-flex align-items-center gap-3">
           <div class="cys-modal__icon"><i class="bi bi-box-seam"></i></div>
@@ -204,7 +206,7 @@
         </div>
         <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
-
+ 
       <div class="cys-modal__stats">
         <div class="cys-stat-mini">
           <div class="cys-stat-mini__val">{{ total_registrados }}</div>
@@ -223,7 +225,7 @@
           <div class="cys-stat-mini__label">Agotados</div>
         </div>
       </div>
-
+ 
       <div class="cys-modal__filters">
         <input type="text" id="invSearch" class="cys-search" placeholder="Buscar producto…" onkeyup="filtrarInventario()">
         <select id="invEstado" class="cys-select" onchange="filtrarInventario()">
@@ -233,9 +235,9 @@
           <option value="out">Agotado</option>
         </select>
       </div>
-
+ 
       <div class="modal-body p-0">
-
+ 
         <!-- TABLA INVENTARIO -->
         <table class="cys-inv-table" id="invTable">
           <thead>
@@ -283,7 +285,7 @@
             {% endfor %}
           </tbody>
         </table>
-
+ 
         <!-- TABLA ENTRADAS -->
         <div style="padding: 14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
@@ -317,7 +319,7 @@
             {% endfor %}
           </tbody>
         </table>
-
+ 
         <!-- TABLA SALIDAS -->
         <div style="padding: 14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
@@ -351,22 +353,22 @@
             {% endfor %}
           </tbody>
         </table>
-
+ 
       </div>
-
+ 
       <div class="modal-footer cys-modal__footer">
-        <button class="cys-btn-export" onclick="exportarCSVInventario()">⬇ Exportar CSV</button>
+        <button class="cys-btn-export" onclick="exportarPDF('modalInventario', 'inventario_cys')">⬇ Exportar PDF</button>
       </div>
-
+ 
     </div>
   </div>
 </div>
-
+ 
 <!-- ===== MODAL PROVEEDORES ===== -->
 <div class="modal fade" id="modalProveedores" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content cys-modal">
-
+ 
       <div class="modal-header cys-modal__header" style="background:linear-gradient(135deg,#085041,#0F6E56);">
         <div class="d-flex align-items-center gap-3">
           <div class="cys-modal__icon" style="background:rgba(29,158,117,.25);">
@@ -379,18 +381,18 @@
         </div>
         <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
-
+ 
       <div class="cys-modal__stats">
         <div class="cys-stat-mini cys-stat-mini--verde">
           <div class="cys-stat-mini__val">{{ proveedores|length }}</div>
           <div class="cys-stat-mini__label">Total registrados</div>
         </div>
       </div>
-
+ 
       <div class="cys-modal__filters">
         <input type="text" id="provSearch" class="cys-search" placeholder="Buscar proveedor…" onkeyup="filtrarProveedores()">
       </div>
-
+ 
       <div class="modal-body p-0">
         <table class="cys-inv-table" id="provTable">
           <thead>
@@ -422,19 +424,20 @@
           </tbody>
         </table>
       </div>
-
+ 
       <div class="modal-footer cys-modal__footer">
-        <button class="cys-btn-export" onclick="exportarCSVProveedores()">⬇ Exportar CSV</button>
+        <button class="cys-btn-export" onclick="exportarPDF('modalProveedores', 'proveedores_cys')">⬇ Exportar PDF</button>
       </div>
-
+ 
     </div>
   </div>
 </div>
+ 
 <!-- ===== MODAL RESUMEN DIARIO ===== -->
 <div class="modal fade" id="modalResumenDiario" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable" style="max-width:92vw; width:92vw;">
     <div class="modal-content cys-modal">
-
+ 
       <div class="modal-header cys-modal__header" style="background:linear-gradient(135deg,#26215C,#534AB7);">
         <div class="d-flex align-items-center gap-3">
           <div class="cys-modal__icon" style="background:rgba(127,119,221,.25);">
@@ -447,7 +450,7 @@
         </div>
         <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
-
+ 
       <div class="cys-modal__stats">
         <div class="cys-stat-mini cys-stat-mini--verde">
           <div class="cys-stat-mini__val">${{ ingresos_hoy|floatformat:0 }}</div>
@@ -466,9 +469,9 @@
           <div class="cys-stat-mini__label">Unidades salida</div>
         </div>
       </div>
-
+ 
       <div class="modal-body p-0">
-
+ 
         <!-- Ventas del día -->
         <div style="padding:14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
@@ -502,7 +505,7 @@
             {% endfor %}
           </tbody>
         </table>
-
+ 
         <!-- Entradas del día -->
         <div style="padding:14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
@@ -531,7 +534,7 @@
             {% endfor %}
           </tbody>
         </table>
-
+ 
         <!-- Salidas del día -->
         <div style="padding:14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
@@ -560,18 +563,19 @@
             {% endfor %}
           </tbody>
         </table>
-
+ 
       </div>
-
+ 
       <div class="modal-footer cys-modal__footer">
-        <button class="cys-btn-export" onclick="exportarCSVResumen()">⬇ Exportar CSV</button>
+        <button class="cys-btn-export" onclick="exportarPDF('modalResumenDiario', 'resumen_diario_cys')">⬇ Exportar PDF</button>
       </div>
-
+ 
     </div>
   </div>
 </div>
+ 
 {% endblock %}
-
+ 
 {% block extra_js %}
 <script>
 function filtrarInventario() {
@@ -583,43 +587,59 @@ function filtrarInventario() {
     fila.style.display = (matchQ && matchE) ? '' : 'none';
   });
 }
-
+ 
 function filtrarProveedores() {
   const q = document.getElementById('provSearch').value.toLowerCase();
   document.querySelectorAll('#provTable tbody tr').forEach(fila => {
     fila.style.display = fila.innerText.toLowerCase().includes(q) ? '' : 'none';
   });
 }
-
-function exportarCSVInventario() {
-  const filas = document.querySelectorAll('#invTable tbody tr[data-estado]');
-  let csv = 'Producto,Categoría,Cantidad,Estado\n';
-  filas.forEach(f => {
-    if (f.style.display !== 'none') {
-      const c = f.querySelectorAll('td');
-      csv += `"${c[1].innerText}","${c[2].innerText}","${c[3].innerText}","${c[4].innerText}"\n`;
-    }
+ 
+async function exportarPDF(modalId, nombreArchivo) {
+  const { jsPDF } = window.jspdf;
+  const modalContent = document.querySelector(`#${modalId} .modal-content`);
+ 
+  const footer  = document.querySelector(`#${modalId} .modal-footer`);
+  const filtros = document.querySelector(`#${modalId} .cys-modal__filters`);
+  if (footer)  footer.style.display  = 'none';
+  if (filtros) filtros.style.display = 'none';
+ 
+  const modalBody = document.querySelector(`#${modalId} .modal-body`);
+  const prevMaxHeight = modalBody ? modalBody.style.maxHeight : null;
+  if (modalBody) modalBody.style.maxHeight = 'none';
+ 
+  const canvas = await html2canvas(modalContent, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#0D1B2A',
+    scrollY: 0,
+    windowWidth: modalContent.scrollWidth,
+    windowHeight: modalContent.scrollHeight
   });
-  descargarCSV(csv, 'inventario_cys.csv');
-}
-
-function exportarCSVProveedores() {
-  const filas = document.querySelectorAll('#provTable tbody tr');
-  let csv = 'Nombre,Empresa,Teléfono,Correo\n';
-  filas.forEach(f => {
-    if (f.style.display !== 'none') {
-      const c = f.querySelectorAll('td');
-      csv += `"${c[1].innerText}","${c[2].innerText}","${c[3].innerText}","${c[4].innerText}"\n`;
-    }
-  });
-  descargarCSV(csv, 'proveedores_cys.csv');
-}
-
-function descargarCSV(csv, nombre) {
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = nombre; a.click();
+ 
+  if (footer)  footer.style.display  = '';
+  if (filtros) filtros.style.display = '';
+  if (modalBody && prevMaxHeight !== null) modalBody.style.maxHeight = prevMaxHeight;
+ 
+  const imgData = canvas.toDataURL('image/png');
+  const pdf     = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+ 
+  const pageW  = pdf.internal.pageSize.getWidth();
+  const pageH  = pdf.internal.pageSize.getHeight();
+  const imgW   = pageW;
+  const imgH   = (canvas.height * imgW) / canvas.width;
+ 
+  let posY      = 0;
+  let remaining = imgH;
+ 
+  while (remaining > 0) {
+    pdf.addImage(imgData, 'PNG', 0, posY === 0 ? 0 : -posY, imgW, imgH);
+    remaining -= pageH;
+    posY      += pageH;
+    if (remaining > 0) pdf.addPage();
+  }
+ 
+  pdf.save(`${nombreArchivo}.pdf`);
 }
 </script>
 {% endblock %}
