@@ -1,62 +1,119 @@
 {% extends "base.html" %}
 {% load static %}
-{% load crispy_forms_tags %}
 
 {% block content %}
-<section class="container py-5">
-    <div class="d-flex justify-content-between align-items-end mb-4">
-        <div>
-            <h1 class="fw-bold text-white mb-1">Editar Proveedor</h1>
-            <p class="mb-0 text-white-50">
-                <i class="bi bi-clock-history me-1"></i> 
-                Última modificación: <span class="text-white fw-bold">{{ proveedor.ultima_modificacion|date:"d/m/Y H:i" }}</span>
-            </p>
-        </div>
-        <a href="{% url 'proveedores' %}" class="btn btn-outline-light rounded-pill px-4">
-            <i class="bi bi-arrow-left me-2"></i>Volver
-        </a>
+<link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<div class="container-fluid p-0">
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 style="font-weight:700; color:#e2e8f0; letter-spacing:.06em; font-size:1.4rem;">
+        <i class="bi bi-pencil-square me-2" style="color:#4DA8DA;"></i>
+        Editar Proveedor
+      </h2>
+      <p class="mb-0 small" style="color:#64748b;">
+        Última modificación:
+        <span style="color:#e2e8f0; font-weight:600;">
+          {{ proveedor.ultima_modificacion|date:"d/m/Y H:i" }}
+        </span>
+      </p>
     </div>
 
-    <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white">
-        <div class="row g-0">
-            <div class="col-md-1" style="background-color: var(--sasa-rojo, #912F40);"></div>
-            
-            <div class="col-md-11 p-4 p-lg-5 text-dark">
-                <form method="POST">
-    {% csrf_token %}
+    <a href="{% url 'proveedores' %}" class="action-card text-decoration-none"
+       style="padding:10px 20px !important;">
+      <i class="bi bi-arrow-left icon" style="font-size:18px;"></i>
+      <span style="color:#e2e8f0; font-weight:600; letter-spacing:1px;">Volver</span>
+    </a>
+  </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Proveedor</label>
-            <input type="text" class="form-control bg-secondary text-white" 
-                   value="{{ proveedor.nombre_empresa }}" disabled>
-        </div>
+  <!-- CARD -->
+  <div class="cyber-card mb-4">
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Producto</label>
-            {{ form.producto }}
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Cantidad</label>
-            {{ form.cantidad }}
-        </div>
+    <div class="cyber-header d-flex align-items-center gap-2">
+      <i class="bi bi-building"></i>
+      Información del Proveedor
     </div>
 
-    <button type="submit" class="btn w-100 fw-semibold mt-3"
-            style="background:#4DA8DA; color:#011936;">
-        Registrar Compra
-    </button>
+    <div class="p-4">
+      <form method="POST">
+        {% csrf_token %}
 
-                    <div class="d-flex justify-content-end align-items-center gap-3 mt-5 pt-3 border-top">
-                        <a href="{% url 'proveedores' %}" class="btn btn-light px-4 py-2 fw-bold text-muted border rounded-3">
-                            CANCELAR
-                        </a>
-                       
-                    </div>
-                </form>
-            </div>
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <label class="d-block mb-2"
+              style="color:#4DA8DA; font-size:0.8rem; font-weight:600; letter-spacing:1px; text-transform:uppercase;">
+              <i class="bi bi-person me-1"></i> Nombre del Contacto
+            </label>
+            {{ form.nombre_contacto }}
+            {% if form.nombre_contacto.errors %}
+              <div class="mt-1 small" style="color:#f87171;">{{ form.nombre_contacto.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="d-block mb-2"
+              style="color:#4DA8DA; font-size:0.8rem; font-weight:600; letter-spacing:1px; text-transform:uppercase;">
+              <i class="bi bi-building me-1"></i> Empresa
+            </label>
+            {{ form.nombre_empresa }}
+            {% if form.nombre_empresa.errors %}
+              <div class="mt-1 small" style="color:#f87171;">{{ form.nombre_empresa.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="d-block mb-2"
+              style="color:#4DA8DA; font-size:0.8rem; font-weight:600; letter-spacing:1px; text-transform:uppercase;">
+              <i class="bi bi-envelope me-1"></i> Correo
+            </label>
+            {{ form.email }}
+            {% if form.email.errors %}
+              <div class="mt-1 small" style="color:#f87171;">{{ form.email.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="d-block mb-2"
+              style="color:#4DA8DA; font-size:0.8rem; font-weight:600; letter-spacing:1px; text-transform:uppercase;">
+              <i class="bi bi-telephone me-1"></i> Teléfono
+            </label>
+            {{ form.telefono }}
+            {% if form.telefono.errors %}
+              <div class="mt-1 small" style="color:#f87171;">{{ form.telefono.errors }}</div>
+            {% endif %}
+          </div>
+
         </div>
-    </div>
-</section>
+
+        <!-- ACCIONES -->
+    <div class="d-flex justify-content-between align-items-center mt-4 pt-3"
+     style="border-top:1px solid rgba(77,168,218,0.15);">
+
+  <a href="{% url 'proveedores' %}"
+     style="display:inline-flex; align-items:center; gap:6px;
+            color:#64748b; text-decoration:none; font-size:0.85rem;
+            letter-spacing:.5px; padding:10px 18px; border-radius:10px;
+            border:1px solid rgba(255,255,255,0.08); transition:0.2s;"
+     onmouseover="this.style.color='#f87171'; this.style.borderColor='rgba(248,113,113,0.4)'"
+     onmouseout="this.style.color='#64748b'; this.style.borderColor='rgba(255,255,255,0.08)'">
+    <i class="bi bi-x-lg"></i> Cancelar
+  </a>
+
+  <button type="submit"
+          style="display:inline-flex; align-items:center; gap:8px;
+                 background:linear-gradient(135deg,#1e3a5f,#1a4a7a);
+                 border:1px solid rgba(77,168,218,0.4); color:#4DA8DA;
+                 font-weight:700; letter-spacing:1px; font-size:0.85rem;
+                 padding:12px 28px; border-radius:10px; cursor:pointer;
+                 text-transform:uppercase; transition:0.2s;"
+          onmouseover="this.style.boxShadow='0 0 18px rgba(77,168,218,0.3)'; this.style.borderColor='#4DA8DA'"
+          onmouseout="this.style.boxShadow='none'; this.style.borderColor='rgba(77,168,218,0.4)'">
+    <i class="bi bi-save2"></i> Guardar Cambios
+  </button>
+
+</div>
 {% endblock %}

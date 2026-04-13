@@ -2,89 +2,239 @@
 {% load static %}
 
 {% block content %}
-<section class="container py-5">
+<link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert 
-                {% if message.tags == 'success' %}alert-success
-                {% elif message.tags == 'warning' %}alert-warning
-                {% elif message.tags == 'error' %}alert-danger
-                {% else %}alert-info
-                {% endif %} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
+<div class="container-fluid p-0">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-white m-0">Registrar Compra</h2>
-        <a href="{% url 'proveedores' %}" class="btn btn-secondary">← Volver</a>
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-dismissible fade show mb-3"
+           style="background:{% if message.tags == 'success' %}rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); color:#4ade80;
+                  {% elif message.tags == 'error' %}rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:#f87171;
+                  {% else %}rgba(77,168,218,0.1); border:1px solid rgba(77,168,218,0.3); color:#4DA8DA;{% endif %}
+                  border-radius:10px; font-size:0.88rem;">
+        {{ message }}
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 style="font-weight:700; color:#e2e8f0; font-size:1.35rem; letter-spacing:.05em;">
+        <i class="bi bi-bag-plus me-2" style="color:#4DA8DA;"></i>
+        Registrar Compra
+      </h2>
+      <p class="mb-0" style="color:#64748b; font-size:0.85rem;">
+        Proveedor:
+        <span style="color:#4DA8DA; font-weight:700;">{{ proveedor.nombre_empresa }}</span>
+        <span style="color:#1e293b; margin:0 8px;">|</span>
+        <i class="bi bi-person me-1"></i>{{ proveedor.nombre_contacto }}
+        <span style="color:#1e293b; margin:0 8px;">|</span>
+        <i class="bi bi-telephone me-1"></i>{{ proveedor.telefono }}
+      </p>
     </div>
 
-    <h4 class="text-white mb-4">Proveedor: {{ proveedor.nombre_empresa }}</h4>
+    <a href="{% url 'proveedores' %}" class="action-card text-decoration-none"
+       style="padding:10px 20px !important;">
+      <i class="bi bi-arrow-left icon" style="font-size:18px;"></i>
+      <span style="color:#e2e8f0; font-weight:600; letter-spacing:1px;">Volver</span>
+    </a>
+  </div>
 
-    <div class="card p-4 mb-5 bg-dark text-white border-0 shadow">
-        <form method="POST">
+  <div class="row g-4">
+
+    <!-- ══════════════════════
+         FORMULARIO DE COMPRA
+    ══════════════════════ -->
+    <div class="col-lg-5">
+      <div class="cyber-card">
+
+        <div class="cyber-header d-flex align-items-center gap-2">
+          <i class="bi bi-clipboard2-plus"></i>
+          Nueva Compra
+        </div>
+
+        <div class="p-4">
+          <form method="POST">
             {% csrf_token %}
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="id_producto" class="form-label">Producto</label>
-                <div class="col-md-6 mb-3">
+            <!-- Producto -->
+            <div class="mb-4">
+              <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
+                            letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
+                <i class="bi bi-box me-1"></i> Producto
+              </label>
 
-    {{ form.producto }}
-</div>
-                </div>
+              <!-- Buscador -->
+              <div class="position-relative mb-2">
+                <i class="bi bi-search position-absolute"
+                   style="top:50%; left:13px; transform:translateY(-50%);
+                          color:#4DA8DA; font-size:0.8rem; pointer-events:none;"></i>
+                <input type="text" id="buscador" placeholder="Filtrar producto..."
+                       style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.2);
+                              color:#e2e8f0; border-radius:8px; padding:9px 13px 9px 34px;
+                              font-size:0.85rem; outline:none;"
+                       onfocus="this.style.borderColor='#4DA8DA'"
+                       onblur="this.style.borderColor='rgba(77,168,218,0.2)'">
+              </div>
 
-                <div class="col-md-6 mb-3">
-                    <label for="id_cantidad" class="form-label">Cantidad</label>
-                    <input
-                        type="number"
-                        name="cantidad"
-                        id="id_cantidad"
-                        class="form-control"
-                        min="1"
-                        required
-                    >
+              <!-- Lista seleccionable -->
+              <div id="listaProductos"
+                   style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
+                          scrollbar-width:thin; scrollbar-color:#1e3a5f #0b1220;">
+                {% for producto in productos %}
+                <label class="producto-opcion"
+                       style="display:flex; align-items:center; justify-content:space-between;
+                              padding:10px 13px; border-radius:8px; cursor:pointer;
+                              background:#0b1220; border:1px solid rgba(77,168,218,0.12);
+                              transition:0.15s;">
+                  <input type="radio" name="producto" value="{{ producto.id }}"
+                         style="display:none;" required
+                         onchange="marcarSeleccionado(this)">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-box" style="color:#475569; font-size:0.9rem;"></i>
+                    <span style="color:#cbd5e1; font-size:0.88rem; font-weight:500;"
+                          data-nombre="{{ producto.nombre|lower }}">
+                      {{ producto.nombre }}
+                    </span>
+                  </div>
+                  <span style="color:#4DA8DA; font-size:0.8rem; font-weight:700;">
+                    Stock: {{ producto.stock }}
+                  </span>
+                </label>
+                {% empty %}
+                <div class="empty-state">
+                  <i class="bi bi-box icon"></i>
+                  <p>No hay productos registrados.</p>
                 </div>
+                {% endfor %}
+              </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 mt-3">
-                Registrar Compra
+            <!-- Cantidad -->
+            <div class="mb-4">
+              <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
+                            letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
+                <i class="bi bi-hash me-1"></i> Cantidad
+              </label>
+              <input type="number" name="cantidad" min="1" placeholder="Ej: 10" required
+                     style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.25);
+                            color:#e2e8f0; border-radius:10px; padding:12px 16px;
+                            font-size:0.95rem; outline:none; transition:0.2s;"
+                     onfocus="this.style.borderColor='#4DA8DA'; this.style.boxShadow='0 0 0 3px rgba(77,168,218,0.12)'"
+                     onblur="this.style.borderColor='rgba(77,168,218,0.25)'; this.style.boxShadow='none'">
+            </div>
+
+            <div style="border-top:1px solid rgba(77,168,218,0.1); margin-bottom:20px;"></div>
+
+            <button type="submit"
+                    style="width:100%; padding:13px; border:none; border-radius:10px;
+                           background:linear-gradient(135deg,#912F40,#b33a4e);
+                           color:#fff; font-weight:700; font-size:0.85rem;
+                           letter-spacing:1.5px; text-transform:uppercase; cursor:pointer;
+                           display:flex; align-items:center; justify-content:center; gap:8px;
+                           transition:0.2s; box-shadow:0 4px 15px rgba(145,47,64,0.35);"
+                    onmouseover="this.style.boxShadow='0 4px 25px rgba(145,47,64,0.6)'; this.style.transform='translateY(-1px)'"
+                    onmouseout="this.style.boxShadow='0 4px 15px rgba(145,47,64,0.35)'; this.style.transform='none'">
+              <i class="bi bi-bag-check"></i> Registrar Compra
             </button>
-        </form>
-    </div>
 
-    <div class="card p-4 bg-dark text-white border-0 shadow">
-        <h4 class="mb-3">Compras registradas</h4>
-
-        <div class="table-responsive">
-            <table class="table table-dark table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for compra in compras %}
-                        <tr>
-                            <td>{{ compra.producto.nombre }}</td>
-                            <td>{{ compra.cantidad }}</td>
-                            <td>{{ compra.fecha_registro|date:"d/m/Y H:i" }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="3" class="text-center">No hay compras registradas.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+          </form>
         </div>
+      </div>
     </div>
 
-</section>
+    <!-- ══════════════════════
+         HISTORIAL
+    ══════════════════════ -->
+    <div class="col-lg-7">
+      <div class="cyber-card">
+
+        <div class="cyber-header d-flex align-items-center justify-content-between">
+          <span class="d-flex align-items-center gap-2">
+            <i class="bi bi-clock-history"></i> Historial de Compras
+          </span>
+          <span style="background:rgba(77,168,218,0.1); color:#4DA8DA;
+                       padding:2px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">
+            {{ compras|length }} registros
+          </span>
+        </div>
+
+      <div class="table-responsive">
+  <table class="table-cyber w-100">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th style="text-align:left;">PRODUCTO</th>
+        <th>CANTIDAD</th>
+        <th>PRECIO UNIT.</th>
+        <th>TOTAL</th>
+        <th>FECHA</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for compra in compras %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td style="text-align:left;">
+          <i class="bi bi-box me-2" style="color:#4DA8DA;"></i>
+          {{ compra.producto.nombre }}
+        </td>
+        <td>
+          <span style="background:rgba(77,168,218,0.1); color:#4DA8DA;
+                       padding:3px 12px; border-radius:20px; font-weight:700; font-size:0.82rem;">
+            {{ compra.cantidad }}
+          </span>
+        </td>
+        <td style="color:#94a3b8; font-size:0.85rem; font-weight:600;">
+          ${{ compra.precio_unitario }}
+        </td>
+        <td style="color:#4ade80; font-weight:700; font-size:0.85rem;">
+          ${{ compra.total }}
+        </td>
+        <td style="color:#64748b; font-size:0.82rem;">
+          {{ compra.fecha_registro|date:"d/m/Y H:i" }}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Buscador de productos
+  document.getElementById('buscador').addEventListener('input', function () {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.producto-opcion').forEach(label => {
+      const nombre = label.querySelector('[data-nombre]').dataset.nombre;
+      label.style.display = nombre.includes(q) ? 'flex' : 'none';
+    });
+  });
+
+  // Resaltar seleccionado
+  function marcarSeleccionado(radio) {
+    document.querySelectorAll('.producto-opcion').forEach(label => {
+      label.style.borderColor = 'rgba(77,168,218,0.12)';
+      label.style.background = '#0b1220';
+      label.querySelector('i').style.color = '#475569';
+    });
+    const label = radio.closest('.producto-opcion');
+    label.style.borderColor = '#4DA8DA';
+    label.style.background = 'rgba(77,168,218,0.08)';
+    label.querySelector('i').style.color = '#4DA8DA';
+  }
+</script>
+
 {% endblock %}

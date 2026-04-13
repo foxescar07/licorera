@@ -1,58 +1,34 @@
 from django import forms
 from .models import Proveedor
+import re
 
 class ProveedorForm(forms.ModelForm):
     class Meta:
         model = Proveedor
-        fields = ['nombre_contacto', 'nombre_empresa', 'email', 'telefono']
-        widgets = {
-            'nombre_contacto': forms.TextInput(attrs={
-                'class': 'form-control text-dark',
-                'placeholder': 'Nombre del asesor'
-            }),
-            'nombre_empresa': forms.TextInput(attrs={
-                'class': 'form-control text-dark',
-                'placeholder': 'Ej: Bavaria S.A.'
-            }),
-            'email': forms.EmailInput(attrs={
-                'class': 'form-control text-dark',
-                'placeholder': 'correo@empresa.com'
-            }),
-            'telefono': forms.TextInput(attrs={
-                'class': 'form-control text-dark',
-                'placeholder': 'Solo números',
-                'maxlength': '10',
-                'oninput': "this.value = this.value.replace(/[^0-9]/g, '');"
-            }),
-        }
+        fields = ['nombre_empresa', 'nombre_contacto', 'email', 'telefono']
 
-    from django import forms
-from .models import Proveedor
-
-class ProveedorForm(forms.ModelForm):
-    class Meta:
-        model = Proveedor
-        fields = ['nombre_contacto', 'nombre_empresa', 'email', 'telefono']
         widgets = {
-            'nombre_contacto': forms.TextInput(attrs={
-                'class': 'form-control text-dark',
-                'placeholder': 'Nombre del asesor'
-            }),
-            'nombre_empresa': forms.TextInput(attrs={
-                'class': 'form-control text-dark',
-                'placeholder': 'Ej: Bavaria S.A.'
-            }),
-            'email': forms.EmailInput(attrs={
-                'class': 'form-control text-dark',
-                'placeholder': 'correo@empresa.com'
-            }),
-            'telefono': forms.TextInput(attrs={
-                'class': 'form-control text-dark',
-                'placeholder': 'Solo números',
-                'maxlength': '10',
-                'oninput': "this.value = this.value.replace(/[^0-9]/g, '');"
-            }),
-        }
+    'nombre_empresa': forms.TextInput(attrs={
+        'class': 'cys-input',
+        'placeholder': 'Ej: Bavaria S.A.',
+        'style': 'background-color:#0b1220 !important; color:#e2e8f0 !important; border:1px solid rgba(77,168,218,0.25) !important; border-radius:10px !important; padding:12px 16px !important;'
+    }),
+    'nombre_contacto': forms.TextInput(attrs={
+        'class': 'cys-input',
+        'placeholder': 'Nombre del asesor',
+        'style': 'background-color:#0b1220 !important; color:#e2e8f0 !important; border:1px solid rgba(77,168,218,0.25) !important; border-radius:10px !important; padding:12px 16px !important;'
+    }),
+    'email': forms.EmailInput(attrs={
+        'class': 'cys-input',
+        'placeholder': 'correo@empresa.com',
+        'style': 'background-color:#0b1220 !important; color:#e2e8f0 !important; border:1px solid rgba(77,168,218,0.25) !important; border-radius:10px !important; padding:12px 16px !important;'
+    }),
+    'telefono': forms.TextInput(attrs={
+        'class': 'cys-input',
+        'placeholder': 'Solo números',
+        'style': 'background-color:#0b1220 !important; color:#e2e8f0 !important; border:1px solid rgba(77,168,218,0.25) !important; border-radius:10px !important; padding:12px 16px !important;'
+    }),
+}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -82,15 +58,16 @@ class ProveedorForm(forms.ModelForm):
         if email and Proveedor.objects.filter(email=email).exists():
             raise forms.ValidationError("⚠️ Este correo ya está registrado")
         return email
-import re
-def clean_telefono(self):
-    telefono = self.cleaned_data.get('telefono')
 
-    if not telefono:
-        return telefono  # required ya lo maneja
+    # ✅ Validar teléfono
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono')
 
-    # Solo números y longitud entre 7 y 10 (Colombia típico)
-    if not re.fullmatch(r'^\d{7,10}$', telefono):
-        raise forms.ValidationError("⚠️ El teléfono debe tener entre 7 y 10 dígitos numéricos")
+        if not telefono:
+            return telefono
 
-    return telefono
+        # Solo números y longitud entre 7 y 10
+        if not re.fullmatch(r'^\d{7,10}$', telefono):
+            raise forms.ValidationError("⚠️ El teléfono debe tener entre 7 y 10 dígitos numéricos")
+
+        return telefono
