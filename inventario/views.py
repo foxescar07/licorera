@@ -7,19 +7,18 @@ from .models import ConteoProducto, SesionConteo
 def inventario_home(request):
     agendas = AgendaInventario.objects.all()
     sesion = SesionConteo.objects.filter(activa=True).first()
-    
-    # Filtro por categoría
+
     categoria_id = request.GET.get('categoria')
     if categoria_id:
         productos = Producto.objects.select_related('categoria').filter(categoria__pk=categoria_id)
     else:
         productos = Producto.objects.select_related('categoria').all()
-    
-    conteos = ConteoProducto.objects.filter(sesion=sesion) if sesion else []
+
+    conteos = ConteoProducto.objects.filter(sesion=sesion).select_related('producto') if sesion else []
 
     discrepancias = []
     if sesion:
-        for c in ConteoProducto.objects.filter(sesion=sesion).select_related('producto'):
+        for c in ConteoProducto.objects.filter(sesion=sesion).select_related('producto__categoria'):
             diff = c.cantidad_contada - c.producto.cantidad_disponible
             discrepancias.append({
                 'producto':   c.producto,
@@ -47,23 +46,6 @@ def inventario_home(request):
         'categoria_activa': categoria_id,
     })
 
-    if request.method == 'POST':
-        AgendaInventario.objects.create(
-            titulo=request.POST.get('titulo'),
-            descripcion=request.POST.get('descripcion', ''),
-            fecha_programada=request.POST.get('fecha_programada'),
-        )
-        messages.success(request, '✅ Inventario agendado correctamente.')
-        return redirect('inventario:inventario_home')
-
-    return render(request, 'inventario/inventario_home.html', {
-        'agendas': agendas,
-        'sesion': sesion,
-        'productos': productos,
-        'conteos': conteos,
-        'discrepancias': discrepancias,
-    })
-
 
 def agenda_cambiar_estado(request, pk):
     agenda = get_object_or_404(AgendaInventario, pk=pk)
@@ -87,7 +69,6 @@ def guardar_conteo(request):
 
 
 def conteo_inventario(request):
-    sesion = SesionConteo.objects.filter(activa=True).first()
     if request.method == 'POST' and 'iniciar_sesion' in request.POST:
         SesionConteo.objects.filter(activa=True).update(activa=False)
         SesionConteo.objects.create(activa=True)
