@@ -18,30 +18,24 @@ from .formscomp import CompraForm
 def inicio_proveedores(request):
     proveedores = Proveedor.objects.all().order_by('-ultima_modificacion')
 
-    # 📊 Estadísticas
     total = proveedores.count()
     hace_30_dias = timezone.now() - timedelta(days=30)
     nuevos = proveedores.filter(fecha_registro__gte=hace_30_dias).count()
     ultimo = proveedores.first()
     fecha_u = ultimo.ultima_modificacion if ultimo else None
 
-    # 🧠 FORM
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
 
         if form.is_valid():
             p = form.save(commit=False)
-
             if request.user.is_authenticated:
                 p.registrado_por = request.user
                 p.modificado_por = request.user
-
             p.save()
             messages.success(request, f'¡Proveedor "{p.nombre_empresa}" registrado!')
             return redirect('proveedores')
-
-        # 🔥 IMPORTANTE: si NO es válido, NO redirige
-        # se renderiza con errores
+        # Si hay errores, cae aquí y renderiza con el form con errores
 
     else:
         form = ProveedorForm()
@@ -52,6 +46,7 @@ def inicio_proveedores(request):
         'total_proveedores': total,
         'nuevos_mes': nuevos,
         'proveedores_activos': total,
+        'ordenes_pendientes': 0,  # ✅ agregado
         'porcentaje_activos': 100 if total > 0 else 0,
         'ultima_actualizacion': fecha_u,
     }
@@ -70,13 +65,10 @@ def editar_proveedor(request, id):
 
         if form.is_valid():
             p = form.save(commit=False)
-
             if request.user.is_authenticated:
                 p.modificado_por = request.user
-
             p.ultima_modificacion = timezone.now()
             p.save()
-
             messages.success(request, f'¡Proveedor "{p.nombre_empresa}" actualizado correctamente!')
             return redirect('proveedores')
 
@@ -90,16 +82,14 @@ def editar_proveedor(request, id):
 
 
 # ===============================
-# ELIMINAR PROVEEDOR
+# ELIMINAR PROVEEDOR ✅ (solo una vez)
 # ===============================
 def eliminar_proveedor(request, id):
     proveedor = get_object_or_404(Proveedor, id=id)
-
     if request.method == 'POST':
         nombre = proveedor.nombre_empresa
         proveedor.delete()
-        messages.warning(request, f'Proveedor "{nombre}" eliminado correctamente')
-
+        messages.success(request, f'¡Proveedor "{nombre}" eliminado!')
     return redirect('proveedores')
 
 
