@@ -4,9 +4,10 @@
 {% block content %}
 {% if messages %}
   {% for message in messages %}
-    {% if message.tags == 'success' %}
-      <div class="alert alert-success alert-dismissible fade show">
-        {{ message }}
+    {% if message.tags == "success" %}
+      <div class="alert alert-dismissible fade show d-flex align-items-center justify-content-between"
+           style="background:#d1fae5;color:#065f46;border:none;border-radius:10px;padding:14px 20px;font-size:0.92rem;font-weight:500;margin-bottom:1rem;">
+        <span>{{ message }}</span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     {% endif %}
@@ -125,7 +126,6 @@
                   <i class="bi bi-cart-plus"></i>
                 </a>
                 <a href="#" class="btn-action" title="Ver información"
-  
                    style="background:rgba(77,168,218,0.1); border:1px solid rgba(77,168,218,0.3); color:#4DA8DA; border-radius:6px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; transition:0.2s;"
                    onclick="verDetalle('{{ p.nombre_empresa }}','{{ p.nombre_contacto }}','{{ p.email }}','{{ p.telefono }}','{{ p.registrado_por.email|default:"Admin" }}','{{ p.fecha_registro|date:"d/m/Y" }}','{{ p.ultima_modificacion|date:"d/m/Y H:i" }}')"
                    onmouseover="this.style.background='rgba(77,168,218,0.2)'"
@@ -135,13 +135,11 @@
                 <a href="{% url 'editar_proveedor' p.id %}" class="btn-action edit" title="Editar">
                   <i class="bi bi-pencil-square"></i>
                 </a>
-                <form method="POST" action="{% url 'eliminar_proveedor' p.id %}">
-                  {% csrf_token %}
-                  <button class="btn-action delete" title="Eliminar"
-                          onclick="return confirm('¿Eliminar proveedor?')">
-                    <i class="bi bi-trash3"></i>
-                  </button>
-                </form>
+                <!-- ✅ BOTÓN ELIMINAR ACTUALIZADO -->
+                <button class="btn-action delete" title="Eliminar"
+                        onclick="confirmarEliminar('{% url 'eliminar_proveedor' p.id %}', '{{ p.nombre_empresa }}')">
+                  <i class="bi bi-trash3"></i>
+                </button>
               </div>
             </td>
           </tr>
@@ -300,13 +298,53 @@
   </div>
 </div>
 
+<!-- ✅ MODAL CONFIRMAR ELIMINAR -->
+<div class="modal fade" id="eliminarModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+
+      <div class="modal-header border-0"
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+                    color:#fff; letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-exclamation-triangle me-2" style="color:#f87171;"></i>
+          Confirmar Eliminación
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <p style="color:#cbd5e1; font-size:0.95rem; margin:0;">
+          ¿Estás seguro de que deseas eliminar al proveedor
+          <strong id="nombreEliminar" style="color:#f87171;"></strong>?
+        </p>
+        <p style="color:#64748b; font-size:0.82rem; margin-top:8px;">Esta acción no se puede deshacer.</p>
+      </div>
+
+      <div class="modal-footer border-0 px-4 pb-4 pt-0 d-flex justify-content-between">
+        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
+        <form id="formEliminar" method="POST">
+          {% csrf_token %}
+          <button type="submit" class="cys-btn cys-btn--danger">
+            <i class="bi bi-trash3 me-1"></i> Eliminar
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 {% if form.errors %}
 <script>
-  var myModal = new bootstrap.Modal(document.getElementById('nuevoModal'));
-  myModal.show();
+  document.addEventListener('DOMContentLoaded', function () {
+    var modalEl = document.getElementById('nuevoModal');
+    var myModal = new bootstrap.Modal(modalEl);
+    myModal.show();
+  });
 </script>
 {% endif %}
-
 <script>
   // ✅ BUSCADOR
   document.getElementById('buscadorProveedores').addEventListener('input', function () {
@@ -346,6 +384,13 @@
     document.getElementById('det-fecha').textContent       = fecha;
     document.getElementById('det-modificacion').textContent = modificacion;
     new bootstrap.Modal(document.getElementById('detalleModal')).show();
+  }
+
+  // ✅ MODAL ELIMINAR
+  function confirmarEliminar(url, nombre) {
+    document.getElementById('nombreEliminar').textContent = nombre;
+    document.getElementById('formEliminar').action = url;
+    new bootstrap.Modal(document.getElementById('eliminarModal')).show();
   }
 </script>
 
