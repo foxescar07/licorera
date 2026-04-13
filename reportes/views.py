@@ -11,6 +11,7 @@ def reportes(request):
     fecha_fin    = request.GET.get('fecha_fin')
     categoria_id = request.GET.get('categoria')
     cliente_q    = request.GET.get('cliente')
+    producto_q   = request.GET.get('producto')   # ← NUEVO
 
     ventas = Venta.objects.prefetch_related('detalles__producto').all()
 
@@ -19,18 +20,16 @@ def reportes(request):
     if fecha_fin:
         ventas = ventas.filter(fecha__date__lte=fecha_fin)
     if categoria_id:
-        ventas = ventas.filter(detalles__producto__categoria__id=categoria_id)
+        ventas = ventas.filter(detalles__producto__categoria__id=categoria_id).distinct()
     if cliente_q:
         ventas = ventas.filter(cliente__icontains=cliente_q)
+    if producto_q:                                # ← NUEVO
+        ventas = ventas.filter(detalles__producto__nombre__icontains=producto_q).distinct()
 
     # ── Datos generales ────────────────────────────────────────────
     productos   = Producto.objects.all().order_by('nombre')
-
-    proveedores = Proveedor.objects.prefetch_related('productos').all().order_by('nombre_empresa')
+    proveedores = Proveedor.objects.all().order_by('nombre_empresa')
     categorias  = Categoria.objects.all().order_by('nombre')
-
-    proveedores = Proveedor.objects.all().order_by('nombre_empresa')  # ← corregido
-
 
     total_ventas    = sum(v.total() for v in ventas)
     total_productos = sum(det.cantidad for v in ventas for det in v.detalles.all())
@@ -41,13 +40,12 @@ def reportes(request):
     total_stock_bajo  = productos.filter(cantidad_disponible__gt=0, cantidad_disponible__lte=10).count()
     total_agotados    = productos.filter(cantidad_disponible=0).count()
 
-
     entradas = Inventario.objects.filter(tipo='entrada').select_related('producto').order_by('-fecha_actualizada')
     salidas  = Inventario.objects.filter(tipo='salida').select_related('producto').order_by('-fecha_actualizada')
 
     # ── Resumen diario ─────────────────────────────────────────────
-    hoy         = timezone.now().date()
-    ventas_hoy  = Venta.objects.prefetch_related('detalles__producto').filter(fecha__date=hoy)
+    hoy          = timezone.now().date()
+    ventas_hoy   = Venta.objects.prefetch_related('detalles__producto').filter(fecha__date=hoy)
     ingresos_hoy = sum(v.total() for v in ventas_hoy)
 
     movimientos_hoy    = Inventario.objects.filter(fecha_actualizada__date=hoy).select_related('producto')
@@ -63,11 +61,9 @@ def reportes(request):
         'total_productos':   total_productos,
         'total_clientes':    total_clientes,
 
-        # Inventario
-        'productos':         productos,
-
         'productos':         productos,
         'proveedores':       proveedores,
+        'categorias':        categorias,
 
         'total_registrados': total_registrados,
         'total_en_stock':    total_en_stock,
@@ -76,15 +72,12 @@ def reportes(request):
         'entradas':          entradas,
         'salidas':           salidas,
 
-        # Proveedores
-        'proveedores':       proveedores,
-        # Categorías
-        'categorias':        categorias,
         # Filtros activos
         'fecha_inicio':      fecha_inicio or '',
-        'fecha_fin':         fecha_fin or '',
         'categoria_id':      categoria_id or '',
         'cliente_q':         cliente_q or '',
+        'producto_q':        producto_q or '',   # ← NUEVO
+
         # Resumen diario
         'hoy':               hoy,
         'ventas_hoy':        ventas_hoy,
@@ -93,5 +86,4 @@ def reportes(request):
         'salidas_hoy':       salidas_hoy,
         'total_entradas_hoy': total_entradas_hoy,
         'total_salidas_hoy':  total_salidas_hoy,
-
     })

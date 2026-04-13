@@ -106,7 +106,7 @@
     </div>
   </div>
  
-  <!-- FILTROS -->
+  <!-- FILTROS HISTORIAL DE VENTAS -->
   <section class="cys-card mb-4">
     <div class="cys-card__title">Filtrar Ventas</div>
     <form method="GET" class="row gx-3 gy-2 align-items-end">
@@ -135,6 +135,12 @@
         <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Cliente</label>
         <input type="text" name="cliente" class="form-control form-control-sm"
                placeholder="Nombre cliente…" value="{{ cliente_q }}">
+      </div>
+      <!-- NUEVO: Filtro por producto -->
+      <div class="col-md-3">
+        <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Producto</label>
+        <input type="text" name="producto" class="form-control form-control-sm"
+               placeholder="Nombre producto…" value="{{ producto_q }}">
       </div>
       <div class="col-12 d-flex gap-2 mt-2">
         <button type="submit" class="btn btn-sm btn-primary">Aplicar filtros</button>
@@ -173,7 +179,7 @@
                 ${{ det.subtotal|floatformat:0 }}
               </td>
               <td style="font-size:.85rem; color:var(--gris-claro);">{{ venta.fecha|date:"d/m/Y" }}</td>
-              <td style="font-size:.85rem; color:var(--gris-claro);">{{ venta.fecha|date:"H:i" }}</td>
+              <td style="font-size:.85rem; color:var(--gris-claro);">{{ venta.fecha|date:"h:i A" }}</td>
             </tr>
             {% endfor %}
           {% empty %}
@@ -225,20 +231,39 @@
           <div class="cys-stat-mini__label">Agotados</div>
         </div>
       </div>
- 
-      <div class="cys-modal__filters">
-        <input type="text" id="invSearch" class="cys-search" placeholder="Buscar producto…" onkeyup="filtrarInventario()">
+
+      <div class="cys-modal__filters" style="flex-wrap:wrap; gap:8px;">
+        <!-- Búsqueda en tabla de productos -->
+        <input type="text" id="invSearch" class="cys-search" placeholder="Buscar producto…"
+               onkeyup="filtrarInventario()">
         <select id="invEstado" class="cys-select" onchange="filtrarInventario()">
           <option value="">Todos</option>
           <option value="ok">En stock</option>
           <option value="low">Stock bajo</option>
           <option value="out">Agotado</option>
         </select>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <span style="font-size:.75rem; color:var(--texto-muted); white-space:nowrap;">Entradas/Salidas:</span>
+          <input type="date" id="invFechaInicio" class="cys-search" style="max-width:155px;"
+                 onchange="filtrarMovimientosInventario()" title="Fecha inicio">
+          <span style="font-size:.75rem; color:var(--texto-muted);">–</span>
+          <input type="date" id="invFechaFin" class="cys-search" style="max-width:155px;"
+                 onchange="filtrarMovimientosInventario()" title="Fecha fin">
+          <button onclick="limpiarFiltrosInv()"
+                  style="font-size:.72rem; padding:4px 10px; background:transparent;
+                         border:1px solid var(--azul-borde); border-radius:6px;
+                         color:var(--texto-muted); cursor:pointer; white-space:nowrap;">
+            Limpiar
+          </button>
+        </div>
+        <!-- NUEVO: filtro por producto en entradas/salidas -->
+        <input type="text" id="invProductoMov" class="cys-search"
+               placeholder="Filtrar entradas/salidas por producto…"
+               style="min-width:240px;" oninput="filtrarMovimientosInventario()">
       </div>
  
       <div class="modal-body p-0">
  
-        <!-- TABLA INVENTARIO -->
         <table class="cys-inv-table" id="invTable">
           <thead>
             <tr>
@@ -286,7 +311,6 @@
           </tbody>
         </table>
  
-        <!-- TABLA ENTRADAS -->
         <div style="padding: 14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
                       color:#5DCAA5; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
@@ -295,7 +319,7 @@
             Entradas de productos
           </div>
         </div>
-        <table class="cys-inv-table">
+        <table class="cys-inv-table" id="invTablaEntradas">
           <thead>
             <tr>
               <th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th>
@@ -303,15 +327,16 @@
           </thead>
           <tbody>
             {% for e in entradas %}
-            <tr>
+            <tr data-fecha="{{ e.fecha_actualizada|date:'Y-m-d' }}"
+                data-producto="{{ e.producto.nombre|lower }}">
               <td class="text-muted">{{ forloop.counter }}</td>
               <td><strong>{{ e.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--ok">+{{ e.cantidad }}</td>
               <td style="font-size:.85rem; color:var(--texto-muted);">{{ e.motivo|default:"—" }}</td>
-              <td style="font-size:.85rem; color:var(--gris-claro);">{{ e.fecha_actualizada|date:"d/m/Y H:i" }}</td>
+              <td style="font-size:.85rem; color:var(--gris-claro);">{{ e.fecha_actualizada|date:"d/m/Y h:i A" }}</td>
             </tr>
             {% empty %}
-            <tr>
+            <tr class="inv-empty-row">
               <td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">
                 No hay entradas registradas.
               </td>
@@ -320,7 +345,6 @@
           </tbody>
         </table>
  
-        <!-- TABLA SALIDAS -->
         <div style="padding: 14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
                       color:#E24B4A; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
@@ -329,7 +353,7 @@
             Salidas de productos
           </div>
         </div>
-        <table class="cys-inv-table">
+        <table class="cys-inv-table" id="invTablaSalidas">
           <thead>
             <tr>
               <th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th>
@@ -337,15 +361,16 @@
           </thead>
           <tbody>
             {% for s in salidas %}
-            <tr>
+            <tr data-fecha="{{ s.fecha_actualizada|date:'Y-m-d' }}"
+                data-producto="{{ s.producto.nombre|lower }}">
               <td class="text-muted">{{ forloop.counter }}</td>
               <td><strong>{{ s.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--out">-{{ s.cantidad }}</td>
               <td style="font-size:.85rem; color:var(--texto-muted);">{{ s.motivo|default:"—" }}</td>
-              <td style="font-size:.85rem; color:var(--gris-claro);">{{ s.fecha_actualizada|date:"d/m/Y H:i" }}</td>
+              <td style="font-size:.85rem; color:var(--gris-claro);">{{ s.fecha_actualizada|date:"d/m/Y h:i A" }}</td>
             </tr>
             {% empty %}
-            <tr>
+            <tr class="inv-empty-row">
               <td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">
                 No hay salidas registradas.
               </td>
@@ -469,10 +494,30 @@
           <div class="cys-stat-mini__label">Unidades salida</div>
         </div>
       </div>
+
+      <div class="cys-modal__filters" style="flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <span style="font-size:.75rem; color:var(--texto-muted); white-space:nowrap;">Rango de fechas:</span>
+          <input type="date" id="rdFechaInicio" class="cys-search" style="max-width:155px;"
+                 onchange="filtrarResumenDiario()" title="Fecha inicio">
+          <span style="font-size:.75rem; color:var(--texto-muted);">–</span>
+          <input type="date" id="rdFechaFin" class="cys-search" style="max-width:155px;"
+                 onchange="filtrarResumenDiario()" title="Fecha fin">
+          <button onclick="limpiarFiltrosRD()"
+                  style="font-size:.72rem; padding:4px 10px; background:transparent;
+                         border:1px solid var(--azul-borde); border-radius:6px;
+                         color:var(--texto-muted); cursor:pointer; white-space:nowrap;">
+            Limpiar
+          </button>
+        </div>
+        <!-- NUEVO: filtro por producto en Resumen Diario -->
+        <input type="text" id="rdProducto" class="cys-search"
+               placeholder="Filtrar por producto…"
+               style="min-width:200px;" oninput="filtrarResumenDiario()">
+      </div>
  
       <div class="modal-body p-0">
  
-        <!-- Ventas del día -->
         <div style="padding:14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
                       color:#AFA9EC; padding-bottom:10px; display:flex; align-items:center; gap:8px;">
@@ -480,25 +525,27 @@
             Ventas del día
           </div>
         </div>
-        <table class="cys-inv-table">
+        <table class="cys-inv-table" id="rdTablaVentas">
           <thead>
-            <tr><th>#</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Total</th><th>Hora</th></tr>
+            <tr><th>#</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Total</th><th>Fecha</th><th>Hora</th></tr>
           </thead>
           <tbody>
             {% for v in ventas_hoy %}
               {% for det in v.detalles.all %}
-              <tr>
+              <tr data-fecha="{{ v.fecha|date:'Y-m-d' }}"
+                  data-producto="{{ det.producto.nombre|lower }}">
                 <td class="text-muted">{{ forloop.parentloop.counter }}</td>
                 <td><strong>{{ v.cliente }}</strong></td>
                 <td>{{ det.producto.nombre }}</td>
                 <td>{{ det.cantidad }}</td>
                 <td class="cys-qty cys-qty--ok">${{ det.subtotal|floatformat:0 }}</td>
-                <td style="font-size:.85rem; color:var(--gris-claro);">{{ v.fecha|date:"H:i" }}</td>
+                <td style="font-size:.85rem; color:var(--gris-claro);">{{ v.fecha|date:"d/m/Y" }}</td>
+                <td style="font-size:.85rem; color:var(--gris-claro);">{{ v.fecha|date:"h:i A" }}</td>
               </tr>
               {% endfor %}
             {% empty %}
-            <tr>
-              <td colspan="6" class="text-center py-4" style="color:var(--texto-muted);">
+            <tr class="rd-empty-row">
+              <td colspan="7" class="text-center py-4" style="color:var(--texto-muted);">
                 No hay ventas hoy.
               </td>
             </tr>
@@ -506,7 +553,6 @@
           </tbody>
         </table>
  
-        <!-- Entradas del día -->
         <div style="padding:14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
                       color:#5DCAA5; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
@@ -515,27 +561,28 @@
             Entradas de inventario hoy
           </div>
         </div>
-        <table class="cys-inv-table">
+        <table class="cys-inv-table" id="rdTablaEntradas">
           <thead>
-            <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th></tr>
+            <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr>
           </thead>
           <tbody>
             {% for e in entradas_hoy %}
-            <tr>
+            <tr data-fecha="{{ e.fecha_actualizada|date:'Y-m-d' }}"
+                data-producto="{{ e.producto.nombre|lower }}">
               <td class="text-muted">{{ forloop.counter }}</td>
               <td><strong>{{ e.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--ok">+{{ e.cantidad }}</td>
               <td style="font-size:.85rem; color:var(--texto-muted);">{{ e.motivo|default:"—" }}</td>
+              <td style="font-size:.85rem; color:var(--gris-claro);">{{ e.fecha_actualizada|date:"d/m/Y" }}</td>
             </tr>
             {% empty %}
-            <tr>
-              <td colspan="4" class="text-center py-4" style="color:var(--texto-muted);">No hay entradas hoy.</td>
+            <tr class="rd-empty-row">
+              <td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">No hay entradas hoy.</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
  
-        <!-- Salidas del día -->
         <div style="padding:14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
                       color:#E24B4A; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
@@ -544,21 +591,23 @@
             Salidas de inventario hoy
           </div>
         </div>
-        <table class="cys-inv-table">
+        <table class="cys-inv-table" id="rdTablaSalidas">
           <thead>
-            <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th></tr>
+            <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr>
           </thead>
           <tbody>
             {% for s in salidas_hoy %}
-            <tr>
+            <tr data-fecha="{{ s.fecha_actualizada|date:'Y-m-d' }}"
+                data-producto="{{ s.producto.nombre|lower }}">
               <td class="text-muted">{{ forloop.counter }}</td>
               <td><strong>{{ s.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--out">-{{ s.cantidad }}</td>
               <td style="font-size:.85rem; color:var(--texto-muted);">{{ s.motivo|default:"—" }}</td>
+              <td style="font-size:.85rem; color:var(--gris-claro);">{{ s.fecha_actualizada|date:"d/m/Y" }}</td>
             </tr>
             {% empty %}
-            <tr>
-              <td colspan="4" class="text-center py-4" style="color:var(--texto-muted);">No hay salidas hoy.</td>
+            <tr class="rd-empty-row">
+              <td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">No hay salidas hoy.</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -578,6 +627,27 @@
  
 {% block extra_js %}
 <script>
+/* ──────────────────────────────────────────────
+   UTILIDAD: parsear fecha ISO "yyyy-mm-dd"
+   ────────────────────────────────────────────── */
+function parseISO(str) {
+  if (!str) return null;
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function enRango(filaFecha, inicio, fin) {
+  if (!inicio && !fin) return true;
+  const f = parseISO(filaFecha);
+  if (!f) return true;
+  if (inicio && f < inicio) return false;
+  if (fin   && f > fin)     return false;
+  return true;
+}
+
+/* ──────────────────────────────────────────────
+   INVENTARIO — filtro de productos (texto + estado)
+   ────────────────────────────────────────────── */
 function filtrarInventario() {
   const q      = document.getElementById('invSearch').value.toLowerCase();
   const estado = document.getElementById('invEstado').value;
@@ -587,14 +657,74 @@ function filtrarInventario() {
     fila.style.display = (matchQ && matchE) ? '' : 'none';
   });
 }
- 
+
+/* ──────────────────────────────────────────────
+   INVENTARIO — filtro de entradas y salidas
+   (fecha + producto)
+   ────────────────────────────────────────────── */
+function filtrarMovimientosInventario() {
+  const inicio   = parseISO(document.getElementById('invFechaInicio').value);
+  const fin      = parseISO(document.getElementById('invFechaFin').value);
+  const producto = document.getElementById('invProductoMov').value.toLowerCase().trim();
+
+  ['invTablaEntradas', 'invTablaSalidas'].forEach(tablaId => {
+    const tbody = document.querySelector(`#${tablaId} tbody`);
+    if (!tbody) return;
+    tbody.querySelectorAll('tr[data-fecha]').forEach(fila => {
+      const matchFecha    = enRango(fila.dataset.fecha, inicio, fin);
+      const matchProducto = producto === '' || (fila.dataset.producto || '').includes(producto);
+      fila.style.display  = (matchFecha && matchProducto) ? '' : 'none';
+    });
+  });
+}
+
+function limpiarFiltrosInv() {
+  document.getElementById('invFechaInicio').value = '';
+  document.getElementById('invFechaFin').value    = '';
+  document.getElementById('invProductoMov').value = '';
+  filtrarMovimientosInventario();
+}
+
+/* ──────────────────────────────────────────────
+   PROVEEDORES — filtro por texto
+   ────────────────────────────────────────────── */
 function filtrarProveedores() {
   const q = document.getElementById('provSearch').value.toLowerCase();
   document.querySelectorAll('#provTable tbody tr').forEach(fila => {
     fila.style.display = fila.innerText.toLowerCase().includes(q) ? '' : 'none';
   });
 }
- 
+
+/* ──────────────────────────────────────────────
+   RESUMEN DIARIO — filtro por fecha + producto
+   Afecta ventas, entradas y salidas
+   ────────────────────────────────────────────── */
+function filtrarResumenDiario() {
+  const inicio   = parseISO(document.getElementById('rdFechaInicio').value);
+  const fin      = parseISO(document.getElementById('rdFechaFin').value);
+  const producto = document.getElementById('rdProducto').value.toLowerCase().trim();
+
+  ['rdTablaVentas', 'rdTablaEntradas', 'rdTablaSalidas'].forEach(tablaId => {
+    const tbody = document.querySelector(`#${tablaId} tbody`);
+    if (!tbody) return;
+    tbody.querySelectorAll('tr[data-fecha]').forEach(fila => {
+      const matchFecha    = enRango(fila.dataset.fecha, inicio, fin);
+      const matchProducto = producto === '' || (fila.dataset.producto || '').includes(producto);
+      fila.style.display  = (matchFecha && matchProducto) ? '' : 'none';
+    });
+  });
+}
+
+function limpiarFiltrosRD() {
+  document.getElementById('rdFechaInicio').value = '';
+  document.getElementById('rdFechaFin').value    = '';
+  document.getElementById('rdProducto').value    = '';
+  filtrarResumenDiario();
+}
+
+/* ──────────────────────────────────────────────
+   EXPORTAR PDF
+   ────────────────────────────────────────────── */
 async function exportarPDF(modalId, nombreArchivo) {
   const { jsPDF } = window.jspdf;
   const modalContent = document.querySelector(`#${modalId} .modal-content`);
