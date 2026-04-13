@@ -883,3 +883,96 @@ body.sidebar-open .cys-main .container-fluid {
 .cys-chevron.abierto {
   transform: rotate(180deg);
 }
+
+/* ============================================================
+   RESPONSIVE MÓVIL
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* Header más compacto */
+  .cys-header {
+    padding: 0 1rem;
+    height: auto;
+    min-height: 60px;
+    flex-wrap: wrap;
+    gap: .5rem;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+  }
+
+  .cys-header__logo {
+    height: 38px;
+    width: 38px;
+  }
+
+  .cys-header__title {
+    font-size: 1rem;
+  }
+
+  .cys-header__clock-time {
+    font-size: 1.4rem;
+  }
+
+  .cys-header__clock-date {
+    font-size: .6rem;
+  }
+
+  /* Subnav */
+  .cys-subnav {
+    padding: 0 1rem;
+  }
+
+  /* Main — sin padding lateral exagerado */
+  .cys-main {
+    padding: 1rem;
+  }
+
+  /* Sidebar NO empuja en móvil, se superpone */
+  body.sidebar-open .cys-header,
+  body.sidebar-open .cys-subnav,
+  body.sidebar-open .cys-main {
+    margin-right: 0 !important;
+  }
+
+  /* Cards */
+  .cys-card {
+    padding: 1rem;
+  }
+
+  /* Stat cards — 1 columna */
+  .cys-stat-card {
+    min-height: 100px;
+    padding: 1rem;
+  }
+
+  .cys-stat-card__val {
+    font-size: 1.5rem;
+  }
+
+  /* Botones full width en modales */
+  .modal-footer {
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  .modal-footer .cys-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Modales ocupan toda la pantalla */
+  .modal-dialog {
+    margin: .5rem !important;
+    max-width: calc(100vw - 1rem) !important;
+  }
+
+  .modal-body {
+    padding: 1rem !important;
+  }
+
+  /* Tablas con scroll horizontal */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
