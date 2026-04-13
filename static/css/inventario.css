@@ -82,3 +82,137 @@
 .inv-badge--ok         { background: rgba(39,174,96,.15);   color:#27ae60; border:1px solid rgba(39,174,96,.4); }
 .inv-badge--sobrante   { background: rgba(243,156,18,.15);  color:#f39c12; border:1px solid rgba(243,156,18,.4); }
 .inv-badge--faltante   { background: rgba(192,57,43,.15);   color:var(--rojo); border:1px solid rgba(192,57,43,.4); }
+
+/* ── STEP TRACKER ────────────────────────────────── */
+.inv-tracker {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  margin-top: .75rem;
+}
+
+.inv-tracker__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* CLAVE: el form no crea caja propia */
+.inv-tracker__step form {
+  display: contents;
+}
+
+.inv-tracker__circle {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid #1e3a5f;
+  background: #0f1f38;
+  color: #3a5a8a;
+  cursor: pointer;
+  transition: all .2s;
+  padding: 0;
+  line-height: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: none;
+  outline: none;
+}
+
+.inv-tracker__circle:hover {
+  filter: brightness(1.3);
+}
+
+.inv-tracker__label {
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #3a5a8a;
+  white-space: nowrap;
+}
+
+.inv-tracker__line {
+  flex: 1;
+  height: 3px;
+  min-width: 24px;
+  background: #1e3a5f;
+  border-radius: 2px;
+}
+
+/* ── ESTADOS: Pendiente ──────────────────────────── */
+.inv-tracker__step--active-pendiente .inv-tracker__circle {
+  background: #0c2240;
+  border-color: #4db8ff;
+  color: #4db8ff;
+}
+.inv-tracker__step--active-pendiente .inv-tracker__label { color: #4db8ff; }
+
+.inv-tracker__step--done-pendiente .inv-tracker__circle {
+  background: #1a2e4a;
+  border-color: #2d5a8a;
+  color: #7ab8f5;
+}
+.inv-tracker__step--done-pendiente .inv-tracker__label { color: #5b9fd8; }
+
+.inv-tracker__line--pendiente { background: #2d5a8a; }
+
+/* ── ESTADOS: En Proceso ─────────────────────────── */
+.inv-tracker__step--active-en_proceso .inv-tracker__circle {
+  background: #3a2800;
+  border-color: #f9c75a;
+  color: #f9c75a;
+}
+.inv-tracker__step--active-en_proceso .inv-tracker__label { color: #f9c75a; }
+
+.inv-tracker__step--done-en_proceso .inv-tracker__circle {
+  background: #2a1f00;
+  border-color: #7a5010;
+  color: #f9c75a;
+}
+.inv-tracker__step--done-en_proceso .inv-tracker__label { color: #c89030; }
+
+.inv-tracker__line--en_proceso { background: #7a5010; }
+
+/* ── ESTADOS: Completado ─────────────────────────── */
+.inv-tracker__step--active-completado .inv-tracker__circle {
+  background: #082510;
+  border-color: #5dd87a;
+  color: #5dd87a;
+}
+.inv-tracker__step--active-completado .inv-tracker__label { color: #5dd87a; }
+
+.inv-tracker__step--done-completado .inv-tracker__circle {
+  background: #0d2810;
+  border-color: #1e6b28;
+  color: #5dd87a;
+}
+.inv-tracker__step--done-completado .inv-tracker__label { color: #3ab852; }
+
+.inv-tracker__line--completado { background: #1e6b28; }
+
+/* ── ESTADOS: Cancelado ──────────────────────────── */
+.inv-tracker__step--active-cancelado .inv-tracker__circle {
+  background: #250808;
+  border-color: #e24b4a;
+  color: #e24b4a;
+}
+.inv-tracker__step--active-cancelado .inv-tracker__label { color: #e24b4a; }
+
+.inv-tracker__step--done-cancelado .inv-tracker__circle {
+  background: #280d0d;
+  border-color: #7a1e1e;
+  color: #f07070;
+}
+.inv-tracker__step--done-cancelado .inv-tracker__label { color: #c05050; }
+
+.inv-tracker__line--cancelado { background: #7a1e1e; }
