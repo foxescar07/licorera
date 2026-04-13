@@ -74,3 +74,18 @@ def conteo_inventario(request):
         SesionConteo.objects.create(activa=True)
         messages.success(request, '✅ Nueva sesión de conteo iniciada.')
     return redirect('inventario:inventario_home')
+
+def ajustar_inventario(request, pk):
+    """SCRUM-95, 97, 100 — Modifica, guarda y actualiza el stock real del producto."""
+    if request.method == 'POST':
+        producto = get_object_or_404(Producto, pk=pk)
+        nueva_cantidad = request.POST.get('nueva_cantidad')
+
+        if nueva_cantidad is not None:
+            producto.cantidad_disponible = int(nueva_cantidad)
+            producto.save()
+            messages.success(request, f'✅ Stock de {producto.nombre} actualizado a {nueva_cantidad}.')
+        else:
+            messages.error(request, '❌ Cantidad inválida.')
+
+    return redirect('inventario:inventario_home')
