@@ -21,7 +21,20 @@
 
   {% include 'stock_widget.html' %}
 
-  <div class="d-flex justify-content-end mb-3">
+  <style>
+    @keyframes pulso-rojo {
+      0%   { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.7); }
+      70%  { box-shadow: 0 0 0 10px rgba(192, 57, 43, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+    }
+  </style>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <button class="cys-btn cys-btn--danger" data-bs-toggle="modal" data-bs-target="#modalSalidaProducto"
+        onmouseenter="this.style.animation='pulso-rojo 1.2s infinite'"
+        onmouseleave="this.style.animation='none'">
+      <i class="bi bi-box-arrow-up me-1"></i> Registrar Salida
+    </button>
     <button class="cys-btn cys-btn--primary" data-bs-toggle="modal" data-bs-target="#modalNuevoProducto">
       <i class="bi bi-plus-lg"></i> Registrar Producto
     </button>
@@ -111,6 +124,97 @@
   </div>
 </div>
 
+<!-- MODAL: Salida de Producto -->
+<div class="modal fade" id="modalSalidaProducto" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg"
+        style="background:var(--fondo-card); border:1px solid rgba(192,57,43,.4) !important; border-radius:14px;">
+      <div class="modal-header border-0"
+          style="background:rgba(192,57,43,.15); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-box-arrow-up me-2" style="color:var(--rojo);"></i> Registrar Salida de Inventario
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form id="form-salida" method="POST" action="{% url 'producto:producto_salida' %}">
+          {% csrf_token %}
+          <div class="row g-3">
+
+            <div class="col-12">
+              <label class="cys-form-label">Producto <span style="color:var(--rojo);">*</span></label>
+              <select name="producto" id="salida-producto" class="cys-input form-select" required
+                      onchange="cargarPresentacionesSalida(this.value)">
+                <option value="">— Selecciona un producto —</option>
+                {% for producto in productos %}
+                  <option value="{{ producto.pk }}"
+                          data-stock="{{ producto.cantidad_disponible }}"
+                          data-nombre="{{ producto.nombre|escapejs }}">
+                    {{ producto.nombre }} — Stock suelto: {{ producto.cantidad_disponible }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-12" id="contenedor-presentacion-salida" style="display:none;">
+              <label class="cys-form-label">Presentación (opcional)</label>
+              <select name="presentacion" id="salida-presentacion" class="cys-input form-select"
+                      onchange="actualizarStockDisponibleSalida()">
+                <option value="">— Unidades sueltas —</option>
+              </select>
+              <div style="font-size:.75rem; color:var(--texto-muted); margin-top:.35rem;">
+                Deja en blanco para descontar unidades sueltas del producto.
+              </div>
+            </div>
+
+            <div class="col-12" id="contenedor-stock-salida" style="display:none;">
+              <div style="background:rgba(192,57,43,.08); border:1px solid rgba(192,57,43,.25);
+                          border-radius:10px; padding:.75rem 1rem; font-size:.83rem;">
+                <span style="color:var(--texto-muted);">Stock disponible:</span>
+                <strong id="salida-stock-disponible" style="color:var(--rojo); margin-left:.4rem;">0</strong>
+                <span style="color:var(--texto-muted); margin-left:.2rem;">unidades</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="cys-form-label">Cantidad a retirar <span style="color:var(--rojo);">*</span></label>
+              <input type="number" name="cantidad" id="salida-cantidad"
+                     class="cys-input form-control" placeholder="Ej: 5" min="1" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="cys-form-label">Motivo <span style="color:var(--rojo);">*</span></label>
+              <select name="motivo" id="salida-motivo" class="cys-input form-select" required
+                      onchange="toggleMotivoPersonalizado(this.value)">
+                <option value="">— Selecciona un motivo —</option>
+                <option value="Producto dañado">Producto dañado</option>
+                <option value="Producto vencido">Producto vencido</option>
+                <option value="Merma o pérdida">Merma o pérdida</option>
+                <option value="Ajuste de inventario">Ajuste de inventario</option>
+                <option value="Traslado interno">Traslado interno</option>
+                <option value="otro">Otro (especificar)…</option>
+              </select>
+            </div>
+
+            <div class="col-12" id="contenedor-motivo-personalizado" style="display:none;">
+              <label class="cys-form-label">Especifica el motivo <span style="color:var(--rojo);">*</span></label>
+              <input type="text" id="motivo-personalizado" class="cys-input form-control"
+                     placeholder="Describe el motivo de la salida…" maxlength="255">
+            </div>
+
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex justify-content-between">
+        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="cys-btn cys-btn--danger" onclick="submitSalida()">
+          <i class="bi bi-box-arrow-up me-1"></i> Confirmar Salida
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: Presentaciones -->
 <div class="modal fade" id="modalPresentaciones" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -130,7 +234,6 @@
           <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:1.25rem; line-height:1.6;">
             Define las presentaciones del producto. La <strong style="color:var(--azul-claro);">Unidad</strong> es siempre la base.
           </div>
-          <!-- FILA FIJA: Unidad -->
           <div class="mb-2 p-3 rounded-3"
               style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
             <div class="row g-2 align-items-center">
@@ -157,7 +260,6 @@
               </div>
             </div>
           </div>
-          <!-- FILAS DINÁMICAS -->
           <div id="contenedor-presentaciones"></div>
           <button type="button" class="cys-btn cys-btn--outline w-100 mt-2"
                   style="border-style:dashed; font-size:.8rem;" onclick="agregarPresentacion()">
@@ -382,6 +484,7 @@ const todoProductos = [
     presentaciones: [
       {% for pres in producto.presentaciones.all %}
       {
+        id: {{ pres.pk }},
         nombre: "{{ pres.nombre|escapejs }}",
         unidades: {{ pres.unidades }},
         precio: "{{ pres.precio }}",
@@ -394,6 +497,116 @@ const todoProductos = [
 ];
 
 let productoActivoPk = null;
+
+// ─── SALIDA ──────────────────────────────────────────────────────────────────
+
+function cargarPresentacionesSalida(productoPk) {
+  const selectPres    = document.getElementById('salida-presentacion');
+  const contPres      = document.getElementById('contenedor-presentacion-salida');
+  const contStock     = document.getElementById('contenedor-stock-salida');
+  const spanStock     = document.getElementById('salida-stock-disponible');
+  const inputCantidad = document.getElementById('salida-cantidad');
+
+  inputCantidad.value = '';
+
+  if (!productoPk) {
+    contPres.style.display  = 'none';
+    contStock.style.display = 'none';
+    return;
+  }
+
+  const producto = todoProductos.find(p => p.pk == productoPk);
+  if (!producto) return;
+
+  selectPres.innerHTML = '<option value="">— Unidades sueltas —</option>';
+  producto.presentaciones.forEach(pr => {
+    const opt    = document.createElement('option');
+    opt.value    = pr.id;
+    opt.dataset.cantidad = pr.cantidad;
+    opt.textContent = `${pr.nombre} (${pr.unidades} uds) — Stock: ${pr.cantidad}`;
+    if (pr.cantidad === 0) opt.disabled = true;
+    selectPres.appendChild(opt);
+  });
+
+  contPres.style.display  = producto.presentaciones.length > 0 ? 'block' : 'none';
+  contStock.style.display = 'block';
+  spanStock.textContent   = producto.cantidad;
+  inputCantidad.max       = producto.cantidad;
+}
+
+function actualizarStockDisponibleSalida() {
+  const selectProd = document.getElementById('salida-producto');
+  const selectPres = document.getElementById('salida-presentacion');
+  const spanStock  = document.getElementById('salida-stock-disponible');
+  const inputCant  = document.getElementById('salida-cantidad');
+
+  const productoPk = selectProd.value;
+  const presId     = selectPres.value;
+  const producto   = todoProductos.find(p => p.pk == productoPk);
+  if (!producto) return;
+
+  inputCant.value = '';
+
+  if (presId) {
+    const pres = producto.presentaciones.find(pr => pr.id == presId);
+    if (pres) {
+      spanStock.textContent = pres.cantidad;
+      inputCant.max         = pres.cantidad;
+    }
+  } else {
+    spanStock.textContent = producto.cantidad;
+    inputCant.max         = producto.cantidad;
+  }
+}
+
+function toggleMotivoPersonalizado(valor) {
+  const cont = document.getElementById('contenedor-motivo-personalizado');
+  const inp  = document.getElementById('motivo-personalizado');
+  if (valor === 'otro') {
+    cont.style.display = 'block';
+    inp.required       = true;
+  } else {
+    cont.style.display = 'none';
+    inp.required       = false;
+    inp.value          = '';
+  }
+}
+
+function submitSalida() {
+  const form          = document.getElementById('form-salida');
+  const selectMotivo  = document.getElementById('salida-motivo');
+  const inputPersonal = document.getElementById('motivo-personalizado');
+  const selectProd    = document.getElementById('salida-producto');
+  const inputCant     = document.getElementById('salida-cantidad');
+
+  if (!selectProd.value) { alert('Selecciona un producto.'); return; }
+  if (!inputCant.value || parseInt(inputCant.value) <= 0) { alert('Ingresa una cantidad válida mayor a cero.'); return; }
+  if (!selectMotivo.value) { alert('Selecciona el motivo de la salida.'); return; }
+
+  if (selectMotivo.value === 'otro') {
+    if (!inputPersonal.value.trim()) { alert('Describe el motivo personalizado.'); return; }
+    selectMotivo.value = inputPersonal.value.trim();
+  }
+
+  const stockDisp = parseInt(document.getElementById('salida-stock-disponible').textContent) || 0;
+  const cantidad  = parseInt(inputCant.value);
+  if (cantidad > stockDisp) {
+    alert(`Stock insuficiente. Solo hay ${stockDisp} unidades disponibles.`);
+    return;
+  }
+
+  form.submit();
+}
+
+document.getElementById('modalSalidaProducto').addEventListener('hidden.bs.modal', function () {
+  document.getElementById('form-salida').reset();
+  document.getElementById('contenedor-presentacion-salida').style.display  = 'none';
+  document.getElementById('contenedor-stock-salida').style.display         = 'none';
+  document.getElementById('contenedor-motivo-personalizado').style.display = 'none';
+  document.getElementById('motivo-personalizado').required = false;
+});
+
+// ─── CATEGORÍA ───────────────────────────────────────────────────────────────
 
 function abrirCategoria(categoriaPk, categoriaNombre) {
   document.getElementById('titulo-categoria').textContent = categoriaNombre;
@@ -452,8 +665,8 @@ function abrirEditar(pk, nombre, codigo, categoriaPk, cantidad, descripcion) {
   document.getElementById('edit-descripcion').value = descripcion;
   document.getElementById('form-editar').action     = `/producto/producto/${pk}/editar/`;
 
-  const producto  = todoProductos.find(p => p.pk == pk);
-  const contPres  = document.getElementById('edit-presentaciones');
+  const producto = todoProductos.find(p => p.pk == pk);
+  const contPres = document.getElementById('edit-presentaciones');
 
   if (producto && producto.presentaciones.length > 0) {
     contPres.innerHTML = producto.presentaciones.map(pr => `

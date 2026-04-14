@@ -4,16 +4,13 @@
 
   <div class="d-flex align-items-center gap-3" style="flex:1; min-width:0;">
 
-    <!-- Ícono semáforo -->
     <div id="sw-icono" style="flex-shrink:0; font-size:1.4rem; transition:opacity .3s;"></div>
 
     <div style="flex:1; min-width:0;">
-      <!-- Título / estado -->
       <div id="sw-titulo"
            style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.9rem;
                   letter-spacing:.08em; text-transform:uppercase; transition:color .3s;">
       </div>
-      <!-- Carrusel vertical -->
       <div style="overflow:hidden; height:1.25rem; position:relative; margin-top:.1rem;">
         <div id="sw-carrusel"
              style="position:absolute; width:100%;
@@ -24,7 +21,6 @@
 
   </div>
 
-  <!-- Badge contador -->
   <div id="sw-badge"
        style="flex-shrink:0; margin-left:1rem; font-family:'Rajdhani',sans-serif;
               font-weight:700; font-size:.75rem; letter-spacing:.06em;
@@ -142,7 +138,10 @@
   }
 
   function actualizar() {
-    fetch("{% url 'producto:stock_status' %}")
+    fetch("{% url 'producto:stock_status' %}?_=" + Date.now(), {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' }
+    })
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then(data => pintar(data))
       .catch(() => {});
