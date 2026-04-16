@@ -2,13 +2,14 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from producto.models import Producto
+
 # =======================
 # MODELO PROVEEDOR
 # =======================
 class Proveedor(models.Model):
     nombre_contacto = models.CharField(max_length=100)
-    nombre_empresa = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
+    nombre_empresa  = models.CharField(max_length=100)
+    email           = models.EmailField(unique=True)
 
     telefono_regex = RegexValidator(
         regex=r'^\d{10}$',
@@ -20,21 +21,15 @@ class Proveedor(models.Model):
         verbose_name="Celular"
     )
 
-    fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Registro")
-    ultima_modificacion = models.DateTimeField(auto_now=True, verbose_name="Última modificación")
+    fecha_registro      = models.DateTimeField(auto_now_add=True)
+    ultima_modificacion = models.DateTimeField(auto_now=True)
 
     registrado_por = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='proveedores_registrados'
     )
     modificado_por = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='proveedores_modificados'
     )
 
@@ -44,20 +39,22 @@ class Proveedor(models.Model):
     def __str__(self):
         return self.nombre_empresa
 
+
 # =======================
 # MODELO COMPRA
 # =======================
-
-
-    def __str__(self):
-        return self.nombre
-
 class Compra(models.Model):
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
-    producto = models.ForeignKey('producto.Producto', on_delete=models.CASCADE)
-    cantidad = models.IntegerField()
+    proveedor       = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='compras')
+    producto        = models.ForeignKey('producto.Producto', on_delete=models.CASCADE, related_name='compras')
+    cantidad        = models.IntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    fecha_registro = models.DateTimeField(auto_now_add=True)
+    fecha_registro  = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def total(self):
+        if self.precio_unitario:
+            return self.cantidad * self.precio_unitario
+        return 0
 
     def __str__(self):
         return f"{self.producto} - {self.cantidad}"
