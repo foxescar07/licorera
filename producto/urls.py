@@ -12,7 +12,8 @@ urlpatterns = [
     path("agenda/<int:pk>/eliminar/", views.agenda_eliminar, name="agenda_eliminar"),
     path("categoria/crear/", views.categoria_crear, name="categoria_crear"),
     path("ingreso/", views.producto_ingreso, name="producto_ingreso"),
+    path("salida/", views.producto_salida, name="producto_salida"),
     path("presentaciones/<int:pk>/guardar/", views.presentaciones_guardar, name="presentaciones_guardar"),
     path("presentaciones/<int:pk>/json/", views.presentaciones_json, name="presentaciones_json"),
-    path("stock-status/", views.stock_status, name="stock_status"),  # ✅ NUEVO
+    path("stock-status/", views.stock_status, name="stock_status"),
 ]

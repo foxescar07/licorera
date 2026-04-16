@@ -21,7 +21,7 @@
   {% endif %}
 
   <!-- HEADER -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
       <h2 style="font-weight:700; color:#e2e8f0; font-size:1.35rem; letter-spacing:.05em;">
         <i class="bi bi-bag-plus me-2" style="color:#4DA8DA;"></i>
@@ -29,14 +29,13 @@
       </h2>
       <p class="mb-0" style="color:#64748b; font-size:0.85rem;">
         Proveedor:
-        <span style="color:#4DA8DA; font-weight:700;">{{ proveedor.nombre_empresa }}</span>
+        <span style="color:#4DA8DA; font-weight:700;" id="labelNombreProveedor">{{ proveedor.nombre_empresa }}</span>
         <span style="color:#1e293b; margin:0 8px;">|</span>
-        <i class="bi bi-person me-1"></i>{{ proveedor.nombre_contacto }}
+        <i class="bi bi-person me-1"></i><span id="labelContacto">{{ proveedor.nombre_contacto }}</span>
         <span style="color:#1e293b; margin:0 8px;">|</span>
-        <i class="bi bi-telephone me-1"></i>{{ proveedor.telefono }}
+        <i class="bi bi-telephone me-1"></i><span id="labelTelefono">{{ proveedor.telefono }}</span>
       </p>
     </div>
-
     <a href="{% url 'proveedores' %}" class="action-card text-decoration-none"
        style="padding:10px 20px !important;">
       <i class="bi bi-arrow-left icon" style="font-size:18px;"></i>
@@ -47,43 +46,102 @@
   <div class="row g-4">
 
     <!-- ══════════════════════
-         FORMULARIO DE COMPRA
+         FORMULARIO
     ══════════════════════ -->
     <div class="col-lg-5">
       <div class="cyber-card">
-
         <div class="cyber-header d-flex align-items-center gap-2">
           <i class="bi bi-clipboard2-plus"></i>
           Nueva Compra
         </div>
-
         <div class="p-4">
           <form method="POST">
             {% csrf_token %}
 
-            <!-- Producto -->
+            <!-- SELECTOR PROVEEDOR -->
             <div class="mb-4">
               <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
                             letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
-                <i class="bi bi-box me-1"></i> Producto
+                <i class="bi bi-building me-1"></i> Proveedor
               </label>
-
-              <!-- Buscador -->
               <div class="position-relative mb-2">
                 <i class="bi bi-search position-absolute"
                    style="top:50%; left:13px; transform:translateY(-50%);
                           color:#4DA8DA; font-size:0.8rem; pointer-events:none;"></i>
-                <input type="text" id="buscador" placeholder="Filtrar producto..."
+                <input type="text" id="buscadorProveedor" placeholder="Filtrar proveedor..."
                        style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.2);
                               color:#e2e8f0; border-radius:8px; padding:9px 13px 9px 34px;
                               font-size:0.85rem; outline:none;"
                        onfocus="this.style.borderColor='#4DA8DA'"
                        onblur="this.style.borderColor='rgba(77,168,218,0.2)'">
               </div>
+              <div id="listaProveedores"
+                   style="max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
+                          scrollbar-width:thin; scrollbar-color:#1e3a5f #0b1220;">
+                {% for prov in todos_proveedores %}
+                <label class="proveedor-opcion"
+                       data-id="{{ prov.id }}"
+                       data-nombre="{{ prov.nombre_empresa }}"
+                       data-contacto="{{ prov.nombre_contacto }}"
+                       data-telefono="{{ prov.telefono }}"
+                       data-url="{% url 'registrar_compra' prov.id %}"
+                       style="display:flex; align-items:center; justify-content:space-between;
+                              padding:10px 13px; border-radius:8px; cursor:pointer;
+                              background:{% if prov.id == proveedor.id %}rgba(77,168,218,0.08){% else %}#0b1220{% endif %};
+                              border:1px solid {% if prov.id == proveedor.id %}#4DA8DA{% else %}rgba(77,168,218,0.12){% endif %};
+                              transition:0.15s;">
+                  <input type="radio" name="proveedor_id" value="{{ prov.id }}"
+                         {% if prov.id == proveedor.id %}checked{% endif %}
+                         style="display:none;"
+                         onchange="seleccionarProveedor(this)">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-building"
+                       style="color:{% if prov.id == proveedor.id %}#4DA8DA{% else %}#475569{% endif %}; font-size:0.9rem;"></i>
+                    <div>
+                      <span style="color:#cbd5e1; font-size:0.88rem; font-weight:500; display:block;"
+                            data-nombre="{{ prov.nombre_empresa|lower }}">
+                        {{ prov.nombre_empresa }}
+                      </span>
+                      <span style="color:#475569; font-size:0.75rem;">{{ prov.nombre_contacto }}</span>
+                    </div>
+                  </div>
+                  {% if prov.id == proveedor.id %}
+                  <span style="background:rgba(77,168,218,0.15); color:#4DA8DA;
+                               padding:2px 8px; border-radius:20px; font-size:0.72rem; font-weight:700;">
+                    Actual
+                  </span>
+                  {% endif %}
+                </label>
+                {% empty %}
+                <div class="empty-state">
+                  <i class="bi bi-building icon"></i>
+                  <p>No hay proveedores registrados.</p>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
 
-              <!-- Lista seleccionable -->
+            <div style="border-top:1px solid rgba(77,168,218,0.1); margin-bottom:20px;"></div>
+
+            <!-- SELECTOR PRODUCTO -->
+            <div class="mb-4">
+              <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
+                            letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
+                <i class="bi bi-box me-1"></i> Producto
+              </label>
+              <div class="position-relative mb-2">
+                <i class="bi bi-search position-absolute"
+                   style="top:50%; left:13px; transform:translateY(-50%);
+                          color:#4DA8DA; font-size:0.8rem; pointer-events:none;"></i>
+                <input type="text" id="buscadorProducto" placeholder="Filtrar producto..."
+                       style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.2);
+                              color:#e2e8f0; border-radius:8px; padding:9px 13px 9px 34px;
+                              font-size:0.85rem; outline:none;"
+                       onfocus="this.style.borderColor='#4DA8DA'"
+                       onblur="this.style.borderColor='rgba(77,168,218,0.2)'">
+              </div>
               <div id="listaProductos"
-                   style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
+                   style="max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
                           scrollbar-width:thin; scrollbar-color:#1e3a5f #0b1220;">
                 {% for producto in productos %}
                 <label class="producto-opcion"
@@ -114,18 +172,46 @@
               </div>
             </div>
 
-            <!-- Cantidad -->
+            <!-- CANTIDAD -->
             <div class="mb-4">
               <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
                             letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
                 <i class="bi bi-hash me-1"></i> Cantidad
               </label>
-              <input type="number" name="cantidad" min="1" placeholder="Ej: 10" required
+              <input type="number" name="cantidad" id="inputCantidad" min="1" placeholder="Ej: 10" required
                      style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.25);
                             color:#e2e8f0; border-radius:10px; padding:12px 16px;
                             font-size:0.95rem; outline:none; transition:0.2s;"
                      onfocus="this.style.borderColor='#4DA8DA'; this.style.boxShadow='0 0 0 3px rgba(77,168,218,0.12)'"
                      onblur="this.style.borderColor='rgba(77,168,218,0.25)'; this.style.boxShadow='none'">
+            </div>
+
+            <!-- PRECIO UNITARIO -->
+            <div class="mb-4">
+              <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
+                            letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
+                <i class="bi bi-currency-dollar me-1"></i> Precio Unitario
+                <span style="color:#475569; font-weight:400; text-transform:none;
+                             font-size:0.72rem; margin-left:6px;">(opcional)</span>
+              </label>
+              <div class="position-relative">
+                <span style="position:absolute; top:50%; left:14px; transform:translateY(-50%);
+                             color:#4DA8DA; font-size:0.9rem; font-weight:700; pointer-events:none;">$</span>
+                <input type="number" name="precio_unitario" id="inputPrecio" min="0" step="0.01"
+                       placeholder="0.00"
+                       style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.25);
+                              color:#e2e8f0; border-radius:10px; padding:12px 16px 12px 30px;
+                              font-size:0.95rem; outline:none; transition:0.2s;"
+                       onfocus="this.style.borderColor='#4DA8DA'; this.style.boxShadow='0 0 0 3px rgba(77,168,218,0.12)'"
+                       onblur="this.style.borderColor='rgba(77,168,218,0.25)'; this.style.boxShadow='none'">
+              </div>
+              <!-- Preview total en tiempo real -->
+              <div id="previewTotal" style="display:none; margin-top:8px; padding:8px 12px;
+                   background:rgba(74,222,128,0.06); border:1px solid rgba(74,222,128,0.2);
+                   border-radius:8px; font-size:0.82rem; color:#4ade80;">
+                <i class="bi bi-calculator me-1"></i>
+                Total estimado: <strong id="valorTotal">$0.00</strong>
+              </div>
             </div>
 
             <div style="border-top:1px solid rgba(77,168,218,0.1); margin-bottom:20px;"></div>
@@ -152,7 +238,6 @@
     ══════════════════════ -->
     <div class="col-lg-7">
       <div class="cyber-card">
-
         <div class="cyber-header d-flex align-items-center justify-content-between">
           <span class="d-flex align-items-center gap-2">
             <i class="bi bi-clock-history"></i> Historial de Compras
@@ -163,47 +248,78 @@
           </span>
         </div>
 
-      <div class="table-responsive">
-  <table class="table-cyber w-100">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th style="text-align:left;">PRODUCTO</th>
-        <th>CANTIDAD</th>
-        <th>PRECIO UNIT.</th>
-        <th>TOTAL</th>
-        <th>FECHA</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for compra in compras %}
-      <tr>
-        <td>{{ forloop.counter }}</td>
-        <td style="text-align:left;">
-          <i class="bi bi-box me-2" style="color:#4DA8DA;"></i>
-          {{ compra.producto.nombre }}
-        </td>
-        <td>
-          <span style="background:rgba(77,168,218,0.1); color:#4DA8DA;
-                       padding:3px 12px; border-radius:20px; font-weight:700; font-size:0.82rem;">
-            {{ compra.cantidad }}
-          </span>
-        </td>
-        <td style="color:#94a3b8; font-size:0.85rem; font-weight:600;">
-          ${{ compra.precio_unitario }}
-        </td>
-        <td style="color:#4ade80; font-weight:700; font-size:0.85rem;">
-          ${{ compra.total }}
-        </td>
-        <td style="color:#64748b; font-size:0.82rem;">
-          {{ compra.fecha_registro|date:"d/m/Y H:i" }}
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        
+        <div class="table-responsive">
+          <table class="table-cyber w-100">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th style="text-align:left;">PRODUCTO</th>
+                <th>CANTIDAD</th>
+                <th>PRECIO UNIT.</th>
+                <th>TOTAL</th>
+                <th>FECHA</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for compra in compras %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td style="text-align:left;">
+                  <i class="bi bi-box me-2" style="color:#4DA8DA;"></i>
+                  {{ compra.producto.nombre }}
+                </td>
+                <td>
+                  <span style="background:rgba(77,168,218,0.1); color:#4DA8DA;
+                               padding:3px 12px; border-radius:20px; font-weight:700; font-size:0.82rem;">
+                    {{ compra.cantidad }}
+                  </span>
+                </td>
+                <td style="color:#94a3b8; font-size:0.85rem; font-weight:600;">
+                  {% if compra.precio_unitario %}${{ compra.precio_unitario }}{% else %}<span style="color:#334155;">—</span>{% endif %}
+                </td>
+                <td style="color:#4ade80; font-weight:700; font-size:0.85rem;">
+                  {% if compra.total %}${{ compra.total }}{% else %}<span style="color:#334155;">—</span>{% endif %}
+                </td>
+                <td style="color:#64748b; font-size:0.82rem;">
+                  {{ compra.fecha_registro|date:"d/m/Y H:i" }}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="text-center py-5" style="color:#475569;">
+                  <i class="bi bi-clock-history d-block mb-2" style="font-size:2rem; color:#334155;"></i>
+                  <span style="font-size:0.88rem;">Sin compras registradas aún</span>
+                </td>
+              </tr>
               {% endfor %}
             </tbody>
+
+            <!-- FILA SUBTOTAL -->
+            {% if compras %}
+            <tfoot>
+              <tr style="border-top:2px solid rgba(77,168,218,0.25);">
+                <td colspan="4"
+                    style="text-align:right; padding:12px 16px; color:#4DA8DA;
+                           font-size:0.82rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;">
+                  <i class="bi bi-calculator me-1"></i> Subtotal:
+                </td>
+                <td style="padding:12px 8px; font-weight:800; font-size:0.95rem; color:#4ade80;">
+                  ${% with subtotal=0 %}
+                    {% for compra in compras %}
+                      {% if compra.total %}
+                        {{ subtotal|add:compra.total }}
+                      {% endif %}
+                    {% endfor %}
+                  {% endwith %}
+
+                  {# Django no suma bien en templates, usa una variable del contexto #}
+               <td style="padding:12px 8px; font-weight:800; font-size:0.95rem; color:#4ade80;">
+  ${{ subtotal_compras }}
+                <td></td>
+              </tr>
+            </tfoot>
+            {% endif %}
+
           </table>
         </div>
 
@@ -214,8 +330,42 @@
 </div>
 
 <script>
-  // Buscador de productos
-  document.getElementById('buscador').addEventListener('input', function () {
+  // BUSCADOR PROVEEDOR
+  document.getElementById('buscadorProveedor').addEventListener('input', function () {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.proveedor-opcion').forEach(label => {
+      const nombre = label.querySelector('[data-nombre]').dataset.nombre;
+      label.style.display = nombre.includes(q) ? 'flex' : 'none';
+    });
+  });
+
+  // SELECCIONAR PROVEEDOR
+  function seleccionarProveedor(radio) {
+    const label    = radio.closest('.proveedor-opcion');
+    const nombre   = label.dataset.nombre;
+    const contacto = label.dataset.contacto;
+    const telefono = label.dataset.telefono;
+    const url      = label.dataset.url;
+
+    document.querySelectorAll('.proveedor-opcion').forEach(l => {
+      l.style.borderColor = 'rgba(77,168,218,0.12)';
+      l.style.background  = '#0b1220';
+      l.querySelector('i').style.color = '#475569';
+    });
+
+    label.style.borderColor = '#4DA8DA';
+    label.style.background  = 'rgba(77,168,218,0.08)';
+    label.querySelector('i').style.color = '#4DA8DA';
+
+    document.getElementById('labelNombreProveedor').textContent = nombre;
+    document.getElementById('labelContacto').textContent        = contacto;
+    document.getElementById('labelTelefono').textContent        = telefono;
+
+    window.location.href = url;
+  }
+
+  // BUSCADOR PRODUCTO
+  document.getElementById('buscadorProducto').addEventListener('input', function () {
     const q = this.value.toLowerCase();
     document.querySelectorAll('.producto-opcion').forEach(label => {
       const nombre = label.querySelector('[data-nombre]').dataset.nombre;
@@ -223,18 +373,36 @@
     });
   });
 
-  // Resaltar seleccionado
+  // SELECCIONAR PRODUCTO
   function marcarSeleccionado(radio) {
     document.querySelectorAll('.producto-opcion').forEach(label => {
       label.style.borderColor = 'rgba(77,168,218,0.12)';
-      label.style.background = '#0b1220';
+      label.style.background  = '#0b1220';
       label.querySelector('i').style.color = '#475569';
     });
     const label = radio.closest('.producto-opcion');
     label.style.borderColor = '#4DA8DA';
-    label.style.background = 'rgba(77,168,218,0.08)';
+    label.style.background  = 'rgba(77,168,218,0.08)';
     label.querySelector('i').style.color = '#4DA8DA';
   }
+
+  // PREVIEW TOTAL EN TIEMPO REAL
+  function actualizarTotal() {
+    const cantidad = parseFloat(document.getElementById('inputCantidad').value) || 0;
+    const precio   = parseFloat(document.getElementById('inputPrecio').value) || 0;
+    const preview  = document.getElementById('previewTotal');
+    const valor    = document.getElementById('valorTotal');
+
+    if (cantidad > 0 && precio > 0) {
+      valor.textContent = '$' + (cantidad * precio).toFixed(2);
+      preview.style.display = 'block';
+    } else {
+      preview.style.display = 'none';
+    }
+  }
+
+  document.getElementById('inputCantidad').addEventListener('input', actualizarTotal);
+  document.getElementById('inputPrecio').addEventListener('input', actualizarTotal);
 </script>
 
 {% endblock %}

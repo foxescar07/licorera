@@ -95,42 +95,45 @@ def eliminar_proveedor(request, id):
 
 # ===============================
 # REGISTRAR COMPRA
-# ===============================
 def registrar_compra(request, proveedor_id):
-    proveedor_obj = get_object_or_404(Proveedor, id=proveedor_id)
-    productos = Producto.objects.prefetch_related('presentaciones').all()
-    compras = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
-
+    proveedor_obj     = get_object_or_404(Proveedor, id=proveedor_id)
+    productos         = Producto.objects.all()
+    todos_proveedores = Proveedor.objects.all().order_by('nombre_empresa')  # ← AGREGAR
+    compras           = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
+    subtotal = sum(c.total for c in compras if c.total)
     if request.method == 'POST':
         id_prod = request.POST.get('producto')
-        cant = request.POST.get('cantidad')
-        precio = request.POST.get('precio_unitario')
+        cant    = request.POST.get('cantidad')
+        precio  = request.POST.get('precio_unitario')
 
-        if not id_prod or not cant or not precio:
-            messages.warning(request, "Completa todos los campos.")
+        if not id_prod or not cant:
+            messages.warning(request, "Selecciona un producto y cantidad.")
         else:
             try:
-                producto_instancia = Producto.objects.get(id=int(id_prod))
-                cantidad_int = int(cant)
+                producto_instancia        = Producto.objects.get(id=int(id_prod))
+                cantidad_int              = int(cant)
 
                 Compra.objects.create(
-                    proveedor=proveedor_obj,
-                    producto=producto_instancia,
-                    cantidad=cantidad_int,
-                    precio_unitario=precio
+                    proveedor       = proveedor_obj,
+                    producto        = producto_instancia,
+                    cantidad        = cantidad_int,
+                    precio_unitario = precio if precio else None
+                    
                 )
 
                 producto_instancia.cantidad_disponible += cantidad_int
                 producto_instancia.save()
 
-                messages.success(request, "Compra registrada correctamente")
+                messages.success(request, f'Compra de "{producto_instancia.nombre}" registrada!')
                 return redirect('registrar_compra', proveedor_id=proveedor_id)
 
             except Exception as e:
                 messages.error(request, f"Error: {e}")
 
     return render(request, 'proveedores/compra.html', {
-        'proveedor': proveedor_obj,
-        'productos': productos,
-        'compras': compras,
+        'proveedor':          proveedor_obj,
+        'todos_proveedores':  todos_proveedores,   # ← AGREGAR
+        'productos':          productos,
+        'compras':            compras,
+        'subtotal_compras':   subtotal, 
     })

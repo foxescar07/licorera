@@ -173,27 +173,22 @@ def producto_registro(request):
 
 
 def stock_status(request):
-    """
-    Endpoint JSON para el widget de stock en tiempo real.
-    Considera tanto unidades sueltas (cantidad_disponible)
-    como el stock de cada presentación.
-    """
     productos = Producto.objects.prefetch_related('presentaciones').all()
 
     criticos = []
     bajos    = []
 
     for p in productos:
-        # ✅ Stock total = unidades sueltas + suma de todas las presentaciones
         stock_presentaciones = p.presentaciones.aggregate(
             total=Sum('cantidad')
         )['total'] or 0
 
         stock_total = p.cantidad_disponible + stock_presentaciones
 
-        if stock_total <= 2:
+        # ✅ Crítico = agotado (0), Bajo = hasta 10 unidades
+        if stock_total == 0:
             criticos.append({"nombre": p.nombre, "cantidad": stock_total})
-        elif stock_total <= 6:
+        elif stock_total <= 10:
             bajos.append({"nombre": p.nombre, "cantidad": stock_total})
 
     if criticos:
@@ -203,9 +198,88 @@ def stock_status(request):
     else:
         estado = "verde"
 
-    return JsonResponse({
+    response = JsonResponse({
         "estado":        estado,
         "criticos":      criticos,
         "bajos":         bajos,
         "total_alertas": len(criticos) + len(bajos),
     })
+
+    # ✅ Headers anti-caché para que el navegador siempre pida datos frescos
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response['Pragma']        = 'no-cache'
+    return response
+
+
+def producto_salida(request):
+    if request.method == "POST":
+        producto_id     = request.POST.get("producto")
+        presentacion_id = request.POST.get("presentacion")
+        cantidad_raw    = request.POST.get("cantidad", "")
+        motivo          = request.POST.get("motivo", "").strip()
+
+        try:
+            cantidad = int(cantidad_raw)
+            if cantidad <= 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            messages.error(request, "⚠️ La cantidad debe ser un número entero mayor a cero.")
+            return redirect("producto:producto_lista")
+
+        if not motivo:
+            messages.error(request, "⚠️ Debes indicar el motivo de la salida.")
+            return redirect("producto:producto_lista")
+
+        producto = get_object_or_404(Producto, pk=producto_id)
+
+        if presentacion_id:
+            presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id, producto=producto)
+
+            if cantidad > presentacion.cantidad:
+                messages.error(
+                    request,
+                    f"⚠️ Stock insuficiente: solo hay {presentacion.cantidad} "
+                    f"unidades de '{presentacion.nombre}' de {producto.nombre}."
+                )
+                return redirect("producto:producto_lista")
+
+            presentacion.cantidad -= cantidad
+            presentacion.save()
+
+            Inventario.objects.create(
+                producto=producto,
+                tipo='salida',
+                cantidad=cantidad * presentacion.unidades,
+                motivo=motivo,
+                ubicacion='Salida manual',
+            )
+            messages.success(
+                request,
+                f"✅ Salida registrada: {cantidad} × '{presentacion.nombre}' de {producto.nombre}. Motivo: {motivo}."
+            )
+
+        else:
+            if cantidad > producto.cantidad_disponible:
+                messages.error(
+                    request,
+                    f"⚠️ Stock insuficiente: solo hay {producto.cantidad_disponible} "
+                    f"unidades sueltas de {producto.nombre}."
+                )
+                return redirect("producto:producto_lista")
+
+            producto.cantidad_disponible -= cantidad
+            producto.save()
+
+            Inventario.objects.create(
+                producto=producto,
+                tipo='salida',
+                cantidad=cantidad,
+                motivo=motivo,
+                ubicacion='Salida manual',
+            )
+            messages.success(
+                request,
+                f"✅ Salida registrada: {cantidad} unidades sueltas de {producto.nombre}. Motivo: {motivo}."
+            )
+
+    return redirect("producto:producto_lista")
