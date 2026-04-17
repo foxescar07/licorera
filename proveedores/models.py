@@ -56,6 +56,7 @@ class Compra(models.Model):
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     producto = models.ForeignKey('producto.Producto', on_delete=models.CASCADE)
     cantidad = models.IntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

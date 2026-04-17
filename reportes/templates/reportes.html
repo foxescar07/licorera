@@ -425,10 +425,10 @@
             {% for prov in proveedores %}
               <tr>
                 <td class="text-muted">{{ forloop.counter }}</td>
-                <td><strong>{{ prov.nombre }}</strong></td>
-                <td><span class="cys-tag">{{ prov.empresa }}</span></td>
+                <td><strong>{{ prov.nombre_contacto }}</strong></td>
+                <td><span class="cys-tag">{{ prov.nombre_empresa }}</span></td>
                 <td style="font-size:.85rem; color:var(--texto);">{{ prov.telefono }}</td>
-                <td style="font-size:.85rem; color:var(--azul-claro);">{{ prov.correo }}</td>
+                <td style="font-size:.85rem; color:var(--azul-claro);">{{ prov.email }}</td>
               </tr>
             {% empty %}
               <tr>

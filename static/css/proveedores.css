@@ -1,25 +1,239 @@
-/* ============================================================
-   PROVEEDORES.HTML — BADGES TABLA
-   ============================================================ */
-.cys-badge-id {
-  display: inline-block;
-  background: rgba(77,168,218,.12);
-  border: 1px solid var(--azul-borde);
-  color: var(--azul-claro);
-  font-family: 'Rajdhani', sans-serif;
-  font-size: .75rem;
-  font-weight: 700;
-  letter-spacing: .06em;
-  padding: .2rem .55rem;
-  border-radius: 99px;
+/* =========================
+   BASE
+========================= */
+body {
+    background: #0b1220;
+    color: #cbd5e1;
 }
 
-.cys-badge-empresa {
-  display: inline-block;
-  background: rgba(77,168,218,.08);
-  border: 1px solid var(--azul-borde);
-  color: var(--texto-muted);
-  font-size: .75rem;
-  padding: .2rem .55rem;
-  border-radius: 6px;
+/* =========================
+   ACTION CARDS
+========================= */
+.action-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #0f1b2e, #0b1626);
+    border: 1px solid rgba(77,168,218,0.2);
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.action-card:hover {
+    transform: translateY(-4px);
+    border-color: #4DA8DA;
+    box-shadow: 0 0 20px rgba(77,168,218,0.2);
+}
+
+.action-card .icon {
+    font-size: 28px;
+    color: #4DA8DA;
+}
+
+.action-card h6 {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #e2e8f0;
+}
+
+.action-card p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+/* =========================
+   CYBER CARD
+========================= */
+.cyber-card {
+    background: #0f1b2e;
+    border-radius: 16px;
+    padding: 0;
+    border: 1px solid rgba(77,168,218,0.15);
+    overflow: hidden;
+}
+
+/* HEADER */
+.cyber-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(77,168,218,0.15);
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #4DA8DA;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+.empty-state {
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.empty-state .icon {
+    font-size: 40px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    color: #64748b;
+}
+
+/* =========================
+   TABLE
+========================= */
+.table-cyber {
+    color: #cbd5e1;
+    margin: 0;
+}
+
+.table-cyber thead {
+    color: #4DA8DA;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+
+.table-cyber tbody tr {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    transition: 0.2s;
+}
+
+.table-cyber tbody tr:hover {
+    background: rgba(77,168,218,0.05);
+}
+
+.table-cyber td,
+.table-cyber th {
+    padding: 14px;
+    text-align: center;
+}
+
+.table-cyber td:first-child {
+    font-weight: bold;
+    color: #4DA8DA;
+}
+/* =========================
+   BOTONES DE ACCIÓN (TABLA)
+========================= */
+.btn-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    border: 1px solid rgba(77,168,218,0.25);
+    background: rgba(77,168,218,0.08);
+    color: #4DA8DA;
+    cursor: pointer;
+    transition: 0.2s;
+    text-decoration: none;
+}
+
+.btn-action:hover {
+    background: rgba(77,168,218,0.18);
+    border-color: #4DA8DA;
+    color: #4DA8DA;
+    box-shadow: 0 0 8px rgba(77,168,218,0.2);
+    transform: translateY(-1px);
+}
+
+/* Editar — mismo azul base */
+.btn-action.edit {
+    border-color: rgba(77,168,218,0.25);
+    background: rgba(77,168,218,0.08);
+    color: #4DA8DA;
+}
+
+.btn-action.edit:hover {
+    background: rgba(77,168,218,0.2);
+    border-color: #4DA8DA;
+}
+
+/* Eliminar — rojo */
+.btn-action.delete {
+    border-color: rgba(248,113,113,0.25);
+    background: rgba(248,113,113,0.08);
+    color: #f87171;
+}
+
+.btn-action.delete:hover {
+    background: rgba(248,113,113,0.2);
+    border-color: #f87171;
+    box-shadow: 0 0 8px rgba(248,113,113,0.2);
+    color: #f87171;
+}
+
+/* View/Compra — verde */
+.btn-action.view {
+    border-color: rgba(74,222,128,0.25);
+    background: rgba(74,222,128,0.08);
+    color: #4ade80;
+}
+
+.btn-action.view:hover {
+    background: rgba(74,222,128,0.2);
+    border-color: #4ade80;
+    box-shadow: 0 0 8px rgba(74,222,128,0.2);
+    color: #4ade80;
+}
+
+/* =========================
+   FORM (ESTILO PRODUCTO 🔥)
+========================= */
+
+/* LABEL */
+/* INPUT EXACTO DEL DISEÑO PRODUCTO */
+.cys-input {
+    width: 100%;
+    background: #0f1b2e !important;
+    border: 1px solid rgba(77,168,218,0.25) !important;
+    color: #e2e8f0 !important;
+    border-radius: 14px !important;
+    padding: 16px 20px !important;
+    font-size: 0.95rem;
+    outline: none;
+    box-shadow: none;
+}
+
+/* FOCUS */
+.cys-input:focus {
+    border-color: #4DA8DA !important;
+    box-shadow: 0 0 0 2px rgba(77,168,218,0.15) !important;
+}
+
+/* PLACEHOLDER */
+.cys-input::placeholder {
+    color: #94a3b8;
+}
+/* =========================
+   EDITAR PROVEEDOR — fix inputs
+========================= */
+.cys-input,
+.cys-input:focus,
+.cys-input:active {
+    background-color: #0b1220 !important;
+    border: 1px solid rgba(77,168,218,0.25) !important;
+    color: #e2e8f0 !important;
+    border-radius: 10px !important;
+    padding: 12px 16px !important;
+    box-shadow: none !important;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cys-input:focus {
+    border-color: #4DA8DA !important;
+    box-shadow: 0 0 0 3px rgba(77,168,218,0.15) !important;
+}
+
+.cys-input::placeholder {
+    color: #475569 !important;
 }

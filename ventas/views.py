@@ -8,7 +8,10 @@ from producto.models import Producto, Inventario, Categoria, PresentacionProduct
 
 
 def ventas_lista(request):
-    ventas     = Venta.objects.prefetch_related('detalles__producto').all()
+    ventas     = Venta.objects.prefetch_related(
+        'detalles__producto',
+        'detalles__presentacion'
+    ).all().order_by('-fecha')
     form       = VentaForm()
     detalle    = DetalleVentaForm()
     categorias = Categoria.objects.prefetch_related('productos__presentaciones').all()
@@ -25,100 +28,109 @@ def nueva_venta(request):
     if request.method != 'POST':
         return redirect('ventas:ventas_lista')
 
-    form            = VentaForm(request.POST)
-    producto_id     = request.POST.get('producto')
-    presentacion_id = request.POST.get('presentacion')
-    cantidad_raw    = request.POST.get('cantidad', '')
-    precio_raw      = request.POST.get('precio_unitario', '')
+    form             = VentaForm(request.POST)
+    producto_ids     = request.POST.getlist('producto_id[]')
+    presentacion_ids = request.POST.getlist('presentacion_id[]')
+    cantidades       = request.POST.getlist('cantidad[]')
+    precios          = request.POST.getlist('precio[]')
 
-    # ── Validar cantidad ───────────────────────────────────────────────────
-    try:
-        cantidad = int(cantidad_raw)
-        if cantidad <= 0:
-            raise ValueError
-    except (ValueError, TypeError):
-        messages.error(request, "La cantidad debe ser un número entero mayor a 0.")
+    if not producto_ids:
+        messages.error(request, "El carrito está vacío.")
         return redirect('ventas:ventas_lista')
 
-    # ── Validar precio ─────────────────────────────────────────────────────
-    try:
-        precio = Decimal(precio_raw)
-        if precio < 0:
-            raise ValueError
-    except (InvalidOperation, ValueError, TypeError):
-        messages.error(request, "El precio no es válido.")
-        return redirect('ventas:ventas_lista')
-
-    # ── Obtener producto ───────────────────────────────────────────────────
-    try:
-        producto = Producto.objects.prefetch_related('presentaciones').get(pk=producto_id)
-    except Producto.DoesNotExist:
-        messages.error(request, "Producto no encontrado.")
-        return redirect('ventas:ventas_lista')
-
-    # ── Verificar stock y obtener presentación ─────────────────────────────
-    presentacion = None
-
-    if presentacion_id:
-        try:
-            presentacion = PresentacionProducto.objects.get(pk=presentacion_id, producto=producto)
-        except PresentacionProducto.DoesNotExist:
-            messages.error(request, "Presentación no válida para este producto.")
-            return redirect('ventas:ventas_lista')
-
-        if cantidad > presentacion.cantidad:
-            messages.error(
-                request,
-                f"Stock insuficiente. Solo hay {presentacion.cantidad} "
-                f"'{presentacion.nombre}' de {producto.nombre}."
-            )
-            return redirect('ventas:ventas_lista')
-    else:
-        if cantidad > producto.cantidad_disponible:
-            messages.error(
-                request,
-                f"Stock insuficiente. Solo hay {producto.cantidad_disponible} "
-                f"unidades sueltas de {producto.nombre}."
-            )
-            return redirect('ventas:ventas_lista')
-
-    # ── Guardar venta ──────────────────────────────────────────────────────
     if not form.is_valid():
         messages.error(request, "Revisa los campos del formulario.")
         return redirect('ventas:ventas_lista')
 
+    items_validados = []
+    for i, prod_id in enumerate(producto_ids):
+        try:
+            cantidad = int(cantidades[i])
+            precio   = Decimal(precios[i])
+            if cantidad <= 0 or precio < 0:
+                raise ValueError
+        except (ValueError, TypeError, InvalidOperation, IndexError):
+            messages.error(request, f"Datos inválidos en el ítem {i+1}.")
+            return redirect('ventas:ventas_lista')
+
+        try:
+            producto = Producto.objects.prefetch_related('presentaciones').get(pk=prod_id)
+        except Producto.DoesNotExist:
+            messages.error(request, f"Producto {i+1} no encontrado.")
+            return redirect('ventas:ventas_lista')
+
+        pres_id      = presentacion_ids[i] if i < len(presentacion_ids) else ''
+        presentacion = None
+
+        if pres_id:
+            try:
+                presentacion = PresentacionProducto.objects.get(pk=pres_id, producto=producto)
+            except PresentacionProducto.DoesNotExist:
+                messages.error(request, f"Presentación inválida para {producto.nombre}.")
+                return redirect('ventas:ventas_lista')
+
+            if cantidad > presentacion.cantidad:
+                messages.error(
+                    request,
+                    f"Stock insuficiente: solo hay {presentacion.cantidad} "
+                    f"'{presentacion.nombre}' de {producto.nombre}."
+                )
+                return redirect('ventas:ventas_lista')
+        else:
+            if cantidad > producto.cantidad_disponible:
+                messages.error(
+                    request,
+                    f"Stock insuficiente: solo hay {producto.cantidad_disponible} "
+                    f"unidades sueltas de {producto.nombre}."
+                )
+                return redirect('ventas:ventas_lista')
+
+        items_validados.append({
+            'producto':     producto,
+            'presentacion': presentacion,
+            'cantidad':     cantidad,
+            'precio':       precio,
+        })
+
     venta = form.save()
 
-    DetalleVenta.objects.create(
-        venta=venta,
-        producto=producto,
-        presentacion=presentacion,
-        cantidad=cantidad,
-        precio_unitario=precio,
+    for item in items_validados:
+        producto     = item['producto']
+        presentacion = item['presentacion']
+        cantidad     = item['cantidad']
+        precio       = item['precio']
+
+        DetalleVenta.objects.create(
+            venta=venta,
+            producto=producto,
+            presentacion=presentacion,
+            cantidad=cantidad,
+            precio_unitario=precio,
+        )
+
+        if presentacion:
+            presentacion.cantidad -= cantidad
+            presentacion.save()
+            unidades = cantidad * presentacion.unidades
+        else:
+            producto.cantidad_disponible -= cantidad
+            producto.save()
+            unidades = cantidad
+
+        Inventario.objects.create(
+            producto=producto,
+            tipo='salida',
+            cantidad=unidades,
+            motivo='Venta registrada',
+            ubicacion='Venta',
+        )
+
+    total = sum(i['cantidad'] * i['precio'] for i in items_validados)
+    messages.success(
+        request,
+        f"Venta registrada: {len(items_validados)} producto(s) — "
+        f"Total: ${total:,.0f}".replace(',', '.')
     )
-
-    # ── Descontar stock ────────────────────────────────────────────────────
-    if presentacion:
-        presentacion.cantidad -= cantidad
-        presentacion.save()
-        unidades_descontadas = cantidad * presentacion.unidades
-        desc = f"'{presentacion.nombre}'"
-    else:
-        producto.cantidad_disponible -= cantidad
-        producto.save()
-        unidades_descontadas = cantidad
-        desc = "unidades sueltas"
-
-    # ── Registrar movimiento de salida ─────────────────────────────────────
-    Inventario.objects.create(
-        producto=producto,
-        tipo='salida',
-        cantidad=unidades_descontadas,
-        motivo='Venta registrada',
-        ubicacion='Venta',
-    )
-
-    messages.success(request, f"Venta registrada: {cantidad} {desc} de {producto.nombre}.")
     return redirect('ventas:ventas_lista')
 
 
@@ -135,7 +147,6 @@ def eliminar_venta(request, pk):
                 det.producto.save()
                 unidades = det.cantidad
 
-            # Registrar devolución al inventario
             Inventario.objects.create(
                 producto=det.producto,
                 tipo='entrada',
