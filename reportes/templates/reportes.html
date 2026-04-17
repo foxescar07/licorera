@@ -116,11 +116,6 @@
                value="{{ fecha_inicio }}">
       </div>
       <div class="col-md-3">
-        <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Fecha fin</label>
-        <input type="date" name="fecha_fin" class="form-control form-control-sm"
-               value="{{ fecha_fin }}">
-      </div>
-      <div class="col-md-3">
         <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Categoría</label>
         <select name="categoria" class="form-select form-select-sm">
           <option value="">Todas</option>
@@ -136,7 +131,6 @@
         <input type="text" name="cliente" class="form-control form-control-sm"
                placeholder="Nombre cliente…" value="{{ cliente_q }}">
       </div>
-      <!-- NUEVO: Filtro por producto -->
       <div class="col-md-3">
         <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Producto</label>
         <input type="text" name="producto" class="form-control form-control-sm"
@@ -233,7 +227,6 @@
       </div>
 
       <div class="cys-modal__filters" style="flex-wrap:wrap; gap:8px;">
-        <!-- Búsqueda en tabla de productos -->
         <input type="text" id="invSearch" class="cys-search" placeholder="Buscar producto…"
                onkeyup="filtrarInventario()">
         <select id="invEstado" class="cys-select" onchange="filtrarInventario()">
@@ -256,7 +249,6 @@
             Limpiar
           </button>
         </div>
-        <!-- NUEVO: filtro por producto en entradas/salidas -->
         <input type="text" id="invProductoMov" class="cys-search"
                placeholder="Filtrar entradas/salidas por producto…"
                style="min-width:240px;" oninput="filtrarMovimientosInventario()">
@@ -510,7 +502,6 @@
             Limpiar
           </button>
         </div>
-        <!-- NUEVO: filtro por producto en Resumen Diario -->
         <input type="text" id="rdProducto" class="cys-search"
                placeholder="Filtrar por producto…"
                style="min-width:200px;" oninput="filtrarResumenDiario()">
