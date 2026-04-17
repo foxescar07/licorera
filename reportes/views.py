@@ -8,22 +8,19 @@ def reportes(request):
 
     # ── Filtros de ventas ──────────────────────────────────────────
     fecha_inicio = request.GET.get('fecha_inicio')
-    fecha_fin    = request.GET.get('fecha_fin')
     categoria_id = request.GET.get('categoria')
     cliente_q    = request.GET.get('cliente')
-    producto_q   = request.GET.get('producto')   # ← NUEVO
+    producto_q   = request.GET.get('producto')
 
     ventas = Venta.objects.prefetch_related('detalles__producto').all()
 
     if fecha_inicio:
         ventas = ventas.filter(fecha__date__gte=fecha_inicio)
-    if fecha_fin:
-        ventas = ventas.filter(fecha__date__lte=fecha_fin)
     if categoria_id:
         ventas = ventas.filter(detalles__producto__categoria__id=categoria_id).distinct()
     if cliente_q:
-        ventas = ventas.filter(cliente__icontains=cliente_q)
-    if producto_q:                                # ← NUEVO
+        ventas = ventas.filter(cliente__icontains=cliente_q).distinct()
+    if producto_q:
         ventas = ventas.filter(detalles__producto__nombre__icontains=producto_q).distinct()
 
     # ── Datos generales ────────────────────────────────────────────
@@ -55,35 +52,32 @@ def reportes(request):
     total_salidas_hoy  = sum(s.cantidad for s in salidas_hoy)
 
     return render(request, 'reportes.html', {
+        'ventas':             ventas,
+        'total_ventas':       total_ventas,
+        'total_productos':    total_productos,
+        'total_clientes':     total_clientes,
 
-        'ventas':            ventas,
-        'total_ventas':      total_ventas,
-        'total_productos':   total_productos,
-        'total_clientes':    total_clientes,
+        'productos':          productos,
+        'proveedores':        proveedores,
+        'categorias':         categorias,
 
-        'productos':         productos,
-        'proveedores':       proveedores,
-        'categorias':        categorias,
+        'total_registrados':  total_registrados,
+        'total_en_stock':     total_en_stock,
+        'total_stock_bajo':   total_stock_bajo,
+        'total_agotados':     total_agotados,
+        'entradas':           entradas,
+        'salidas':            salidas,
 
-        'total_registrados': total_registrados,
-        'total_en_stock':    total_en_stock,
-        'total_stock_bajo':  total_stock_bajo,
-        'total_agotados':    total_agotados,
-        'entradas':          entradas,
-        'salidas':           salidas,
+        'fecha_inicio':       fecha_inicio or '',
+        'categoria_id':       categoria_id or '',
+        'cliente_q':          cliente_q or '',
+        'producto_q':         producto_q or '',
 
-        # Filtros activos
-        'fecha_inicio':      fecha_inicio or '',
-        'categoria_id':      categoria_id or '',
-        'cliente_q':         cliente_q or '',
-        'producto_q':        producto_q or '',   # ← NUEVO
-
-        # Resumen diario
-        'hoy':               hoy,
-        'ventas_hoy':        ventas_hoy,
-        'ingresos_hoy':      ingresos_hoy,
-        'entradas_hoy':      entradas_hoy,
-        'salidas_hoy':       salidas_hoy,
+        'hoy':                hoy,
+        'ventas_hoy':         ventas_hoy,
+        'ingresos_hoy':       ingresos_hoy,
+        'entradas_hoy':       entradas_hoy,
+        'salidas_hoy':        salidas_hoy,
         'total_entradas_hoy': total_entradas_hoy,
         'total_salidas_hoy':  total_salidas_hoy,
     })
