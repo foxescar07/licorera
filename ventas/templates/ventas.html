@@ -26,8 +26,6 @@
   {% endif %}
 
   <div class="row g-4">
-
-    <!-- ══ COLUMNA IZQUIERDA: selector ══ -->
     <div class="col-lg-7">
       <section class="cys-card" style="min-height:600px;">
         <div class="cys-card__title">Selecciona Productos</div>
@@ -65,7 +63,6 @@
           <div class="cys-producto-lista" id="productoLista"></div>
         </div>
 
-        <!-- Datos ocultos -->
         <div id="datosProductos" style="display:none;">
           {% for cat in categorias %}
             {% for p in cat.productos.all %}
@@ -75,18 +72,14 @@
                  data-nombre="{{ p.nombre }}"
                  data-stock="{{ p.cantidad_disponible }}"
                  data-precio-unitario="{{ p.precio_unitario }}"
-                 data-unidad="{{ p.unidad }}"
-                 data-critico="{% if p.stock_critico %}1{% else %}0{% endif %}"
-                 data-presentaciones='[{% for pr in p.presentaciones.all %}{"id":{{ pr.id }},"nombre":"{{ pr.nombre|escapejs }}","unidades":{{ pr.unidades }},"cantidad":{{ pr.cantidad }},"precio":"{{ pr.precio }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+                 data-unidad="{{ p.unidad }}">
             </div>
             {% endfor %}
           {% endfor %}
         </div>
-
       </section>
     </div>
 
-    <!-- ══ COLUMNA DERECHA: carrito ══ -->
     <div class="col-lg-5">
       <section class="cys-card" style="min-height:600px;">
         <div class="cys-card__title">Carrito de Venta</div>
@@ -94,68 +87,57 @@
         <form method="POST" action="{% url 'ventas:nueva_venta' %}" id="formVenta">
           {% csrf_token %}
 
-          <!-- Cliente -->
           <div class="mb-4">
             <label class="cys-form-label">Cliente</label>
             {{ form.cliente }}
           </div>
 
-          <!-- Carrito vacío -->
-          <div id="carritoVacio" style="text-align:center; padding:2rem 0;
-               color:var(--texto-muted); font-size:.85rem;">
-            <i class="bi bi-cart3" style="font-size:2rem; display:block;
-               margin-bottom:.5rem; color:var(--azul-borde);"></i>
+          <div id="carritoVacio" style="text-align:center; padding:2rem 0; color:var(--texto-muted); font-size:.85rem;">
+            <i class="bi bi-cart3" style="font-size:2rem; display:block; margin-bottom:.5rem; color:var(--azul-borde);"></i>
             Selecciona productos desde el panel izquierdo
           </div>
 
-          <!-- Ítems del carrito -->
           <div id="carritoItems" style="display:none; margin-bottom:1rem;">
-            <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase;
-                        letter-spacing:.08em; margin-bottom:.75rem;">
+            <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.75rem;">
               <i class="bi bi-cart3 me-1"></i> Productos seleccionados
             </div>
             <div id="listaCarrito" class="d-flex flex-column gap-2"></div>
           </div>
 
-          <!-- Total general -->
-          <div id="totalGeneral" style="display:none; background:rgba(77,168,218,.08);
-               border:1px solid var(--azul-borde); border-radius:10px;
-               padding:.9rem 1.1rem; margin-bottom:1rem;">
-            <div class="d-flex justify-content-between align-items-center">
-              <span style="font-size:.82rem; color:var(--texto-muted); font-weight:600;
-                            text-transform:uppercase; letter-spacing:.06em;">
-                Total estimado
-              </span>
-              <span id="totalGeneralVal" style="font-size:1.4rem; font-weight:800;
-                    color:var(--azul-claro); font-family:'Rajdhani',sans-serif;">
-                $0
-              </span>
+          <div id="seccionDescuento" style="display:none; margin-bottom: 1rem;">
+            <div class="d-flex justify-content-between align-items-center" 
+                 style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem .9rem;">
+                <span style="font-size:.75rem; color:var(--texto-muted); font-weight:600; text-transform:uppercase;">
+                    <i class="bi bi-percent me-1"></i> Descuento
+                </span>
+                <div class="input-group input-group-sm" style="width: 100px;">
+                    <input type="number" id="inputDescuento" name="descuento_porcentaje" 
+                           class="form-control text-center" value="0" min="0" max="100"
+                           style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--azul-claro); font-weight:bold;">
+                    <span class="input-group-text" style="background:var(--azul-borde); border:none; color:var(--texto); font-size:.7rem;">%</span>
+                </div>
             </div>
           </div>
 
-          <!-- Campos hidden del carrito -->
+          <div id="totalGeneral" style="display:none; background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem 1.1rem; margin-bottom:1rem;">
+            </div>
+
           <div id="camposHidden"></div>
 
-          <button type="submit" class="cys-btn cys-btn--danger w-100"
-                  id="btnRegistrar" disabled>
-            <i class="bi bi-save me-1"></i>
-            Registrar Venta
-            <span id="btnContador" style="background:rgba(255,255,255,.2);
-                  border-radius:20px; padding:.1rem .5rem; font-size:.75rem; margin-left:.4rem;
-                  display:none;">0</span>
+          <button type="submit" class="cys-btn cys-btn--danger w-100" id="btnRegistrar" disabled>
+            <i class="bi bi-save me-1"></i> Registrar Venta
+            <span id="btnContador" style="background:rgba(255,255,255,.2); border-radius:20px; padding:.1rem .5rem; font-size:.75rem; margin-left:.4rem; display:none;">0</span>
           </button>
         </form>
       </section>
     </div>
   </div>
 
-  <!-- ══ HISTORIAL ══ -->
   {% if ventas %}
   <section class="cys-card mt-4">
     <div class="cys-card__title">Historial de Ventas</div>
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0"
-             style="--bs-table-bg:transparent; --bs-table-hover-bg:rgba(77,168,218,.08); color:var(--texto);">
+      <table class="table table-hover align-middle mb-0" style="--bs-table-bg:transparent; --bs-table-hover-bg:rgba(77,168,218,.08); color:var(--texto);">
         <thead style="background:var(--fondo-card2);">
           <tr style="border-bottom:2px solid var(--azul-borde);">
             <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
@@ -174,12 +156,8 @@
             <td style="font-size:.85rem; font-weight:600; color:var(--texto);">{{ v.cliente }}</td>
             <td>
               {% for det in v.detalles.all %}
-                <span class="badge me-1"
-                      style="background:rgba(77,168,218,.12); color:var(--azul-claro);
-                             border:1px solid var(--azul-borde); font-size:.68rem; padding:.3rem .5rem;">
-                  {{ det.producto.nombre }}
-                  {% if det.presentacion %}({{ det.presentacion.nombre }}){% endif %}
-                  × {{ det.cantidad }}
+                <span class="badge me-1" style="background:rgba(77,168,218,.12); color:var(--azul-claro); border:1px solid var(--azul-borde); font-size:.68rem; padding:.3rem .5rem;">
+                  {{ det.producto.nombre }} × {{ det.cantidad }}
                 </span>
               {% endfor %}
             </td>
@@ -187,12 +165,9 @@
               ${{ v.total_venta|floatformat:0 }}
             </td>
             <td>
-              <form method="POST" action="{% url 'ventas:eliminar_venta' v.pk %}"
-                    onsubmit="return confirm('¿Eliminar esta venta y restaurar stock?')">
+              <form method="POST" action="{% url 'ventas:eliminar_venta' v.pk %}" onsubmit="return confirm('¿Eliminar esta venta?')">
                 {% csrf_token %}
-                <button type="submit" class="cys-btn-sm cys-btn-sm--danger" title="Eliminar">
-                  <i class="bi bi-trash"></i>
-                </button>
+                <button type="submit" class="cys-btn-sm cys-btn-sm--danger"><i class="bi bi-trash"></i></button>
               </form>
             </td>
           </tr>
@@ -203,343 +178,150 @@
   </section>
   {% endif %}
 
-</div>
-{% endblock %}
+</div> 
+{% endblock %} 
 
 {% block extra_js %}
 <script>
 let carrito = [];
 const btnRegistrar = document.getElementById('btnRegistrar');
 
-function agregarAlCarrito(productoId, productoNombre, presentacionId, presNombre,
-                           stockDisp, precio, unidad) {
-  const existente = carrito.find(
-    c => c.productoId == productoId && c.presentacionId == presentacionId
-  );
-  if (existente) {
-    if (existente.cantidad < existente.stockDisp) {
-      existente.cantidad++;
-      existente.subtotal = existente.cantidad * existente.precio;
+function agregarAlCarrito(productoId, productoNombre, presentacionId, presNombre, stockDisp, precio, unidad) {
+    const precioNumerico = parseFloat(precio) || 0;
+    const existente = carrito.find(c => c.productoId == productoId);
+
+    if (existente) {
+        if (existente.cantidad < existente.stockDisp) {
+            existente.cantidad++;
+            existente.subtotal = existente.cantidad * existente.precio;
+        }
+    } else {
+        carrito.push({
+            productoId, productoNombre, stockDisp: parseInt(stockDisp),
+            cantidad: 1, precio: precioNumerico, subtotal: precioNumerico, unidad
+        });
     }
-  } else {
-    carrito.push({
-      productoId, productoNombre,
-      presentacionId: presentacionId || null,
-      presNombre:     presNombre || '',
-      stockDisp,
-      cantidad: 1,
-      precio:   parseFloat(precio),
-      subtotal: parseFloat(precio),
-      unidad,
-    });
-  }
-  renderCarrito();
+    renderCarrito();
 }
 
 function cambiarCantidad(idx, valor) {
-  const item = carrito[idx];
-  if (!item) return;
-  const cant = parseInt(valor) || 0;
-  if (cant <= 0) { quitarDelCarrito(idx); return; }
-  item.cantidad = cant > item.stockDisp ? item.stockDisp : cant;
-  item.subtotal = item.cantidad * item.precio;
-  const inp = document.getElementById(`cant-${idx}`);
-  if (inp) inp.value = item.cantidad;
-  actualizarTotales();
-  actualizarHiddens();
+    const item = carrito[idx];
+    if (!item) return;
+    const cant = parseInt(valor) || 0;
+    if (cant <= 0) { quitarDelCarrito(idx); return; }
+    item.cantidad = cant > item.stockDisp ? item.stockDisp : cant;
+    item.subtotal = item.cantidad * item.precio;
+    renderCarrito();
 }
 
 function quitarDelCarrito(idx) {
-  carrito.splice(idx, 1);
-  renderCarrito();
+    carrito.splice(idx, 1);
+    renderCarrito();
 }
 
 function renderCarrito() {
-  const lista        = document.getElementById('listaCarrito');
-  const carritoVacio = document.getElementById('carritoVacio');
-  const carritoItems = document.getElementById('carritoItems');
-  const totalGeneral = document.getElementById('totalGeneral');
-  const contador     = document.getElementById('btnContador');
+    const lista = document.getElementById('listaCarrito');
+    const carritoVacio = document.getElementById('carritoVacio');
+    const carritoItems = document.getElementById('carritoItems');
+    const totalGeneral = document.getElementById('totalGeneral');
+    const seccionDescuento = document.getElementById('seccionDescuento');
+    const contador = document.getElementById('btnContador');
 
-  if (carrito.length === 0) {
-    carritoVacio.style.display = 'block';
-    carritoItems.style.display = 'none';
-    totalGeneral.style.display = 'none';
-    btnRegistrar.disabled      = true;
-    contador.style.display     = 'none';
-    document.getElementById('camposHidden').innerHTML = '';
-    return;
-  }
+    if (carrito.length === 0) {
+        carritoVacio.style.display = 'block';
+        carritoItems.style.display = 'none';
+        totalGeneral.style.display = 'none';
+        seccionDescuento.style.display = 'none';
+        btnRegistrar.disabled = true;
+        return;
+    }
 
-  carritoVacio.style.display = 'none';
-  carritoItems.style.display = 'block';
-  totalGeneral.style.display = 'block';
-  btnRegistrar.disabled      = false;
-  contador.style.display     = 'inline';
-  contador.textContent       = carrito.length;
+    carritoVacio.style.display = 'none';
+    carritoItems.style.display = 'block';
+    totalGeneral.style.display = 'block';
+    seccionDescuento.style.display = 'block';
+    btnRegistrar.disabled = false;
+    contador.style.display = 'inline';
+    contador.textContent = carrito.length;
 
-  lista.innerHTML = carrito.map((item, i) => `
-    <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde);
-                border-radius:10px; padding:.7rem .9rem;">
-      <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-        <div style="flex:1; min-width:0;">
-          <div style="font-size:.83rem; font-weight:700; color:var(--texto);
-                      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-            ${item.productoNombre}
-          </div>
-          ${item.presNombre
-            ? `<div style="font-size:.72rem; color:var(--azul-claro); margin-top:.1rem;">
-                 <i class="bi bi-layers" style="font-size:.65rem;"></i> ${item.presNombre}
-               </div>`
-            : ''}
+    lista.innerHTML = carrito.map((item, i) => `
+        <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem .9rem; margin-bottom:0.5rem;">
+            <div class="d-flex justify-content-between">
+                <span style="font-size:.83rem; font-weight:700; color:var(--texto);">${item.productoNombre}</span>
+                <button type="button" onclick="quitarDelCarrito(${i})" class="btn-close btn-close-white" style="font-size:0.6rem;"></button>
+            </div>
+            <div class="d-flex align-items-center gap-2 mt-2">
+                <input type="number" value="${item.cantidad}" min="1" max="${item.stockDisp}" 
+                       onchange="cambiarCantidad(${i}, this.value)"
+                       style="width:50px; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:5px;">
+                <span style="font-size:.75rem; color:var(--texto-muted);">x $${item.precio.toLocaleString('es-CO')}</span>
+                <span style="font-size:.88rem; font-weight:700; color:var(--azul-claro); margin-left:auto;">$${item.subtotal.toLocaleString('es-CO')}</span>
+            </div>
         </div>
-        <button type="button" onclick="quitarDelCarrito(${i})"
-                style="background:rgba(192,57,43,.15); border:1px solid rgba(192,57,43,.3);
-                       color:var(--rojo); width:26px; height:26px; border-radius:6px; flex-shrink:0;
-                       display:flex; align-items:center; justify-content:center; cursor:pointer;">
-          <i class="bi bi-x-lg" style="font-size:.65rem;"></i>
-        </button>
-      </div>
-      <div class="d-flex align-items-center gap-2">
-        <button type="button" onclick="cambiarCantidad(${i}, ${item.cantidad - 1})"
-                style="background:var(--fondo-card); border:1px solid var(--azul-borde);
-                       color:var(--texto); width:28px; height:28px; border-radius:6px;
-                       display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
-          <i class="bi bi-dash"></i>
-        </button>
-        <input type="number" id="cant-${i}" value="${item.cantidad}" min="1" max="${item.stockDisp}"
-               onchange="cambiarCantidad(${i}, this.value)"
-               style="width:52px; text-align:center; background:var(--fondo-card);
-                      border:1px solid var(--azul-borde); color:var(--texto);
-                      border-radius:6px; padding:.25rem .3rem; font-size:.83rem;">
-        <button type="button" onclick="cambiarCantidad(${i}, ${item.cantidad + 1})"
-                style="background:var(--fondo-card); border:1px solid var(--azul-borde);
-                       color:var(--texto); width:28px; height:28px; border-radius:6px;
-                       display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
-          <i class="bi bi-plus"></i>
-        </button>
-        <span style="font-size:.75rem; color:var(--texto-muted); flex:1;">
-          × $${parseFloat(item.precio).toLocaleString('es-CO')}
-        </span>
-        <span id="sub-${i}" style="font-size:.88rem; font-weight:700; color:var(--azul-claro); flex-shrink:0;">
-          $${item.subtotal.toLocaleString('es-CO')}
-        </span>
-      </div>
-      <div style="font-size:.68rem; color:var(--texto-muted); margin-top:.35rem;">
-        Stock disponible: <strong style="color:var(--azul-claro);">${item.stockDisp}</strong>
-      </div>
-    </div>`).join('');
+    `).join('');
 
-  actualizarTotales();
-  actualizarHiddens();
-}
+    const subtotalBruto = carrito.reduce((s, c) => s + c.subtotal, 0);
+    const pct = parseFloat(document.getElementById('inputDescuento').value) || 0;
+    const ahorro = subtotalBruto * (pct / 100);
+    const totalFinal = subtotalBruto - ahorro;
 
-function actualizarTotales() {
-  const total = carrito.reduce((s, c) => s + c.subtotal, 0);
-  document.getElementById('totalGeneralVal').textContent = '$' + total.toLocaleString('es-CO');
-  carrito.forEach((item, i) => {
-    const el = document.getElementById(`sub-${i}`);
-    if (el) el.textContent = '$' + item.subtotal.toLocaleString('es-CO');
-  });
+    totalGeneral.innerHTML = `
+        <div class="d-flex flex-column gap-1">
+            <div class="d-flex justify-content-between" style="font-size:.75rem; color:var(--texto-muted);">
+                <span>Subtotal:</span>
+                <span style="text-decoration: ${ahorro > 0 ? 'line-through' : 'none'}">$${Math.round(subtotalBruto).toLocaleString('es-CO')}</span>
+            </div>
+            ${ahorro > 0 ? `<div class="d-flex justify-content-between" style="font-size:.75rem; color:#ff4d4d;"><span>Ahorro (${pct}%):</span><span>-$${Math.round(ahorro).toLocaleString('es-CO')}</span></div>` : ''}
+            <div class="d-flex justify-content-between align-items-center mt-1 pt-1" style="border-top:1px solid var(--azul-borde);">
+                <span style="font-size:.82rem; color:var(--texto); font-weight:600;">TOTAL ESTIMADO:</span>
+                <span style="font-size:1.4rem; font-weight:800; color:var(--azul-claro);">$${Math.round(totalFinal).toLocaleString('es-CO')}</span>
+            </div>
+        </div>
+    `;
+    actualizarHiddens();
 }
 
 function actualizarHiddens() {
-  document.getElementById('camposHidden').innerHTML = carrito.map(item => `
-    <input type="hidden" name="producto_id[]"     value="${item.productoId}">
-    <input type="hidden" name="presentacion_id[]" value="${item.presentacionId || ''}">
-    <input type="hidden" name="cantidad[]"        value="${item.cantidad}">
-    <input type="hidden" name="precio[]"          value="${item.precio}">
-  `).join('');
+    document.getElementById('camposHidden').innerHTML = carrito.map(item => `
+        <input type="hidden" name="producto_id[]" value="${item.productoId}">
+        <input type="hidden" name="cantidad[]" value="${item.cantidad}">
+        <input type="hidden" name="precio[]" value="${item.precio}">
+    `).join('');
 }
 
 function renderizarProductos(datos) {
-  const lista = document.getElementById('productoLista');
-  lista.innerHTML = '';
-
-  if (datos.length === 0) {
-    lista.innerHTML = `<div style="color:var(--texto-muted); font-size:.85rem; padding:1rem;">
-      No hay productos disponibles.</div>`;
-    return;
-  }
-
-  datos.forEach(d => {
-    const critico     = d.dataset.critico === '1';
-    const stockSuelto = parseInt(d.dataset.stock) || 0;
-    let pres = [];
-    try { pres = JSON.parse(d.dataset.presentaciones || '[]'); } catch(e) {}
-
-    const stockTotal = pres.reduce((s, p) => s + p.cantidad, stockSuelto);
-    const sinStock   = stockTotal === 0;
-
-    const card = document.createElement('div');
-    card.style.cssText = `background:var(--fondo-card2); border:1px solid var(--azul-borde);
-      border-radius:10px; margin-bottom:.5rem; overflow:hidden;
-      ${sinStock ? 'opacity:.5;' : ''}`;
-
-    const cabecera = document.createElement('div');
-    cabecera.style.cssText = `display:flex; align-items:center; gap:.75rem; padding:.65rem .9rem;
-      ${!sinStock && pres.length === 0 ? 'cursor:pointer;' : ''}`;
-    cabecera.innerHTML = `
-      <div style="width:34px; height:34px; border-radius:8px; flex-shrink:0;
-                  background:rgba(77,168,218,.12); display:flex; align-items:center;
-                  justify-content:center; color:var(--azul-claro); font-size:.9rem;">
-        <i class="bi bi-box-seam"></i>
-      </div>
-      <div style="flex:1; min-width:0;">
-        <div style="font-size:.84rem; font-weight:700; color:var(--texto);
-                    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-          ${d.dataset.nombre}
-        </div>
-        <div style="font-size:.7rem; color:${sinStock ? 'var(--rojo)' : critico ? '#e6a817' : 'var(--texto-muted)'}; margin-top:.1rem;">
-          ${sinStock ? '🚫 Sin stock' : critico ? '⚠ Stock bajo' : 'Disponible'}
-        </div>
-      </div>`;
-
-    if (!sinStock && pres.length === 0) {
-      const precio = parseFloat(d.dataset.precioUnitario) || 0;
-      cabecera.innerHTML += `
-        <div style="text-align:right; flex-shrink:0;">
-          <div style="font-size:.85rem; font-weight:700; color:var(--azul-claro);">
-            $${precio.toLocaleString('es-CO')}
-          </div>
-          <div style="font-size:.68rem; color:var(--texto-muted);">
-            ${stockSuelto} ${d.dataset.unidad}
-          </div>
-        </div>
-        <div style="width:28px; height:28px; border-radius:6px; flex-shrink:0;
-                    background:rgba(77,168,218,.2); display:flex; align-items:center;
-                    justify-content:center; color:var(--azul-claro); font-size:.8rem;">
-          <i class="bi bi-cart-plus"></i>
-        </div>`;
-      cabecera.addEventListener('click', () =>
-        agregarAlCarrito(d.dataset.id, d.dataset.nombre,
-          null, '', stockSuelto, precio, d.dataset.unidad)
-      );
-    } else if (!sinStock && pres.length > 0) {
-      cabecera.innerHTML += `
-        <div style="font-size:.72rem; color:var(--texto-muted); flex-shrink:0; text-align:right;">
-          ${pres.length} presentación${pres.length > 1 ? 'es' : ''}
-        </div>`;
-    }
-
-    card.appendChild(cabecera);
-
-    if (!sinStock && pres.length > 0) {
-      const presContainer = document.createElement('div');
-      presContainer.style.cssText = `border-top:1px solid var(--azul-borde); display:flex; flex-direction:column;`;
-
-      if (stockSuelto > 0) {
-        const precioUnit = parseFloat(d.dataset.precioUnitario) || 0;
-        const fila = document.createElement('div');
-        fila.style.cssText = `display:flex; align-items:center; justify-content:space-between;
-          padding:.45rem .9rem; cursor:pointer; border-bottom:1px solid rgba(77,168,218,.08); transition:background .15s;`;
-        fila.innerHTML = `
-          <div>
-            <span style="font-size:.78rem; font-weight:600; color:var(--texto);">Unidad suelta</span>
-            <span style="font-size:.68rem; color:var(--texto-muted); margin-left:.4rem;">
-              Stock: ${stockSuelto} ${d.dataset.unidad}
-            </span>
-          </div>
-          <div style="display:flex; align-items:center; gap:.6rem;">
-            <span style="font-size:.8rem; font-weight:700; color:var(--azul-claro);">
-              $${precioUnit.toLocaleString('es-CO')}
-            </span>
-            <div style="width:24px; height:24px; border-radius:5px; background:rgba(77,168,218,.2);
-                        display:flex; align-items:center; justify-content:center;
-                        color:var(--azul-claro); font-size:.72rem;">
-              <i class="bi bi-cart-plus"></i>
-            </div>
-          </div>`;
-        fila.addEventListener('mouseenter', () => fila.style.background = 'rgba(77,168,218,.07)');
-        fila.addEventListener('mouseleave', () => fila.style.background = '');
-        fila.addEventListener('click', () =>
-          agregarAlCarrito(d.dataset.id, d.dataset.nombre,
-            null, '', stockSuelto, precioUnit, d.dataset.unidad)
-        );
-        presContainer.appendChild(fila);
-      }
-
-      pres.forEach(pr => {
-        const agotado = pr.cantidad === 0;
-        const fila    = document.createElement('div');
-        fila.style.cssText = `display:flex; align-items:center; justify-content:space-between;
-          padding:.45rem .9rem; border-bottom:1px solid rgba(77,168,218,.08);
-          ${agotado ? 'opacity:.4;' : 'cursor:pointer; transition:background .15s;'}`;
-        fila.innerHTML = `
-          <div>
-            <span style="font-size:.78rem; font-weight:600; color:var(--texto);">${pr.nombre}</span>
-            <span style="font-size:.68rem; color:var(--texto-muted); margin-left:.4rem;">
-              (${pr.unidades} uds)
-              ${agotado ? ' — <span style="color:var(--rojo);">Agotado</span>' : ` Stock: ${pr.cantidad}`}
-            </span>
-          </div>
-          <div style="display:flex; align-items:center; gap:.6rem;">
-            <span style="font-size:.8rem; font-weight:700; color:var(--azul-claro);">
-              $${parseFloat(pr.precio).toLocaleString('es-CO')}
-            </span>
-            ${!agotado ? `
-            <div style="width:24px; height:24px; border-radius:5px; background:rgba(77,168,218,.2);
-                        display:flex; align-items:center; justify-content:center;
-                        color:var(--azul-claro); font-size:.72rem;">
-              <i class="bi bi-cart-plus"></i>
-            </div>` : ''}
-          </div>`;
-        if (!agotado) {
-          fila.addEventListener('mouseenter', () => fila.style.background = 'rgba(77,168,218,.07)');
-          fila.addEventListener('mouseleave', () => fila.style.background = '');
-          fila.addEventListener('click', () =>
-            agregarAlCarrito(d.dataset.id, d.dataset.nombre,
-              pr.id, pr.nombre, pr.cantidad, pr.precio, d.dataset.unidad)
-          );
-        }
-        presContainer.appendChild(fila);
-      });
-
-      card.appendChild(presContainer);
-    }
-
-    lista.appendChild(card);
-  });
+    const lista = document.getElementById('productoLista');
+    lista.innerHTML = '';
+    datos.forEach(d => {
+        const div = document.createElement('div');
+        div.className = 'cys-cat-card mb-2 w-100';
+        div.style.cursor = 'pointer';
+        const precio = parseFloat(d.dataset.precioUnitario) || 0;
+        div.innerHTML = `<div class="p-2"><strong>${d.dataset.nombre}</strong><br><small style="color:var(--azul-claro)">$${precio.toLocaleString('es-CO')}</small></div>`;
+        div.onclick = () => agregarAlCarrito(d.dataset.id, d.dataset.nombre, null, '', d.dataset.stock, precio, d.dataset.unidad);
+        lista.appendChild(div);
+    });
 }
 
-const buscador = document.getElementById('buscadorProducto');
+document.getElementById('buscadorProducto').addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    const filtrados = Array.from(document.querySelectorAll('.dato-producto')).filter(d => d.dataset.nombre.toLowerCase().includes(q));
+    renderizarProductos(filtrados);
+});
+
+document.addEventListener('input', e => { if(e.target.id === 'inputDescuento') renderCarrito(); });
 
 function mostrarProductos(catId, catNombre) {
-  document.getElementById('catTitulo').textContent = catNombre;
-  const datos = Array.from(document.querySelectorAll(`.dato-producto[data-cat="${catId}"]`));
-  renderizarProductos(datos);
-  document.getElementById('vistaCategorias').style.display = 'none';
-  document.getElementById('vistaProductos').style.display  = 'block';
+    document.getElementById('catTitulo').textContent = catNombre;
+    const datos = Array.from(document.querySelectorAll(`.dato-producto[data-cat="${catId}"]`));
+    renderizarProductos(datos);
+    document.getElementById('vistaCategorias').style.display = 'none';
+    document.getElementById('vistaProductos').style.display = 'block';
 }
 
 function volverCategorias() {
-  document.getElementById('vistaProductos').style.display  = 'none';
-  document.getElementById('vistaCategorias').style.display = 'block';
-  buscador.value = '';
+    document.getElementById('vistaProductos').style.display = 'none';
+    document.getElementById('vistaCategorias').style.display = 'block';
 }
-
-buscador.addEventListener('input', function () {
-  const q = this.value.toLowerCase().trim();
-  if (!q) { volverCategorias(); return; }
-  document.getElementById('catTitulo').textContent = `Resultados para "${q}"`;
-  const datos = Array.from(document.querySelectorAll('.dato-producto'))
-    .filter(d => d.dataset.nombre.toLowerCase().includes(q));
-  renderizarProductos(datos);
-  document.getElementById('vistaCategorias').style.display = 'none';
-  document.getElementById('vistaProductos').style.display  = 'block';
-});
-
-document.getElementById('formVenta').addEventListener('submit', function (e) {
-  if (carrito.length === 0) {
-    e.preventDefault();
-    alert('El carrito está vacío. Agrega al menos un producto.');
-    return;
-  }
-  const cliente = document.querySelector('[name="cliente"]').value.trim();
-  if (!cliente) {
-    e.preventDefault();
-    alert('Ingresa el nombre del cliente.');
-  }
-});
 </script>
 {% endblock %}

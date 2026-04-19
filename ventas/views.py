@@ -8,12 +8,12 @@ from producto.models import Producto, Inventario, Categoria, PresentacionProduct
 
 
 def ventas_lista(request):
-    ventas     = Venta.objects.prefetch_related(
+    ventas = Venta.objects.prefetch_related(
         'detalles__producto',
         'detalles__presentacion'
     ).all().order_by('-fecha')
-    form       = VentaForm()
-    detalle    = DetalleVentaForm()
+    form = VentaForm()
+    detalle = DetalleVentaForm()
     categorias = Categoria.objects.prefetch_related('productos__presentaciones').all()
 
     return render(request, 'ventas.html', {
@@ -28,11 +28,17 @@ def nueva_venta(request):
     if request.method != 'POST':
         return redirect('ventas:ventas_lista')
 
-    form             = VentaForm(request.POST)
-    producto_ids     = request.POST.getlist('producto_id[]')
+    form = VentaForm(request.POST)
+    producto_ids = request.POST.getlist('producto_id[]')
     presentacion_ids = request.POST.getlist('presentacion_id[]')
-    cantidades       = request.POST.getlist('cantidad[]')
-    precios          = request.POST.getlist('precio[]')
+    cantidades = request.POST.getlist('cantidad[]')
+    precios = request.POST.getlist('precio[]')
+    
+    # --- NUEVO: CAPTURAR DESCUENTO ---
+    try:
+        descuento_pct = Decimal(request.POST.get('descuento_porcentaje', '0'))
+    except (InvalidOperation, TypeError):
+        descuento_pct = Decimal('0')
 
     if not producto_ids:
         messages.error(request, "El carrito está vacío.")
@@ -43,6 +49,8 @@ def nueva_venta(request):
         return redirect('ventas:ventas_lista')
 
     items_validados = []
+    subtotal_venta = Decimal('0') # Para calcular el total base
+
     for i, prod_id in enumerate(producto_ids):
         try:
             cantidad = int(cantidades[i])
@@ -91,8 +99,18 @@ def nueva_venta(request):
             'cantidad':     cantidad,
             'precio':       precio,
         })
+        
+        # Sumar al subtotal
+        subtotal_venta += (precio * cantidad)
 
-    venta = form.save()
+    # --- NUEVO: CALCULAR TOTAL CON DESCUENTO ---
+    monto_descuento = (subtotal_venta * descuento_pct) / Decimal('100')
+    total_final = subtotal_venta - monto_descuento
+
+    # Guardar la venta con el total final calculado
+    venta = form.save(commit=False)
+    venta.total_venta = total_final # Aseguramos que se guarde el valor con descuento
+    venta.save()
 
     for item in items_validados:
         producto     = item['producto']
@@ -125,11 +143,10 @@ def nueva_venta(request):
             ubicacion='Venta',
         )
 
-    total = sum(i['cantidad'] * i['precio'] for i in items_validados)
     messages.success(
         request,
         f"Venta registrada: {len(items_validados)} producto(s) — "
-        f"Total: ${total:,.0f}".replace(',', '.')
+        f"Total: ${total_final:,.0f}".replace(',', '.')
     )
     return redirect('ventas:ventas_lista')
 
