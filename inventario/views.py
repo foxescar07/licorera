@@ -4,6 +4,8 @@ from producto.models import Producto, AgendaInventario
 from .models import ConteoProducto, SesionConteo, ConteoProducto
 from django.utils import timezone
 from django.db import models as db_models
+from django.http import JsonResponse
+
 
 def inventario_home(request):
     agendas = AgendaInventario.objects.all()
@@ -29,6 +31,9 @@ def inventario_home(request):
                 'estado':     'ok' if diff == 0 else ('sobrante' if diff > 0 else 'faltante'),
             })
 
+    productos_con_codigo = productos.exclude(codigo='').exclude(codigo__isnull=True).count()
+    productos_sin_codigo = productos.filter(codigo='').count() + productos.filter(codigo__isnull=True).count()
+
     if request.method == 'POST':
         AgendaInventario.objects.create(
             titulo=request.POST.get('titulo'),
@@ -45,6 +50,8 @@ def inventario_home(request):
         'conteos': conteos,
         'discrepancias': discrepancias,
         'categoria_activa': categoria_id,
+        'con_codigo': productos_con_codigo,  
+        'sin_codigo': productos_sin_codigo,   
     })
 
 
@@ -118,3 +125,16 @@ def finalizar_inventario(request):
         else:
             messages.error(request, '❌ No hay sesión activa para finalizar.')
         return redirect('inventario:inventario_home')
+
+def guardar_codigo_barras(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+
+    if request.method == 'POST':
+        nuevo_codigo = request.POST.get('codigo', '').strip()
+        if nuevo_codigo:
+            producto.codigo = nuevo_codigo
+            producto.save()
+            return JsonResponse({'ok': True, 'nombre': producto.nombre, 'codigo': nuevo_codigo})
+        return JsonResponse({'ok': False, 'error': 'Código vacío'})
+
+    return JsonResponse({'ok': False, 'error': 'Método no permitido'})
