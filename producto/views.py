@@ -23,7 +23,7 @@ def producto_lista(request):
                 return JsonResponse({'ok': False, 'error': 'Revisa los campos del formulario.', 'errores': errores})
             messages.error(request, "⚠️ Revisa los campos del formulario.")
 
-    categorias = Categoria.objects.all()
+    categorias        = Categoria.objects.all()
     resumen_categorias = []
     for cat in categorias:
         resumen_categorias.append({"nombre": cat.nombre, "total": cat.productos.count(), "pk": cat.pk})
@@ -39,7 +39,7 @@ def producto_lista(request):
 
 
 def producto_detalle(request, pk):
-    producto = get_object_or_404(Producto, pk=pk)
+    producto    = get_object_or_404(Producto, pk=pk)
     movimientos = producto.movimientos.all()
     return render(request, "producto_detalle.html", {"producto": producto, "movimientos": movimientos})
 
@@ -85,41 +85,14 @@ def presentaciones_guardar(request, pk):
 
 def presentaciones_json(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
-    data = list(producto.presentaciones.values("id", "nombre", "unidades", "precio", "cantidad"))
+    data     = list(producto.presentaciones.values("id", "nombre", "unidades", "precio", "cantidad"))
     return JsonResponse({"presentaciones": data, "producto": producto.nombre})
 
 
-def producto_ingreso(request):
-    if request.method == "POST":
-        producto_id     = request.POST.get("producto")
-        presentacion_id = request.POST.get("presentacion")
-        cantidad_raw    = request.POST.get("cantidad", "")
-        notas           = request.POST.get("notas", "")
-
-        try:
-            cantidad = int(cantidad_raw)
-            if cantidad <= 0:
-                raise ValueError
-        except (ValueError, TypeError):
-            messages.error(request, "⚠️ La cantidad debe ser un número válido.")
-            return redirect("producto:producto_lista")
-
-        producto = get_object_or_404(Producto, pk=producto_id)
-
-        if presentacion_id:
-            presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id)
-            presentacion.cantidad += cantidad
-            presentacion.save()
-            messages.success(request, f"✅ Se agregaron {cantidad} a {presentacion.nombre} de {producto.nombre}.")
-        else:
-            producto.cantidad_disponible += cantidad
-            producto.save()
-            messages.success(request, f"✅ Se agregaron {cantidad} unidades sueltas de {producto.nombre}.")
-
-        Inventario.objects.create(producto=producto, cantidad=cantidad, ubicacion=notas)
-        return redirect("producto:producto_lista")
-
-    return redirect("producto:producto_lista")
+# ---------------------------------------------------------------
+# producto_ingreso fue ELIMINADO.
+# El ingreso de stock se maneja desde proveedores → registrar_compra
+# ---------------------------------------------------------------
 
 
 def agenda_lista(request):
@@ -179,13 +152,9 @@ def stock_status(request):
     bajos    = []
 
     for p in productos:
-        stock_presentaciones = p.presentaciones.aggregate(
-            total=Sum('cantidad')
-        )['total'] or 0
+        stock_presentaciones = p.presentaciones.aggregate(total=Sum('cantidad'))['total'] or 0
+        stock_total          = p.cantidad_disponible + stock_presentaciones
 
-        stock_total = p.cantidad_disponible + stock_presentaciones
-
-        # ✅ Crítico = agotado (0), Bajo = hasta 10 unidades
         if stock_total == 0:
             criticos.append({"nombre": p.nombre, "cantidad": stock_total})
         elif stock_total <= 10:
@@ -204,13 +173,16 @@ def stock_status(request):
         "bajos":         bajos,
         "total_alertas": len(criticos) + len(bajos),
     })
-
-    # ✅ Headers anti-caché para que el navegador siempre pida datos frescos
     response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     response['Pragma']        = 'no-cache'
     return response
 
 
+# ===============================
+# SALIDA DE PRODUCTOS
+# Las salidas SÍ se gestionan desde producto:
+# ventas, mermas, daños, ajustes de inventario.
+# ===============================
 def producto_salida(request):
     if request.method == "POST":
         producto_id     = request.POST.get("producto")
