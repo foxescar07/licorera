@@ -104,3 +104,5 @@ def reportes(request):
         'total_entradas_hoy': total_entradas_hoy,
         'total_salidas_hoy':  total_salidas_hoy,
     })
+    
+    
