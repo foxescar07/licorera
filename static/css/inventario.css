@@ -35,6 +35,11 @@
   color: var(--texto-muted);
   margin-top: .15rem;
 }
+.inv-quick-card {
+  height: 100%;
+  min-height: 80px;
+  align-items: center;
+}
 
 /* ── AGENDA ITEMS ────────────────────────────────── */
 .inv-agenda-item {
@@ -238,4 +243,26 @@
   top: 0; left: 0;
   opacity: 0.3;
 }
+.inv-quick-card__title,
+.inv-quick-card__sub {
+  font-family: 'Rajdhani', sans-serif;
+}
+/* ── TABLA REGISTRAR CÓDIGOS ─────────────────────── */
+#tbody-codigos tr td {
+  color: var(--texto) !important;
+  font-size: .85rem;
+}
 
+/* excluir badges para que mantengan su color */
+#tbody-codigos tr td .inv-badge {
+  color: unset !important;
+}
+
+#tbody-codigos .cys-btn-sm {
+  font-size: .72rem !important;
+  padding: .35rem .75rem !important;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
