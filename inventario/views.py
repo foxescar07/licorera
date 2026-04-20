@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from producto.models import Producto, AgendaInventario
-from .models import ConteoProducto, SesionConteo
-
+from .models import ConteoProducto, SesionConteo, ConteoProducto
+from django.utils import timezone
+from django.db import models as db_models
 
 def inventario_home(request):
     agendas = AgendaInventario.objects.all()
@@ -89,3 +90,31 @@ def ajustar_inventario(request, pk):
             messages.error(request, '❌ Cantidad inválida.')
 
     return redirect('inventario:inventario_home')
+
+from .models import ConteoProducto, SesionConteo, ResultadoInventario 
+
+def finalizar_inventario(request):
+    if request.method == 'POST':
+        # ✅ Usa activa=True, no estado='activa'
+        sesion = SesionConteo.objects.filter(activa=True).first()
+        if sesion:
+            conteos = sesion.conteos.select_related('producto')
+            for conteo in conteos:
+                ResultadoInventario.objects.update_or_create(
+                    sesion=sesion,
+                    producto=conteo.producto,
+                    defaults={
+                        'cantidad_sistema': conteo.producto.cantidad_disponible,
+                        'cantidad_fisica':  conteo.cantidad_contada,
+                        'diferencia':       conteo.cantidad_contada - conteo.producto.cantidad_disponible,
+                    }
+                )
+            # ✅ Marca como inactiva Y como finalizada
+            sesion.activa = False
+            sesion.estado = 'finalizada'
+            sesion.fecha_fin = timezone.now()
+            sesion.save()
+            messages.success(request, '✅ Inventario finalizado y resultados guardados.')
+        else:
+            messages.error(request, '❌ No hay sesión activa para finalizar.')
+        return redirect('inventario:inventario_home')
