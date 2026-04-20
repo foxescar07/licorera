@@ -3,8 +3,10 @@ from producto.models import Producto, PresentacionProducto
 
 
 class Venta(models.Model):
-    cliente = models.CharField(max_length=100)
-    fecha   = models.DateTimeField(auto_now_add=True)
+    cliente             = models.CharField(max_length=100)
+    fecha               = models.DateTimeField(auto_now_add=True)
+    descuento_porcentaje = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    total_con_descuento  = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     class Meta:
         verbose_name        = "Venta"
@@ -14,15 +16,12 @@ class Venta(models.Model):
     def __str__(self):
         return f"{self.cliente} — {self.fecha:%d/%m/%Y %H:%M}"
 
-    def total(self):
+    def subtotal(self):
         return sum(d.subtotal() for d in self.detalles.all())
 
     @property
     def total_venta(self):
-        return sum(
-            det.cantidad * det.precio_unitario
-            for det in self.detalles.all()
-        )
+        return self.total_con_descuento if self.total_con_descuento else self.subtotal()
 
 
 class DetalleVenta(models.Model):
