@@ -639,8 +639,8 @@
         </div>
       </div>
       <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex gap-2">
-        <button type="button" class="cys-btn cys-btn--outline flex-fill" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i> Cancelar
+        <button type="button"class="cys-btn cys-btn--outline flex-fill" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1" style="color:var(--rojo);"></i> Cancelar
         </button>
         <button type="button" id="btn-confirmar-ajuste" class="cys-btn cys-btn--primary flex-fill">
           <i class="bi bi-check-circle me-1"></i> Confirmar
@@ -679,8 +679,9 @@ function abrirDetalle(nombre, codigo, categoria, precio, cantidad, unidad, descr
   document.getElementById('inv-det-descripcion').textContent = descripcion || 'Sin descripción';
   new bootstrap.Modal(document.getElementById('modalDetalleProducto')).show();
 }
+  function abrirConfirmarAjuste(btn) {
 
-function abrirConfirmarAjuste(btn) {
+  btn.blur(); 
   const pk      = btn.dataset.pk;
   const nombre  = btn.dataset.nombre;
   const sistema = btn.dataset.sistema;
@@ -693,12 +694,19 @@ function abrirConfirmarAjuste(btn) {
   document.getElementById('ajuste-cantidad-input').value = fisico;
   document.getElementById('form-ajuste-oculto').action   = `/inventario/ajustar/${pk}/`;
 
-  new bootstrap.Modal(document.getElementById('modalConfirmarAjuste')).show();
-}
+  const modalComparar = bootstrap.Modal.getInstance(document.getElementById('modalComparar'));
 
-document.getElementById('btn-confirmar-ajuste').addEventListener('click', function () {
-  document.getElementById('form-ajuste-oculto').submit();
-});
+  // Paso 1: cierra el modal de comparar
+  modalComparar.hide();
+
+  // Paso 2: espera a que termine de cerrarse, LUEGO abre el de confirmación
+  document.getElementById('modalComparar').addEventListener('hidden.bs.modal', function abrirSiguiente() {
+    new bootstrap.Modal(document.getElementById('modalConfirmarAjuste')).show();
+    // Elimina el listener para que no se acumule si el usuario repite el proceso
+    document.getElementById('modalComparar').removeEventListener('hidden.bs.modal', abrirSiguiente);
+
+  });
+}
 
 // ── ESCÁNER DE CÓDIGO DE BARRAS ───────────────────
 (function () {
