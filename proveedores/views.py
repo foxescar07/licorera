@@ -34,18 +34,13 @@ def inicio_proveedores(request):
         form = ProveedorForm()
 
     context = {
-        'proveedores':         proveedores,
-        'form':                form,
-        'total_proveedores':   total,
-        'nuevos_mes':          nuevos,
-        'proveedores_activos': total,
-
-        'ordenes_pendientes': 0,
-        'porcentaje_activos': 100 if total > 0 else 0,
-
-        'ordenes_pendientes':  0,
-        'porcentaje_activos':  100 if total > 0 else 0,
-
+        'proveedores':          proveedores,
+        'form':                 form,
+        'total_proveedores':    total,
+        'nuevos_mes':           nuevos,
+        'proveedores_activos':  total,
+        'ordenes_pendientes':   0,
+        'porcentaje_activos':   100 if total > 0 else 0,
         'ultima_actualizacion': fecha_u,
     }
     return render(request, 'proveedores/proveedor.html', context)
@@ -71,7 +66,7 @@ def editar_proveedor(request, id):
         form = ProveedorForm(instance=proveedor)
 
     return render(request, 'proveedores/editar_proveedor.html', {
-        'form': form,
+        'form':      form,
         'proveedor': proveedor
     })
 
@@ -89,7 +84,7 @@ def eliminar_proveedor(request, id):
 
 
 # ===============================
-# MARCAR COMPRA COMO RECIBIDA  ← NUEVA VISTA
+# MARCAR COMPRA COMO RECIBIDA
 # ===============================
 def marcar_recibida(request, compra_id):
     if request.method == 'POST':
@@ -104,20 +99,13 @@ def marcar_recibida(request, compra_id):
 # REGISTRAR COMPRA
 # ===============================
 def registrar_compra(request, proveedor_id):
-
     proveedor_obj     = get_object_or_404(Proveedor, id=proveedor_id)
-    productos         = Producto.objects.all()
+    productos         = Producto.objects.prefetch_related('presentaciones').all()
     todos_proveedores = Proveedor.objects.all().order_by('nombre_empresa')
     compras           = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
     subtotal          = sum(c.total for c in compras if c.total)
-
-    # ← NUEVAS LÍNEAS: compras pendientes de recibir
-    pendientes       = Compra.objects.filter(recibida=False).order_by('-fecha_registro')[:5]
-    total_pendientes = Compra.objects.filter(recibida=False).count()
-    proveedor_obj = get_object_or_404(Proveedor, id=proveedor_id)
-    productos     = Producto.objects.prefetch_related('presentaciones').all()
-    compras       = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
-
+    pendientes        = Compra.objects.filter(recibida=False).order_by('-fecha_registro')[:5]
+    total_pendientes  = Compra.objects.filter(recibida=False).count()
 
     if request.method == 'POST':
         id_prod = request.POST.get('producto')
@@ -131,35 +119,26 @@ def registrar_compra(request, proveedor_id):
                 producto_instancia = Producto.objects.get(id=int(id_prod))
                 cantidad_int       = int(cant)
 
+                if cantidad_int <= 0:
+                    messages.error(request, "La cantidad debe ser mayor a cero.")
+                    return redirect('registrar_compra', proveedor_id=proveedor_id)
 
                 Compra.objects.create(
                     proveedor       = proveedor_obj,
                     producto        = producto_instancia,
                     cantidad        = cantidad_int,
                     precio_unitario = precio if precio else None,
-
-
-                if cantidad_int <= 0:
-                    messages.error(request, "La cantidad debe ser mayor a cero.")
-                    return redirect('registrar_compra', proveedor_id=proveedor_id)
-
-                Compra.objects.create(
-                    proveedor=proveedor_obj,
-                    producto=producto_instancia,
-                    cantidad=cantidad_int,
-                    precio_unitario=precio
-
                 )
 
                 producto_instancia.cantidad_disponible += cantidad_int
                 producto_instancia.save()
 
                 Inventario.objects.create(
-                    producto=producto_instancia,
-                    tipo='entrada',
-                    cantidad=cantidad_int,
-                    motivo=f'Compra a proveedor: {proveedor_obj.nombre_empresa}',
-                    ubicacion='Ingreso por compra'
+                    producto  = producto_instancia,
+                    tipo      = 'entrada',
+                    cantidad  = cantidad_int,
+                    motivo    = f'Compra a proveedor: {proveedor_obj.nombre_empresa}',
+                    ubicacion = 'Ingreso por compra'
                 )
 
                 messages.success(
@@ -174,19 +153,13 @@ def registrar_compra(request, proveedor_id):
                 messages.error(request, f"Error: {e}")
 
     return render(request, 'proveedores/compra.html', {
-
-        'proveedor':          proveedor_obj,
-        'todos_proveedores':  todos_proveedores,
-        'productos':          productos,
-        'compras':            compras,
-        'subtotal_compras':   subtotal,
-        'pendientes':         pendientes,       # ← NUEVA
-        'total_pendientes':   total_pendientes, # ← NUEVA
-    })
-
-        'proveedor': proveedor_obj,
-        'productos': productos,
-        'compras':   compras,
+        'proveedor':         proveedor_obj,
+        'todos_proveedores': todos_proveedores,
+        'productos':         productos,
+        'compras':           compras,
+        'subtotal_compras':  subtotal,
+        'pendientes':        pendientes,
+        'total_pendientes':  total_pendientes,
     })
 
 
@@ -310,4 +283,4 @@ def gestion_producto_eliminar(request, pk):
         nombre = producto.nombre
         producto.delete()
         messages.success(request, f'✅ Producto "{nombre}" eliminado.')
-    return redirect('gestion_productos')    
+    return redirect('gestion_productos')
