@@ -10,4 +10,5 @@ urlpatterns = [
     path('conteo/', views.conteo_inventario, name='conteo_inventario'),
     path('ajustar/<int:pk>/', views.ajustar_inventario, name='ajustar_inventario'),
     path('finalizar/', views.finalizar_inventario, name='finalizar_inventario'),
+    path('codigos/<int:pk>/guardar/', views.guardar_codigo_barras, name='guardar_codigo'),
 ]
