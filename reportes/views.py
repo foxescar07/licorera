@@ -105,29 +105,4 @@ def reportes(request):
         'total_salidas_hoy':  total_salidas_hoy,
     })
 
-        'ventas':             ventas,
-        'total_ventas':       total_ventas,
-        'total_productos':    total_productos,
-        'total_clientes':     total_clientes,
-        'productos':          productos,
-        'proveedores':        proveedores,
-        'categorias':         categorias,
-        'total_registrados':  total_registrados,
-        'total_en_stock':     total_en_stock,
-        'total_stock_bajo':   total_stock_bajo,
-        'total_agotados':     total_agotados,
-        'entradas':           entradas,
-        'salidas':            salidas,
-        'fecha_inicio':       fecha_inicio or '',
-        'fecha_fin':          fecha_fin or '',
-        'categoria_id':       categoria_id or '',
-        'cliente_q':          cliente_q or '',
-        'hoy':                hoy,
-        'ventas_hoy':         ventas_hoy,
-        'ingresos_hoy':       ingresos_hoy,
-        'entradas_hoy':       entradas_hoy,
-        'salidas_hoy':        salidas_hoy,
-        'total_entradas_hoy': total_entradas_hoy,
-        'total_salidas_hoy':  total_salidas_hoy,
-    })  
-
+      
