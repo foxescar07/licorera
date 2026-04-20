@@ -103,4 +103,5 @@ def reportes(request):
         'salidas_hoy':        salidas_hoy,
         'total_entradas_hoy': total_entradas_hoy,
         'total_salidas_hoy':  total_salidas_hoy,
+
     })
