@@ -27,8 +27,8 @@
   <div class="d-flex justify-content-center align-items-center gap-5 my-4 flex-wrap">
 
     {% if request.session.usuario_rol == 'admin' %}
-    <a href="{% url 'producto:producto_ingreso' %}" class="cys-btn cys-btn--primary">
-      <i class="bi bi-box-arrow-in-down"></i> Registrar Entrada
+    <a href="{% url 'proveedores' %}" class="cys-btn cys-btn--primary">
+     <i class="bi bi-box-arrow-in-down"></i> Registrar Entrada
     </a>
     {% endif %}
 

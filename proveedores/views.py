@@ -3,26 +3,22 @@ from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
 
-# MODELOS
-from producto.models import Producto, Inventario
+from producto.models import Producto, Inventario, Categoria, PresentacionProducto
 from .models import Proveedor, Compra
-
-# FORMS
 from .forms import ProveedorForm
-from .formscomp import CompraForm
 
 
 # ===============================
-# DASHBOARD PROVEEDORES (PRINCIPAL)
+# DASHBOARD PROVEEDORES
 # ===============================
 def inicio_proveedores(request):
     proveedores = Proveedor.objects.all().order_by('-ultima_modificacion')
 
-    total = proveedores.count()
+    total        = proveedores.count()
     hace_30_dias = timezone.now() - timedelta(days=30)
-    nuevos = proveedores.filter(fecha_registro__gte=hace_30_dias).count()
-    ultimo = proveedores.first()
-    fecha_u = ultimo.ultima_modificacion if ultimo else None
+    nuevos       = proveedores.filter(fecha_registro__gte=hace_30_dias).count()
+    ultimo       = proveedores.first()
+    fecha_u      = ultimo.ultima_modificacion if ultimo else None
 
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
@@ -38,13 +34,18 @@ def inicio_proveedores(request):
         form = ProveedorForm()
 
     context = {
-        'proveedores': proveedores,
-        'form': form,
-        'total_proveedores': total,
-        'nuevos_mes': nuevos,
+        'proveedores':         proveedores,
+        'form':                form,
+        'total_proveedores':   total,
+        'nuevos_mes':          nuevos,
         'proveedores_activos': total,
+
         'ordenes_pendientes': 0,
         'porcentaje_activos': 100 if total > 0 else 0,
+
+        'ordenes_pendientes':  0,
+        'porcentaje_activos':  100 if total > 0 else 0,
+
         'ultima_actualizacion': fecha_u,
     }
     return render(request, 'proveedores/proveedor.html', context)
@@ -103,6 +104,7 @@ def marcar_recibida(request, compra_id):
 # REGISTRAR COMPRA
 # ===============================
 def registrar_compra(request, proveedor_id):
+
     proveedor_obj     = get_object_or_404(Proveedor, id=proveedor_id)
     productos         = Producto.objects.all()
     todos_proveedores = Proveedor.objects.all().order_by('nombre_empresa')
@@ -112,36 +114,67 @@ def registrar_compra(request, proveedor_id):
     # ← NUEVAS LÍNEAS: compras pendientes de recibir
     pendientes       = Compra.objects.filter(recibida=False).order_by('-fecha_registro')[:5]
     total_pendientes = Compra.objects.filter(recibida=False).count()
+    proveedor_obj = get_object_or_404(Proveedor, id=proveedor_id)
+    productos     = Producto.objects.prefetch_related('presentaciones').all()
+    compras       = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
+
 
     if request.method == 'POST':
         id_prod = request.POST.get('producto')
         cant    = request.POST.get('cantidad')
         precio  = request.POST.get('precio_unitario')
 
-        if not id_prod or not cant:
-            messages.warning(request, "Selecciona un producto y cantidad.")
+        if not id_prod or not cant or not precio:
+            messages.warning(request, "Completa todos los campos.")
         else:
             try:
                 producto_instancia = Producto.objects.get(id=int(id_prod))
                 cantidad_int       = int(cant)
+
 
                 Compra.objects.create(
                     proveedor       = proveedor_obj,
                     producto        = producto_instancia,
                     cantidad        = cantidad_int,
                     precio_unitario = precio if precio else None,
+
+
+                if cantidad_int <= 0:
+                    messages.error(request, "La cantidad debe ser mayor a cero.")
+                    return redirect('registrar_compra', proveedor_id=proveedor_id)
+
+                Compra.objects.create(
+                    proveedor=proveedor_obj,
+                    producto=producto_instancia,
+                    cantidad=cantidad_int,
+                    precio_unitario=precio
+
                 )
 
                 producto_instancia.cantidad_disponible += cantidad_int
                 producto_instancia.save()
 
-                messages.success(request, f'Compra de "{producto_instancia.nombre}" registrada!')
+                Inventario.objects.create(
+                    producto=producto_instancia,
+                    tipo='entrada',
+                    cantidad=cantidad_int,
+                    motivo=f'Compra a proveedor: {proveedor_obj.nombre_empresa}',
+                    ubicacion='Ingreso por compra'
+                )
+
+                messages.success(
+                    request,
+                    f'✅ {cantidad_int} unidades de "{producto_instancia.nombre}" ingresadas.'
+                )
                 return redirect('registrar_compra', proveedor_id=proveedor_id)
 
+            except Producto.DoesNotExist:
+                messages.error(request, "El producto seleccionado no existe.")
             except Exception as e:
                 messages.error(request, f"Error: {e}")
 
     return render(request, 'proveedores/compra.html', {
+
         'proveedor':          proveedor_obj,
         'todos_proveedores':  todos_proveedores,
         'productos':          productos,
@@ -150,3 +183,131 @@ def registrar_compra(request, proveedor_id):
         'pendientes':         pendientes,       # ← NUEVA
         'total_pendientes':   total_pendientes, # ← NUEVA
     })
+
+        'proveedor': proveedor_obj,
+        'productos': productos,
+        'compras':   compras,
+    })
+
+
+# ===============================
+# GESTIÓN DE PRODUCTOS
+# ===============================
+def gestion_productos(request):
+    productos  = Producto.objects.select_related('categoria').prefetch_related('presentaciones').all()
+    categorias = Categoria.objects.filter(padre__isnull=True).prefetch_related('subcategorias')
+    todas_cats = Categoria.objects.all()
+
+    from producto.forms import ProductoRegistroForm
+    form = ProductoRegistroForm()
+
+    if request.method == 'POST' and request.POST.get('accion') == 'crear_producto':
+        form = ProductoRegistroForm(request.POST)
+        if form.is_valid():
+            p = form.save(commit=False)
+            p.cantidad_disponible = 0
+            p.save()
+            messages.success(request, f'✅ Producto "{p.nombre}" registrado.')
+            return redirect('gestion_productos')
+        else:
+            messages.error(request, '⚠️ Revisa los campos del formulario.')
+
+    return render(request, 'proveedores/gestion_productos.html', {
+        'productos':  productos,
+        'categorias': categorias,
+        'todas_cats': todas_cats,
+        'form':       form,
+    })
+
+
+def gestion_salida(request):
+    if request.method == 'POST':
+        producto_id     = request.POST.get('producto')
+        presentacion_id = request.POST.get('presentacion')
+        cantidad_raw    = request.POST.get('cantidad', '')
+        motivo          = request.POST.get('motivo', '').strip()
+
+        try:
+            cantidad = int(cantidad_raw)
+            if cantidad <= 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            messages.error(request, '⚠️ La cantidad debe ser un número mayor a cero.')
+            return redirect('gestion_productos')
+
+        if not motivo:
+            messages.error(request, '⚠️ Debes indicar el motivo de la salida.')
+            return redirect('gestion_productos')
+
+        producto = get_object_or_404(Producto, pk=producto_id)
+
+        if presentacion_id:
+            presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id, producto=producto)
+            if cantidad > presentacion.cantidad:
+                messages.error(request, f'⚠️ Stock insuficiente: solo hay {presentacion.cantidad} unidades de "{presentacion.nombre}".')
+                return redirect('gestion_productos')
+            presentacion.cantidad -= cantidad
+            presentacion.save()
+            Inventario.objects.create(
+                producto=producto, tipo='salida',
+                cantidad=cantidad * presentacion.unidades,
+                motivo=motivo, ubicacion='Salida manual'
+            )
+            messages.success(request, f'✅ Salida de {cantidad} × "{presentacion.nombre}" registrada.')
+        else:
+            if cantidad > producto.cantidad_disponible:
+                messages.error(request, f'⚠️ Stock insuficiente: solo hay {producto.cantidad_disponible} unidades de "{producto.nombre}".')
+                return redirect('gestion_productos')
+            producto.cantidad_disponible -= cantidad
+            producto.save()
+            Inventario.objects.create(
+                producto=producto, tipo='salida',
+                cantidad=cantidad, motivo=motivo, ubicacion='Salida manual'
+            )
+            messages.success(request, f'✅ Salida de {cantidad} uds de "{producto.nombre}" registrada.')
+
+    return redirect('gestion_productos')
+
+
+def gestion_categoria_crear(request):
+    if request.method == 'POST':
+        nombre      = request.POST.get('nombre', '').strip()
+        codigo      = request.POST.get('codigo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        padre_id    = request.POST.get('padre') or None
+
+        if not nombre or not codigo:
+            messages.error(request, '⚠️ Nombre y código son obligatorios.')
+            return redirect('gestion_productos')
+
+        if Categoria.objects.filter(codigo=codigo).exists():
+            messages.error(request, f'⚠️ Ya existe una categoría con el código "{codigo}".')
+            return redirect('gestion_productos')
+
+        padre = get_object_or_404(Categoria, pk=padre_id) if padre_id else None
+        Categoria.objects.create(nombre=nombre, codigo=codigo, descripcion=descripcion, padre=padre)
+        tipo = 'Subcategoría' if padre else 'Categoría'
+        messages.success(request, f'✅ {tipo} "{nombre}" creada.')
+
+    return redirect('gestion_productos')
+
+
+def gestion_categoria_eliminar(request, pk):
+    categoria = get_object_or_404(Categoria, pk=pk)
+    if request.method == 'POST':
+        if categoria.productos.exists() or categoria.subcategorias.exists():
+            messages.error(request, f'⚠️ No se puede eliminar "{categoria.nombre}": tiene productos o subcategorías asociadas.')
+        else:
+            nombre = categoria.nombre
+            categoria.delete()
+            messages.success(request, f'✅ Categoría "{nombre}" eliminada.')
+    return redirect('gestion_productos')
+
+
+def gestion_producto_eliminar(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == 'POST':
+        nombre = producto.nombre
+        producto.delete()
+        messages.success(request, f'✅ Producto "{nombre}" eliminado.')
+    return redirect('gestion_productos')    

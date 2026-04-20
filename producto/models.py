@@ -6,6 +6,12 @@ class Categoria(models.Model):
     codigo      = models.CharField(max_length=20, unique=True)
     nombre      = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True, null=True)
+    padre       = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='subcategorias'
+    )
 
     class Meta:
         verbose_name        = "Categoría"
@@ -13,6 +19,8 @@ class Categoria(models.Model):
         ordering            = ["nombre"]
 
     def __str__(self):
+        if self.padre:
+            return f"{self.padre.nombre} → {self.nombre}"
         return self.nombre
 
 
@@ -35,7 +43,6 @@ class Producto(models.Model):
 
     @property
     def stock_total(self):
-        """Unidades sueltas + suma del stock de todas las presentaciones"""
         stock_pres = self.presentaciones.aggregate(total=Sum('cantidad'))['total'] or 0
         return self.cantidad_disponible + stock_pres
 
