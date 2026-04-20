@@ -176,7 +176,7 @@
     <div style="padding:1.25rem 1.5rem 1rem;">
       <div style="height:1px; background:rgba(77,168,218,.1); margin-bottom:1.1rem;"></div>
       <p style="color:#cbd5e1; font-size:.95rem; margin:0; line-height:1.65;">
-        ¿Deseas ir a <strong style="color:#4DA8DA;">Gestión de Productos</strong> en Proveedores?
+        ¿Deseas ir a <strong style="color:#4DA8DA;">Gestión de Productos</strong> en Inventario?
       </p>
       <p style="color:rgba(226,232,240,.35); font-size:.8rem; margin-top:.45rem;">
         Allí puedes crear, editar o eliminar productos y categorías.
@@ -213,7 +213,7 @@
 
 {% block extra_js %}
 <script>
-const GESTION_URL = "{% url 'gestion_productos' %}";
+const GESTION_URL = "{% url 'inventario:gestion_productos' %}";
 
 const todoProductos = [
   {% for producto in productos %}

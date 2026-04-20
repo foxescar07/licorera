@@ -53,6 +53,54 @@
     </div>
   </div>
 
+  <!-- MÓDULO GESTIÓN DE PRODUCTOS -->
+  <div class="mb-4">
+    <a href="{% url 'inventario:gestion_productos' %}" style="
+      display:flex; align-items:center; justify-content:space-between;
+      gap:1rem; flex-wrap:wrap; text-decoration:none;
+      background:linear-gradient(135deg, rgba(77,168,218,.1) 0%, rgba(77,168,218,.03) 100%);
+      border:1px solid rgba(77,168,218,.3); border-radius:14px;
+      padding:1.2rem 1.6rem; transition:border-color .2s, background .2s;"
+      onmouseover="this.style.borderColor='#4DA8DA'; this.style.background='linear-gradient(135deg, rgba(77,168,218,.18) 0%, rgba(77,168,218,.07) 100%)'"
+      onmouseout="this.style.borderColor='rgba(77,168,218,.3)'; this.style.background='linear-gradient(135deg, rgba(77,168,218,.1) 0%, rgba(77,168,218,.03) 100%)'">
+      <div class="d-flex align-items-center gap-3">
+        <div style="
+          width:48px; height:48px; border-radius:12px; flex-shrink:0;
+          background:rgba(77,168,218,.14); border:1px solid rgba(77,168,218,.3);
+          display:flex; align-items:center; justify-content:center;
+          font-size:1.3rem; color:#4DA8DA;">
+          <i class="bi bi-box-seam-fill"></i>
+        </div>
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif; font-weight:700;
+                      font-size:1rem; letter-spacing:.08em; text-transform:uppercase; color:#e2e8f0;">
+            Gestión de Productos
+          </div>
+          <div style="font-size:.76rem; color:rgba(226,232,240,.45); margin-top:.1rem;">
+            Registrar productos, salidas, categorías y subcategorías
+          </div>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div class="d-flex gap-2 flex-wrap">
+          <span style="font-size:.68rem; padding:.22rem .6rem; border-radius:999px; font-weight:600;
+                       background:rgba(77,168,218,.1); color:#4DA8DA; border:1px solid rgba(77,168,218,.25);">
+            <i class="bi bi-plus-circle me-1"></i>Nuevo producto
+          </span>
+          <span style="font-size:.68rem; padding:.22rem .6rem; border-radius:999px; font-weight:600;
+                       background:rgba(192,57,43,.1); color:#e87070; border:1px solid rgba(192,57,43,.25);">
+            <i class="bi bi-box-arrow-up me-1"></i>Registrar salida
+          </span>
+          <span style="font-size:.68rem; padding:.22rem .6rem; border-radius:999px; font-weight:600;
+                       background:rgba(77,218,140,.1); color:#5edb97; border:1px solid rgba(77,218,140,.25);">
+            <i class="bi bi-tags me-1"></i>Categorías
+          </span>
+        </div>
+        <i class="bi bi-arrow-right-circle-fill" style="font-size:1.3rem; color:#4DA8DA; opacity:.6; flex-shrink:0; transition:transform .2s, opacity .2s;"></i>
+      </div>
+    </a>
+  </div>
+
   <!-- LISTA DE AGENDAS -->
   <section class="cys-card mb-4">
     <div class="cys-card__title">
@@ -81,7 +129,6 @@
       <!-- TRACKER HORIZONTAL -->
       <div class="inv-tracker">
 
-        <!-- PASO 1: Pendiente -->
         <div class="inv-tracker__step {% if agenda.estado == 'pendiente' %}inv-tracker__step--active-pendiente{% elif agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__step--done-pendiente{% endif %}">
           <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
             {% csrf_token %}
@@ -95,7 +142,6 @@
 
         <div class="inv-tracker__line {% if agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__line--pendiente{% endif %}"></div>
 
-        <!-- PASO 2: En Proceso -->
         <div class="inv-tracker__step {% if agenda.estado == 'en_proceso' %}inv-tracker__step--active-en_proceso{% elif agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__step--done-en_proceso{% endif %}">
           <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
             {% csrf_token %}
@@ -109,7 +155,6 @@
 
         <div class="inv-tracker__line {% if agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__line--en_proceso{% endif %}"></div>
 
-        <!-- PASO 3: Completado -->
         <div class="inv-tracker__step {% if agenda.estado == 'completado' %}inv-tracker__step--active-completado{% endif %}">
           <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
             {% csrf_token %}
@@ -123,7 +168,6 @@
 
         <div class="inv-tracker__line {% if agenda.estado == 'cancelado' %}inv-tracker__line--cancelado{% endif %}"></div>
 
-        <!-- PASO 4: Cancelado -->
         <div class="inv-tracker__step {% if agenda.estado == 'cancelado' %}inv-tracker__step--active-cancelado{% endif %}">
           <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
             {% csrf_token %}
@@ -136,8 +180,6 @@
         </div>
 
       </div>
-      <!-- /TRACKER -->
-
     </div>
     {% empty %}
     <div class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
@@ -221,32 +263,16 @@
     </div>
     <form method="POST" action="{% url 'inventario:finalizar_inventario' %}">
       {% csrf_token %}
-      <div style="
-        background:var(--fondo-card);
-        border:1px solid var(--azul-borde);
-        border-radius:var(--radius);
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        padding:14px 18px;
-        gap:16px;
-      ">
-        <div style="
-          width:34px; height:34px; border-radius:50%; flex-shrink:0;
-          border:2px solid var(--azul-claro); color:var(--azul-claro);
-          display:flex; align-items:center; justify-content:center;
-          font-size:.85rem; font-weight:700;
-        ">3</div>
-
+      <div style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:var(--radius);
+                  display:flex; align-items:center; justify-content:space-between; padding:14px 18px; gap:16px;">
+        <div style="width:34px; height:34px; border-radius:50%; flex-shrink:0;
+                    border:2px solid var(--azul-claro); color:var(--azul-claro);
+                    display:flex; align-items:center; justify-content:center;
+                    font-size:.85rem; font-weight:700;">3</div>
         <div style="flex:1;">
-          <div style="font-size:.85rem; font-weight:600; color:var(--texto);">
-            Cerrar sesión de inventario
-          </div>
-          <div style="font-size:.72rem; color:var(--texto-muted); margin-top:2px;">
-            Último paso · ajusta stock y registra el cierre
-          </div>
+          <div style="font-size:.85rem; font-weight:600; color:var(--texto);">Cerrar sesión de inventario</div>
+          <div style="font-size:.72rem; color:var(--texto-muted); margin-top:2px;">Último paso · ajusta stock y registra el cierre</div>
         </div>
-
         <button type="submit" class="cys-btn cys-btn--primary" style="white-space:nowrap; flex-shrink:0;">
           <i class="bi bi-check-circle me-1"></i> Finalizar
         </button>
@@ -360,8 +386,7 @@
                 </button>
               </div>
             </div>
-     
-            <!-- VISOR DE CÁMARA -->
+
             <div id="scanner-container" style="display:none; margin-bottom:1rem;">
               <div style="position:relative; width:100%; max-width:480px; margin:0 auto; border:2px solid var(--azul-claro); border-radius:10px; overflow:hidden; background:#000;">
                 <div id="scanner-viewport" style="width:100%; height:240px;"></div>
@@ -416,7 +441,7 @@
     </div>
   </div>
 </div>
-      
+
 <!-- MODAL 3 — COMPARAR -->
 <div class="modal fade" id="modalComparar" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -681,7 +706,7 @@
         </div>
       </div>
       <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex gap-2">
-        <button type="button"class="cys-btn cys-btn--outline flex-fill" data-bs-dismiss="modal">
+        <button type="button" class="cys-btn cys-btn--outline flex-fill" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1" style="color:var(--rojo);"></i> Cancelar
         </button>
         <button type="button" id="btn-confirmar-ajuste" class="cys-btn cys-btn--primary flex-fill">
@@ -692,7 +717,6 @@
   </div>
 </div>
 
-<!-- Form oculto para enviar el ajuste -->
 <form id="form-ajuste-oculto" method="POST" action="" style="display:none;">
   {% csrf_token %}
   <input type="hidden" name="nueva_cantidad" id="ajuste-cantidad-input">
@@ -703,27 +727,27 @@
 {% block extra_js %}
 <script>
 function abrirEditar(pk, nombre, codigo, categoriaPk, precio, cantidad, unidad) {
-  document.getElementById('inv-edit-nombre').value = nombre;
-  document.getElementById('inv-edit-codigo').value = codigo;
-  document.getElementById('inv-edit-precio').value = precio;
-  document.getElementById('inv-edit-cantidad').value = cantidad;
-  document.getElementById('inv-edit-unidad').value = unidad;
-  document.getElementById('form-editar-inv').action = `/producto/producto/${pk}/editar/`;
+  document.getElementById('inv-edit-nombre').value    = nombre;
+  document.getElementById('inv-edit-codigo').value    = codigo;
+  document.getElementById('inv-edit-precio').value    = precio;
+  document.getElementById('inv-edit-cantidad').value  = cantidad;
+  document.getElementById('inv-edit-unidad').value    = unidad;
+  document.getElementById('form-editar-inv').action   = `/producto/producto/${pk}/editar/`;
   new bootstrap.Modal(document.getElementById('modalEditarProducto')).show();
 }
 
 function abrirDetalle(nombre, codigo, categoria, precio, cantidad, unidad, descripcion) {
-  document.getElementById('inv-det-nombre').textContent = nombre;
-  document.getElementById('inv-det-codigo').textContent = codigo;
-  document.getElementById('inv-det-categoria').textContent = categoria;
-  document.getElementById('inv-det-precio').textContent = '$' + parseInt(precio).toLocaleString();
-  document.getElementById('inv-det-cantidad').textContent = cantidad + ' ' + unidad;
+  document.getElementById('inv-det-nombre').textContent      = nombre;
+  document.getElementById('inv-det-codigo').textContent      = codigo;
+  document.getElementById('inv-det-categoria').textContent   = categoria;
+  document.getElementById('inv-det-precio').textContent      = '$' + parseInt(precio).toLocaleString();
+  document.getElementById('inv-det-cantidad').textContent    = cantidad + ' ' + unidad;
   document.getElementById('inv-det-descripcion').textContent = descripcion || 'Sin descripción';
   new bootstrap.Modal(document.getElementById('modalDetalleProducto')).show();
 }
-  function abrirConfirmarAjuste(btn) {
 
-  btn.blur(); 
+function abrirConfirmarAjuste(btn) {
+  btn.blur();
   const pk      = btn.dataset.pk;
   const nombre  = btn.dataset.nombre;
   const sistema = btn.dataset.sistema;
@@ -737,20 +761,13 @@ function abrirDetalle(nombre, codigo, categoria, precio, cantidad, unidad, descr
   document.getElementById('form-ajuste-oculto').action   = `/inventario/ajustar/${pk}/`;
 
   const modalComparar = bootstrap.Modal.getInstance(document.getElementById('modalComparar'));
-
-  // Paso 1: cierra el modal de comparar
   modalComparar.hide();
-
-  // Paso 2: espera a que termine de cerrarse, LUEGO abre el de confirmación
   document.getElementById('modalComparar').addEventListener('hidden.bs.modal', function abrirSiguiente() {
     new bootstrap.Modal(document.getElementById('modalConfirmarAjuste')).show();
-    // Elimina el listener para que no se acumule si el usuario repite el proceso
     document.getElementById('modalComparar').removeEventListener('hidden.bs.modal', abrirSiguiente);
-
   });
 }
 
-// ── ESCÁNER DE CÓDIGO DE BARRAS ───────────────────
 (function () {
   const btnAbrir   = document.getElementById('btn-scanner');
   const btnCerrar  = document.getElementById('btn-cerrar-scanner');
