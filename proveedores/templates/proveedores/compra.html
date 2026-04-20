@@ -124,53 +124,58 @@
             <div style="border-top:1px solid rgba(77,168,218,0.1); margin-bottom:20px;"></div>
 
             <!-- SELECTOR PRODUCTO -->
-            <div class="mb-4">
-              <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
-                            letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
-                <i class="bi bi-box me-1"></i> Producto
-              </label>
-              <div class="position-relative mb-2">
-                <i class="bi bi-search position-absolute"
-                   style="top:50%; left:13px; transform:translateY(-50%);
-                          color:#4DA8DA; font-size:0.8rem; pointer-events:none;"></i>
-                <input type="text" id="buscadorProducto" placeholder="Filtrar producto..."
-                       style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.2);
-                              color:#e2e8f0; border-radius:8px; padding:9px 13px 9px 34px;
-                              font-size:0.85rem; outline:none;"
-                       onfocus="this.style.borderColor='#4DA8DA'"
-                       onblur="this.style.borderColor='rgba(77,168,218,0.2)'">
-              </div>
-              <div id="listaProductos"
-                   style="max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
-                          scrollbar-width:thin; scrollbar-color:#1e3a5f #0b1220;">
-                {% for producto in productos %}
-                <label class="producto-opcion"
-                       style="display:flex; align-items:center; justify-content:space-between;
-                              padding:10px 13px; border-radius:8px; cursor:pointer;
-                              background:#0b1220; border:1px solid rgba(77,168,218,0.12);
-                              transition:0.15s;">
-                  <input type="radio" name="producto" value="{{ producto.id }}"
-                         style="display:none;" required
-                         onchange="marcarSeleccionado(this)">
-                  <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-box" style="color:#475569; font-size:0.9rem;"></i>
-                    <span style="color:#cbd5e1; font-size:0.88rem; font-weight:500;"
-                          data-nombre="{{ producto.nombre|lower }}">
-                      {{ producto.nombre }}
-                    </span>
-                  </div>
-                  <span style="color:#4DA8DA; font-size:0.8rem; font-weight:700;">
-                    Stock: {{ producto.stock }}
-                  </span>
-                </label>
-                {% empty %}
-                <div class="empty-state">
-                  <i class="bi bi-box icon"></i>
-                  <p>No hay productos registrados.</p>
-                </div>
-                {% endfor %}
-              </div>
-            </div>
+            <!-- SELECTOR PRODUCTO -->
+<div class="mb-4">
+  <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
+                letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
+    <i class="bi bi-box me-1"></i> Producto
+  </label>
+
+  <!-- Búsqueda + Toggle stock -->
+  <div class="d-flex gap-2 mb-2">
+    <div class="position-relative flex-grow-1">
+      <i class="bi bi-search position-absolute"
+         style="top:50%; left:13px; transform:translateY(-50%);
+                color:#4DA8DA; font-size:0.8rem; pointer-events:none;"></i>
+      <input type="text" id="buscadorProducto" placeholder="Buscar producto..."
+             style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.2);
+                    color:#e2e8f0; border-radius:8px; padding:9px 13px 9px 34px;
+                    font-size:0.85rem; outline:none;"
+             onfocus="this.style.borderColor='#4DA8DA'"
+             onblur="this.style.borderColor='rgba(77,168,218,0.2)'">
+    </div>
+    <button type="button" id="btnSoloStock" onclick="toggleSoloStock(this)"
+            title="Solo productos con stock"
+            style="padding:9px 13px; border-radius:8px; cursor:pointer; font-size:0.75rem;
+                   font-weight:700; white-space:nowrap;
+                   background:rgba(77,168,218,0.06); border:1px solid rgba(77,168,218,0.25);
+                   color:#4DA8DA; transition:0.2s;">
+      <i class="bi bi-funnel me-1"></i>Con stock
+    </button>
+  </div>
+
+  <!-- Contador -->
+  <div style="font-size:0.73rem; color:#475569; margin-bottom:6px; padding-left:2px;">
+    Mostrando <span id="numProductos">0</span> productos
+  </div>
+
+  <!-- Lista generada por JS desde todoProductos -->
+  <div id="listaProductos"
+       style="max-height:240px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
+              scrollbar-width:thin; scrollbar-color:#1e3a5f #0b1220;">
+    <!-- Se llena dinámicamente -->
+  </div>
+
+  <!-- Input hidden que guarda el id seleccionado -->
+  <input type="hidden" name="producto" id="productoSeleccionadoId" required>
+
+  <!-- Sin resultados -->
+  <div id="sinResultadosProducto"
+       style="display:none; text-align:center; padding:20px; color:#475569; font-size:0.83rem;">
+    <i class="bi bi-search d-block mb-1" style="font-size:1.4rem; color:#334155;"></i>
+    Sin productos que coincidan
+  </div>
+</div>
 
             <!-- CANTIDAD -->
             <div class="mb-4">
@@ -330,79 +335,157 @@
 </div>
 
 <script>
-  // BUSCADOR PROVEEDOR
-  document.getElementById('buscadorProveedor').addEventListener('input', function () {
-    const q = this.value.toLowerCase();
-    document.querySelectorAll('.proveedor-opcion').forEach(label => {
-      const nombre = label.querySelector('[data-nombre]').dataset.nombre;
-      label.style.display = nombre.includes(q) ? 'flex' : 'none';
-    });
+// ─── DATOS: reutiliza todoProductos definido en producto.html ─────────────────
+// Si esta página NO extiende producto.html, define aquí el array:
+const productosCompra = typeof todoProductos !== 'undefined'
+  ? todoProductos
+  : [
+    {% for p in productos %}
+    {
+      pk: {{ p.pk }},
+      nombre: "{{ p.nombre|escapejs }}",
+      categoria_nombre: "{{ p.categoria.nombre|escapejs }}",
+      cantidad: {{ p.cantidad_disponible }},
+      stock_critico: {% if p.stock_critico %}true{% else %}false{% endif %}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+// ─── ESTADO ───────────────────────────────────────────────────────────────────
+let soloConStock   = false;
+let pkSeleccionado = null;
+
+// ─── RENDER LISTA PRODUCTOS ───────────────────────────────────────────────────
+function renderProductos() {
+  const q      = document.getElementById('buscadorProducto').value.toLowerCase().trim();
+  const lista  = document.getElementById('listaProductos');
+  const sinRes = document.getElementById('sinResultadosProducto');
+  const numEl  = document.getElementById('numProductos');
+
+  const filtrados = productosCompra.filter(p => {
+    const pasaNombre = p.nombre.toLowerCase().includes(q);
+    const pasaStock  = !soloConStock || p.cantidad > 0;
+    return pasaNombre && pasaStock;
   });
 
-  // SELECCIONAR PROVEEDOR
-  function seleccionarProveedor(radio) {
-    const label    = radio.closest('.proveedor-opcion');
-    const nombre   = label.dataset.nombre;
-    const contacto = label.dataset.contacto;
-    const telefono = label.dataset.telefono;
-    const url      = label.dataset.url;
+  numEl.textContent = filtrados.length;
 
-    document.querySelectorAll('.proveedor-opcion').forEach(l => {
-      l.style.borderColor = 'rgba(77,168,218,0.12)';
-      l.style.background  = '#0b1220';
-      l.querySelector('i').style.color = '#475569';
-    });
-
-    label.style.borderColor = '#4DA8DA';
-    label.style.background  = 'rgba(77,168,218,0.08)';
-    label.querySelector('i').style.color = '#4DA8DA';
-
-    document.getElementById('labelNombreProveedor').textContent = nombre;
-    document.getElementById('labelContacto').textContent        = contacto;
-    document.getElementById('labelTelefono').textContent        = telefono;
-
-    window.location.href = url;
+  if (filtrados.length === 0) {
+    lista.innerHTML      = '';
+    sinRes.style.display = 'block';
+    return;
   }
+  sinRes.style.display = 'none';
 
-  // BUSCADOR PRODUCTO
-  document.getElementById('buscadorProducto').addEventListener('input', function () {
-    const q = this.value.toLowerCase();
-    document.querySelectorAll('.producto-opcion').forEach(label => {
-      const nombre = label.querySelector('[data-nombre]').dataset.nombre;
-      label.style.display = nombre.includes(q) ? 'flex' : 'none';
-    });
-  });
+  lista.innerHTML = filtrados.map(p => {
+    const seleccionado = p.pk === pkSeleccionado;
+    const sinStock     = p.cantidad === 0;
+    const stockBajo    = p.cantidad > 0 && p.cantidad <= 10;
 
-  // SELECCIONAR PRODUCTO
-  function marcarSeleccionado(radio) {
-    document.querySelectorAll('.producto-opcion').forEach(label => {
-      label.style.borderColor = 'rgba(77,168,218,0.12)';
-      label.style.background  = '#0b1220';
-      label.querySelector('i').style.color = '#475569';
-    });
-    const label = radio.closest('.producto-opcion');
-    label.style.borderColor = '#4DA8DA';
-    label.style.background  = 'rgba(77,168,218,0.08)';
-    label.querySelector('i').style.color = '#4DA8DA';
-  }
-
-  // PREVIEW TOTAL EN TIEMPO REAL
-  function actualizarTotal() {
-    const cantidad = parseFloat(document.getElementById('inputCantidad').value) || 0;
-    const precio   = parseFloat(document.getElementById('inputPrecio').value) || 0;
-    const preview  = document.getElementById('previewTotal');
-    const valor    = document.getElementById('valorTotal');
-
-    if (cantidad > 0 && precio > 0) {
-      valor.textContent = '$' + (cantidad * precio).toFixed(2);
-      preview.style.display = 'block';
+    // Color badge stock
+    let badgeBg, badgeColor, badgeBorder;
+    if (sinStock) {
+      badgeBg = 'rgba(248,113,113,0.1)'; badgeColor = '#f87171'; badgeBorder = 'rgba(248,113,113,0.25)';
+    } else if (stockBajo) {
+      badgeBg = 'rgba(251,191,36,0.1)';  badgeColor = '#fbbf24'; badgeBorder = 'rgba(251,191,36,0.25)';
     } else {
-      preview.style.display = 'none';
+      badgeBg = 'rgba(74,222,128,0.1)';  badgeColor = '#4ade80'; badgeBorder = 'rgba(74,222,128,0.25)';
     }
-  }
 
-  document.getElementById('inputCantidad').addEventListener('input', actualizarTotal);
-  document.getElementById('inputPrecio').addEventListener('input', actualizarTotal);
+    const stockLabel = sinStock
+      ? '<i class="bi bi-x-circle me-1"></i>Sin stock'
+      : (stockBajo ? `<i class="bi bi-exclamation-triangle me-1"></i>${p.cantidad}` : `${p.cantidad}`);
+
+    return `
+      <div class="producto-opcion"
+           data-pk="${p.pk}"
+           onclick="${sinStock ? '' : `seleccionarProducto(${p.pk})`}"
+           style="display:flex; align-items:center; justify-content:space-between;
+                  padding:10px 13px; border-radius:8px;
+                  cursor:${sinStock ? 'not-allowed' : 'pointer'};
+                  opacity:${sinStock ? '0.45' : '1'};
+                  background:${seleccionado ? 'rgba(77,168,218,0.08)' : '#0b1220'};
+                  border:1px solid ${seleccionado ? '#4DA8DA' : 'rgba(77,168,218,0.12)'};
+                  transition:0.15s;"
+           onmouseenter="${sinStock ? '' : `this.style.borderColor='rgba(77,168,218,0.4)'`}"
+           onmouseleave="${sinStock ? '' : `this.style.borderColor='${seleccionado ? '#4DA8DA' : 'rgba(77,168,218,0.12)'}'`}">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-box" style="color:${seleccionado ? '#4DA8DA' : (sinStock ? '#334155' : '#475569')}; font-size:0.9rem;"></i>
+          <div>
+            <span style="color:#cbd5e1; font-size:0.88rem; font-weight:500; display:block;">${p.nombre}</span>
+            <span style="color:#334155; font-size:0.72rem;"><i class="bi bi-tag me-1"></i>${p.categoria_nombre}</span>
+          </div>
+        </div>
+        <span style="padding:3px 10px; border-radius:20px; font-weight:700; font-size:0.78rem;
+                     background:${badgeBg}; color:${badgeColor}; border:1px solid ${badgeBorder};">
+          ${stockLabel}
+        </span>
+      </div>`;
+  }).join('');
+}
+
+function seleccionarProducto(pk) {
+  pkSeleccionado = pk;
+  document.getElementById('productoSeleccionadoId').value = pk;
+  renderProductos();
+}
+
+function toggleSoloStock(btn) {
+  soloConStock            = !soloConStock;
+  btn.style.background    = soloConStock ? 'rgba(77,168,218,0.18)' : 'rgba(77,168,218,0.06)';
+  btn.style.borderColor   = soloConStock ? '#4DA8DA'               : 'rgba(77,168,218,0.25)';
+  renderProductos();
+}
+
+document.getElementById('buscadorProducto').addEventListener('input', renderProductos);
+
+// ─── PREVIEW TOTAL ────────────────────────────────────────────────────────────
+function actualizarTotal() {
+  const cantidad = parseFloat(document.getElementById('inputCantidad').value) || 0;
+  const precio   = parseFloat(document.getElementById('inputPrecio').value)   || 0;
+  const preview  = document.getElementById('previewTotal');
+  const valor    = document.getElementById('valorTotal');
+  if (cantidad > 0 && precio > 0) {
+    valor.textContent  = '$' + (cantidad * precio).toFixed(2);
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+document.getElementById('inputCantidad').addEventListener('input', actualizarTotal);
+document.getElementById('inputPrecio').addEventListener('input', actualizarTotal);
+
+// ─── BUSCADOR PROVEEDOR ───────────────────────────────────────────────────────
+document.getElementById('buscadorProveedor').addEventListener('input', function () {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.proveedor-opcion').forEach(label => {
+    const nombre = label.querySelector('[data-nombre]').dataset.nombre;
+    label.style.display = nombre.includes(q) ? 'flex' : 'none';
+  });
+});
+
+function seleccionarProveedor(radio) {
+  const label    = radio.closest('.proveedor-opcion');
+  const nombre   = label.dataset.nombre;
+  const contacto = label.dataset.contacto;
+  const telefono = label.dataset.telefono;
+  const url      = label.dataset.url;
+  document.querySelectorAll('.proveedor-opcion').forEach(l => {
+    l.style.borderColor = 'rgba(77,168,218,0.12)';
+    l.style.background  = '#0b1220';
+    l.querySelector('i').style.color = '#475569';
+  });
+  label.style.borderColor = '#4DA8DA';
+  label.style.background  = 'rgba(77,168,218,0.08)';
+  label.querySelector('i').style.color = '#4DA8DA';
+  document.getElementById('labelNombreProveedor').textContent = nombre;
+  document.getElementById('labelContacto').textContent        = contacto;
+  document.getElementById('labelTelefono').textContent        = telefono;
+  window.location.href = url;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', renderProductos);
 </script>
 
 {% endblock %}
