@@ -24,8 +24,8 @@
 
   <!-- TARJETAS ACCESO RÁPIDO -->
   <div class="row g-3 mb-4">
-    <div class="col-md-4">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalAgendar" style="cursor:pointer;">
+    <div class="col-md-3 d-flex">
+      <div class="inv-quick-card w-100" data-bs-toggle="modal" data-bs-target="#modalAgendar" style="cursor:pointer;">
         <i class="bi bi-calendar-plus"></i>
         <div>
           <div class="inv-quick-card__title">Agendar Inventario</div>
@@ -33,17 +33,26 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalConteo" style="cursor:pointer;">
-        <i class="bi bi-upc-scan"></i>
+    <div class="col-md-3 d-flex">
+      <div class="inv-quick-card w-100" data-bs-toggle="modal" data-bs-target="#modalConteo" style="cursor:pointer;">
+        <i class="bi bi-clipboard2-check"></i>
         <div>
           <div class="inv-quick-card__title">Iniciar Conteo</div>
           <div class="inv-quick-card__sub">Ingresar cantidades físicas</div>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="inv-quick-card" data-bs-toggle="modal" data-bs-target="#modalComparar" style="cursor:pointer;">
+    <div class="col-md-3 d-flex">
+      <div class="inv-quick-card w-100" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" style="cursor:pointer;">
+        <i class="bi bi-upc-scan"></i>
+        <div>
+          <div class="inv-quick-card__title">Registrar Códigos</div>
+          <div class="inv-quick-card__sub">Asignar códigos de barras</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 d-flex">
+      <div class="inv-quick-card w-100" data-bs-toggle="modal" data-bs-target="#modalComparar" style="cursor:pointer;">
         <i class="bi bi-arrow-left-right"></i>
         <div>
           <div class="inv-quick-card__title">Comparar Inventario</div>
@@ -107,7 +116,6 @@
       <i class="bi bi-calendar2-week me-2" style="color:var(--azul-claro);"></i>
       Inventarios Programados
     </div>
-
     {% for agenda in agendas %}
     <div class="inv-agenda-item">
       <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
@@ -121,64 +129,40 @@
             <div class="inv-agenda-item__desc">{{ agenda.descripcion }}</div>
           {% endif %}
         </div>
-        <span class="inv-badge inv-badge--{{ agenda.estado }}">
-          {{ agenda.get_estado_display }}
-        </span>
+        <span class="inv-badge inv-badge--{{ agenda.estado }}">{{ agenda.get_estado_display }}</span>
       </div>
-
-      <!-- TRACKER HORIZONTAL -->
       <div class="inv-tracker">
 
         <div class="inv-tracker__step {% if agenda.estado == 'pendiente' %}inv-tracker__step--active-pendiente{% elif agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__step--done-pendiente{% endif %}">
-          <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
-            {% csrf_token %}
-            <input type="hidden" name="estado" value="pendiente">
-            <button type="submit" class="inv-tracker__circle">
-              {% if agenda.estado == 'pendiente' %}⏳{% elif agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}✓{% else %}1{% endif %}
-            </button>
+          <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">{% csrf_token %}<input type="hidden" name="estado" value="pendiente">
+            <button type="submit" class="inv-tracker__circle">{% if agenda.estado == 'pendiente' %}⏳{% elif agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}✓{% else %}1{% endif %}</button>
           </form>
           <div class="inv-tracker__label">Pendiente</div>
         </div>
-
         <div class="inv-tracker__line {% if agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__line--pendiente{% endif %}"></div>
 
         <div class="inv-tracker__step {% if agenda.estado == 'en_proceso' %}inv-tracker__step--active-en_proceso{% elif agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__step--done-en_proceso{% endif %}">
-          <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
-            {% csrf_token %}
-            <input type="hidden" name="estado" value="en_proceso">
-            <button type="submit" class="inv-tracker__circle">
-              {% if agenda.estado == 'en_proceso' %}⚙{% elif agenda.estado == 'completado' or agenda.estado == 'cancelado' %}✓{% else %}2{% endif %}
-            </button>
+          <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">{% csrf_token %}<input type="hidden" name="estado" value="en_proceso">
+            <button type="submit" class="inv-tracker__circle">{% if agenda.estado == 'en_proceso' %}⚙{% elif agenda.estado == 'completado' or agenda.estado == 'cancelado' %}✓{% else %}2{% endif %}</button>
           </form>
           <div class="inv-tracker__label">En Proceso</div>
         </div>
-
         <div class="inv-tracker__line {% if agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__line--en_proceso{% endif %}"></div>
 
         <div class="inv-tracker__step {% if agenda.estado == 'completado' %}inv-tracker__step--active-completado{% endif %}">
-          <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
-            {% csrf_token %}
-            <input type="hidden" name="estado" value="completado">
-            <button type="submit" class="inv-tracker__circle">
-              {% if agenda.estado == 'completado' %}✓{% else %}3{% endif %}
-            </button>
+          <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">{% csrf_token %}<input type="hidden" name="estado" value="completado">
+            <button type="submit" class="inv-tracker__circle">{% if agenda.estado == 'completado' %}✓{% else %}3{% endif %}</button>
           </form>
           <div class="inv-tracker__label">Completado</div>
         </div>
-
         <div class="inv-tracker__line {% if agenda.estado == 'cancelado' %}inv-tracker__line--cancelado{% endif %}"></div>
 
         <div class="inv-tracker__step {% if agenda.estado == 'cancelado' %}inv-tracker__step--active-cancelado{% endif %}">
-          <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">
-            {% csrf_token %}
-            <input type="hidden" name="estado" value="cancelado">
-            <button type="submit" class="inv-tracker__circle">
-              {% if agenda.estado == 'cancelado' %}✕{% else %}4{% endif %}
-            </button>
+          <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">{% csrf_token %}<input type="hidden" name="estado" value="cancelado">
+            <button type="submit" class="inv-tracker__circle">{% if agenda.estado == 'cancelado' %}✕{% else %}4{% endif %}</button>
           </form>
           <div class="inv-tracker__label">Cancelado</div>
         </div>
-
       </div>
     </div>
     {% empty %}
@@ -211,35 +195,25 @@
         <tbody>
           {% for producto in productos %}
             <tr style="{% if producto.stock_critico %}border-left:3px solid var(--rojo);{% endif %}">
-              <td style="font-size:.85rem; color:#1a2a4a;">{{ forloop.counter }}</td>
-              <td style="font-size:.85rem; font-weight:600; color:#1a2a4a;">{{ producto.nombre }}</td>
-              <td style="font-size:.85rem; color:#1a2a4a;">{{ producto.categoria.nombre }}</td>
+              <td style="font-size:.85rem; color:var(--texto-muted);">{{ forloop.counter }}</td>
+              <td style="font-size:.85rem; font-weight:600; color:var(--texto);">{{ producto.nombre }}</td>
+              <td style="font-size:.85rem; color:var(--texto-muted);">{{ producto.categoria.nombre }}</td>
               <td>
                 {% if producto.stock_critico %}
-                  <span class="badge" style="background:rgba(192,57,43,.2); color:var(--rojo); border:1px solid rgba(192,57,43,.4); font-size:.75rem; padding:.35rem .6rem;">
-                    {{ producto.cantidad_disponible }} {{ producto.unidad }}
-                  </span>
+                  <span class="badge" style="background:rgba(192,57,43,.2); color:var(--rojo); border:1px solid rgba(192,57,43,.4); font-size:.75rem; padding:.35rem .6rem;">{{ producto.cantidad_disponible }} {{ producto.unidad }}</span>
                 {% else %}
-                  <span style="font-size:.85rem; color:#1a2a4a; font-weight:600;">
-                    {{ producto.cantidad_disponible }} {{ producto.unidad }}
-                  </span>
+                  <span style="font-size:.85rem; color:var(--texto); font-weight:600;">{{ producto.cantidad_disponible }} {{ producto.unidad }}</span>
                 {% endif %}
               </td>
-              <td style="font-size:.85rem; color:#1a2a4a;">${{ producto.precio_unitario|floatformat:0 }}</td>
-              <td style="font-size:.85rem; color:#1a2a4a;">
+              <td style="font-size:.85rem; color:var(--texto);">${{ producto.precio_unitario|floatformat:0 }}</td>
+              <td style="font-size:.85rem; color:var(--texto-muted);">
                 {% with ultimo=producto.movimientos.first %}
                   {% if ultimo %}{{ ultimo.fecha_actualizada|date:"d/m/Y" }}{% else %}—{% endif %}
                 {% endwith %}
               </td>
               <td>
-                <button class="cys-btn-sm cys-btn-sm--warning"
-                        onclick="abrirEditar({{ producto.pk }}, '{{ producto.nombre }}', '{{ producto.codigo }}', '{{ producto.categoria.pk }}', '{{ producto.precio_unitario }}', '{{ producto.cantidad_disponible }}', '{{ producto.unidad }}')">
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button class="cys-btn-sm cys-btn-sm--primary"
-                        onclick="abrirDetalle('{{ producto.nombre }}', '{{ producto.codigo }}', '{{ producto.categoria.nombre }}', '{{ producto.precio_unitario }}', '{{ producto.cantidad_disponible }}', '{{ producto.unidad }}', '{{ producto.descripcion|default:'' }}')">
-                  <i class="bi bi-eye"></i>
-                </button>
+                <button class="cys-btn-sm cys-btn-sm--warning" onclick="abrirEditar({{ producto.pk }}, '{{ producto.nombre }}', '{{ producto.codigo }}', '{{ producto.categoria.pk }}', '{{ producto.precio_unitario }}', '{{ producto.cantidad_disponible }}', '{{ producto.unidad }}')"><i class="bi bi-pencil"></i></button>
+                <button class="cys-btn-sm cys-btn-sm--primary" onclick="abrirDetalle('{{ producto.nombre }}', '{{ producto.codigo }}', '{{ producto.categoria.nombre }}', '{{ producto.precio_unitario }}', '{{ producto.cantidad_disponible }}', '{{ producto.unidad }}', '{{ producto.descripcion|default:'' }}')"><i class="bi bi-eye"></i></button>
               </td>
             </tr>
           {% empty %}
@@ -263,12 +237,17 @@
     </div>
     <form method="POST" action="{% url 'inventario:finalizar_inventario' %}">
       {% csrf_token %}
+
+      <div style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:var(--radius); display:flex; align-items:center; justify-content:space-between; padding:14px 18px; gap:16px;">
+        <div style="width:34px; height:34px; border-radius:50%; flex-shrink:0; border:2px solid var(--azul-claro); color:var(--azul-claro); display:flex; align-items:center; justify-content:center; font-size:.85rem; font-weight:700;">3</div>
+
       <div style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:var(--radius);
                   display:flex; align-items:center; justify-content:space-between; padding:14px 18px; gap:16px;">
         <div style="width:34px; height:34px; border-radius:50%; flex-shrink:0;
                     border:2px solid var(--azul-claro); color:var(--azul-claro);
                     display:flex; align-items:center; justify-content:center;
                     font-size:.85rem; font-weight:700;">3</div>
+
         <div style="flex:1;">
           <div style="font-size:.85rem; font-weight:600; color:var(--texto);">Cerrar sesión de inventario</div>
           <div style="font-size:.72rem; color:var(--texto-muted); margin-top:2px;">Último paso · ajusta stock y registra el cierre</div>
@@ -286,10 +265,8 @@
 <!-- MODAL 1 — AGENDAR -->
 <div class="modal fade" id="modalAgendar" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
         <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
           <i class="bi bi-calendar-plus me-2" style="color:var(--azul-claro);"></i> Agendar Inventario
         </div>
@@ -327,12 +304,10 @@
 <!-- MODAL 2 — CONTEO -->
 <div class="modal fade" id="modalConteo" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
         <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-upc-scan me-2" style="color:var(--azul-claro);"></i> Conteo de Inventario
+          <i class="bi bi-clipboard2-check me-2" style="color:var(--azul-claro);"></i> Conteo de Inventario
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
@@ -341,9 +316,7 @@
           <div>
             {% if sesion %}
               <div style="font-size:.75rem; color:var(--texto-muted);">Sesión activa desde</div>
-              <div style="font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; color:var(--azul-claro);">
-                {{ sesion.fecha_inicio|date:"d/m/Y H:i" }}
-              </div>
+              <div style="font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; color:var(--azul-claro);">{{ sesion.fecha_inicio|date:"d/m/Y H:i" }}</div>
             {% else %}
               <div style="color:var(--texto-muted); font-size:.85rem;">No hay sesión activa</div>
             {% endif %}
@@ -361,24 +334,28 @@
           <form id="form-conteo" method="POST" action="{% url 'inventario:guardar_conteo' %}">
             {% csrf_token %}
             <input type="hidden" name="sesion_id" value="{{ sesion.pk }}">
+
+            <!-- Select oculto — envía el producto_id al servidor -->
+            <select name="producto_id" id="conteo-select-producto" style="display:none;" required>
+              <option value="">— Seleccionar producto —</option>
+              {% for p in productos %}
+                <option value="{{ p.pk }}" data-codigo="{{ p.codigo }}">{{ p.nombre }}</option>
+              {% endfor %}
+            </select>
+
             <div class="row g-3 align-items-end mb-4">
               <div class="col-md-7">
                 <label class="cys-form-label">Producto</label>
-                <div class="d-flex gap-2">
-                  <select name="producto_id" id="conteo-select-producto" class="cys-input form-select" required>
-                    <option value="">— Seleccionar producto —</option>
-                    {% for p in productos %}
-                      <option value="{{ p.pk }}" data-codigo="{{ p.codigo }}">{{ p.nombre }} ({{ p.codigo }})</option>
-                    {% endfor %}
-                  </select>
-                  <button type="button" id="btn-scanner" class="cys-btn cys-btn--primary" style="white-space:nowrap; padding:.4rem .9rem;" title="Escanear código de barras">
-                    <i class="bi bi-upc-scan"></i>
-                  </button>
-                </div>
+                <!-- Campo visible donde escribe el escáner -->
+                <input type="text"
+                       id="conteo-display-producto"
+                       class="cys-input form-control"
+                       placeholder="🔍 Escanea el producto con el lector..."
+                       autocomplete="off">
               </div>
               <div class="col-md-3">
                 <label class="cys-form-label">Cantidad física</label>
-                <input type="number" name="cantidad_contada" class="cys-input form-control" min="0" placeholder="0" required>
+                <input type="number" id="input-cantidad" name="cantidad_contada" class="cys-input form-control" min="0" placeholder="0" required>
               </div>
               <div class="col-md-2">
                 <button type="submit" class="cys-btn cys-btn--primary w-100">
@@ -413,21 +390,18 @@
               <tbody>
                 {% for c in conteos %}
                   <tr>
-                    <td style="font-size:.85rem; font-weight:600; color:#1a2a4a;">{{ c.producto.nombre }}</td>
-                    <td style="font-size:.85rem; color:#1a2a4a;">{{ c.producto.cantidad_disponible }} {{ c.producto.unidad }}</td>
-                    <td style="font-size:.85rem; font-weight:700; color:#1a2a4a;">{{ c.cantidad_contada }} {{ c.producto.unidad }}</td>
+                  <td style="font-size:.85rem; font-weight:600; color:#1a2a4a;">{{ c.producto.nombre }}</td>
+                  <td style="font-size:.85rem; color:#1a2a4a;">{{ c.producto.cantidad_disponible }} {{ c.producto.unidad }}</td>
+                  <td style="font-size:.85rem; font-weight:700; color:#1a2a4a;">{{ c.cantidad_contada }} {{ c.producto.unidad }}</td>
                   </tr>
                 {% empty %}
                   <tr>
-                    <td colspan="3" class="text-center py-3" style="color:var(--texto-muted); font-size:.82rem;">
-                      Aún no has contado ningún producto.
-                    </td>
+                    <td colspan="3" class="text-center py-3" style="color:var(--texto-muted); font-size:.82rem;">Aún no has contado ningún producto.</td>
                   </tr>
                 {% endfor %}
               </tbody>
             </table>
           </div>
-
         {% else %}
           <div class="text-center py-3" style="color:var(--texto-muted); font-size:.85rem;">
             <i class="bi bi-play-circle d-block mb-2" style="font-size:2rem; color:var(--azul-borde);"></i>
@@ -445,10 +419,8 @@
 <!-- MODAL 3 — COMPARAR -->
 <div class="modal fade" id="modalComparar" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
         <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
           <i class="bi bi-arrow-left-right me-2" style="color:var(--azul-claro);"></i> Comparar Inventario
         </div>
@@ -484,12 +456,8 @@
             <div class="col-md-4">
               <div class="cys-stat-card text-center">
                 <div class="cys-stat-card__label">Sesión Activa</div>
-                <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--azul-claro); margin-top:.5rem;">
-                  {{ sesion.fecha_inicio|date:"d/m/Y" }}
-                </div>
-                <div style="font-size:.62rem; color:var(--texto-muted); margin-top:.25rem;">
-                  {{ sesion.fecha_inicio|date:"H:i" }} hrs
-                </div>
+                <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--azul-claro); margin-top:.5rem;">{{ sesion.fecha_inicio|date:"d/m/Y" }}</div>
+                <div style="font-size:.62rem; color:var(--texto-muted); margin-top:.25rem;">{{ sesion.fecha_inicio|date:"H:i" }} hrs</div>
               </div>
             </div>
           </div>
@@ -509,48 +477,35 @@
               <tbody>
                 {% for d in discrepancias %}
                   <tr style="{% if d.estado == 'faltante' %}border-left:3px solid var(--rojo);{% elif d.estado == 'sobrante' %}border-left:3px solid #f39c12;{% else %}border-left:3px solid #27ae60;{% endif %}">
-                    <td style="font-size:.85rem; font-weight:600; color:#1a2a4a;">
+                    <td style="font-size:.85rem; font-weight:600; color:var(--texto);">
                       {{ d.producto.nombre }}
-                      <div style="font-size:.72rem; color:#1a2a4a; font-weight:400;">{{ d.producto.codigo }}</div>
+                      <div style="font-size:.72rem; color:var(--texto-muted); font-weight:400;">{{ d.producto.codigo }}</div>
                     </td>
-                    <td style="font-size:.85rem; color:#1a2a4a;">{{ d.producto.categoria.nombre }}</td>
+                    <td style="font-size:.85rem; color:var(--texto-muted);">{{ d.producto.categoria.nombre }}</td>
                     <td class="text-center">
                       <div style="font-size:.95rem; color:var(--azul-claro); font-weight:700;">{{ d.en_sistema }}</div>
                       <div style="font-size:.65rem; color:var(--texto-muted);">{{ d.producto.unidad }}</div>
                     </td>
                     <td class="text-center">
-                      <div style="font-size:.95rem; color:#1a2a4a; font-weight:700;">{{ d.fisico }}</div>
-                      <div style="font-size:.65rem; color:#1a2a4a;">{{ d.producto.unidad }}</div>
+                      <div style="font-size:.95rem; color:var(--texto); font-weight:700;">{{ d.fisico }}</div>
+                      <div style="font-size:.65rem; color:var(--texto-muted);">{{ d.producto.unidad }}</div>
                     </td>
                     <td class="text-center">
-                      {% if d.diferencia == 0 %}
-                        <span style="font-size:1rem; color:#27ae60; font-weight:700;">0</span>
-                      {% elif d.diferencia > 0 %}
-                        <span style="font-size:1rem; color:#f39c12; font-weight:700;">+{{ d.diferencia }}</span>
-                      {% else %}
-                        <span style="font-size:1rem; color:var(--rojo); font-weight:700;">{{ d.diferencia }}</span>
-                      {% endif %}
+                      {% if d.diferencia == 0 %}<span style="font-size:1rem; color:#27ae60; font-weight:700;">0</span>
+                      {% elif d.diferencia > 0 %}<span style="font-size:1rem; color:#f39c12; font-weight:700;">+{{ d.diferencia }}</span>
+                      {% else %}<span style="font-size:1rem; color:var(--rojo); font-weight:700;">{{ d.diferencia }}</span>{% endif %}
                     </td>
                     <td class="text-center">
-                      {% if d.estado == 'ok' %}
-                        <span class="inv-badge inv-badge--ok"><i class="bi bi-check-circle me-1"></i>OK</span>
-                      {% elif d.estado == 'sobrante' %}
-                        <span class="inv-badge inv-badge--sobrante"><i class="bi bi-arrow-up-circle me-1"></i>Sobrante</span>
-                      {% else %}
-                        <span class="inv-badge inv-badge--faltante"><i class="bi bi-arrow-down-circle me-1"></i>Faltante</span>
-                      {% endif %}
+                      {% if d.estado == 'ok' %}<span class="inv-badge inv-badge--ok"><i class="bi bi-check-circle me-1"></i>OK</span>
+                      {% elif d.estado == 'sobrante' %}<span class="inv-badge inv-badge--sobrante"><i class="bi bi-arrow-up-circle me-1"></i>Sobrante</span>
+                      {% else %}<span class="inv-badge inv-badge--faltante"><i class="bi bi-arrow-down-circle me-1"></i>Faltante</span>{% endif %}
                     </td>
                     <td class="text-center">
                       {% if d.estado != 'ok' %}
-                        <button type="button"
-                                class="cys-btn-sm cys-btn-sm--primary"
-                                title="Ajustar stock"
-                                data-pk="{{ d.producto.pk }}"
-                                data-nombre="{{ d.producto.nombre }}"
-                                data-sistema="{{ d.en_sistema }}"
-                                data-fisico="{{ d.fisico }}"
-                                data-unidad="{{ d.producto.unidad }}"
-                                onclick="abrirConfirmarAjuste(this)">
+                        <button type="button" class="cys-btn-sm cys-btn-sm--primary" title="Ajustar stock"
+                                data-pk="{{ d.producto.pk }}" data-nombre="{{ d.producto.nombre }}"
+                                data-sistema="{{ d.en_sistema }}" data-fisico="{{ d.fisico }}"
+                                data-unidad="{{ d.producto.unidad }}" onclick="abrirConfirmarAjuste(this)">
                           <i class="bi bi-arrow-repeat"></i>
                         </button>
                       {% else %}
@@ -574,10 +529,8 @@
 <!-- MODAL EDITAR PRODUCTO -->
 <div class="modal fade" id="modalEditarProducto" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
         <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
           <i class="bi bi-pencil me-2" style="color:var(--azul-claro);"></i> Editar Producto
         </div>
@@ -628,10 +581,8 @@
 <!-- MODAL DETALLE PRODUCTO -->
 <div class="modal fade" id="modalDetalleProducto" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
         <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
           <i class="bi bi-eye me-2" style="color:var(--azul-claro);"></i> Detalle Producto
         </div>
@@ -677,10 +628,8 @@
 <!-- MODAL CONFIRMACIÓN AJUSTE -->
 <div class="modal fade" id="modalConfirmarAjuste" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
-    <div class="modal-content border-0 shadow-lg"
-         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
         <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
           <i class="bi bi-arrow-repeat me-2" style="color:var(--azul-claro);"></i> Confirmar Ajuste
         </div>
@@ -722,6 +671,142 @@
   <input type="hidden" name="nueva_cantidad" id="ajuste-cantidad-input">
 </form>
 
+<!-- MODAL REGISTRAR CÓDIGOS DE BARRAS -->
+<div class="modal fade" id="modalRegistrarCodigos" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-upc-scan me-2" style="color:var(--azul-claro);"></i> Registrar Códigos de Barras
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="cys-stat-card text-center">
+              <div class="cys-stat-card__label">Total Productos</div>
+              <div class="cys-stat-card__val">{{ productos|length }}</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="cys-stat-card text-center">
+              <div class="cys-stat-card__label">Con Código</div>
+              <div class="cys-stat-card__val" style="color:#27ae60;">{{ con_codigo }}</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="cys-stat-card text-center">
+              <div class="cys-stat-card__label">Sin Código</div>
+              <div class="cys-stat-card__val" style="color:var(--rojo);">{{ sin_codigo }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <input type="text" id="buscador-codigos" class="cys-input form-control" placeholder="Buscar por nombre o código de barras...">
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr style="border-bottom:2px solid var(--azul-borde);">
+                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
+                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Producto</th>
+                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Categoría</th>
+                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Estado</th>
+                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Código actual</th>
+                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-codigos">
+              {% for p in productos %}
+              <tr class="fila-codigo" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
+                <td style="font-size:.85rem; color:#1a3a5c;">{{ forloop.counter }}</td>
+                <td style="font-size:.85rem; font-weight:600; color:#1a3a5c;">{{ p.nombre }}</td>
+                <td style="font-size:.85rem; color:#1a3a5c;">{{ p.categoria.nombre }}</td>
+                <td>
+                  {% if p.codigo %}
+                    <span class="badge-codigo-{{ p.pk }} inv-badge" style="background:rgba(39,174,96,.15); color:#27ae60; border:1px solid rgba(39,174,96,.3); font-size:.72rem;">
+                      <i class="bi bi-check-circle me-1"></i>Registrado
+                    </span>
+                  {% else %}
+                    <span class="badge-codigo-{{ p.pk }} inv-badge" style="background:rgba(192,57,43,.12); color:var(--rojo); border:1px solid rgba(192,57,43,.25); font-size:.72rem;">
+                      <i class="bi bi-x-circle me-1"></i>Sin código
+                    </span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span id="codigo-actual-{{ p.pk }}" style="font-size:.82rem; font-family:monospace; color:{% if p.codigo %}var(--azul-claro){% else %}#1a3a5c{% endif %};">
+                    {{ p.codigo|default:"—" }}
+                  </span>
+                </td>
+                <td>
+                  <button class="cys-btn-sm cys-btn-sm--primary btn-registrar-codigo"
+                          data-pk="{{ p.pk }}" data-nombre="{{ p.nombre }}" data-codigo="{{ p.codigo|default:'' }}"
+                          style="font-size:.72rem; padding:.35rem .75rem; white-space:nowrap; width:auto; height:auto;">
+                    <i class="bi bi-upc-scan me-1"></i>{% if p.codigo %}Editar{% else %}Registrar{% endif %}
+                  </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="text-center py-4" style="color:var(--texto-muted); font-size:.85rem;">No hay productos registrados.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0 px-4 pb-4">
+        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ESCANEAR CÓDIGO -->
+<div class="modal fade" id="modalEscanearCodigo" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:440px;">
+    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-upc-scan me-2" style="color:var(--azul-claro);"></i> Escanear Código
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div style="background:var(--fondo); border:1px solid var(--azul-borde); border-radius:10px; padding:12px 16px; margin-bottom:1.25rem;">
+          <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:3px;">Producto</div>
+          <div id="escanear-nombre" style="font-size:.95rem; font-weight:600; color:var(--texto);"></div>
+        </div>
+        <div style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1rem; line-height:1.6;">
+          <i class="bi bi-info-circle me-1" style="color:var(--azul-claro);"></i>
+          Haz clic en el campo y apunta el escáner al producto. Se guarda automáticamente con el Enter del escáner.
+        </div>
+        <label class="cys-form-label">Código de barras</label>
+        <div style="position:relative;">
+          <input type="text" id="escanear-input" class="cys-input form-control"
+                 placeholder="Escanea o escribe el código..." autocomplete="off"
+                 style="font-family:monospace; font-size:.9rem; padding-right:2.5rem;">
+          <i class="bi bi-upc" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--texto-muted); pointer-events:none;"></i>
+        </div>
+        <div id="escanear-codigo-actual-wrap" style="margin-top:.75rem; display:none;">
+          <div style="font-size:.72rem; color:var(--texto-muted);">Código actual:</div>
+          <div id="escanear-codigo-actual-val" style="font-family:monospace; font-size:.82rem; color:var(--azul-claro);"></div>
+        </div>
+        <div id="escanear-feedback" style="margin-top:.75rem; font-size:.82rem; min-height:20px;"></div>
+      </div>
+      <div class="modal-footer border-0 pt-0 px-4 pb-4 gap-2">
+        <button type="button" class="cys-btn cys-btn--outline flex-fill" id="btn-volver-lista">
+          <i class="bi bi-arrow-left me-1"></i> Volver
+        </button>
+        <button type="button" id="btn-guardar-codigo" class="cys-btn cys-btn--primary flex-fill">
+          <i class="bi bi-save me-1"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -753,13 +838,11 @@ function abrirConfirmarAjuste(btn) {
   const sistema = btn.dataset.sistema;
   const fisico  = btn.dataset.fisico;
   const unidad  = btn.dataset.unidad;
-
   document.getElementById('ajuste-nombre').textContent   = nombre;
   document.getElementById('ajuste-sistema').textContent  = sistema + ' ' + unidad;
   document.getElementById('ajuste-fisico').textContent   = fisico + ' ' + unidad;
   document.getElementById('ajuste-cantidad-input').value = fisico;
   document.getElementById('form-ajuste-oculto').action   = `/inventario/ajustar/${pk}/`;
-
   const modalComparar = bootstrap.Modal.getInstance(document.getElementById('modalComparar'));
   modalComparar.hide();
   document.getElementById('modalComparar').addEventListener('hidden.bs.modal', function abrirSiguiente() {
@@ -768,67 +851,165 @@ function abrirConfirmarAjuste(btn) {
   });
 }
 
+
+// ── ESCÁNER USB (conteo) ──────────────────────────
 (function () {
-  const btnAbrir   = document.getElementById('btn-scanner');
-  const btnCerrar  = document.getElementById('btn-cerrar-scanner');
-  const container  = document.getElementById('scanner-container');
-  const resultDiv  = document.getElementById('scanner-result');
-  const selectProd = document.getElementById('conteo-select-producto');
+  const displayProd   = document.getElementById('conteo-display-producto');
+  const selectProd    = document.getElementById('conteo-select-producto');
+  const inputCantidad = document.getElementById('input-cantidad');
 
-  if (!btnAbrir) return;
+  if (!displayProd || !selectProd) return;
 
+  // Construir mapa código → pk
   const codigoMap = {};
   selectProd.querySelectorAll('option[data-codigo]').forEach(opt => {
-    codigoMap[opt.dataset.codigo.trim()] = opt.value;
+    const cod = (opt.dataset.codigo || '').trim();
+    if (cod) codigoMap[cod] = opt.value;
   });
 
-  let scannerActivo = false;
+  // Al abrir modal → foco en el campo de producto
+  document.getElementById('modalConteo').addEventListener('shown.bs.modal', () => {
+    displayProd.value = '';
+    selectProd.value = '';
+    displayProd.focus();
+  });
 
-  function iniciarScanner() {
-    container.style.display = 'block';
-    scannerActivo = true;
-    resultDiv.textContent = 'Apunta al código de barras...';
-    Quagga.init({
-      inputStream: {
-        name: 'Live', type: 'LiveStream',
-        target: document.getElementById('scanner-viewport'),
-        constraints: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
-      },
-      decoder: { readers: ['code_128_reader','ean_reader','ean_8_reader','code_39_reader','upc_reader','upc_e_reader'] },
-      locate: true,
-    }, function (err) {
-      if (err) { resultDiv.textContent = '❌ No se pudo acceder a la cámara.'; return; }
-      Quagga.start();
-    });
-    Quagga.onDetected(onDetected);
-  }
+  // Procesar Enter del escáner
+  displayProd.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const codigo = displayProd.value.trim();
+    if (!codigo) return;
 
-  function detenerScanner() {
-    if (!scannerActivo) return;
-    Quagga.offDetected(onDetected);
-    Quagga.stop();
-    scannerActivo = false;
-    container.style.display = 'none';
-  }
-
-  function onDetected(result) {
-    const codigo = result.codeResult.code.trim();
-    resultDiv.textContent = '✓ Código: ' + codigo;
     if (codigoMap[codigo]) {
+      // Código encontrado → mostrar nombre
       selectProd.value = codigoMap[codigo];
-      detenerScanner();
-      selectProd.style.borderColor = '#5dd87a';
-      setTimeout(() => selectProd.style.borderColor = '', 1500);
+      const opt = selectProd.querySelector(`option[value="${codigoMap[codigo]}"]`);
+      displayProd.value = opt ? opt.textContent.trim() : codigo;
+      displayProd.style.borderColor = '#5dd87a';
+      setTimeout(() => { displayProd.style.borderColor = ''; }, 1500);
+      if (inputCantidad) {
+        inputCantidad.value = '';
+        inputCantidad.focus();
+      }
     } else {
-      resultDiv.textContent = '⚠ Código "' + codigo + '" no encontrado en sistema.';
+      // Código no encontrado
+      const codigoTecleado = codigo;
+      displayProd.value = '';
+      displayProd.style.borderColor = '#C0392B';
+      displayProd.placeholder = `⚠ Código "${codigoTecleado}" no encontrado`;
+      setTimeout(() => {
+        displayProd.style.borderColor = '';
+        displayProd.placeholder = '🔍 Escanea el producto con el lector...';
+        displayProd.focus();
+      }, 2000);
     }
-  }
-
-  btnAbrir.addEventListener('click', function () {
-    scannerActivo ? detenerScanner() : iniciarScanner();
   });
-  btnCerrar.addEventListener('click', detenerScanner);
-  document.getElementById('modalConteo').addEventListener('hidden.bs.modal', detenerScanner);
+
+  // Al enviar el form → limpiar y volver al campo producto
+  const formConteo = document.getElementById('form-conteo');
+  if (formConteo) {
+    formConteo.addEventListener('submit', function() {
+      setTimeout(() => {
+        displayProd.value = '';
+        selectProd.value = '';
+        displayProd.focus();
+      }, 200);
+    });
+  }
 })();
+
+// ── REGISTRAR CÓDIGOS ─────────────────────────────
+const CSRF_INV = '{{ csrf_token }}';
+let pkCodActivo = null;
+
+document.getElementById('buscador-codigos').addEventListener('input', function () {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.fila-codigo').forEach(fila => {
+    const match = fila.dataset.nombre.includes(q) || fila.dataset.codigo.includes(q);
+    fila.style.display = match ? '' : 'none';
+  });
+});
+
+document.querySelectorAll('.btn-registrar-codigo').forEach(btn => {
+  btn.addEventListener('click', function () {
+    pkCodActivo = this.dataset.pk;
+    document.getElementById('escanear-nombre').textContent = this.dataset.nombre;
+    document.getElementById('escanear-input').value = '';
+    document.getElementById('escanear-feedback').innerHTML = '';
+    const codigoExistente = this.dataset.codigo;
+    const wrap = document.getElementById('escanear-codigo-actual-wrap');
+    if (codigoExistente) {
+      document.getElementById('escanear-codigo-actual-val').textContent = codigoExistente;
+      wrap.style.display = 'block';
+    } else {
+      wrap.style.display = 'none';
+    }
+    bootstrap.Modal.getInstance(document.getElementById('modalRegistrarCodigos')).hide();
+    document.getElementById('modalRegistrarCodigos').addEventListener('hidden.bs.modal', function abrirEscaneo() {
+      new bootstrap.Modal(document.getElementById('modalEscanearCodigo')).show();
+      document.getElementById('modalRegistrarCodigos').removeEventListener('hidden.bs.modal', abrirEscaneo);
+    });
+    document.getElementById('modalEscanearCodigo').addEventListener('shown.bs.modal', () => {
+      document.getElementById('escanear-input').focus();
+    }, { once: true });
+  });
+});
+
+document.getElementById('btn-volver-lista').addEventListener('click', function () {
+  bootstrap.Modal.getInstance(document.getElementById('modalEscanearCodigo')).hide();
+  document.getElementById('modalEscanearCodigo').addEventListener('hidden.bs.modal', function volverLista() {
+    new bootstrap.Modal(document.getElementById('modalRegistrarCodigos')).show();
+    document.getElementById('modalEscanearCodigo').removeEventListener('hidden.bs.modal', volverLista);
+  });
+});
+
+function guardarCodigoBarras() {
+  const codigo   = document.getElementById('escanear-input').value.trim();
+  const feedback = document.getElementById('escanear-feedback');
+  if (!codigo) {
+    feedback.innerHTML = '<span style="color:var(--rojo);"><i class="bi bi-exclamation-circle me-1"></i>El código no puede estar vacío.</span>';
+    return;
+  }
+  feedback.innerHTML = '<span style="color:var(--texto-muted);"><i class="bi bi-hourglass me-1"></i>Guardando...</span>';
+  fetch(`/inventario/codigos/${pkCodActivo}/guardar/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': CSRF_INV },
+    body: `codigo=${encodeURIComponent(codigo)}`
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      feedback.innerHTML = '<span style="color:#27ae60;"><i class="bi bi-check-circle me-1"></i>¡Guardado correctamente!</span>';
+      const spanActual = document.getElementById('codigo-actual-' + pkCodActivo);
+      if (spanActual) { spanActual.textContent = data.codigo; spanActual.style.color = 'var(--azul-claro)'; }
+      const fila = document.querySelector(`.btn-registrar-codigo[data-pk="${pkCodActivo}"]`)?.closest('tr');
+      if (fila) {
+        fila.dataset.codigo = data.codigo.toLowerCase();
+        fila.querySelector('.btn-registrar-codigo').dataset.codigo = data.codigo;
+        fila.querySelector('.btn-registrar-codigo').innerHTML = '<i class="bi bi-upc-scan me-1"></i>Editar';
+        const badge = fila.querySelector(`[class*="badge-codigo-"]`);
+        if (badge) badge.outerHTML = `<span class="badge-codigo-${pkCodActivo} inv-badge" style="background:rgba(39,174,96,.15); color:#27ae60; border:1px solid rgba(39,174,96,.3); font-size:.72rem;"><i class="bi bi-check-circle me-1"></i>Registrado</span>`;
+      }
+      setTimeout(() => {
+        bootstrap.Modal.getInstance(document.getElementById('modalEscanearCodigo')).hide();
+        document.getElementById('modalEscanearCodigo').addEventListener('hidden.bs.modal', function volverAuto() {
+          new bootstrap.Modal(document.getElementById('modalRegistrarCodigos')).show();
+          document.getElementById('modalEscanearCodigo').removeEventListener('hidden.bs.modal', volverAuto);
+        });
+      }, 1200);
+    } else {
+      feedback.innerHTML = `<span style="color:var(--rojo);"><i class="bi bi-x-circle me-1"></i>${data.error}</span>`;
+    }
+  })
+  .catch(() => {
+    feedback.innerHTML = '<span style="color:var(--rojo);"><i class="bi bi-wifi-off me-1"></i>Error de conexión.</span>';
+  });
+}
+
+document.getElementById('btn-guardar-codigo').addEventListener('click', guardarCodigoBarras);
+document.getElementById('escanear-input').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') { e.preventDefault(); guardarCodigoBarras(); }
+});
 </script>
 {% endblock %}

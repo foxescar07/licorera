@@ -11,6 +11,9 @@ urlpatterns = [
     path('ajustar/<int:pk>/', views.ajustar_inventario, name='ajustar_inventario'),
     path('finalizar/', views.finalizar_inventario, name='finalizar_inventario'),
 
+    path('codigos/<int:pk>/guardar/', views.guardar_codigo_barras, name='guardar_codigo'),
+
+
     # ── Gestión de Productos (movido desde proveedores) ──
     path('gestion/', views.gestion_productos, name='gestion_productos'),
     path('gestion/salida/', views.gestion_salida, name='gestion_salida'),

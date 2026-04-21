@@ -976,3 +976,19 @@ body.sidebar-open .cys-main .container-fluid {
     -webkit-overflow-scrolling: touch;
   }
 }
+/* ── TABLA REGISTRAR CÓDIGOS ─────────────────────── */
+.modal #tbody-codigos td {
+  color:  #0A2A52 !important;
+  font-size: .85rem;
+}
+
+#tbody-codigos .cys-btn-sm {
+  font-size: .72rem !important;
+  padding: .35rem .75rem !important;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: auto !important;
+  height: auto !important;
+}
