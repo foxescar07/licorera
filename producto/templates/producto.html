@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Productos — CYS Ltda{% endblock %}
 {% block page_title %}Productos{% endblock %}
+
+{% block title %}Productos — CYS Ltda{% endblock %}
 {% block nav_productos %}active{% endblock %}
 
 {% block content %}
@@ -23,30 +24,15 @@
 
   <style>
     @keyframes pulso-rojo {
-      0%   { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.7); }
-      70%  { box-shadow: 0 0 0 10px rgba(192, 57, 43, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+      0%   { box-shadow: 0 0 0 0 rgba(192,57,43,0.7); }
+      70%  { box-shadow: 0 0 0 10px rgba(192,57,43,0); }
+      100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
     }
   </style>
-
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <button class="cys-btn cys-btn--danger" data-bs-toggle="modal" data-bs-target="#modalSalidaProducto"
-        onmouseenter="this.style.animation='pulso-rojo 1.2s infinite'"
-        onmouseleave="this.style.animation='none'">
-      <i class="bi bi-box-arrow-up me-1"></i> Registrar Salida
-    </button>
-    <button class="cys-btn cys-btn--primary" data-bs-toggle="modal" data-bs-target="#modalNuevoProducto">
-      <i class="bi bi-plus-lg"></i> Registrar Producto
-    </button>
-  </div>
 
   <section class="cys-card mb-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div class="cys-card__title mb-0">Inventario por Categoría</div>
-      <button class="cys-btn-sm cys-btn-sm--primary" data-bs-toggle="modal" data-bs-target="#modalNuevaCategoria"
-              style="width:auto; padding:.4rem .8rem; border-radius:8px; font-size:.75rem;">
-        <i class="bi bi-plus"></i> Nueva Categoría
-      </button>
     </div>
     <div class="row g-3">
       {% for cat in resumen_categorias %}
@@ -66,316 +52,6 @@
     </div>
   </section>
 
-</div>
-
-<!-- MODAL: Nuevo Producto -->
-<div class="modal fade" id="modalNuevoProducto" tabindex="-1" {% if form.errors %}data-open="true"{% endif %}>
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-        style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-          style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-plus-circle me-2" style="color:var(--azul-claro);"></i> Registrar Nuevo Producto
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <form id="form-nuevo-producto" method="POST" action="{% url 'producto:producto_lista' %}">
-          {% csrf_token %}
-          <input type="hidden" name="origen" value="modal_producto">
-          <div class="row g-3">
-            <div class="col-md-8">
-              <label class="cys-form-label">{{ form.nombre.label }}</label>
-              {{ form.nombre }}
-              {% if form.nombre.errors %}<div class="cys-form-error">{{ form.nombre.errors }}</div>{% endif %}
-            </div>
-            <div class="col-md-4">
-              <label class="cys-form-label">{{ form.codigo.label }}</label>
-              {{ form.codigo }}
-              {% if form.codigo.errors %}<div class="cys-form-error">{{ form.codigo.errors }}</div>{% endif %}
-            </div>
-            <div class="col-12">
-              <label class="cys-form-label">{{ form.categoria.label }}</label>
-              {{ form.categoria }}
-              {% if form.categoria.errors %}<div class="cys-form-error">{{ form.categoria.errors }}</div>{% endif %}
-            </div>
-            <div class="col-12">
-              <label class="cys-form-label">{{ form.descripcion.label }}</label>
-              {{ form.descripcion }}
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex justify-content-between">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
-        <div class="d-flex gap-2">
-          <button type="button" class="cys-btn cys-btn--outline" id="btnDefinirPrecios"
-                  style="border-color:var(--azul-claro); color:var(--azul-claro); font-size:.82rem;"
-                  onclick="guardarYDefinirPresentaciones()">
-            <i class="bi bi-layers me-1"></i> Guardar y Definir Presentaciones
-          </button>
-          <button type="submit" form="form-nuevo-producto" class="cys-btn cys-btn--danger">
-            <i class="bi bi-save me-1"></i> Guardar Producto
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: Salida de Producto -->
-<div class="modal fade" id="modalSalidaProducto" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-        style="background:var(--fondo-card); border:1px solid rgba(192,57,43,.4) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-          style="background:rgba(192,57,43,.15); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-box-arrow-up me-2" style="color:var(--rojo);"></i> Registrar Salida de Inventario
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <form id="form-salida" method="POST" action="{% url 'producto:producto_salida' %}">
-          {% csrf_token %}
-          <div class="row g-3">
-
-            <div class="col-12">
-              <label class="cys-form-label">Producto <span style="color:var(--rojo);">*</span></label>
-              <select name="producto" id="salida-producto" class="cys-input form-select" required
-                      onchange="cargarPresentacionesSalida(this.value)">
-                <option value="">— Selecciona un producto —</option>
-                {% for producto in productos %}
-                  <option value="{{ producto.pk }}"
-                          data-stock="{{ producto.cantidad_disponible }}"
-                          data-nombre="{{ producto.nombre|escapejs }}">
-                    {{ producto.nombre }} — Stock suelto: {{ producto.cantidad_disponible }}
-                  </option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <div class="col-12" id="contenedor-presentacion-salida" style="display:none;">
-              <label class="cys-form-label">Presentación (opcional)</label>
-              <select name="presentacion" id="salida-presentacion" class="cys-input form-select"
-                      onchange="actualizarStockDisponibleSalida()">
-                <option value="">— Unidades sueltas —</option>
-              </select>
-              <div style="font-size:.75rem; color:var(--texto-muted); margin-top:.35rem;">
-                Deja en blanco para descontar unidades sueltas del producto.
-              </div>
-            </div>
-
-            <div class="col-12" id="contenedor-stock-salida" style="display:none;">
-              <div style="background:rgba(192,57,43,.08); border:1px solid rgba(192,57,43,.25);
-                          border-radius:10px; padding:.75rem 1rem; font-size:.83rem;">
-                <span style="color:var(--texto-muted);">Stock disponible:</span>
-                <strong id="salida-stock-disponible" style="color:var(--rojo); margin-left:.4rem;">0</strong>
-                <span style="color:var(--texto-muted); margin-left:.2rem;">unidades</span>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="cys-form-label">Cantidad a retirar <span style="color:var(--rojo);">*</span></label>
-              <input type="number" name="cantidad" id="salida-cantidad"
-                     class="cys-input form-control" placeholder="Ej: 5" min="1" required>
-            </div>
-
-            <div class="col-md-6">
-              <label class="cys-form-label">Motivo <span style="color:var(--rojo);">*</span></label>
-              <select name="motivo" id="salida-motivo" class="cys-input form-select" required
-                      onchange="toggleMotivoPersonalizado(this.value)">
-                <option value="">— Selecciona un motivo —</option>
-                <option value="Producto dañado">Producto dañado</option>
-                <option value="Producto vencido">Producto vencido</option>
-                <option value="Merma o pérdida">Merma o pérdida</option>
-                <option value="Ajuste de inventario">Ajuste de inventario</option>
-                <option value="Traslado interno">Traslado interno</option>
-                <option value="otro">Otro (especificar)…</option>
-              </select>
-            </div>
-
-            <div class="col-12" id="contenedor-motivo-personalizado" style="display:none;">
-              <label class="cys-form-label">Especifica el motivo <span style="color:var(--rojo);">*</span></label>
-              <input type="text" id="motivo-personalizado" class="cys-input form-control"
-                     placeholder="Describe el motivo de la salida…" maxlength="255">
-            </div>
-
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex justify-content-between">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="cys-btn cys-btn--danger" onclick="submitSalida()">
-          <i class="bi bi-box-arrow-up me-1"></i> Confirmar Salida
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: Presentaciones -->
-<div class="modal fade" id="modalPresentaciones" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-        style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-          style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-layers me-2" style="color:var(--azul-claro);"></i>
-          Presentaciones — <span id="pres-producto-nombre">Producto</span>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <form id="form-presentaciones" method="POST" action="">
-          {% csrf_token %}
-          <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:1.25rem; line-height:1.6;">
-            Define las presentaciones del producto. La <strong style="color:var(--azul-claro);">Unidad</strong> es siempre la base.
-          </div>
-          <div class="mb-2 p-3 rounded-3"
-              style="background:var(--fondo-card2); border:1px solid var(--azul-borde);">
-            <div class="row g-2 align-items-center">
-              <div class="col-md-3">
-                <label class="cys-form-label">Presentación</label>
-                <input type="text" name="nombre[]" value="Unidad" class="form-control cys-input" readonly style="opacity:.6;">
-              </div>
-              <div class="col-md-2">
-                <label class="cys-form-label">Unidades</label>
-                <input type="number" name="unidades_base[]" value="1" class="form-control cys-input" readonly style="opacity:.6;">
-              </div>
-              <div class="col-md-3">
-                <label class="cys-form-label">Cantidad existente</label>
-                <input type="number" name="cantidad[]" id="cantidad-unidad"
-                      class="form-control cys-input" placeholder="Ej: 50" min="0" value="0">
-              </div>
-              <div class="col-md-3">
-                <label class="cys-form-label">Precio (COP)</label>
-                <input type="number" name="precio[]" id="precio-unidad"
-                      class="form-control cys-input" placeholder="Ej: 2500" min="0" required>
-              </div>
-              <div class="col-md-1 d-flex align-items-end pb-1 justify-content-center">
-                <span style="color:var(--azul-claro); font-size:.65rem;">Base</span>
-              </div>
-            </div>
-          </div>
-          <div id="contenedor-presentaciones"></div>
-          <button type="button" class="cys-btn cys-btn--outline w-100 mt-2"
-                  style="border-style:dashed; font-size:.8rem;" onclick="agregarPresentacion()">
-            <i class="bi bi-plus-circle me-1"></i> Agregar Presentación
-          </button>
-        </form>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="cys-btn cys-btn--primary" onclick="guardarPresentaciones()">
-          <i class="bi bi-save me-1"></i> Guardar Presentaciones
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: Nueva Categoría -->
-<div class="modal fade" id="modalNuevaCategoria" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-        style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-          style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-tag me-2" style="color:var(--azul-claro);"></i> Nueva Categoría
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <form id="form-nueva-categoria" method="POST" action="{% url 'producto:categoria_crear' %}">
-          {% csrf_token %}
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="cys-form-label">Código</label>
-              <input type="text" name="codigo" class="cys-input form-control" placeholder="Ej: CER" required>
-            </div>
-            <div class="col-md-8">
-              <label class="cys-form-label">Nombre</label>
-              <input type="text" name="nombre" class="cys-input form-control" placeholder="Ej: Cervezas" required>
-            </div>
-            <div class="col-12">
-              <label class="cys-form-label">Descripción (opcional)</label>
-              <textarea name="descripcion" class="cys-input form-control" rows="3"></textarea>
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" form="form-nueva-categoria" class="cys-btn cys-btn--primary">
-          <i class="bi bi-save me-1"></i> Guardar Categoría
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: Editar Producto -->
-<div class="modal fade" id="modalEditarProducto" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-        style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-          style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-pencil me-2" style="color:var(--azul-claro);"></i> Editar Producto
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <form id="form-editar" method="POST" action="">
-          {% csrf_token %}
-          <div class="row g-3">
-            <div class="col-md-8">
-              <label class="cys-form-label">Nombre</label>
-              <input type="text" name="nombre" id="edit-nombre" class="cys-input form-control" required>
-            </div>
-            <div class="col-md-4">
-              <label class="cys-form-label">Código</label>
-              <input type="text" name="codigo" id="edit-codigo" class="cys-input form-control" required>
-            </div>
-            <div class="col-12">
-              <label class="cys-form-label">Categoría</label>
-              <select name="categoria" id="edit-categoria" class="cys-input form-select">
-                {% for cat in resumen_categorias %}
-                  <option value="{{ cat.pk }}">{{ cat.nombre }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-12">
-              <label class="cys-form-label">Descripción</label>
-              <textarea name="descripcion" id="edit-descripcion" class="cys-input form-control" rows="2"></textarea>
-            </div>
-          </div>
-        </form>
-        <div class="mt-4">
-          <div style="font-family:'Rajdhani',sans-serif; font-size:.85rem; font-weight:700; color:var(--azul-claro); letter-spacing:.08em; text-transform:uppercase; margin-bottom:.75rem;">
-            <i class="bi bi-layers me-1"></i> Presentaciones actuales
-          </div>
-          <div id="edit-presentaciones" style="color:var(--texto-muted); font-size:.8rem;">—</div>
-          <button type="button" class="cys-btn cys-btn--outline mt-3"
-                  style="border-color:var(--azul-claro); color:var(--azul-claro); font-size:.78rem; padding:.4rem 1rem;"
-                  id="btnEditarPresentaciones">
-            <i class="bi bi-layers me-1"></i> Editar Presentaciones
-          </button>
-        </div>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" form="form-editar" class="cys-btn cys-btn--primary">
-          <i class="bi bi-save me-1"></i> Guardar Cambios
-        </button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- MODAL: Detalle Producto -->
@@ -465,10 +141,80 @@
   </div>
 </div>
 
+<!-- MODAL: Confirmar ir a Gestión de Productos -->
+<div id="modalConfirmGestion" style="
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,.65); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center; padding:1rem;">
+  <div style="
+    background:#0D1B2E; border:1px solid rgba(77,168,218,.3);
+    border-radius:16px; width:100%; max-width:460px;
+    box-shadow:0 16px 48px rgba(0,0,0,.7);
+    overflow:hidden; font-family:'Inter',sans-serif;">
+
+    <div style="padding:1.2rem 1.5rem; display:flex; align-items:center;
+                gap:.75rem; border-bottom:1px solid rgba(77,168,218,.15);">
+      <div style="width:36px; height:36px; border-radius:10px; flex-shrink:0;
+                  background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3);
+                  display:flex; align-items:center; justify-content:center;
+                  color:#4DA8DA; font-size:1rem;">
+        <i class="bi bi-box-seam-fill"></i>
+      </div>
+      <span style="font-family:'Rajdhani',sans-serif; font-weight:700;
+                   font-size:1rem; letter-spacing:.1em; text-transform:uppercase;
+                   color:#e2e8f0; flex:1;">Gestión de Productos</span>
+      <button onclick="cerrarModalGestion()" style="
+        background:transparent; border:none; cursor:pointer;
+        color:rgba(226,232,240,.35); font-size:1rem; padding:.2rem .4rem;
+        border-radius:6px; transition:color .2s;"
+        onmouseover="this.style.color='#e2e8f0'"
+        onmouseout="this.style.color='rgba(226,232,240,.35)'">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div style="padding:1.25rem 1.5rem 1rem;">
+      <div style="height:1px; background:rgba(77,168,218,.1); margin-bottom:1.1rem;"></div>
+      <p style="color:#cbd5e1; font-size:.95rem; margin:0; line-height:1.65;">
+        ¿Deseas ir a <strong style="color:#4DA8DA;">Gestión de Productos</strong> en Inventario?
+      </p>
+      <p style="color:rgba(226,232,240,.35); font-size:.8rem; margin-top:.45rem;">
+        Allí puedes crear, editar o eliminar productos y categorías.
+      </p>
+    </div>
+
+    <div style="padding:.75rem 1.5rem 1.4rem; display:flex; gap:.75rem;">
+      <button onclick="cerrarModalGestion()" style="
+        flex:1; padding:.75rem; border-radius:10px; cursor:pointer;
+        background:#111f33; border:1px solid rgba(226,232,240,.1);
+        color:#e2e8f0; font-family:'Rajdhani',sans-serif;
+        font-weight:700; font-size:.9rem; letter-spacing:.08em;
+        text-transform:uppercase; transition:background .2s;"
+        onmouseover="this.style.background='#1a2a45'"
+        onmouseout="this.style.background='#111f33'">
+        Cancelar
+      </button>
+      <button onclick="window.location.href=GESTION_URL" style="
+        flex:1; padding:.75rem; border-radius:10px; cursor:pointer;
+        background:#4DA8DA; border:none; color:#011936;
+        font-family:'Rajdhani',sans-serif; font-weight:700;
+        font-size:.9rem; letter-spacing:.08em; text-transform:uppercase;
+        display:flex; align-items:center; justify-content:center; gap:.5rem;
+        transition:background .2s; box-shadow:0 4px 14px rgba(77,168,218,.35);"
+        onmouseover="this.style.background='#6dc0e8'"
+        onmouseout="this.style.background='#4DA8DA'">
+        <i class="bi bi-arrow-right-circle-fill"></i> Ir ahora
+      </button>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
+const GESTION_URL = "{% url 'inventario:gestion_productos' %}";
+
 const todoProductos = [
   {% for producto in productos %}
   {
@@ -495,118 +241,6 @@ const todoProductos = [
   }{% if not forloop.last %},{% endif %}
   {% endfor %}
 ];
-
-let productoActivoPk = null;
-
-// ─── SALIDA ──────────────────────────────────────────────────────────────────
-
-function cargarPresentacionesSalida(productoPk) {
-  const selectPres    = document.getElementById('salida-presentacion');
-  const contPres      = document.getElementById('contenedor-presentacion-salida');
-  const contStock     = document.getElementById('contenedor-stock-salida');
-  const spanStock     = document.getElementById('salida-stock-disponible');
-  const inputCantidad = document.getElementById('salida-cantidad');
-
-  inputCantidad.value = '';
-
-  if (!productoPk) {
-    contPres.style.display  = 'none';
-    contStock.style.display = 'none';
-    return;
-  }
-
-  const producto = todoProductos.find(p => p.pk == productoPk);
-  if (!producto) return;
-
-  selectPres.innerHTML = '<option value="">— Unidades sueltas —</option>';
-  producto.presentaciones.forEach(pr => {
-    const opt    = document.createElement('option');
-    opt.value    = pr.id;
-    opt.dataset.cantidad = pr.cantidad;
-    opt.textContent = `${pr.nombre} (${pr.unidades} uds) — Stock: ${pr.cantidad}`;
-    if (pr.cantidad === 0) opt.disabled = true;
-    selectPres.appendChild(opt);
-  });
-
-  contPres.style.display  = producto.presentaciones.length > 0 ? 'block' : 'none';
-  contStock.style.display = 'block';
-  spanStock.textContent   = producto.cantidad;
-  inputCantidad.max       = producto.cantidad;
-}
-
-function actualizarStockDisponibleSalida() {
-  const selectProd = document.getElementById('salida-producto');
-  const selectPres = document.getElementById('salida-presentacion');
-  const spanStock  = document.getElementById('salida-stock-disponible');
-  const inputCant  = document.getElementById('salida-cantidad');
-
-  const productoPk = selectProd.value;
-  const presId     = selectPres.value;
-  const producto   = todoProductos.find(p => p.pk == productoPk);
-  if (!producto) return;
-
-  inputCant.value = '';
-
-  if (presId) {
-    const pres = producto.presentaciones.find(pr => pr.id == presId);
-    if (pres) {
-      spanStock.textContent = pres.cantidad;
-      inputCant.max         = pres.cantidad;
-    }
-  } else {
-    spanStock.textContent = producto.cantidad;
-    inputCant.max         = producto.cantidad;
-  }
-}
-
-function toggleMotivoPersonalizado(valor) {
-  const cont = document.getElementById('contenedor-motivo-personalizado');
-  const inp  = document.getElementById('motivo-personalizado');
-  if (valor === 'otro') {
-    cont.style.display = 'block';
-    inp.required       = true;
-  } else {
-    cont.style.display = 'none';
-    inp.required       = false;
-    inp.value          = '';
-  }
-}
-
-function submitSalida() {
-  const form          = document.getElementById('form-salida');
-  const selectMotivo  = document.getElementById('salida-motivo');
-  const inputPersonal = document.getElementById('motivo-personalizado');
-  const selectProd    = document.getElementById('salida-producto');
-  const inputCant     = document.getElementById('salida-cantidad');
-
-  if (!selectProd.value) { alert('Selecciona un producto.'); return; }
-  if (!inputCant.value || parseInt(inputCant.value) <= 0) { alert('Ingresa una cantidad válida mayor a cero.'); return; }
-  if (!selectMotivo.value) { alert('Selecciona el motivo de la salida.'); return; }
-
-  if (selectMotivo.value === 'otro') {
-    if (!inputPersonal.value.trim()) { alert('Describe el motivo personalizado.'); return; }
-    selectMotivo.value = inputPersonal.value.trim();
-  }
-
-  const stockDisp = parseInt(document.getElementById('salida-stock-disponible').textContent) || 0;
-  const cantidad  = parseInt(inputCant.value);
-  if (cantidad > stockDisp) {
-    alert(`Stock insuficiente. Solo hay ${stockDisp} unidades disponibles.`);
-    return;
-  }
-
-  form.submit();
-}
-
-document.getElementById('modalSalidaProducto').addEventListener('hidden.bs.modal', function () {
-  document.getElementById('form-salida').reset();
-  document.getElementById('contenedor-presentacion-salida').style.display  = 'none';
-  document.getElementById('contenedor-stock-salida').style.display         = 'none';
-  document.getElementById('contenedor-motivo-personalizado').style.display = 'none';
-  document.getElementById('motivo-personalizado').required = false;
-});
-
-// ─── CATEGORÍA ───────────────────────────────────────────────────────────────
 
 function abrirCategoria(categoriaPk, categoriaNombre) {
   document.getElementById('titulo-categoria').textContent = categoriaNombre;
@@ -635,21 +269,20 @@ function abrirCategoria(categoriaPk, categoriaNombre) {
           <td style="font-size:.85rem; color:var(--texto-muted);">${i+1}</td>
           <td style="font-size:.85rem; font-weight:600; color:var(--texto);">${p.nombre}</td>
           <td>
-            <span style="font-size:.85rem; font-weight:600;
-                         color:${p.stock_critico ? 'var(--rojo)' : 'var(--azul-claro)'};">
+            <span style="font-size:.85rem; font-weight:600; color:${p.stock_critico ? 'var(--rojo)' : 'var(--azul-claro)'};">
               ${p.cantidad} uds
             </span>
           </td>
           <td>${pres}</td>
           <td style="font-size:.85rem; color:var(--texto-muted);">${p.ultima_entrada}</td>
-          <td>
-            <button class="cys-btn-sm cys-btn-sm--warning" title="Editar"
-                    onclick="cerrarYEditar(${p.pk},\`${p.nombre}\`,\`${p.codigo}\`,${p.categoria_pk},${p.cantidad},\`${p.descripcion}\`)">
-              <i class="bi bi-pencil"></i>
-            </button>
+          <td style="display:flex; gap:.4rem; align-items:center;">
             <button class="cys-btn-sm cys-btn-sm--primary" title="Ver detalle"
                     onclick="cerrarYDetalle(${p.pk},\`${p.nombre}\`,\`${p.codigo}\`,\`${p.categoria_nombre}\`,${p.cantidad},\`${p.descripcion}\`)">
               <i class="bi bi-eye"></i>
+            </button>
+            <button class="cys-btn-sm cys-btn-sm--warning" title="Ir a gestión de productos"
+                    onclick="mostrarModalGestion()">
+              <i class="bi bi-arrow-right-circle"></i>
             </button>
           </td>
         </tr>`;
@@ -658,34 +291,30 @@ function abrirCategoria(categoriaPk, categoriaNombre) {
   new bootstrap.Modal(document.getElementById('modalProductosCategoria')).show();
 }
 
-function abrirEditar(pk, nombre, codigo, categoriaPk, cantidad, descripcion) {
-  document.getElementById('edit-nombre').value      = nombre;
-  document.getElementById('edit-codigo').value      = codigo;
-  document.getElementById('edit-categoria').value   = categoriaPk;
-  document.getElementById('edit-descripcion').value = descripcion;
-  document.getElementById('form-editar').action     = `/producto/producto/${pk}/editar/`;
+function mostrarModalGestion() {
+  const m = bootstrap.Modal.getInstance(document.getElementById('modalProductosCategoria'));
+  if (m) m.hide();
+  setTimeout(() => {
+    document.getElementById('modalConfirmGestion').style.display = 'flex';
+  }, 350);
+}
 
-  const producto = todoProductos.find(p => p.pk == pk);
-  const contPres = document.getElementById('edit-presentaciones');
+function cerrarModalGestion() {
+  document.getElementById('modalConfirmGestion').style.display = 'none';
+}
 
-  if (producto && producto.presentaciones.length > 0) {
-    contPres.innerHTML = producto.presentaciones.map(pr => `
-      <div class="d-flex justify-content-between align-items-center py-1"
-           style="border-bottom:1px solid var(--azul-borde); font-size:.82rem;">
-        <span style="color:var(--texto);">${pr.nombre} (${pr.unidades} uds) — Stock: ${pr.cantidad}</span>
-        <span style="color:var(--azul-claro); font-weight:600;">$${parseInt(pr.precio||0).toLocaleString('es-CO')}</span>
-      </div>`).join('');
-  } else {
-    contPres.innerHTML = `<span style="color:var(--texto-muted); font-size:.8rem;">No hay presentaciones definidas.</span>`;
-  }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') cerrarModalGestion();
+});
 
-  document.getElementById('btnEditarPresentaciones').onclick = () => {
-    const m = bootstrap.Modal.getInstance(document.getElementById('modalEditarProducto'));
-    if (m) m.hide();
-    setTimeout(() => abrirPresentaciones(pk, nombre), 400);
-  };
+document.getElementById('modalConfirmGestion').addEventListener('click', function(e) {
+  if (e.target === this) cerrarModalGestion();
+});
 
-  new bootstrap.Modal(document.getElementById('modalEditarProducto')).show();
+function cerrarYDetalle(pk, nombre, codigo, categoria, cantidad, descripcion) {
+  const m = bootstrap.Modal.getInstance(document.getElementById('modalProductosCategoria'));
+  if (m) m.hide();
+  setTimeout(() => abrirDetalle(pk, nombre, codigo, categoria, cantidad, descripcion), 400);
 }
 
 function abrirDetalle(pk, nombre, codigo, categoria, cantidad, descripcion) {
@@ -714,128 +343,5 @@ function abrirDetalle(pk, nombre, codigo, categoria, cantidad, descripcion) {
 
   new bootstrap.Modal(document.getElementById('modalDetalleProducto')).show();
 }
-
-function abrirPresentaciones(pk, nombre) {
-  productoActivoPk = pk;
-  document.getElementById('pres-producto-nombre').textContent = nombre;
-  document.getElementById('form-presentaciones').action =
-    "{% url 'producto:presentaciones_guardar' 0 %}".replace('/0/', `/${pk}/`);
-
-  document.getElementById('contenedor-presentaciones').innerHTML = '';
-  document.getElementById('precio-unidad').value   = '';
-  document.getElementById('cantidad-unidad').value = '0';
-
-  const producto = todoProductos.find(p => p.pk == pk);
-  if (producto) {
-    const unidad = producto.presentaciones.find(pr => pr.unidades === 1);
-    if (unidad) {
-      document.getElementById('precio-unidad').value   = unidad.precio;
-      document.getElementById('cantidad-unidad').value = unidad.cantidad || 0;
-    }
-    producto.presentaciones
-      .filter(pr => pr.unidades > 1)
-      .forEach(pr => agregarPresentacion(pr.nombre, pr.unidades, pr.precio, pr.cantidad));
-  }
-
-  new bootstrap.Modal(document.getElementById('modalPresentaciones')).show();
-}
-
-function agregarPresentacion(nombre = '', unidades = '', precio = '', cantidad = '') {
-  const cont = document.getElementById('contenedor-presentaciones');
-  const div  = document.createElement('div');
-  div.className = 'mb-2 p-3 rounded-3';
-  div.style.cssText = 'background:var(--fondo-card2); border:1px solid var(--azul-borde);';
-  div.innerHTML = `
-    <div class="row g-2 align-items-center">
-      <div class="col-md-3">
-        <label class="cys-form-label">Presentación</label>
-        <input type="text" name="nombre[]" value="${nombre}"
-              class="form-control cys-input" placeholder="Ej: Six-pack" required>
-      </div>
-      <div class="col-md-2">
-        <label class="cys-form-label">Unidades</label>
-        <input type="number" name="unidades_base[]" value="${unidades}"
-              class="form-control cys-input" placeholder="Ej: 6" min="2" required>
-      </div>
-      <div class="col-md-3">
-        <label class="cys-form-label">Cantidad existente</label>
-        <input type="number" name="cantidad[]" value="${cantidad}"
-              class="form-control cys-input" placeholder="Stock actual" min="0">
-      </div>
-      <div class="col-md-3">
-        <label class="cys-form-label">Precio (COP)</label>
-        <input type="number" name="precio[]" value="${precio}"
-              class="form-control cys-input" placeholder="Ej: 13000" min="0" required>
-      </div>
-      <div class="col-md-1 d-flex align-items-end pb-1 justify-content-center">
-        <button type="button" onclick="this.closest('.mb-2').remove()"
-                style="background:rgba(192,57,43,.15); border:1px solid rgba(192,57,43,.3); color:var(--rojo);
-                       width:30px; height:30px; border-radius:6px; display:flex; align-items:center;
-                       justify-content:center; cursor:pointer; flex-shrink:0;">
-          <i class="bi bi-trash" style="font-size:.75rem;"></i>
-        </button>
-      </div>
-    </div>`;
-  cont.appendChild(div);
-}
-
-function guardarPresentaciones() {
-  document.getElementById('form-presentaciones').submit();
-}
-
-function guardarYDefinirPresentaciones() {
-  const nombre    = document.querySelector('#form-nuevo-producto [name="nombre"]').value.trim();
-  const codigo    = document.querySelector('#form-nuevo-producto [name="codigo"]').value.trim();
-  const categoria = document.querySelector('#form-nuevo-producto [name="categoria"]').value;
-
-  if (!nombre || !codigo || !categoria) {
-    alert('Completa Nombre, Código y Categoría antes de continuar.');
-    return;
-  }
-
-  const btn = document.getElementById('btnDefinirPrecios');
-  btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> Guardando...';
-  btn.disabled  = true;
-
-  fetch("{% url 'producto:producto_lista' %}", {
-    method:  'POST',
-    body:    new FormData(document.getElementById('form-nuevo-producto')),
-    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-  })
-  .then(res => { if (!res.ok) throw new Error(); return res.json(); })
-  .then(data => {
-    if (data.ok) {
-      const m = bootstrap.Modal.getInstance(document.getElementById('modalNuevoProducto'));
-      if (m) m.hide();
-      setTimeout(() => abrirPresentaciones(data.pk, data.nombre), 400);
-    } else {
-      alert(data.error || 'Error al guardar el producto.');
-      btn.innerHTML = '<i class="bi bi-layers me-1"></i> Guardar y Definir Presentaciones';
-      btn.disabled  = false;
-    }
-  })
-  .catch(() => {
-    alert('Error de conexión. Intenta de nuevo.');
-    btn.innerHTML = '<i class="bi bi-layers me-1"></i> Guardar y Definir Presentaciones';
-    btn.disabled  = false;
-  });
-}
-
-function cerrarYEditar(pk, nombre, codigo, categoriaPk, cantidad, descripcion) {
-  const m = bootstrap.Modal.getInstance(document.getElementById('modalProductosCategoria'));
-  if (m) m.hide();
-  setTimeout(() => abrirEditar(pk, nombre, codigo, categoriaPk, cantidad, descripcion), 400);
-}
-
-function cerrarYDetalle(pk, nombre, codigo, categoria, cantidad, descripcion) {
-  const m = bootstrap.Modal.getInstance(document.getElementById('modalProductosCategoria'));
-  if (m) m.hide();
-  setTimeout(() => abrirDetalle(pk, nombre, codigo, categoria, cantidad, descripcion), 400);
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-  const modalEl = document.getElementById('modalNuevoProducto');
-  if (modalEl && modalEl.dataset.open === 'true') new bootstrap.Modal(modalEl).show();
-});
 </script>
 {% endblock %}

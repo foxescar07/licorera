@@ -62,6 +62,54 @@
     </div>
   </div>
 
+  <!-- MÓDULO GESTIÓN DE PRODUCTOS -->
+  <div class="mb-4">
+    <a href="{% url 'inventario:gestion_productos' %}" style="
+      display:flex; align-items:center; justify-content:space-between;
+      gap:1rem; flex-wrap:wrap; text-decoration:none;
+      background:linear-gradient(135deg, rgba(77,168,218,.1) 0%, rgba(77,168,218,.03) 100%);
+      border:1px solid rgba(77,168,218,.3); border-radius:14px;
+      padding:1.2rem 1.6rem; transition:border-color .2s, background .2s;"
+      onmouseover="this.style.borderColor='#4DA8DA'; this.style.background='linear-gradient(135deg, rgba(77,168,218,.18) 0%, rgba(77,168,218,.07) 100%)'"
+      onmouseout="this.style.borderColor='rgba(77,168,218,.3)'; this.style.background='linear-gradient(135deg, rgba(77,168,218,.1) 0%, rgba(77,168,218,.03) 100%)'">
+      <div class="d-flex align-items-center gap-3">
+        <div style="
+          width:48px; height:48px; border-radius:12px; flex-shrink:0;
+          background:rgba(77,168,218,.14); border:1px solid rgba(77,168,218,.3);
+          display:flex; align-items:center; justify-content:center;
+          font-size:1.3rem; color:#4DA8DA;">
+          <i class="bi bi-box-seam-fill"></i>
+        </div>
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif; font-weight:700;
+                      font-size:1rem; letter-spacing:.08em; text-transform:uppercase; color:#e2e8f0;">
+            Gestión de Productos
+          </div>
+          <div style="font-size:.76rem; color:rgba(226,232,240,.45); margin-top:.1rem;">
+            Registrar productos, salidas, categorías y subcategorías
+          </div>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div class="d-flex gap-2 flex-wrap">
+          <span style="font-size:.68rem; padding:.22rem .6rem; border-radius:999px; font-weight:600;
+                       background:rgba(77,168,218,.1); color:#4DA8DA; border:1px solid rgba(77,168,218,.25);">
+            <i class="bi bi-plus-circle me-1"></i>Nuevo producto
+          </span>
+          <span style="font-size:.68rem; padding:.22rem .6rem; border-radius:999px; font-weight:600;
+                       background:rgba(192,57,43,.1); color:#e87070; border:1px solid rgba(192,57,43,.25);">
+            <i class="bi bi-box-arrow-up me-1"></i>Registrar salida
+          </span>
+          <span style="font-size:.68rem; padding:.22rem .6rem; border-radius:999px; font-weight:600;
+                       background:rgba(77,218,140,.1); color:#5edb97; border:1px solid rgba(77,218,140,.25);">
+            <i class="bi bi-tags me-1"></i>Categorías
+          </span>
+        </div>
+        <i class="bi bi-arrow-right-circle-fill" style="font-size:1.3rem; color:#4DA8DA; opacity:.6; flex-shrink:0; transition:transform .2s, opacity .2s;"></i>
+      </div>
+    </a>
+  </div>
+
   <!-- LISTA DE AGENDAS -->
   <section class="cys-card mb-4">
     <div class="cys-card__title">
@@ -84,6 +132,7 @@
         <span class="inv-badge inv-badge--{{ agenda.estado }}">{{ agenda.get_estado_display }}</span>
       </div>
       <div class="inv-tracker">
+
         <div class="inv-tracker__step {% if agenda.estado == 'pendiente' %}inv-tracker__step--active-pendiente{% elif agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__step--done-pendiente{% endif %}">
           <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">{% csrf_token %}<input type="hidden" name="estado" value="pendiente">
             <button type="submit" class="inv-tracker__circle">{% if agenda.estado == 'pendiente' %}⏳{% elif agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}✓{% else %}1{% endif %}</button>
@@ -91,6 +140,7 @@
           <div class="inv-tracker__label">Pendiente</div>
         </div>
         <div class="inv-tracker__line {% if agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__line--pendiente{% endif %}"></div>
+
         <div class="inv-tracker__step {% if agenda.estado == 'en_proceso' %}inv-tracker__step--active-en_proceso{% elif agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__step--done-en_proceso{% endif %}">
           <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">{% csrf_token %}<input type="hidden" name="estado" value="en_proceso">
             <button type="submit" class="inv-tracker__circle">{% if agenda.estado == 'en_proceso' %}⚙{% elif agenda.estado == 'completado' or agenda.estado == 'cancelado' %}✓{% else %}2{% endif %}</button>
@@ -98,6 +148,7 @@
           <div class="inv-tracker__label">En Proceso</div>
         </div>
         <div class="inv-tracker__line {% if agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__line--en_proceso{% endif %}"></div>
+
         <div class="inv-tracker__step {% if agenda.estado == 'completado' %}inv-tracker__step--active-completado{% endif %}">
           <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">{% csrf_token %}<input type="hidden" name="estado" value="completado">
             <button type="submit" class="inv-tracker__circle">{% if agenda.estado == 'completado' %}✓{% else %}3{% endif %}</button>
@@ -105,6 +156,7 @@
           <div class="inv-tracker__label">Completado</div>
         </div>
         <div class="inv-tracker__line {% if agenda.estado == 'cancelado' %}inv-tracker__line--cancelado{% endif %}"></div>
+
         <div class="inv-tracker__step {% if agenda.estado == 'cancelado' %}inv-tracker__step--active-cancelado{% endif %}">
           <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">{% csrf_token %}<input type="hidden" name="estado" value="cancelado">
             <button type="submit" class="inv-tracker__circle">{% if agenda.estado == 'cancelado' %}✕{% else %}4{% endif %}</button>
@@ -185,8 +237,17 @@
     </div>
     <form method="POST" action="{% url 'inventario:finalizar_inventario' %}">
       {% csrf_token %}
+
       <div style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:var(--radius); display:flex; align-items:center; justify-content:space-between; padding:14px 18px; gap:16px;">
         <div style="width:34px; height:34px; border-radius:50%; flex-shrink:0; border:2px solid var(--azul-claro); color:var(--azul-claro); display:flex; align-items:center; justify-content:center; font-size:.85rem; font-weight:700;">3</div>
+
+      <div style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:var(--radius);
+                  display:flex; align-items:center; justify-content:space-between; padding:14px 18px; gap:16px;">
+        <div style="width:34px; height:34px; border-radius:50%; flex-shrink:0;
+                    border:2px solid var(--azul-claro); color:var(--azul-claro);
+                    display:flex; align-items:center; justify-content:center;
+                    font-size:.85rem; font-weight:700;">3</div>
+
         <div style="flex:1;">
           <div style="font-size:.85rem; font-weight:600; color:var(--texto);">Cerrar sesión de inventario</div>
           <div style="font-size:.72rem; color:var(--texto-muted); margin-top:2px;">Último paso · ajusta stock y registra el cierre</div>
@@ -299,6 +360,19 @@
               <div class="col-md-2">
                 <button type="submit" class="cys-btn cys-btn--primary w-100">
                   <i class="bi bi-save"></i>
+                </button>
+              </div>
+            </div>
+
+            <div id="scanner-container" style="display:none; margin-bottom:1rem;">
+              <div style="position:relative; width:100%; max-width:480px; margin:0 auto; border:2px solid var(--azul-claro); border-radius:10px; overflow:hidden; background:#000;">
+                <div id="scanner-viewport" style="width:100%; height:240px;"></div>
+                <div style="position:absolute; top:50%; left:5%; width:90%; height:2px; background:var(--azul-claro); box-shadow:0 0 8px var(--azul-claro); animation:scan-line 2s ease-in-out infinite; pointer-events:none;"></div>
+                <div id="scanner-result" style="position:absolute; bottom:8px; left:0; right:0; text-align:center; font-size:.75rem; font-weight:700; color:#fff; text-shadow:0 1px 4px #000; letter-spacing:.08em;">Apunta al código de barras...</div>
+              </div>
+              <div class="d-flex justify-content-center mt-2">
+                <button type="button" id="btn-cerrar-scanner" class="cys-btn cys-btn--outline" style="font-size:.78rem; padding:.35rem .9rem;">
+                  <i class="bi bi-x-circle me-1"></i> Cerrar cámara
                 </button>
               </div>
             </div>
@@ -738,21 +812,21 @@
 {% block extra_js %}
 <script>
 function abrirEditar(pk, nombre, codigo, categoriaPk, precio, cantidad, unidad) {
-  document.getElementById('inv-edit-nombre').value = nombre;
-  document.getElementById('inv-edit-codigo').value = codigo;
-  document.getElementById('inv-edit-precio').value = precio;
-  document.getElementById('inv-edit-cantidad').value = cantidad;
-  document.getElementById('inv-edit-unidad').value = unidad;
-  document.getElementById('form-editar-inv').action = `/producto/producto/${pk}/editar/`;
+  document.getElementById('inv-edit-nombre').value    = nombre;
+  document.getElementById('inv-edit-codigo').value    = codigo;
+  document.getElementById('inv-edit-precio').value    = precio;
+  document.getElementById('inv-edit-cantidad').value  = cantidad;
+  document.getElementById('inv-edit-unidad').value    = unidad;
+  document.getElementById('form-editar-inv').action   = `/producto/producto/${pk}/editar/`;
   new bootstrap.Modal(document.getElementById('modalEditarProducto')).show();
 }
 
 function abrirDetalle(nombre, codigo, categoria, precio, cantidad, unidad, descripcion) {
-  document.getElementById('inv-det-nombre').textContent = nombre;
-  document.getElementById('inv-det-codigo').textContent = codigo;
-  document.getElementById('inv-det-categoria').textContent = categoria;
-  document.getElementById('inv-det-precio').textContent = '$' + parseInt(precio).toLocaleString();
-  document.getElementById('inv-det-cantidad').textContent = cantidad + ' ' + unidad;
+  document.getElementById('inv-det-nombre').textContent      = nombre;
+  document.getElementById('inv-det-codigo').textContent      = codigo;
+  document.getElementById('inv-det-categoria').textContent   = categoria;
+  document.getElementById('inv-det-precio').textContent      = '$' + parseInt(precio).toLocaleString();
+  document.getElementById('inv-det-cantidad').textContent    = cantidad + ' ' + unidad;
   document.getElementById('inv-det-descripcion').textContent = descripcion || 'Sin descripción';
   new bootstrap.Modal(document.getElementById('modalDetalleProducto')).show();
 }
@@ -776,6 +850,7 @@ function abrirConfirmarAjuste(btn) {
     document.getElementById('modalComparar').removeEventListener('hidden.bs.modal', abrirSiguiente);
   });
 }
+
 
 // ── ESCÁNER USB (conteo) ──────────────────────────
 (function () {
