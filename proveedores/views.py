@@ -102,11 +102,16 @@ def marcar_recibida(request, compra_id):
 # ===============================
 # REGISTRAR COMPRA
 # ===============================
-def registrar_compra(request, proveedor_id):
-    proveedor_obj     = get_object_or_404(Proveedor, id=proveedor_id)
+def registrar_compra(request, proveedor_id=None):
+    if (proveedor_id!= None):
+        proveedor_obj     = get_object_or_404(Proveedor, id=proveedor_id)
+        compras           = Compra.objects.filter(proveedor=proveedor_obj)
+    else:
+        proveedor_obj= None
+        compras           = Compra.objects.all().order_by('fecha_registro')
     productos         = Producto.objects.all()
     todos_proveedores = Proveedor.objects.all().order_by('nombre_empresa')
-    compras           = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
+    
     subtotal          = sum(c.total for c in compras if c.total)
 
     # ← NUEVAS LÍNEAS: compras pendientes de recibir
