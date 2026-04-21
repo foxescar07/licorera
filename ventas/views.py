@@ -33,8 +33,7 @@ def nueva_venta(request):
     presentacion_ids = request.POST.getlist('presentacion_id[]')
     cantidades = request.POST.getlist('cantidad[]')
     precios = request.POST.getlist('precio[]')
-    
-    # --- NUEVO: CAPTURAR DESCUENTO ---
+
     try:
         descuento_pct = Decimal(request.POST.get('descuento_porcentaje', '0'))
     except (InvalidOperation, TypeError):
@@ -49,7 +48,7 @@ def nueva_venta(request):
         return redirect('ventas:ventas_lista')
 
     items_validados = []
-    subtotal_venta = Decimal('0') # Para calcular el total base
+    subtotal_venta = Decimal('0')
 
     for i, prod_id in enumerate(producto_ids):
         try:
@@ -99,17 +98,17 @@ def nueva_venta(request):
             'cantidad':     cantidad,
             'precio':       precio,
         })
-        
-        # Sumar al subtotal
+
         subtotal_venta += (precio * cantidad)
 
-    # --- NUEVO: CALCULAR TOTAL CON DESCUENTO ---
+    # Calcular total con descuento
     monto_descuento = (subtotal_venta * descuento_pct) / Decimal('100')
     total_final = subtotal_venta - monto_descuento
 
-    # Guardar la venta con el total final calculado
+    # Guardar venta con descuento y total final
     venta = form.save(commit=False)
-    venta.total_venta = total_final # Aseguramos que se guarde el valor con descuento
+    venta.descuento_porcentaje = descuento_pct
+    venta.total_con_descuento = total_final
     venta.save()
 
     for item in items_validados:

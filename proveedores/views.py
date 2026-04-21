@@ -3,26 +3,22 @@ from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
 
-# MODELOS
 from producto.models import Producto, Inventario
 from .models import Proveedor, Compra
-
-# FORMS
 from .forms import ProveedorForm
-from .formscomp import CompraForm
 
 
 # ===============================
-# DASHBOARD PROVEEDORES (PRINCIPAL)
+# DASHBOARD PROVEEDORES
 # ===============================
 def inicio_proveedores(request):
     proveedores = Proveedor.objects.all().order_by('-ultima_modificacion')
 
-    total = proveedores.count()
+    total        = proveedores.count()
     hace_30_dias = timezone.now() - timedelta(days=30)
-    nuevos = proveedores.filter(fecha_registro__gte=hace_30_dias).count()
-    ultimo = proveedores.first()
-    fecha_u = ultimo.ultima_modificacion if ultimo else None
+    nuevos       = proveedores.filter(fecha_registro__gte=hace_30_dias).count()
+    ultimo       = proveedores.first()
+    fecha_u      = ultimo.ultima_modificacion if ultimo else None
 
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
@@ -38,13 +34,13 @@ def inicio_proveedores(request):
         form = ProveedorForm()
 
     context = {
-        'proveedores': proveedores,
-        'form': form,
-        'total_proveedores': total,
-        'nuevos_mes': nuevos,
-        'proveedores_activos': total,
-        'ordenes_pendientes': 0,
-        'porcentaje_activos': 100 if total > 0 else 0,
+        'proveedores':          proveedores,
+        'form':                 form,
+        'total_proveedores':    total,
+        'nuevos_mes':           nuevos,
+        'proveedores_activos':  total,
+        'ordenes_pendientes':   0,
+        'porcentaje_activos':   100 if total > 0 else 0,
         'ultima_actualizacion': fecha_u,
     }
     return render(request, 'proveedores/proveedor.html', context)
@@ -70,7 +66,7 @@ def editar_proveedor(request, id):
         form = ProveedorForm(instance=proveedor)
 
     return render(request, 'proveedores/editar_proveedor.html', {
-        'form': form,
+        'form':      form,
         'proveedor': proveedor
     })
 
@@ -88,7 +84,7 @@ def eliminar_proveedor(request, id):
 
 
 # ===============================
-# MARCAR COMPRA COMO RECIBIDA  ← NUEVA VISTA
+# MARCAR COMPRA COMO RECIBIDA
 # ===============================
 def marcar_recibida(request, compra_id):
     if request.method == 'POST':
@@ -102,33 +98,30 @@ def marcar_recibida(request, compra_id):
 # ===============================
 # REGISTRAR COMPRA
 # ===============================
-def registrar_compra(request, proveedor_id=None):
-    if (proveedor_id!= None):
-        proveedor_obj     = get_object_or_404(Proveedor, id=proveedor_id)
-        compras           = Compra.objects.filter(proveedor=proveedor_obj)
-    else:
-        proveedor_obj= None
-        compras           = Compra.objects.all().order_by('fecha_registro')
-    productos         = Producto.objects.all()
+def registrar_compra(request, proveedor_id):
+    proveedor_obj     = get_object_or_404(Proveedor, id=proveedor_id)
+    productos         = Producto.objects.prefetch_related('presentaciones').all()
     todos_proveedores = Proveedor.objects.all().order_by('nombre_empresa')
-    
-    subtotal          = sum(c.total for c in compras if c.total)
-
-    # ← NUEVAS LÍNEAS: compras pendientes de recibir
-    pendientes       = Compra.objects.filter(recibida=False).order_by('-fecha_registro')[:5]
-    total_pendientes = Compra.objects.filter(recibida=False).count()
+    compras           = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
+    subtotal          = sum((c.cantidad * c.precio_unitario) for c in compras if c.precio_unitario)
+    pendientes        = Compra.objects.filter(recibida=False).order_by('-fecha_registro')[:5]
+    total_pendientes  = Compra.objects.filter(recibida=False).count()
 
     if request.method == 'POST':
         id_prod = request.POST.get('producto')
         cant    = request.POST.get('cantidad')
         precio  = request.POST.get('precio_unitario')
 
-        if not id_prod or not cant:
-            messages.warning(request, "Selecciona un producto y cantidad.")
+        if not id_prod or not cant or not precio:
+            messages.warning(request, "Completa todos los campos.")
         else:
             try:
                 producto_instancia = Producto.objects.get(id=int(id_prod))
                 cantidad_int       = int(cant)
+
+                if cantidad_int <= 0:
+                    messages.error(request, "La cantidad debe ser mayor a cero.")
+                    return redirect('registrar_compra', proveedor_id=proveedor_id)
 
                 Compra.objects.create(
                     proveedor       = proveedor_obj,
@@ -140,18 +133,31 @@ def registrar_compra(request, proveedor_id=None):
                 producto_instancia.cantidad_disponible += cantidad_int
                 producto_instancia.save()
 
-                messages.success(request, f'Compra de "{producto_instancia.nombre}" registrada!')
+                Inventario.objects.create(
+                    producto  = producto_instancia,
+                    tipo      = 'entrada',
+                    cantidad  = cantidad_int,
+                    motivo    = f'Compra a proveedor: {proveedor_obj.nombre_empresa}',
+                    ubicacion = 'Ingreso por compra'
+                )
+
+                messages.success(
+                    request,
+                    f'✅ {cantidad_int} unidades de "{producto_instancia.nombre}" ingresadas.'
+                )
                 return redirect('registrar_compra', proveedor_id=proveedor_id)
 
+            except Producto.DoesNotExist:
+                messages.error(request, "El producto seleccionado no existe.")
             except Exception as e:
                 messages.error(request, f"Error: {e}")
 
     return render(request, 'proveedores/compra.html', {
-        'proveedor':          proveedor_obj,
-        'todos_proveedores':  todos_proveedores,
-        'productos':          productos,
-        'compras':            compras,
-        'subtotal_compras':   subtotal,
-        'pendientes':         pendientes,       # ← NUEVA
-        'total_pendientes':   total_pendientes, # ← NUEVA
+        'proveedor':         proveedor_obj,
+        'todos_proveedores': todos_proveedores,
+        'productos':         productos,
+        'compras':           compras,
+        'subtotal_compras':  subtotal,
+        'pendientes':        pendientes,
+        'total_pendientes':  total_pendientes,
     })

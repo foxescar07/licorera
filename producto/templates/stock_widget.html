@@ -29,52 +29,52 @@
   </div>
 
 </div>
+
 <!-- WIDGET COMPRAS PENDIENTES -->
-<div class="mb-4 p-3"
+<div class="mb-3 px-3 py-2"
      style="border-radius:var(--radius); background:rgba(77,168,218,0.06);
             border:1px solid rgba(77,168,218,0.25); transition:0.3s;">
 
-  <div class="d-flex align-items-center justify-content-between mb-2">
+  <div class="d-flex align-items-center justify-content-between mb-1">
     <div class="d-flex align-items-center gap-2">
-      <i class="bi bi-clock-history" style="color:#4DA8DA; font-size:1.2rem;"></i>
-      <span style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.9rem;
+      <i class="bi bi-clock-history" style="color:#4DA8DA; font-size:.85rem;"></i>
+      <span style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.75rem;
                    letter-spacing:.08em; text-transform:uppercase; color:#4DA8DA;">
         Pendientes de Recibir
       </span>
     </div>
     <span style="background:rgba(77,168,218,0.15); color:#4DA8DA;
                  border:1px solid rgba(77,168,218,0.3); border-radius:20px;
-                 font-size:.75rem; font-weight:700; padding:.3rem .85rem;">
+                 font-size:.68rem; font-weight:700; padding:.15rem .6rem;">
       {{ total_pendientes }} compra{{ total_pendientes|pluralize:"s" }}
     </span>
   </div>
 
   {% if pendientes %}
-    <div style="display:flex; flex-direction:column; gap:5px;">
+    <div style="display:flex; flex-direction:column; gap:3px;">
       {% for c in pendientes %}
       <div style="display:flex; align-items:center; justify-content:space-between;
-                  padding:8px 12px; border-radius:8px;
+                  padding:4px 10px; border-radius:7px;
                   background:#0b1220; border:1px solid rgba(77,168,218,0.1);">
         <div>
-          <span style="color:#cbd5e1; font-size:.83rem; font-weight:600;">
+          <span style="color:#cbd5e1; font-size:.76rem; font-weight:600;">
             {{ c.producto.nombre }}
           </span>
-          <span style="color:#475569; font-size:.75rem; margin-left:6px;">
+          <span style="color:#475569; font-size:.68rem; margin-left:5px;">
             <i class="bi bi-building me-1"></i>{{ c.proveedor.nombre_empresa }}
           </span>
         </div>
-        <div class="d-flex align-items:center gap-2">
-          <span style="color:#4DA8DA; font-size:.78rem; font-weight:700; margin-right:8px;">
+        <div class="d-flex align-items-center gap-2">
+          <span style="color:#4DA8DA; font-size:.7rem; font-weight:700; margin-right:6px;">
             x{{ c.cantidad }}
           </span>
-          <!-- Botón marcar recibida -->
           <form method="POST" action="{% url 'marcar_recibida' c.id %}" style="display:inline;">
             {% csrf_token %}
             <button type="submit"
                     title="Marcar como recibida"
                     style="background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.25);
-                           color:#4ade80; border-radius:6px; padding:3px 10px;
-                           font-size:.72rem; font-weight:700; cursor:pointer; transition:0.2s;"
+                           color:#4ade80; border-radius:5px; padding:2px 8px;
+                           font-size:.66rem; font-weight:700; cursor:pointer; transition:0.2s;"
                     onmouseover="this.style.background='rgba(74,222,128,0.2)'"
                     onmouseout="this.style.background='rgba(74,222,128,0.1)'">
               <i class="bi bi-check2 me-1"></i>Recibida
@@ -85,13 +85,14 @@
       {% endfor %}
     </div>
   {% else %}
-    <div style="text-align:center; padding:14px; color:#475569; font-size:.82rem;">
-      <i class="bi bi-check-circle d-block mb-1" style="font-size:1.3rem; color:#27ae60;"></i>
+    <div style="text-align:center; padding:6px; color:#475569; font-size:.74rem;">
+      <i class="bi bi-check-circle me-1" style="color:#27ae60;"></i>
       Sin compras pendientes
     </div>
   {% endif %}
 
 </div>
+
 <script>
 (function () {
 
