@@ -7,6 +7,16 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/ventas.css' %}">
+<style>
+@media print {
+    body * { visibility: hidden; }
+    #modalRecibo, #modalRecibo * { visibility: visible; }
+    #modalRecibo { position: fixed; top: 0; left: 0; width: 100%; }
+    #btnImprimir, #btnCerrarRecibo { display: none; }
+}
+.metodo-pago-btn { background: var(--fondo-card2); border: 1px solid var(--azul-borde); border-radius: 8px; padding: .4rem .8rem; color: var(--texto-muted); cursor: pointer; font-size: .8rem; transition: all .2s; }
+.metodo-pago-btn.activo { border-color: var(--azul-claro); color: var(--azul-claro); background: rgba(77,168,218,.1); }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -15,12 +25,10 @@
     <div class="col-lg-7">
       <section class="cys-card" style="min-height:600px;">
         <div class="cys-card__title">Selecciona Productos</div>
-
         <div class="cys-venta-search mb-4">
           <i class="bi bi-search cys-venta-search__icon"></i>
           <input type="text" id="buscadorProducto" class="cys-venta-search__input" placeholder="Buscar producto por nombre...">
         </div>
-
         <div id="vistaCategorias">
           <div class="cys-cat-grid">
             {% for cat in categorias %}
@@ -32,7 +40,6 @@
             {% endfor %}
           </div>
         </div>
-
         <div id="vistaProductos" style="display:none;">
           <div class="d-flex align-items-center gap-2 mb-3">
             <button class="cys-btn-volver" onclick="volverCategorias()"><i class="bi bi-arrow-left"></i></button>
@@ -40,20 +47,27 @@
           </div>
           <div class="cys-producto-lista" id="productoLista"></div>
         </div>
-
+        <div id="vistaPresentaciones" style="display:none;">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <button class="cys-btn-volver" onclick="volverProductos()"><i class="bi bi-arrow-left"></i></button>
+            <span class="cys-cat-titulo" id="presTitulo"></span>
+          </div>
+          <div id="presentacionLista" class="d-flex flex-column gap-2"></div>
+        </div>
         <div id="datosProductos" style="display:none;">
           {% for cat in categorias %}
             {% for p in cat.productos.all %}
-              {% with p.presentaciones.first as pres %}
-                <div class="dato-producto"
-                     data-cat="{{ cat.id }}"
-                     data-id="{{ p.id }}"
-                     data-nombre="{{ p.nombre }}"
-                     data-stock="{{ pres.cantidad|default:0 }}"
-                     data-precio="{{ pres.precio|default:0 }}"
-                     data-unidad="{{ pres.nombre|default:'Unidad' }}">
-                </div>
-              {% endwith %}
+              <div class="dato-producto" data-cat="{{ cat.id }}" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}">
+                {% for pres in p.presentaciones.all %}
+                  <span class="dato-presentacion"
+                        data-pres-id="{{ pres.id }}"
+                        data-nombre="{{ pres.nombre }}"
+                        data-stock="{{ pres.cantidad }}"
+                        data-precio="{{ pres.precio }}"
+                        data-unidades="{{ pres.unidades }}">
+                  </span>
+                {% endfor %}
+              </div>
             {% endfor %}
           {% endfor %}
         </div>
@@ -63,36 +77,51 @@
     <div class="col-lg-5">
       <section class="cys-card" style="min-height:600px;">
         <div class="cys-card__title">Carrito de Venta</div>
-
         <form method="POST" action="{% url 'ventas:nueva_venta' %}" id="formVenta">
           {% csrf_token %}
           <div class="mb-4">
             <label class="cys-form-label">Cliente</label>
             {{ form.cliente }}
           </div>
-
           <div id="carritoVacio" style="text-align:center; padding:2rem 0; color:var(--texto-muted);">
             <i class="bi bi-cart3" style="font-size:2rem; display:block; margin-bottom:.5rem;"></i>
             Selecciona productos
           </div>
-
           <div id="carritoItems" style="display:none; margin-bottom:1rem;">
             <div id="listaCarrito" class="d-flex flex-column gap-2"></div>
           </div>
-
-          <div id="seccionDescuento" style="display:none; margin-bottom: 1rem;">
+          <div id="seccionDescuento" style="display:none; margin-bottom:1rem;">
             <div class="d-flex justify-content-between align-items-center" style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem .9rem;">
-                <span style="font-size:.75rem; color:var(--texto-muted); font-weight:600;">% DESCUENTO</span>
-                <input type="number" id="inputDescuento" name="descuento_porcentaje" class="text-center" value="0" min="0" max="100"
-                       style="width:70px; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--azul-claro); border-radius:5px; font-weight:bold;">
+              <span style="font-size:.75rem; color:var(--texto-muted); font-weight:600;">% DESCUENTO</span>
+              <input type="number" id="inputDescuento" name="descuento_porcentaje" class="text-center" value="0" min="0" max="100"
+                     style="width:70px; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--azul-claro); border-radius:5px; font-weight:bold;">
+            </div>
+          </div>
+          <div id="totalGeneral" style="display:none; background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem 1.1rem; margin-bottom:1rem;"></div>
+
+          <!-- MÉTODOS DE PAGO -->
+          <div id="seccionPagos" style="display:none; margin-bottom:1rem;">
+            <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.8rem;">
+              <div style="font-size:.75rem; color:var(--texto-muted); font-weight:600; margin-bottom:.7rem;">MÉTODO DE PAGO</div>
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <button type="button" class="metodo-pago-btn" onclick="toggleMetodo('efectivo')"><i class="bi bi-cash me-1"></i>Efectivo</button>
+                <button type="button" class="metodo-pago-btn" onclick="toggleMetodo('tarjeta')"><i class="bi bi-credit-card me-1"></i>Tarjeta</button>
+                <button type="button" class="metodo-pago-btn" onclick="toggleMetodo('transferencia')"><i class="bi bi-bank me-1"></i>Transferencia</button>
+                <button type="button" class="metodo-pago-btn" onclick="toggleMetodo('nequi')"><i class="bi bi-phone me-1"></i>Nequi</button>
+                <button type="button" class="metodo-pago-btn" onclick="toggleMetodo('daviplata')"><i class="bi bi-phone me-1"></i>Daviplata</button>
+              </div>
+              <div id="inputsPago" class="d-flex flex-column gap-2"></div>
+              <div id="validacionPago" style="font-size:.8rem; margin-top:.5rem; display:none;"></div>
             </div>
           </div>
 
-          <div id="totalGeneral" style="display:none; background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem 1.1rem;">
-          </div>
+          <input type="hidden" name="pago_efectivo" id="hiddenEfectivo" value="0">
+          <input type="hidden" name="pago_tarjeta" id="hiddenTarjeta" value="0">
+          <input type="hidden" name="pago_transferencia" id="hiddenTransferencia" value="0">
+          <input type="hidden" name="pago_nequi" id="hiddenNequi" value="0">
+          <input type="hidden" name="pago_daviplata" id="hiddenDaviplata" value="0">
 
           <div id="camposHidden"></div>
-
           <button type="submit" class="cys-btn cys-btn--danger w-100 mt-3" id="btnRegistrar" disabled>
             <i class="bi bi-save me-1"></i> REGISTRAR VENTA
           </button>
@@ -111,19 +140,12 @@
           <table class="table table-dark table-hover align-middle" style="color:var(--texto);">
             <thead>
               <tr style="color:var(--azul-claro); font-size:.75rem; text-transform:uppercase; border-bottom:1px solid var(--azul-borde);">
-                <th>#</th>
-                <th>Fecha</th>
-                <th>Cliente</th>
-                <th>Productos</th>
-                <th>Subtotal</th>
-                <th>Descuento</th>
-                <th>Total</th>
-                <th>Acción</th>
+                <th>#</th><th>Fecha</th><th>Cliente</th><th>Productos</th><th>Subtotal</th><th>Descuento</th><th>Total</th><th>Acción</th>
               </tr>
             </thead>
             <tbody>
               {% for venta in ventas %}
-              <tr style="border-bottom:1px solid var(--azul-borde);">
+              <tr style="border-bottom:1px solid var(--azul-borde); cursor:pointer;" onclick="verRecibo({{ venta.pk }})">
                 <td style="color:var(--texto-muted);">{{ forloop.counter }}</td>
                 <td style="font-size:.8rem;">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
                 <td style="font-weight:600;">{{ venta.cliente }}</td>
@@ -137,26 +159,16 @@
                   </div>
                 </td>
                 <td style="color:var(--texto-muted); font-size:.85rem;">
-                  {% if venta.descuento_porcentaje > 0 %}
-                    <span style="text-decoration:line-through;">${{ venta.subtotal|floatformat:0 }}</span>
-                  {% else %}
-                    —
-                  {% endif %}
+                  {% if venta.descuento_porcentaje > 0 %}<span style="text-decoration:line-through;">${{ venta.subtotal|floatformat:0 }}</span>{% else %}—{% endif %}
                 </td>
                 <td>
-                  {% if venta.descuento_porcentaje > 0 %}
-                    <span style="color:#ff4d4d; font-size:.8rem;">-{{ venta.descuento_porcentaje|floatformat:0 }}%</span>
-                  {% else %}
-                    <span style="color:var(--texto-muted);">—</span>
-                  {% endif %}
+                  {% if venta.descuento_porcentaje > 0 %}<span style="color:#ff4d4d; font-size:.8rem;">-{{ venta.descuento_porcentaje|floatformat:0 }}%</span>{% else %}<span style="color:var(--texto-muted);">—</span>{% endif %}
                 </td>
                 <td style="font-weight:800; color:var(--azul-claro);">${{ venta.total_venta|floatformat:0 }}</td>
-                <td>
+                <td onclick="event.stopPropagation()">
                   <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}" onsubmit="return confirm('Eliminar esta venta y restaurar stock?')">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px;">
-                      <i class="bi bi-trash"></i>
-                    </button>
+                    <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px;"><i class="bi bi-trash"></i></button>
                   </form>
                 </td>
               </tr>
@@ -173,32 +185,143 @@
       </section>
     </div>
   </div>
+</div>
 
+<!-- MODAL RECIBO -->
+<div id="overlayRecibo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.7); z-index:9998;" onclick="cerrarRecibo()"></div>
+<div id="modalRecibo" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999; width:440px; max-width:95vw; max-height:90vh; overflow-y:auto; background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+      <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Comprobante de Venta</div>
+      <div style="font-size:1.2rem; font-weight:800; color:var(--texto);">CYS Ltda</div>
+    </div>
+    <button id="btnCerrarRecibo" onclick="cerrarRecibo()" style="background:none; border:none; color:var(--texto-muted); font-size:1.3rem; cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div id="reciboContenido"></div>
+  <div style="display:flex; gap:.7rem; margin-top:1.5rem;">
+    <button id="btnImprimir" onclick="window.print()" class="cys-btn" style="flex:1; background:var(--azul-claro); color:#000; font-weight:700; border:none; border-radius:10px; padding:.7rem;">
+      <i class="bi bi-printer me-1"></i> Imprimir
+    </button>
+    <button onclick="cerrarRecibo()" style="flex:1; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
+  </div>
+</div>
+
+<!-- DATOS VENTAS PARA JS -->
+<div id="datosVentas" style="display:none;">
+  {% for venta in ventas %}
+  <div class="dato-venta"
+       data-id="{{ venta.pk }}"
+       data-cliente="{{ venta.cliente }}"
+       data-fecha="{{ venta.fecha|date:'d/m/Y H:i' }}"
+       data-descuento="{{ venta.descuento_porcentaje }}"
+       data-total="{{ venta.total_venta }}"
+       data-efectivo="{{ venta.pago_efectivo }}"
+       data-tarjeta="{{ venta.pago_tarjeta }}"
+       data-transferencia="{{ venta.pago_transferencia }}"
+       data-nequi="{{ venta.pago_nequi }}"
+       data-daviplata="{{ venta.pago_daviplata }}">
+    {% for det in venta.detalles.all %}
+    <span class="dato-detalle"
+          data-nombre="{{ det.producto.nombre }}"
+          data-presentacion="{% if det.presentacion %}{{ det.presentacion.nombre }}{% endif %}"
+          data-cantidad="{{ det.cantidad }}"
+          data-precio="{{ det.precio_unitario }}"
+          data-subtotal="{{ det.subtotal }}">
+    </span>
+    {% endfor %}
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 let carrito = [];
+let metodosActivos = new Set();
+let totalActual = 0;
 
 function formatPesos(val) {
     const esEntero = Math.abs(val - Math.round(val)) < 0.001;
-    if (esEntero) {
-        return Math.round(val).toLocaleString('es-CO');
-    }
+    if (esEntero) return Math.round(val).toLocaleString('es-CO');
     return val.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function agregarAlCarrito(id, nombre, stock, precio, unidad) {
+function toggleMetodo(metodo) {
+    if (metodosActivos.has(metodo)) {
+        metodosActivos.delete(metodo);
+    } else {
+        metodosActivos.add(metodo);
+    }
+    document.querySelectorAll('.metodo-pago-btn').forEach(btn => {
+        const m = btn.getAttribute('onclick').replace("toggleMetodo('", '').replace("')", '');
+        btn.classList.toggle('activo', metodosActivos.has(m));
+    });
+    renderInputsPago();
+}
+
+function renderInputsPago() {
+    const nombres = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', nequi: 'Nequi', daviplata: 'Daviplata' };
+    const iconos  = { efectivo: 'bi-cash', tarjeta: 'bi-credit-card', transferencia: 'bi-bank', nequi: 'bi-phone', daviplata: 'bi-phone' };
+    const cont = document.getElementById('inputsPago');
+    cont.innerHTML = '';
+    metodosActivos.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'd-flex align-items-center gap-2';
+        div.innerHTML = `
+            <i class="bi ${iconos[m]}" style="color:var(--azul-claro); width:16px;"></i>
+            <span style="font-size:.8rem; color:var(--texto); min-width:90px;">${nombres[m]}</span>
+            <input type="number" id="input_${m}" placeholder="0" min="0"
+                   oninput="actualizarPagos()"
+                   style="flex:1; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:6px; padding:.3rem .6rem; font-size:.85rem;">
+        `;
+        cont.appendChild(div);
+    });
+    actualizarPagos();
+}
+
+function actualizarPagos() {
+    let totalPagado = 0;
+    ['efectivo','tarjeta','transferencia','nequi','daviplata'].forEach(m => {
+        const inp = document.getElementById('input_' + m);
+        const val = inp ? (parseFloat(inp.value) || 0) : 0;
+        document.getElementById('hidden' + m.charAt(0).toUpperCase() + m.slice(1)).value = val;
+        totalPagado += val;
+    });
+
+    const faltante = totalActual - totalPagado;
+    const validDiv = document.getElementById('validacionPago');
+
+    if (metodosActivos.size === 0) {
+        validDiv.style.display = 'none';
+        document.getElementById('btnRegistrar').disabled = true;
+        return;
+    }
+
+    validDiv.style.display = 'block';
+    if (faltante > 0.01) {
+        validDiv.innerHTML = '<span style="color:#ff4d4d;"><i class="bi bi-exclamation-circle me-1"></i>Falta: $' + formatPesos(faltante) + '</span>';
+        document.getElementById('btnRegistrar').disabled = true;
+    } else if (totalPagado > totalActual + 0.01) {
+        const cambio = totalPagado - totalActual;
+        validDiv.innerHTML = '<span style="color:#4dff91;"><i class="bi bi-check-circle me-1"></i>Cambio: $' + formatPesos(cambio) + '</span>';
+        document.getElementById('btnRegistrar').disabled = carrito.length === 0;
+    } else {
+        validDiv.innerHTML = '<span style="color:#4dff91;"><i class="bi bi-check-circle me-1"></i>Pago completo</span>';
+        document.getElementById('btnRegistrar').disabled = carrito.length === 0;
+    }
+}
+
+function agregarAlCarrito(prodId, prodNombre, presId, presNombre, stock, precio) {
     const precioNum = parseFloat(precio) || 0;
-    const existente = carrito.find(item => item.id === id);
+    const key = prodId + '_' + presId;
+    const existente = carrito.find(item => item.key === key);
     if (existente) {
         if (existente.cantidad < existente.stock) {
             existente.cantidad++;
             existente.subtotal = existente.cantidad * existente.precio;
         }
     } else {
-        carrito.push({ id, nombre, stock: parseInt(stock), precio: precioNum, cantidad: 1, subtotal: precioNum, unidad });
+        carrito.push({ key, prodId, presId, nombre: prodNombre + ' — ' + presNombre, stock: parseInt(stock), precio: precioNum, cantidad: 1, subtotal: precioNum });
     }
     renderCarrito();
 }
@@ -210,14 +333,15 @@ function renderCarrito() {
 
     document.getElementById('carritoItems').style.display = displayItems;
     document.getElementById('seccionDescuento').style.display = displayItems;
+    document.getElementById('seccionPagos').style.display = displayItems;
     totalDiv.style.display = displayItems;
     document.getElementById('carritoVacio').style.display = carrito.length === 0 ? 'block' : 'none';
-    document.getElementById('btnRegistrar').disabled = carrito.length === 0;
+    document.getElementById('btnRegistrar').disabled = true;
 
     lista.innerHTML = carrito.map((item, i) => `
         <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem .9rem;">
             <div class="d-flex justify-content-between">
-                <span style="font-weight:700; color:var(--texto);">${item.nombre}</span>
+                <span style="font-weight:700; color:var(--texto); font-size:.9rem;">${item.nombre}</span>
                 <button type="button" onclick="quitar(${i})" class="btn-close btn-close-white" style="font-size:0.6rem;"></button>
             </div>
             <div class="d-flex align-items-center justify-content-between mt-2">
@@ -234,6 +358,7 @@ function renderCarrito() {
     const pct = parseFloat(document.getElementById('inputDescuento').value) || 0;
     const ahorro = subtotal * (pct / 100);
     const totalFinal = subtotal - ahorro;
+    totalActual = totalFinal;
 
     totalDiv.innerHTML = `
         <div class="d-flex justify-content-between mb-1" style="font-size:.75rem; color:var(--texto-muted);">
@@ -251,6 +376,7 @@ function renderCarrito() {
         </div>
     `;
     actualizarHiddens();
+    actualizarPagos();
 }
 
 function actualizarCant(i, v) {
@@ -264,10 +390,47 @@ function quitar(i) { carrito.splice(i, 1); renderCarrito(); }
 
 function actualizarHiddens() {
     document.getElementById('camposHidden').innerHTML = carrito.map(item => `
-        <input type="hidden" name="producto_id[]" value="${item.id}">
+        <input type="hidden" name="producto_id[]" value="${item.prodId}">
+        <input type="hidden" name="presentacion_id[]" value="${item.presId}">
         <input type="hidden" name="cantidad[]" value="${item.cantidad}">
         <input type="hidden" name="precio[]" value="${item.precio}">
     `).join('');
+}
+
+function mostrarPresentaciones(prodId, prodNombre) {
+    document.getElementById('presTitulo').textContent = prodNombre;
+    const prodDiv = document.querySelector('.dato-producto[data-id="' + prodId + '"]');
+    const presentaciones = prodDiv ? Array.from(prodDiv.querySelectorAll('.dato-presentacion')) : [];
+    const lista = document.getElementById('presentacionLista');
+    lista.innerHTML = '';
+    if (presentaciones.length === 0) {
+        lista.innerHTML = '<p style="color:var(--texto-muted); text-align:center;">No hay presentaciones disponibles.</p>';
+    } else {
+        presentaciones.forEach(p => {
+            const div = document.createElement('div');
+            div.style.cssText = 'background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.8rem 1rem; cursor:pointer; transition: border-color .2s;';
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span style="font-weight:700; color:var(--texto);">${p.dataset.nombre}</span>
+                        <span style="font-size:.75rem; color:var(--texto-muted); margin-left:.5rem;">${p.dataset.unidades} uds</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span style="color:var(--azul-claro); font-weight:700;">$${formatPesos(parseFloat(p.dataset.precio))}</span>
+                        <span style="font-size:.75rem; color:var(--texto-muted);">Stock: ${p.dataset.stock}</span>
+                    </div>
+                </div>`;
+            div.onmouseenter = () => div.style.borderColor = 'var(--azul-claro)';
+            div.onmouseleave = () => div.style.borderColor = 'var(--azul-borde)';
+            div.onclick = () => {
+                agregarAlCarrito(prodId, prodNombre, p.dataset.presId, p.dataset.nombre, p.dataset.stock, p.dataset.precio);
+                volverProductos();
+            };
+            lista.appendChild(div);
+        });
+    }
+    document.getElementById('vistaProductos').style.display = 'none';
+    document.getElementById('vistaPresentaciones').style.display = 'block';
 }
 
 function renderizarProductos(datos) {
@@ -281,9 +444,10 @@ function renderizarProductos(datos) {
         const div = document.createElement('div');
         div.className = 'cys-cat-card mb-2 w-100';
         div.style.cursor = 'pointer';
-        const precio = parseFloat(d.dataset.precio) || 0;
-        div.innerHTML = `<div class="p-2"><strong>${d.dataset.nombre}</strong><br><small style="color:var(--azul-claro)">$${formatPesos(precio)}</small></div>`;
-        div.onclick = () => agregarAlCarrito(d.dataset.id, d.dataset.nombre, d.dataset.stock, precio, d.dataset.unidad);
+        const pres = d.querySelector('.dato-presentacion');
+        const precio = pres ? parseFloat(pres.dataset.precio) : 0;
+        div.innerHTML = `<div class="p-2"><strong>${d.dataset.nombre}</strong><br><small style="color:var(--azul-claro)">desde $${formatPesos(precio)}</small></div>`;
+        div.onclick = () => mostrarPresentaciones(d.dataset.id, d.dataset.nombre);
         lista.appendChild(div);
     });
 }
@@ -298,13 +462,133 @@ function mostrarProductos(catId, catNombre) {
 
 function volverCategorias() {
     document.getElementById('vistaProductos').style.display = 'none';
+    document.getElementById('vistaPresentaciones').style.display = 'none';
     document.getElementById('vistaCategorias').style.display = 'block';
+}
+
+function volverProductos() {
+    document.getElementById('vistaPresentaciones').style.display = 'none';
+    document.getElementById('vistaProductos').style.display = 'block';
+}
+
+function verRecibo(ventaId) {
+    const ventaDiv = document.querySelector('.dato-venta[data-id="' + ventaId + '"]');
+    if (!ventaDiv) return;
+
+    const cliente      = ventaDiv.dataset.cliente;
+    const fecha        = ventaDiv.dataset.fecha;
+    const descuento    = parseFloat(ventaDiv.dataset.descuento) || 0;
+    const total        = parseFloat(ventaDiv.dataset.total) || 0;
+    const efectivo     = parseFloat(ventaDiv.dataset.efectivo) || 0;
+    const tarjeta      = parseFloat(ventaDiv.dataset.tarjeta) || 0;
+    const transferencia= parseFloat(ventaDiv.dataset.transferencia) || 0;
+    const nequi        = parseFloat(ventaDiv.dataset.nequi) || 0;
+    const daviplata    = parseFloat(ventaDiv.dataset.daviplata) || 0;
+    const detalles     = Array.from(ventaDiv.querySelectorAll('.dato-detalle'));
+
+    let subtotalBruto = 0;
+    let itemsHTML = detalles.map(d => {
+        const sub = parseFloat(d.dataset.subtotal) || 0;
+        subtotalBruto += sub;
+        const pres = d.dataset.presentacion ? ' (' + d.dataset.presentacion + ')' : '';
+        return `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:.5rem 0; border-bottom:1px solid var(--azul-borde);">
+                <div>
+                    <div style="font-weight:600; color:var(--texto); font-size:.9rem;">${d.dataset.nombre}${pres}</div>
+                    <div style="font-size:.75rem; color:var(--texto-muted);">${d.dataset.cantidad} x $${formatPesos(parseFloat(d.dataset.precio))}</div>
+                </div>
+                <span style="font-weight:700; color:var(--azul-claro);">$${formatPesos(sub)}</span>
+            </div>`;
+    }).join('');
+
+    const ahorro = subtotalBruto * (descuento / 100);
+
+    const pagosInfo = [
+        { label: 'Efectivo', val: efectivo, icon: 'bi-cash' },
+        { label: 'Tarjeta', val: tarjeta, icon: 'bi-credit-card' },
+        { label: 'Transferencia', val: transferencia, icon: 'bi-bank' },
+        { label: 'Nequi', val: nequi, icon: 'bi-phone' },
+        { label: 'Daviplata', val: daviplata, icon: 'bi-phone' },
+    ].filter(p => p.val > 0);
+
+   const totalPagado = pagosInfo.reduce((s, p) => s + p.val, 0);
+const cambio = totalPagado - total;
+
+const pagosHTML = pagosInfo.length > 0 ? `
+    <div style="margin-top:1rem;">
+        <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; margin-bottom:.5rem;">Métodos de Pago</div>
+        ${pagosInfo.map(p => `
+            <div style="display:flex; justify-content:space-between; padding:.3rem 0; font-size:.85rem;">
+                <span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span>
+                <span style="color:var(--texto); font-weight:600;">$${formatPesos(p.val)}</span>
+            </div>
+        `).join('')}
+        <div style="display:flex; justify-content:space-between; padding:.4rem 0; margin-top:.3rem; border-top:1px solid var(--azul-borde); font-size:.85rem;">
+            <span style="color:var(--texto-muted);">Total recibido:</span>
+            <span style="color:var(--texto); font-weight:600;">$${formatPesos(totalPagado)}</span>
+        </div>
+        ${cambio > 0.01 ? `
+        <div style="display:flex; justify-content:space-between; padding:.4rem .7rem; background:rgba(77,255,145,.1); border:1px solid #4dff91; border-radius:8px; margin-top:.4rem; font-size:.9rem;">
+            <span style="color:#4dff91; font-weight:700;"><i class="bi bi-arrow-return-left me-1"></i>Cambio a devolver:</span>
+            <span style="color:#4dff91; font-weight:800;">$${formatPesos(cambio)}</span>
+        </div>` : ''}
+    </div>` : '';
+
+    document.getElementById('reciboContenido').innerHTML = `
+        <div style="background:var(--fondo-card2); border-radius:10px; padding:1rem; margin-bottom:1rem;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:.3rem;">
+                <span style="font-size:.75rem; color:var(--texto-muted);">CLIENTE</span>
+                <span style="font-weight:700; color:var(--texto);">${cliente}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="font-size:.75rem; color:var(--texto-muted);">FECHA</span>
+                <span style="font-size:.85rem; color:var(--texto);">${fecha}</span>
+            </div>
+        </div>
+        <div style="margin-bottom:1rem;">
+            <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; margin-bottom:.5rem;">Productos</div>
+            ${itemsHTML}
+        </div>
+        <div style="background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem;">
+            ${descuento > 0 ? `
+            <div style="display:flex; justify-content:space-between; margin-bottom:.4rem; font-size:.85rem;">
+                <span style="color:var(--texto-muted);">Subtotal:</span>
+                <span style="text-decoration:line-through; color:var(--texto-muted);">$${formatPesos(subtotalBruto)}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:.4rem; font-size:.85rem;">
+                <span style="color:#ff4d4d;">Descuento (${descuento}%):</span>
+                <span style="color:#ff4d4d;">-$${formatPesos(ahorro)}</span>
+            </div>` : ''}
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--azul-borde); padding-top:.6rem; margin-top:.3rem;">
+                <span style="font-weight:700; font-size:1rem;">TOTAL</span>
+                <span style="font-size:1.5rem; font-weight:800; color:var(--azul-claro);">$${formatPesos(total)}</span>
+            </div>
+        </div>
+        ${pagosHTML}
+    `;
+
+    document.getElementById('overlayRecibo').style.display = 'block';
+    document.getElementById('modalRecibo').style.display = 'block';
+}
+
+function cerrarRecibo() {
+    document.getElementById('overlayRecibo').style.display = 'none';
+    document.getElementById('modalRecibo').style.display = 'none';
 }
 
 document.getElementById('buscadorProducto').addEventListener('input', function() {
     const q = this.value.toLowerCase().trim();
     const filtrados = Array.from(document.querySelectorAll('.dato-producto')).filter(d => d.dataset.nombre.toLowerCase().includes(q));
-    renderizarProductos(filtrados);
+    if (q.length > 0) {
+        renderizarProductos(filtrados);
+        document.getElementById('vistaCategorias').style.display = 'none';
+        document.getElementById('vistaPresentaciones').style.display = 'none';
+        document.getElementById('vistaProductos').style.display = 'block';
+        document.getElementById('catTitulo').textContent = 'Resultados de búsqueda';
+    } else {
+        document.getElementById('vistaProductos').style.display = 'none';
+        document.getElementById('vistaCategorias').style.display = 'block';
+    }
 });
 
 document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
