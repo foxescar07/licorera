@@ -1,10 +1,13 @@
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.db.models import Sum
 from datetime import timedelta
 
-from producto.models import Producto, Inventario
+from producto.models import Producto, Inventario, Categoria
 from .models import Proveedor, Compra
 from .forms import ProveedorForm
 
@@ -13,13 +16,16 @@ from .forms import ProveedorForm
 # DASHBOARD PROVEEDORES
 # ===============================
 def inicio_proveedores(request):
-    proveedores = Proveedor.objects.all().order_by('-ultima_modificacion')
-
+    proveedores  = Proveedor.objects.prefetch_related('categorias_surtidas').all().order_by('-ultima_modificacion')
     total        = proveedores.count()
     hace_30_dias = timezone.now() - timedelta(days=30)
     nuevos       = proveedores.filter(fecha_registro__gte=hace_30_dias).count()
     ultimo       = proveedores.first()
     fecha_u      = ultimo.ultima_modificacion if ultimo else None
+
+    activos     = proveedores.filter(estado='activo').count()
+    inactivos   = proveedores.filter(estado='inactivo').count()
+    sancionados = proveedores.filter(estado='sancionado').count()
 
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
@@ -29,22 +35,51 @@ def inicio_proveedores(request):
                 p.registrado_por = request.user
                 p.modificado_por = request.user
             p.save()
+            form.save_m2m()   # guarda categorias_surtidas (ManyToMany)
             messages.success(request, f'¡Proveedor "{p.nombre_empresa}" registrado!')
             return redirect('proveedores')
     else:
         form = ProveedorForm()
 
     context = {
-        'proveedores':          proveedores,
-        'form':                 form,
-        'total_proveedores':    total,
-        'nuevos_mes':           nuevos,
-        'proveedores_activos':  total,
-        'ordenes_pendientes':   0,
-        'porcentaje_activos':   100 if total > 0 else 0,
-        'ultima_actualizacion': fecha_u,
+        'proveedores':             proveedores,
+        'form':                    form,
+        'total_proveedores':       total,
+        'nuevos_mes':              nuevos,
+        'proveedores_activos':     activos,
+        'proveedores_inactivos':   inactivos,
+        'proveedores_sancionados': sancionados,
+        'porcentaje_activos':      round(activos / max(total, 1) * 100),
+        'ultima_actualizacion':    fecha_u,
+        'categorias':              Categoria.objects.filter(padre__isnull=True).order_by('nombre'),
     }
     return render(request, 'proveedores/proveedor.html', context)
+
+
+# ===============================
+# CAMBIAR ESTADO PROVEEDOR (AJAX)
+# POST /proveedores/<id>/estado/
+# ===============================
+@require_POST
+def cambiar_estado_proveedor(request, id):
+    proveedor = get_object_or_404(Proveedor, id=id)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'ok': False, 'error': 'JSON inválido'}, status=400)
+
+    nuevo_estado = data.get('estado', '').strip()
+    motivo       = data.get('motivo', '').strip()
+
+    if nuevo_estado not in {'activo', 'inactivo', 'sancionado'}:
+        return JsonResponse({'ok': False, 'error': 'Estado inválido'}, status=400)
+
+    proveedor.estado         = nuevo_estado
+    proveedor.motivo_sancion = motivo if nuevo_estado == 'sancionado' else ''
+    proveedor.save(update_fields=['estado', 'motivo_sancion'])
+
+    return JsonResponse({'ok': True, 'estado': nuevo_estado})
 
 
 # ===============================
@@ -61,6 +96,7 @@ def editar_proveedor(request, id):
                 p.modificado_por = request.user
             p.ultima_modificacion = timezone.now()
             p.save()
+            form.save_m2m()   # guarda categorias_surtidas
             messages.success(request, f'¡Proveedor "{p.nombre_empresa}" actualizado correctamente!')
             return redirect('proveedores')
     else:
@@ -68,7 +104,7 @@ def editar_proveedor(request, id):
 
     return render(request, 'proveedores/editar_proveedor.html', {
         'form':      form,
-        'proveedor': proveedor
+        'proveedor': proveedor,
     })
 
 
@@ -102,13 +138,11 @@ def marcar_recibida(request, compra_id):
 def registrar_compra(request):
     todos_proveedores = Proveedor.objects.all().order_by('nombre_empresa')
 
-    # Cambio de proveedor via POST o GET
     if request.method == 'POST':
         proveedor_id = request.POST.get('proveedor_id') or request.session.get('proveedor_id')
     else:
         proveedor_id = request.GET.get('proveedor') or request.session.get('proveedor_id')
 
-    # Guardar en sesión
     if proveedor_id:
         request.session['proveedor_id'] = int(proveedor_id)
     else:
@@ -117,10 +151,10 @@ def registrar_compra(request):
             request.session['proveedor_id'] = primer_proveedor.id
             proveedor_id = primer_proveedor.id
 
-    proveedor_obj = get_object_or_404(Proveedor, id=request.session['proveedor_id'])
-    compras       = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
-    subtotal      = sum((c.cantidad * c.precio_unitario) for c in compras if c.precio_unitario)
-    pendientes    = Compra.objects.filter(recibida=False).order_by('-fecha_registro')[:5]
+    proveedor_obj    = get_object_or_404(Proveedor, id=request.session['proveedor_id'])
+    compras          = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
+    subtotal         = sum((c.cantidad * c.precio_unitario) for c in compras if c.precio_unitario)
+    pendientes       = Compra.objects.filter(recibida=False).order_by('-fecha_registro')[:5]
     total_pendientes = Compra.objects.filter(recibida=False).count()
 
     if request.method == 'POST':
@@ -154,7 +188,7 @@ def registrar_compra(request):
                     tipo      = 'entrada',
                     cantidad  = cantidad_int,
                     motivo    = f'Compra a proveedor: {proveedor_obj.nombre_empresa}',
-                    ubicacion = 'Ingreso por compra'
+                    ubicacion = 'Ingreso por compra',
                 )
 
                 messages.success(
@@ -170,18 +204,13 @@ def registrar_compra(request):
 
     productos = Producto.objects.prefetch_related('presentaciones').all()
 
-    # ── MÉTRICAS PARA TARJETAS ──────────────────────────────────────────
-    from django.db.models import ExpressionWrapper, DecimalField, F
-
     hoy = timezone.now()
 
-    # Total gastado histórico: suma de (cantidad * precio_unitario)
     total_gastado = sum(
         c.cantidad * c.precio_unitario
         for c in Compra.objects.exclude(precio_unitario__isnull=True)
     ) or 0
 
-    # Compras del mes actual
     compras_mes_qs = Compra.objects.filter(
         fecha_registro__year=hoy.year,
         fecha_registro__month=hoy.month,
@@ -192,7 +221,6 @@ def registrar_compra(request):
         for c in compras_mes_qs.exclude(precio_unitario__isnull=True)
     ) or 0
 
-    # Producto más comprado por cantidad total
     producto_top = (
         Compra.objects
         .values('producto__nombre')
@@ -200,7 +228,6 @@ def registrar_compra(request):
         .order_by('-total_und')
         .first()
     )
-    # ───────────────────────────────────────────────────────────────────
 
     return render(request, 'proveedores/compra.html', {
         'proveedor':         proveedor_obj,
@@ -210,7 +237,6 @@ def registrar_compra(request):
         'subtotal_compras':  subtotal,
         'pendientes':        pendientes,
         'total_pendientes':  total_pendientes,
-        # Tarjetas métricas
         'total_gastado':     total_gastado,
         'count_mes':         count_mes,
         'total_mes':         total_mes,
