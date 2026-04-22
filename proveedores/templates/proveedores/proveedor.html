@@ -4,6 +4,10 @@
 {% block page_title %}Proveedores{% endblock %}
 
 {% block content %}
+
+<link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 {% if messages %}
   {% for message in messages %}
     <div class="alert alert-dismissible fade show d-flex align-items-center justify-content-between"
@@ -14,198 +18,6 @@
     </div>
   {% endfor %}
 {% endif %}
-
-<link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
-<style>
-  .pv-stat {
-    background: var(--fondo-card);
-    border: 1px solid rgba(77,168,218,.18);
-    border-radius: 14px;
-    padding: 1.25rem 1.4rem;
-    display: flex; flex-direction: column; gap: .3rem;
-    height: 100%;
-  }
-  .pv-stat__label {
-    font-size: .62rem; font-weight: 700; letter-spacing: .12em;
-    text-transform: uppercase; color: rgba(226,232,240,.4);
-    display: flex; align-items: center; gap: .4rem;
-  }
-  .pv-stat__val {
-    font-family: 'Rajdhani', sans-serif; font-weight: 700;
-    font-size: 2rem; line-height: 1; color: #4DA8DA;
-  }
-  .pv-stat__val--green { color: #5edb97; }
-  .pv-stat__val--red   { color: #e87070; }
-  .pv-stat__sub { font-size: .72rem; color: rgba(226,232,240,.4); }
-  .pv-stat--dt  { justify-content: center; text-align: center; }
-  .pv-stat__date { font-size: .82rem; color: rgba(226,232,240,.55); }
-  .pv-stat__time {
-    font-family: 'Rajdhani', sans-serif; font-weight: 700;
-    font-size: 1.9rem; color: #4DA8DA; line-height: 1.15;
-  }
-
-  .pv-gestion {
-    background: linear-gradient(135deg, rgba(77,168,218,.1) 0%, rgba(77,168,218,.03) 100%);
-    border: 1px solid rgba(77,168,218,.3);
-    border-radius: 14px;
-    padding: 1.2rem 1.6rem;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 1rem; flex-wrap: wrap;
-    text-decoration: none; transition: border-color .2s, background .2s;
-  }
-  .pv-gestion:hover {
-    border-color: #4DA8DA;
-    background: linear-gradient(135deg, rgba(77,168,218,.18) 0%, rgba(77,168,218,.07) 100%);
-  }
-  .pv-gestion__icon {
-    width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
-    background: rgba(77,168,218,.14); border: 1px solid rgba(77,168,218,.3);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem; color: #4DA8DA;
-  }
-  .pv-gestion__title {
-    font-family: 'Rajdhani', sans-serif; font-weight: 700;
-    font-size: 1rem; letter-spacing: .08em; text-transform: uppercase; color: #e2e8f0;
-  }
-  .pv-gestion__sub { font-size: .76rem; color: rgba(226,232,240,.45); margin-top: .1rem; }
-  .pv-chip {
-    font-size: .68rem; padding: .22rem .6rem; border-radius: 999px;
-    font-weight: 600; white-space: nowrap;
-  }
-  .pv-chip--blue  { background: rgba(77,168,218,.1);  color: #4DA8DA;  border: 1px solid rgba(77,168,218,.25); }
-  .pv-chip--red   { background: rgba(192,57,43,.1);   color: #e87070;  border: 1px solid rgba(192,57,43,.25); }
-  .pv-chip--green { background: rgba(77,218,140,.1);  color: #5edb97;  border: 1px solid rgba(77,218,140,.25); }
-  .pv-gestion__arrow {
-    font-size: 1.3rem; color: #4DA8DA; opacity: .6; flex-shrink: 0;
-    transition: transform .2s, opacity .2s;
-  }
-  .pv-gestion:hover .pv-gestion__arrow { transform: translateX(5px); opacity: 1; }
-
-  .pv-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: .75rem; flex-wrap: wrap; margin-bottom: 1.25rem;
-  }
-  .pv-bar__title {
-    font-family: 'Rajdhani', sans-serif; font-weight: 700;
-    font-size: 1rem; letter-spacing: .1em; text-transform: uppercase;
-    color: #4DA8DA; display: flex; align-items: center; gap: .5rem;
-    white-space: nowrap;
-  }
-  .pv-bar__right {
-    display: flex; align-items: stretch; gap: .6rem; flex-wrap: nowrap;
-  }
-  .pv-search {
-    position: relative; display: flex; align-items: center;
-    min-width: 160px; max-width: 240px;
-  }
-  .pv-search i {
-    position: absolute; left: 11px;
-    color: #4DA8DA; font-size: .82rem; pointer-events: none;
-    top: 50%; transform: translateY(-50%);
-  }
-  .pv-search input {
-    width: 100%; height: 38px;
-    background: #0b1220; border: 1px solid rgba(77,168,218,.22);
-    color: #e2e8f0; border-radius: 9px;
-    padding: 0 12px 0 32px; font-size: .83rem;
-    outline: none; transition: border-color .2s; box-sizing: border-box;
-  }
-  .pv-search input:focus { border-color: #4DA8DA; }
-  .pv-search input::placeholder { color: rgba(226,232,240,.3); }
-  .pv-bar__right .cys-btn {
-    height: 38px; padding: 0 1rem;
-    display: flex; align-items: center; gap: .4rem;
-    white-space: nowrap; box-sizing: border-box;
-  }
-
-  .pv-table { width: 100%; border-collapse: collapse; }
-  .pv-table thead tr {
-    background: var(--fondo-card2, #111f33);
-    border-bottom: 2px solid rgba(77,168,218,.15);
-  }
-  .pv-table th {
-    padding: .6rem .9rem;
-    font-size: .6rem; font-weight: 700; letter-spacing: .1em;
-    text-transform: uppercase; color: rgba(226,232,240,.35);
-    white-space: nowrap;
-  }
-  .pv-table td {
-    padding: .75rem .9rem; font-size: .83rem; color: #e2e8f0;
-    border-bottom: 1px solid rgba(77,168,218,.06);
-    vertical-align: middle;
-  }
-  .pv-table tbody tr:hover td { background: rgba(77,168,218,.04); }
-  .pv-empresa { font-weight: 700; color: rgba(226,232,240,.75); font-size: .84rem; }
-  .pv-tel  { color: #4DA8DA; text-decoration: none; font-weight: 600; font-size: .82rem; }
-  .pv-mail { color: rgba(226,232,240,.4); font-size: .76rem; text-decoration: none; }
-  .pv-badge-resp {
-    display: inline-block; font-size: .62rem; padding: .18rem .55rem;
-    border-radius: 999px; font-weight: 600;
-    background: rgba(77,168,218,.1); color: #4DA8DA;
-    border: 1px solid rgba(77,168,218,.22);
-  }
-  .pv-date { color: rgba(226,232,240,.3); font-size: .78rem; }
-
-  .pv-actions { position: relative; }
-  .pv-actions-btn {
-    width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
-    background: rgba(77,168,218,.08); border: 1px solid rgba(77,168,218,.22);
-    color: #4DA8DA; display: flex; align-items: center; justify-content: center;
-    font-size: .95rem; transition: background .2s;
-  }
-  .pv-actions-btn:hover { background: rgba(77,168,218,.18); }
-  .pv-dropdown {
-    display: none;
-    position: absolute;
-    right: 0;
-    bottom: calc(100% + 4px);
-    background: #0f1a2e; border: 1px solid rgba(77,168,218,.2);
-    border-radius: 10px; overflow: hidden; z-index: 1050;
-    min-width: 170px; box-shadow: 0 -6px 24px rgba(0,0,0,.55);
-  }
-  .pv-actions.open .pv-dropdown { display: block; }
-  .pv-dropdown a,
-  .pv-dropdown button {
-    display: flex; align-items: center; gap: .55rem;
-    width: 100%; padding: .6rem .9rem;
-    font-size: .8rem; color: #e2e8f0; text-decoration: none;
-    background: transparent; border: none; cursor: pointer;
-    transition: background .15s; text-align: left;
-    font-family: 'Inter', sans-serif;
-  }
-  .pv-dropdown a:hover,
-  .pv-dropdown button:hover { background: rgba(77,168,218,.1); }
-  .pv-dropdown .dd-divider {
-    height: 1px; background: rgba(77,168,218,.1); margin: .2rem 0;
-  }
-  .pv-dropdown .dd-danger { color: #e87070; }
-  .pv-dropdown .dd-danger:hover { background: rgba(192,57,43,.12); }
-
-  .pv-modal-del .modal-content {
-    background: #0f1a2e;
-    border: 1px solid rgba(192,57,43,.3) !important;
-    border-radius: 16px; overflow: hidden;
-  }
-  .pv-del-cancel {
-    flex: 1; padding: .75rem; border-radius: 10px; cursor: pointer;
-    background: #111f33; border: 1px solid rgba(226,232,240,.1);
-    color: #e2e8f0; font-family: 'Rajdhani', sans-serif;
-    font-weight: 700; font-size: .9rem; letter-spacing: .08em;
-    text-transform: uppercase; transition: background .2s;
-  }
-  .pv-del-cancel:hover { background: #1a2a45; }
-  .pv-del-confirm {
-    flex: 1; padding: .75rem; border-radius: 10px; cursor: pointer;
-    background: #c0392b; border: none; color: #fff;
-    font-family: 'Rajdhani', sans-serif; font-weight: 700;
-    font-size: .9rem; letter-spacing: .08em; text-transform: uppercase;
-    display: flex; align-items: center; justify-content: center; gap: .5rem;
-    transition: background .2s; box-shadow: 0 4px 14px rgba(192,57,43,.4);
-  }
-  .pv-del-confirm:hover { background: #e74c3c; }
-</style>
 
 <div class="container-fluid p-0">
 
@@ -242,14 +54,16 @@
     </div>
   </div>
 
-
   <section class="cys-card mb-4">
     <div class="pv-bar">
-      <div class="pv-bar__title"><i class="bi bi-building"></i> Lista de Proveedores</div>
+      <div class="pv-bar__title">
+        <i class="bi bi-building"></i> Lista de Proveedores
+      </div>
       <div class="pv-bar__right">
         <div class="pv-search">
           <i class="bi bi-search"></i>
-          <input type="text" id="buscadorProveedores" placeholder="Buscar proveedor..."
+          <input type="text" id="buscadorProveedores"
+                 placeholder="Buscar proveedor..."
                  oninput="filtrarProveedores(this.value)">
         </div>
         <button class="cys-btn cys-btn--primary"
@@ -259,7 +73,8 @@
       </div>
     </div>
 
-    <div id="contadorResultados" style="font-size:.75rem; color:rgba(226,232,240,.35); margin-bottom:.75rem; display:none;">
+    <div id="contadorResultados"
+         style="font-size:.75rem; color:rgba(226,232,240,.35); margin-bottom:.75rem; display:none;">
       <i class="bi bi-funnel me-1"></i>
       <span id="numResultados"></span> resultado(s) para "<span id="terminoBusqueda"></span>"
     </div>
@@ -278,65 +93,71 @@
           </tr>
         </thead>
         <tbody id="tablaProveedores">
-          {% for p in proveedores %}
-          <tr class="fila-proveedor"
-              data-empresa="{{ p.nombre_empresa|lower }}"
-              data-contacto="{{ p.nombre_contacto|lower }}"
-              data-email="{{ p.email|lower }}"
-              data-telefono="{{ p.telefono }}">
-            <td style="color:rgba(226,232,240,.25); font-size:.75rem;">{{ forloop.counter }}</td>
-            <td>
-              <div class="pv-empresa">{{ p.nombre_empresa }}</div>
-              <div class="pv-mail">{{ p.email }}</div>
-            </td>
-            <td style="color:rgba(226,232,240,.65); font-size:.82rem;">{{ p.nombre_contacto }}</td>
-            <td><a href="tel:{{ p.telefono }}" class="pv-tel">{{ p.telefono }}</a></td>
-            <td><span class="pv-badge-resp">{{ p.registrado_por.email|default:"Admin" }}</span></td>
-            <td><span class="pv-date">{{ p.ultima_modificacion|date:"d/m/Y" }}</span></td>
-            <td>
-              <div class="pv-actions" id="acc-{{ p.id }}">
-                <button class="pv-actions-btn" onclick="toggleDropdown('acc-{{ p.id }}', event)" title="Acciones">
-                  <i class="bi bi-three-dots-vertical"></i>
-                </button>
-                <div class="pv-dropdown">
-                  <a href="{% url 'registrar_compra' p.id %}">
-                    <i class="bi bi-cart-plus" style="color:#5edb97;"></i>
-                    Registrar compra
-                  </a>
-                  <button onclick="verDetalle('{{ p.nombre_empresa }}','{{ p.nombre_contacto }}','{{ p.email }}','{{ p.telefono }}','{{ p.registrado_por.email|default:"Admin" }}','{{ p.fecha_registro|date:"d/m/Y" }}','{{ p.ultima_modificacion|date:"d/m/Y H:i" }}','{{ p.id }}'); cerrarDropdowns();">
-                    <i class="bi bi-eye" style="color:#4DA8DA;"></i>
-                    Ver información
-                  </button>
-                  <a href="{% url 'editar_proveedor' p.id %}">
-                    <i class="bi bi-pencil-square" style="color:#facc15;"></i>
-                    Editar
-                  </a>
-                  <div class="dd-divider"></div>
-                  <button class="dd-danger"
-                          onclick="confirmarEliminar('{% url 'eliminar_proveedor' p.id %}','{{ p.nombre_empresa }}'); cerrarDropdowns();">
-                    <i class="bi bi-trash3"></i>
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="7" class="text-center py-5" style="color:rgba(226,232,240,.25);">
-              <i class="bi bi-building d-block mb-2" style="font-size:2rem;"></i>
-              No hay proveedores registrados
-            </td>
-          </tr>
-          {% endfor %}
+         {% for p in proveedores %}
+{% with responsable=p.registrado_por.email|default:"Admin" fecha_reg=p.fecha_registro|date:"d/m/Y" fecha_mod=p.ultima_modificacion|date:"d/m/Y H:i" %}
+<tr class="fila-proveedor"
+    data-empresa="{{ p.nombre_empresa|lower }}"
+    data-contacto="{{ p.nombre_contacto|lower }}"
+    data-email="{{ p.email|lower }}"
+    data-telefono="{{ p.telefono }}">
+  <td style="color:rgba(226,232,240,.25); font-size:.75rem;">{{ forloop.counter }}</td>
+  <td>
+    <div class="pv-empresa">{{ p.nombre_empresa }}</div>
+    <div class="pv-mail">{{ p.email }}</div>
+  </td>
+  <td style="color:rgba(226,232,240,.65); font-size:.82rem;">{{ p.nombre_contacto }}</td>
+  <td><a href="tel:{{ p.telefono }}" class="pv-tel">{{ p.telefono }}</a></td>
+  <td><span class="pv-badge-resp">{{ responsable }}</span></td>
+  <td><span class="pv-date">{{ p.ultima_modificacion|date:"d/m/Y" }}</span></td>
+  <td>
+    <div class="pv-actions" id="acc-{{ p.id }}">
+      <button class="pv-actions-btn"
+              onclick="toggleDropdown('acc-{{ p.id }}', event)"
+              title="Acciones">
+        <i class="bi bi-three-dots-vertical"></i>
+      </button>
+      <div class="pv-dropdown">
+       <a href="{% url 'registrar_compra' %}?proveedor={{ p.id }}">
+          <i class="bi bi-cart-plus" style="color:#5edb97;"></i>
+          Registrar compra
+        </a>
+        <button onclick="verDetalle('{{ p.nombre_empresa }}','{{ p.nombre_contacto }}','{{ p.email }}','{{ p.telefono }}','{{ responsable }}','{{ fecha_reg }}','{{ fecha_mod }}','{{ p.id }}'); cerrarDropdowns();">
+          <i class="bi bi-eye" style="color:#4DA8DA;"></i>
+          Ver información
+        </button>
+        <a href="{% url 'editar_proveedor' p.id %}">
+          <i class="bi bi-pencil-square" style="color:#facc15;"></i>
+          Editar
+        </a>
+        <div class="dd-divider"></div>
+        <button class="dd-danger"
+                onclick="confirmarEliminar('{% url 'eliminar_proveedor' p.id %}','{{ p.nombre_empresa }}'); cerrarDropdowns();">
+          <i class="bi bi-trash3"></i>
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </td>
+</tr>
+{% endwith %}
+{% empty %}
+<tr>
+  <td colspan="7" class="text-center py-5" style="color:rgba(226,232,240,.25);">
+    <i class="bi bi-building d-block mb-2" style="font-size:2rem;"></i>
+    No hay proveedores registrados
+  </td>
+</tr>
+{% endfor %}
         </tbody>
       </table>
-      <div id="sinResultados" class="text-center py-5" style="display:none; color:rgba(226,232,240,.25);">
+      <div id="sinResultados" class="text-center py-5"
+           style="display:none; color:rgba(226,232,240,.25);">
         <i class="bi bi-search d-block mb-2" style="font-size:2rem;"></i>
         <span style="font-size:.85rem;">No se encontraron proveedores</span>
       </div>
     </div>
   </section>
+
 </div>
 
 <!-- MODAL: DETALLE -->
@@ -468,7 +289,8 @@
             Confirmar Eliminación
           </span>
         </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="margin-left:auto;"></button>
+        <button type="button" class="btn-close btn-close-white"
+                data-bs-dismiss="modal" style="margin-left:auto;"></button>
       </div>
       <div class="modal-body px-4 pt-0 pb-0">
         <div style="height:1px; background:rgba(226,232,240,.07); margin-bottom:1rem;"></div>
@@ -503,6 +325,21 @@
 
 <script>
   function toggleDropdown(id, e) {
+  e.stopPropagation();
+  const el     = document.getElementById(id);
+  const isOpen = el.classList.contains('open');
+  cerrarDropdowns();
+  if (!isOpen) {
+    el.classList.add('open');
+    // Posicionar el dropdown relativo al botón
+    const btn    = el.querySelector('.pv-actions-btn');
+    const rect   = btn.getBoundingClientRect();
+    const menu   = el.querySelector('.pv-dropdown');
+    menu.style.top  = (rect.bottom + 4) + 'px';
+    menu.style.left = (rect.right - 170) + 'px';
+  }
+}
+  function toggleDropdown(id, e) {
     e.stopPropagation();
     const el = document.getElementById(id);
     const isOpen = el.classList.contains('open');
@@ -521,8 +358,10 @@
     const sinRes   = document.getElementById('sinResultados');
     let visibles   = 0;
     filas.forEach(f => {
-      const ok = f.dataset.empresa.includes(q) || f.dataset.contacto.includes(q) ||
-                 f.dataset.email.includes(q)   || f.dataset.telefono.includes(q);
+      const ok = f.dataset.empresa.includes(q)  ||
+                 f.dataset.contacto.includes(q) ||
+                 f.dataset.email.includes(q)    ||
+                 f.dataset.telefono.includes(q);
       f.style.display = ok ? '' : 'none';
       if (ok) visibles++;
     });
@@ -545,7 +384,7 @@
     document.getElementById('det-responsable').textContent  = responsable;
     document.getElementById('det-fecha').textContent        = fecha;
     document.getElementById('det-modificacion').textContent = modificacion;
-    document.getElementById('det-link-compra').href         = '/proveedores/' + id + '/compra/';
+    document.getElementById('det-link-compra').href = '/proveedores/compra/?proveedor=' + id;
     new bootstrap.Modal(document.getElementById('detalleModal')).show();
   }
 

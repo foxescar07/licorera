@@ -82,7 +82,7 @@
                        data-nombre="{{ prov.nombre_empresa }}"
                        data-contacto="{{ prov.nombre_contacto }}"
                        data-telefono="{{ prov.telefono }}"
-                       data-url="{% url 'registrar_compra' prov.id %}"
+                       data-url="/proveedores/compra/?proveedor={{ prov.id }}"
                        style="display:flex; align-items:center; justify-content:space-between;
                               padding:10px 13px; border-radius:8px; cursor:pointer;
                               background:{% if prov.id == proveedor.id %}rgba(77,168,218,0.08){% else %}#0b1220{% endif %};
