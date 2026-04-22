@@ -3,10 +3,17 @@ from producto.models import Producto, PresentacionProducto
 
 
 class Venta(models.Model):
-    cliente             = models.CharField(max_length=100)
-    fecha               = models.DateTimeField(auto_now_add=True)
+    cliente              = models.CharField(max_length=100)
+    fecha                = models.DateTimeField(auto_now_add=True)
     descuento_porcentaje = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     total_con_descuento  = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    # Métodos de pago
+    pago_efectivo       = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    pago_tarjeta        = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    pago_transferencia  = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    pago_nequi          = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    pago_daviplata      = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     class Meta:
         verbose_name        = "Venta"

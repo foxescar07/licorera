@@ -29,15 +29,23 @@ def nueva_venta(request):
         return redirect('ventas:ventas_lista')
 
     form = VentaForm(request.POST)
-    producto_ids = request.POST.getlist('producto_id[]')
+    producto_ids     = request.POST.getlist('producto_id[]')
     presentacion_ids = request.POST.getlist('presentacion_id[]')
-    cantidades = request.POST.getlist('cantidad[]')
-    precios = request.POST.getlist('precio[]')
+    cantidades       = request.POST.getlist('cantidad[]')
+    precios          = request.POST.getlist('precio[]')
 
-    try:
-        descuento_pct = Decimal(request.POST.get('descuento_porcentaje', '0'))
-    except (InvalidOperation, TypeError):
-        descuento_pct = Decimal('0')
+    def to_decimal(key, default='0'):
+        try:
+            return Decimal(request.POST.get(key, default) or default)
+        except (InvalidOperation, TypeError):
+            return Decimal('0')
+
+    descuento_pct      = to_decimal('descuento_porcentaje')
+    pago_efectivo      = to_decimal('pago_efectivo')
+    pago_tarjeta       = to_decimal('pago_tarjeta')
+    pago_transferencia = to_decimal('pago_transferencia')
+    pago_nequi         = to_decimal('pago_nequi')
+    pago_daviplata     = to_decimal('pago_daviplata')
 
     if not producto_ids:
         messages.error(request, "El carrito está vacío.")
@@ -48,7 +56,7 @@ def nueva_venta(request):
         return redirect('ventas:ventas_lista')
 
     items_validados = []
-    subtotal_venta = Decimal('0')
+    subtotal_venta  = Decimal('0')
 
     for i, prod_id in enumerate(producto_ids):
         try:
@@ -77,38 +85,36 @@ def nueva_venta(request):
                 return redirect('ventas:ventas_lista')
 
             if cantidad > presentacion.cantidad:
-                messages.error(
-                    request,
-                    f"Stock insuficiente: solo hay {presentacion.cantidad} "
-                    f"'{presentacion.nombre}' de {producto.nombre}."
-                )
+                messages.error(request, f"Stock insuficiente: solo hay {presentacion.cantidad} '{presentacion.nombre}' de {producto.nombre}.")
                 return redirect('ventas:ventas_lista')
         else:
             if cantidad > producto.cantidad_disponible:
-                messages.error(
-                    request,
-                    f"Stock insuficiente: solo hay {producto.cantidad_disponible} "
-                    f"unidades sueltas de {producto.nombre}."
-                )
+                messages.error(request, f"Stock insuficiente: solo hay {producto.cantidad_disponible} unidades de {producto.nombre}.")
                 return redirect('ventas:ventas_lista')
 
         items_validados.append({
-            'producto':     producto,
-            'presentacion': presentacion,
-            'cantidad':     cantidad,
-            'precio':       precio,
+            'producto': producto, 'presentacion': presentacion,
+            'cantidad': cantidad, 'precio': precio,
         })
+        subtotal_venta += precio * cantidad
 
-        subtotal_venta += (precio * cantidad)
-
-    # Calcular total con descuento
     monto_descuento = (subtotal_venta * descuento_pct) / Decimal('100')
-    total_final = subtotal_venta - monto_descuento
+    total_final     = subtotal_venta - monto_descuento
 
-    # Guardar venta con descuento y total final
+    # Validar que los pagos cubran el total
+    total_pagado = pago_efectivo + pago_tarjeta + pago_transferencia + pago_nequi + pago_daviplata
+    if total_pagado < total_final:
+        messages.error(request, f"El total pagado (${total_pagado:,.0f}) no cubre el total de la venta (${total_final:,.0f}).".replace(',', '.'))
+        return redirect('ventas:ventas_lista')
+
     venta = form.save(commit=False)
     venta.descuento_porcentaje = descuento_pct
-    venta.total_con_descuento = total_final
+    venta.total_con_descuento  = total_final
+    venta.pago_efectivo        = pago_efectivo
+    venta.pago_tarjeta         = pago_tarjeta
+    venta.pago_transferencia   = pago_transferencia
+    venta.pago_nequi           = pago_nequi
+    venta.pago_daviplata       = pago_daviplata
     venta.save()
 
     for item in items_validados:
@@ -118,11 +124,8 @@ def nueva_venta(request):
         precio       = item['precio']
 
         DetalleVenta.objects.create(
-            venta=venta,
-            producto=producto,
-            presentacion=presentacion,
-            cantidad=cantidad,
-            precio_unitario=precio,
+            venta=venta, producto=producto, presentacion=presentacion,
+            cantidad=cantidad, precio_unitario=precio,
         )
 
         if presentacion:
@@ -135,18 +138,11 @@ def nueva_venta(request):
             unidades = cantidad
 
         Inventario.objects.create(
-            producto=producto,
-            tipo='salida',
-            cantidad=unidades,
-            motivo='Venta registrada',
-            ubicacion='Venta',
+            producto=producto, tipo='salida', cantidad=unidades,
+            motivo='Venta registrada', ubicacion='Venta',
         )
 
-    messages.success(
-        request,
-        f"Venta registrada: {len(items_validados)} producto(s) — "
-        f"Total: ${total_final:,.0f}".replace(',', '.')
-    )
+    messages.success(request, f"Venta registrada — Total: ${total_final:,.0f}".replace(',', '.'))
     return redirect('ventas:ventas_lista')
 
 
@@ -164,11 +160,8 @@ def eliminar_venta(request, pk):
                 unidades = det.cantidad
 
             Inventario.objects.create(
-                producto=det.producto,
-                tipo='entrada',
-                cantidad=unidades,
-                motivo='Anulación de venta',
-                ubicacion='Devolución',
+                producto=det.producto, tipo='entrada', cantidad=unidades,
+                motivo='Anulación de venta', ubicacion='Devolución',
             )
 
         venta.delete()
@@ -177,22 +170,12 @@ def eliminar_venta(request, pk):
 
 
 def producto_stock_json(request, pk):
-    producto = get_object_or_404(
-        Producto.objects.prefetch_related('presentaciones'), pk=pk
-    )
+    producto = get_object_or_404(Producto.objects.prefetch_related('presentaciones'), pk=pk)
     presentaciones = [
-        {
-            'id':       p.id,
-            'nombre':   p.nombre,
-            'unidades': p.unidades,
-            'cantidad': p.cantidad,
-            'precio':   float(p.precio),
-        }
+        {'id': p.id, 'nombre': p.nombre, 'unidades': p.unidades, 'cantidad': p.cantidad, 'precio': float(p.precio)}
         for p in producto.presentaciones.all()
     ]
     return JsonResponse({
-        'stock':          producto.cantidad_disponible,
-        'precio':         float(producto.precio_unitario),
-        'unidad':         producto.unidad,
-        'presentaciones': presentaciones,
+        'stock': producto.cantidad_disponible, 'precio': float(producto.precio_unitario),
+        'unidad': producto.unidad, 'presentaciones': presentaciones,
     })
