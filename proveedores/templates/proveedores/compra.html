@@ -43,6 +43,78 @@
     </a>
   </div>
 
+  <!-- ═══ TARJETAS MÉTRICAS ═══ -->
+  <div class="row g-3 mb-4">
+
+    <div class="col-12 col-md-4">
+      <div style="background:#0f1a2e; border:1px solid rgba(74,222,128,0.2);
+                  border-radius:12px; padding:16px 20px;
+                  display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <div style="font-size:0.7rem; font-weight:700; letter-spacing:.12em;
+                      text-transform:uppercase; color:#475569; margin-bottom:6px;">Total gastado</div>
+          <div style="font-size:1.35rem; font-weight:700; color:#4ade80; line-height:1;"
+               id="metricaTotalGastado">$ ...</div>
+          <div style="font-size:0.72rem; color:#334155; margin-top:4px;">Histórico acumulado</div>
+        </div>
+        <div style="width:38px; height:38px; border-radius:10px;
+                    background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.2);
+                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <i class="bi bi-cash-coin" style="color:#4ade80; font-size:1.1rem;"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div style="background:#0f1a2e; border:1px solid rgba(77,168,218,0.2);
+                  border-radius:12px; padding:16px 20px;
+                  display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <div style="font-size:0.7rem; font-weight:700; letter-spacing:.12em;
+                      text-transform:uppercase; color:#475569; margin-bottom:6px;">Compras este mes</div>
+          <div style="font-size:1.35rem; font-weight:700; color:#e2e8f0; line-height:1;">
+            {{ count_mes }}
+            <span style="font-size:0.8rem; color:#475569; font-weight:400;">registros</span>
+          </div>
+          <div style="font-size:0.72rem; color:#4DA8DA; margin-top:4px;"
+               id="metricaTotalMes">$ ... este mes</div>
+        </div>
+        <div style="width:38px; height:38px; border-radius:10px;
+                    background:rgba(77,168,218,0.08); border:1px solid rgba(77,168,218,0.2);
+                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <i class="bi bi-calendar-check" style="color:#4DA8DA; font-size:1.1rem;"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div style="background:#0f1a2e; border:1px solid rgba(251,191,36,0.2);
+                  border-radius:12px; padding:16px 20px;
+                  display:flex; align-items:center; justify-content:space-between;">
+        <div style="min-width:0; flex:1;">
+          <div style="font-size:0.7rem; font-weight:700; letter-spacing:.12em;
+                      text-transform:uppercase; color:#475569; margin-bottom:6px;">Producto más comprado</div>
+          <div style="font-size:0.95rem; font-weight:700; color:#fbbf24;
+                      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+            {% if producto_top %}{{ producto_top.producto__nombre }}{% else %}—{% endif %}
+          </div>
+          <div style="font-size:0.72rem; color:#334155; margin-top:4px;">
+            {% if producto_top %}
+              <span style="color:#fbbf24;">{{ producto_top.total_und }} und.</span> en total
+            {% else %}Sin datos aún{% endif %}
+          </div>
+        </div>
+        <div style="width:38px; height:38px; border-radius:10px; margin-left:12px;
+                    background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2);
+                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <i class="bi bi-trophy" style="color:#fbbf24; font-size:1.1rem;"></i>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ═══ FIN TARJETAS ═══ -->
+
   <div class="row g-4">
 
     <!-- FORMULARIO -->
@@ -246,11 +318,14 @@
                 <th>PRECIO UNIT.</th>
                 <th>TOTAL</th>
                 <th>FECHA</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {% for compra in compras %}
-              <tr>
+              <tr style="transition:background .15s;"
+                  onmouseenter="this.style.background='rgba(77,168,218,0.04)'"
+                  onmouseleave="this.style.background='transparent'">
                 <td>{{ forloop.counter }}</td>
                 <td style="text-align:left;">
                   <i class="bi bi-box me-2" style="color:#4DA8DA;"></i>
@@ -264,14 +339,14 @@
                 </td>
                 <td style="color:#94a3b8; font-size:0.85rem; font-weight:600;">
                   {% if compra.precio_unitario %}
-                    $ {{ compra.precio_unitario|floatformat:"0g" }}
+                    <span class="precio-cop" data-valor="{{ compra.precio_unitario }}">$ ...</span>
                   {% else %}
                     <span style="color:#334155;">—</span>
                   {% endif %}
                 </td>
                 <td style="color:#4ade80; font-weight:700; font-size:0.85rem;">
-                  {% if compra.total %}
-                    $ {{ compra.total|floatformat:"0g" }}
+                  {% if compra.precio_unitario %}
+                    <span class="precio-cop" data-valor="{{ compra.total }}">$ ...</span>
                   {% else %}
                     <span style="color:#334155;">—</span>
                   {% endif %}
@@ -279,10 +354,32 @@
                 <td style="color:#64748b; font-size:0.82rem;">
                   {{ compra.fecha_registro|date:"d/m/Y H:i" }}
                 </td>
+                <td>
+                  <button type="button"
+                          onclick="abrirDetalle(
+                            '{{ compra.id }}',
+                            '{{ compra.producto.nombre|escapejs }}',
+                            '{{ compra.producto.categoria.nombre|escapejs }}',
+                            {{ compra.cantidad }},
+                            {% if compra.precio_unitario %}{{ compra.precio_unitario }}{% else %}null{% endif %},
+                            {% if compra.precio_unitario %}{{ compra.total }}{% else %}null{% endif %},
+                            '{{ compra.fecha_registro|date:"d/m/Y H:i" }}',
+                            '{{ proveedor.nombre_empresa|escapejs }}',
+                            '{{ proveedor.nombre_contacto|escapejs }}',
+                            '{{ proveedor.telefono|escapejs }}'
+                          )"
+                          style="background:rgba(77,168,218,0.08); border:1px solid rgba(77,168,218,0.2);
+                                 color:#4DA8DA; border-radius:7px; padding:5px 11px;
+                                 font-size:0.75rem; cursor:pointer; transition:0.15s; white-space:nowrap;"
+                          onmouseover="this.style.background='rgba(77,168,218,0.18)'"
+                          onmouseout="this.style.background='rgba(77,168,218,0.08)'">
+                    <i class="bi bi-eye me-1"></i> Ver
+                  </button>
+                </td>
               </tr>
               {% empty %}
               <tr>
-                <td colspan="6" class="text-center py-5" style="color:#475569;">
+                <td colspan="7" class="text-center py-5" style="color:#475569;">
                   <i class="bi bi-clock-history d-block mb-2" style="font-size:2rem; color:#334155;"></i>
                   <span style="font-size:0.88rem;">Sin compras registradas aún</span>
                 </td>
@@ -299,9 +396,9 @@
                   <i class="bi bi-calculator me-1"></i> Subtotal:
                 </td>
                 <td style="padding:12px 8px; font-weight:800; font-size:0.95rem; color:#4ade80;">
-                  $ {{ subtotal_compras|floatformat:"0g" }}
+                  <span class="precio-cop" data-valor="{{ subtotal_compras }}">$ ...</span>
                 </td>
-                <td></td>
+                <td colspan="2"></td>
               </tr>
             </tfoot>
             {% endif %}
@@ -314,6 +411,149 @@
   </div>
 </div>
 
+
+<!-- ═══ MODAL DETALLE DE COMPRA ═══ -->
+<div id="modalOverlay"
+     style="display:none; position:fixed; inset:0; background:rgba(5,10,20,0.82);
+            z-index:9999; align-items:center; justify-content:center; padding:20px;"
+     onclick="if(event.target===this) cerrarDetalle()">
+
+  <div style="background:#0f1a2e; border:1px solid rgba(77,168,218,0.25);
+              border-radius:14px; width:100%; max-width:480px;
+              box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+
+    <!-- Cabecera -->
+    <div style="background:rgba(77,168,218,0.07); border-bottom:1px solid rgba(77,168,218,0.15);
+                padding:16px 20px; display:flex; align-items:center; justify-content:space-between;
+                border-radius:14px 14px 0 0;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:32px; height:32px; border-radius:8px;
+                    background:rgba(77,168,218,0.12); border:1px solid rgba(77,168,218,0.25);
+                    display:flex; align-items:center; justify-content:center;">
+          <i class="bi bi-receipt" style="color:#4DA8DA; font-size:0.9rem;"></i>
+        </div>
+        <span style="font-size:0.78rem; font-weight:700; letter-spacing:.1em;
+                     text-transform:uppercase; color:#e2e8f0;">Detalle de Compra</span>
+      </div>
+      <button onclick="cerrarDetalle()"
+              style="width:28px; height:28px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);
+                     background:transparent; color:#64748b; cursor:pointer;
+                     display:flex; align-items:center; justify-content:center; transition:.15s;"
+              onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#e2e8f0'"
+              onmouseout="this.style.background='transparent'; this.style.color='#64748b'">
+        <i class="bi bi-x-lg" style="font-size:0.8rem;"></i>
+      </button>
+    </div>
+
+    <!-- Cuerpo -->
+    <div style="padding:22px 24px;">
+
+      <div style="font-size:0.72rem; color:#334155; letter-spacing:.06em;
+                  text-transform:uppercase; margin-bottom:18px;">
+        ID compra: <span id="m-id" style="color:#4DA8DA; font-weight:700;"></span>
+      </div>
+
+      <!-- Producto -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:0.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+                    color:#4DA8DA; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+          <i class="bi bi-box" style="font-size:0.7rem;"></i> Producto
+          <span style="flex:1; height:1px; background:rgba(77,168,218,0.1); display:block;"></span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="grid-column:1/-1;">
+            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
+                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Nombre</div>
+            <div id="m-producto" style="font-size:0.92rem; font-weight:600; color:#cbd5e1;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
+                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Categoría</div>
+            <div id="m-categoria"
+                 style="display:inline-block; background:rgba(100,116,139,0.1); color:#64748b;
+                        border:1px solid rgba(100,116,139,0.2); padding:2px 10px;
+                        border-radius:20px; font-size:0.78rem;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
+                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Cantidad</div>
+            <div id="m-cantidad"
+                 style="display:inline-block; background:rgba(77,168,218,0.1); color:#4DA8DA;
+                        border:1px solid rgba(77,168,218,0.2); padding:2px 12px;
+                        border-radius:20px; font-size:0.82rem; font-weight:700;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
+                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Precio unitario</div>
+            <div id="m-precio" style="font-size:0.88rem; font-weight:600; color:#94a3b8;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
+                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Fecha</div>
+            <div id="m-fecha" style="font-size:0.82rem; color:#64748b;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div id="m-total-box"
+           style="background:rgba(74,222,128,0.06); border:1px solid rgba(74,222,128,0.15);
+                  border-radius:10px; padding:13px 16px;
+                  display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <span style="font-size:0.72rem; font-weight:700; letter-spacing:.08em;
+                     text-transform:uppercase; color:#4ade80;">
+          <i class="bi bi-calculator me-1"></i> Total compra
+        </span>
+        <span id="m-total" style="font-size:1.15rem; font-weight:700; color:#4ade80;"></span>
+      </div>
+
+      <!-- Proveedor -->
+      <div>
+        <div style="font-size:0.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+                    color:#4DA8DA; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+          <i class="bi bi-building" style="font-size:0.7rem;"></i> Proveedor
+          <span style="flex:1; height:1px; background:rgba(77,168,218,0.1); display:block;"></span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="grid-column:1/-1;">
+            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
+                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Empresa</div>
+            <div id="m-empresa" style="font-size:0.92rem; font-weight:600; color:#4DA8DA;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
+                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Contacto</div>
+            <div id="m-contacto" style="font-size:0.88rem; color:#cbd5e1;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
+                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Teléfono</div>
+            <div id="m-telefono" style="font-size:0.88rem; color:#4DA8DA; font-weight:600;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Pie -->
+    <div style="border-top:1px solid rgba(77,168,218,0.1); padding:14px 24px;
+                display:flex; justify-content:flex-end; border-radius:0 0 14px 14px;">
+      <button onclick="cerrarDetalle()"
+              style="padding:9px 28px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);
+                     background:rgba(255,255,255,0.04); color:#94a3b8; font-size:0.78rem;
+                     font-weight:700; letter-spacing:1px; text-transform:uppercase;
+                     cursor:pointer; transition:.15s;"
+              onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#e2e8f0'"
+              onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.color='#94a3b8'">
+        Cerrar
+      </button>
+    </div>
+
+  </div>
+</div>
+<!-- ═══ FIN MODAL ═══ -->
+
+
 <script>
 // ─── FORMATO PESOS COLOMBIANOS ────────────────────────────────────────────────
 function formatCOP(valor) {
@@ -325,20 +565,70 @@ function formatCOP(valor) {
   }).format(valor);
 }
 
+// ─── RENDERIZAR TODOS LOS PRECIOS CON PUNTOS ──────────────────────────────────
+function renderizarPrecios() {
+  document.querySelectorAll('.precio-cop').forEach(el => {
+    const v = parseFloat(el.dataset.valor);
+    el.textContent = isNaN(v) ? '—' : formatCOP(v);
+  });
+
+  const tg = parseFloat('{{ total_gastado }}');
+  const tm = parseFloat('{{ total_mes }}');
+  if (!isNaN(tg)) document.getElementById('metricaTotalGastado').textContent = formatCOP(tg);
+  if (!isNaN(tm)) document.getElementById('metricaTotalMes').textContent = formatCOP(tm) + ' este mes';
+}
+
+// ─── MODAL DETALLE ────────────────────────────────────────────────────────────
+function abrirDetalle(id, producto, categoria, cantidad, precio, total, fecha, empresa, contacto, telefono) {
+  document.getElementById('m-id').textContent        = '#' + String(id).padStart(4, '0');
+  document.getElementById('m-producto').textContent  = producto;
+  document.getElementById('m-categoria').textContent = categoria;
+  document.getElementById('m-cantidad').textContent  = cantidad + ' und.';
+  document.getElementById('m-precio').textContent    = precio ? formatCOP(precio) : '—';
+  document.getElementById('m-fecha').textContent     = fecha;
+  document.getElementById('m-empresa').textContent   = empresa;
+  document.getElementById('m-contacto').textContent  = contacto;
+  document.getElementById('m-telefono').textContent  = telefono;
+
+  const totalBox = document.getElementById('m-total-box');
+  const totalEl  = document.getElementById('m-total');
+  if (total) {
+    totalEl.textContent        = formatCOP(total);
+    totalEl.style.color        = '#4ade80';
+    totalBox.style.borderColor = 'rgba(74,222,128,0.15)';
+    totalBox.style.background  = 'rgba(74,222,128,0.06)';
+  } else {
+    totalEl.textContent        = 'Sin precio registrado';
+    totalEl.style.color        = '#334155';
+    totalBox.style.borderColor = 'rgba(100,116,139,0.15)';
+    totalBox.style.background  = 'rgba(100,116,139,0.04)';
+  }
+
+  document.getElementById('modalOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarDetalle() {
+  document.getElementById('modalOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') cerrarDetalle();
+});
+
 // ─── DATOS PRODUCTOS ──────────────────────────────────────────────────────────
-const productosCompra = typeof todoProductos !== 'undefined'
-  ? todoProductos
-  : [
-    {% for p in productos %}
-    {
-      pk: {{ p.pk }},
-      nombre: "{{ p.nombre|escapejs }}",
-      categoria_nombre: "{{ p.categoria.nombre|escapejs }}",
-      cantidad: {{ p.cantidad_disponible }},
-      stock_critico: {% if p.stock_critico %}true{% else %}false{% endif %}
-    }{% if not forloop.last %},{% endif %}
-    {% endfor %}
-  ];
+const productosCompra = [
+  {% for p in productos %}
+  {
+    pk: {{ p.pk }},
+    nombre: "{{ p.nombre|escapejs }}",
+    categoria_nombre: "{{ p.categoria.nombre|escapejs }}",
+    cantidad: {{ p.cantidad_disponible }},
+    stock_critico: {% if p.stock_critico %}true{% else %}false{% endif %}
+  }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+];
 
 // ─── ESTADO ───────────────────────────────────────────────────────────────────
 let soloConStock   = false;
@@ -478,7 +768,10 @@ function seleccionarProveedor(radio) {
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', renderProductos);
+document.addEventListener('DOMContentLoaded', function() {
+  renderProductos();
+  renderizarPrecios();
+});
 </script>
 
 {% endblock %}
