@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
+from django.db.models import Sum
 from datetime import timedelta
 
 from producto.models import Producto, Inventario
@@ -111,7 +112,6 @@ def registrar_compra(request):
     if proveedor_id:
         request.session['proveedor_id'] = int(proveedor_id)
     else:
-        # Si no hay ninguno, toma el primero
         primer_proveedor = todos_proveedores.first()
         if primer_proveedor:
             request.session['proveedor_id'] = primer_proveedor.id
@@ -128,7 +128,7 @@ def registrar_compra(request):
         cant    = request.POST.get('cantidad')
         precio  = request.POST.get('precio_unitario')
 
-        if not id_prod or not cant or not precio:
+        if not id_prod or not cant:
             messages.warning(request, "Completa todos los campos.")
         else:
             try:
@@ -170,6 +170,38 @@ def registrar_compra(request):
 
     productos = Producto.objects.prefetch_related('presentaciones').all()
 
+    # ── MÉTRICAS PARA TARJETAS ──────────────────────────────────────────
+    from django.db.models import ExpressionWrapper, DecimalField, F
+
+    hoy = timezone.now()
+
+    # Total gastado histórico: suma de (cantidad * precio_unitario)
+    total_gastado = sum(
+        c.cantidad * c.precio_unitario
+        for c in Compra.objects.exclude(precio_unitario__isnull=True)
+    ) or 0
+
+    # Compras del mes actual
+    compras_mes_qs = Compra.objects.filter(
+        fecha_registro__year=hoy.year,
+        fecha_registro__month=hoy.month,
+    )
+    count_mes = compras_mes_qs.count()
+    total_mes = sum(
+        c.cantidad * c.precio_unitario
+        for c in compras_mes_qs.exclude(precio_unitario__isnull=True)
+    ) or 0
+
+    # Producto más comprado por cantidad total
+    producto_top = (
+        Compra.objects
+        .values('producto__nombre')
+        .annotate(total_und=Sum('cantidad'))
+        .order_by('-total_und')
+        .first()
+    )
+    # ───────────────────────────────────────────────────────────────────
+
     return render(request, 'proveedores/compra.html', {
         'proveedor':         proveedor_obj,
         'todos_proveedores': todos_proveedores,
@@ -178,4 +210,9 @@ def registrar_compra(request):
         'subtotal_compras':  subtotal,
         'pendientes':        pendientes,
         'total_pendientes':  total_pendientes,
+        # Tarjetas métricas
+        'total_gastado':     total_gastado,
+        'count_mes':         count_mes,
+        'total_mes':         total_mes,
+        'producto_top':      producto_top,
     })
