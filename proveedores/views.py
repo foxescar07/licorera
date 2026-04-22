@@ -98,14 +98,30 @@ def marcar_recibida(request, compra_id):
 # ===============================
 # REGISTRAR COMPRA
 # ===============================
-def registrar_compra(request, proveedor_id):
-    proveedor_obj     = get_object_or_404(Proveedor, id=proveedor_id)
-    productos         = Producto.objects.prefetch_related('presentaciones').all()
+def registrar_compra(request):
     todos_proveedores = Proveedor.objects.all().order_by('nombre_empresa')
-    compras           = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
-    subtotal          = sum(c.total for c in compras if c.total)
-    pendientes        = Compra.objects.filter(recibida=False).order_by('-fecha_registro')[:5]
-    total_pendientes  = Compra.objects.filter(recibida=False).count()
+
+    # Cambio de proveedor via POST o GET
+    if request.method == 'POST':
+        proveedor_id = request.POST.get('proveedor_id') or request.session.get('proveedor_id')
+    else:
+        proveedor_id = request.GET.get('proveedor') or request.session.get('proveedor_id')
+
+    # Guardar en sesión
+    if proveedor_id:
+        request.session['proveedor_id'] = int(proveedor_id)
+    else:
+        # Si no hay ninguno, toma el primero
+        primer_proveedor = todos_proveedores.first()
+        if primer_proveedor:
+            request.session['proveedor_id'] = primer_proveedor.id
+            proveedor_id = primer_proveedor.id
+
+    proveedor_obj = get_object_or_404(Proveedor, id=request.session['proveedor_id'])
+    compras       = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
+    subtotal      = sum((c.cantidad * c.precio_unitario) for c in compras if c.precio_unitario)
+    pendientes    = Compra.objects.filter(recibida=False).order_by('-fecha_registro')[:5]
+    total_pendientes = Compra.objects.filter(recibida=False).count()
 
     if request.method == 'POST':
         id_prod = request.POST.get('producto')
@@ -121,7 +137,7 @@ def registrar_compra(request, proveedor_id):
 
                 if cantidad_int <= 0:
                     messages.error(request, "La cantidad debe ser mayor a cero.")
-                    return redirect('registrar_compra', proveedor_id=proveedor_id)
+                    return redirect('registrar_compra')
 
                 Compra.objects.create(
                     proveedor       = proveedor_obj,
@@ -145,12 +161,14 @@ def registrar_compra(request, proveedor_id):
                     request,
                     f'✅ {cantidad_int} unidades de "{producto_instancia.nombre}" ingresadas.'
                 )
-                return redirect('registrar_compra', proveedor_id=proveedor_id)
+                return redirect('registrar_compra')
 
             except Producto.DoesNotExist:
                 messages.error(request, "El producto seleccionado no existe.")
             except Exception as e:
                 messages.error(request, f"Error: {e}")
+
+    productos = Producto.objects.prefetch_related('presentaciones').all()
 
     return render(request, 'proveedores/compra.html', {
         'proveedor':         proveedor_obj,

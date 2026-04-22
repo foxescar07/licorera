@@ -45,9 +45,7 @@
 
   <div class="row g-4">
 
-    <!-- ══════════════════════
-         FORMULARIO
-    ══════════════════════ -->
+    <!-- FORMULARIO -->
     <div class="col-lg-5">
       <div class="cyber-card">
         <div class="cyber-header d-flex align-items-center gap-2">
@@ -84,7 +82,7 @@
                        data-nombre="{{ prov.nombre_empresa }}"
                        data-contacto="{{ prov.nombre_contacto }}"
                        data-telefono="{{ prov.telefono }}"
-                       data-url="{% url 'registrar_compra' prov.id %}"
+                       data-url="/proveedores/compra/?proveedor={{ prov.id }}"
                        style="display:flex; align-items:center; justify-content:space-between;
                               padding:10px 13px; border-radius:8px; cursor:pointer;
                               background:{% if prov.id == proveedor.id %}rgba(77,168,218,0.08){% else %}#0b1220{% endif %};
@@ -124,58 +122,46 @@
             <div style="border-top:1px solid rgba(77,168,218,0.1); margin-bottom:20px;"></div>
 
             <!-- SELECTOR PRODUCTO -->
-            <!-- SELECTOR PRODUCTO -->
-<div class="mb-4">
-  <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
-                letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
-    <i class="bi bi-box me-1"></i> Producto
-  </label>
-
-  <!-- Búsqueda + Toggle stock -->
-  <div class="d-flex gap-2 mb-2">
-    <div class="position-relative flex-grow-1">
-      <i class="bi bi-search position-absolute"
-         style="top:50%; left:13px; transform:translateY(-50%);
-                color:#4DA8DA; font-size:0.8rem; pointer-events:none;"></i>
-      <input type="text" id="buscadorProducto" placeholder="Buscar producto..."
-             style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.2);
-                    color:#e2e8f0; border-radius:8px; padding:9px 13px 9px 34px;
-                    font-size:0.85rem; outline:none;"
-             onfocus="this.style.borderColor='#4DA8DA'"
-             onblur="this.style.borderColor='rgba(77,168,218,0.2)'">
-    </div>
-    <button type="button" id="btnSoloStock" onclick="toggleSoloStock(this)"
-            title="Solo productos con stock"
-            style="padding:9px 13px; border-radius:8px; cursor:pointer; font-size:0.75rem;
-                   font-weight:700; white-space:nowrap;
-                   background:rgba(77,168,218,0.06); border:1px solid rgba(77,168,218,0.25);
-                   color:#4DA8DA; transition:0.2s;">
-      <i class="bi bi-funnel me-1"></i>Con stock
-    </button>
-  </div>
-
-  <!-- Contador -->
-  <div style="font-size:0.73rem; color:#475569; margin-bottom:6px; padding-left:2px;">
-    Mostrando <span id="numProductos">0</span> productos
-  </div>
-
-  <!-- Lista generada por JS desde todoProductos -->
-  <div id="listaProductos"
-       style="max-height:240px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
-              scrollbar-width:thin; scrollbar-color:#1e3a5f #0b1220;">
-    <!-- Se llena dinámicamente -->
-  </div>
-
-  <!-- Input hidden que guarda el id seleccionado -->
-  <input type="hidden" name="producto" id="productoSeleccionadoId" required>
-
-  <!-- Sin resultados -->
-  <div id="sinResultadosProducto"
-       style="display:none; text-align:center; padding:20px; color:#475569; font-size:0.83rem;">
-    <i class="bi bi-search d-block mb-1" style="font-size:1.4rem; color:#334155;"></i>
-    Sin productos que coincidan
-  </div>
-</div>
+            <div class="mb-4">
+              <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
+                            letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
+                <i class="bi bi-box me-1"></i> Producto
+              </label>
+              <div class="d-flex gap-2 mb-2">
+                <div class="position-relative flex-grow-1">
+                  <i class="bi bi-search position-absolute"
+                     style="top:50%; left:13px; transform:translateY(-50%);
+                            color:#4DA8DA; font-size:0.8rem; pointer-events:none;"></i>
+                  <input type="text" id="buscadorProducto" placeholder="Buscar producto..."
+                         style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.2);
+                                color:#e2e8f0; border-radius:8px; padding:9px 13px 9px 34px;
+                                font-size:0.85rem; outline:none;"
+                         onfocus="this.style.borderColor='#4DA8DA'"
+                         onblur="this.style.borderColor='rgba(77,168,218,0.2)'">
+                </div>
+                <button type="button" id="btnSoloStock" onclick="toggleSoloStock(this)"
+                        title="Solo productos con stock"
+                        style="padding:9px 13px; border-radius:8px; cursor:pointer; font-size:0.75rem;
+                               font-weight:700; white-space:nowrap;
+                               background:rgba(77,168,218,0.06); border:1px solid rgba(77,168,218,0.25);
+                               color:#4DA8DA; transition:0.2s;">
+                  <i class="bi bi-funnel me-1"></i>Con stock
+                </button>
+              </div>
+              <div style="font-size:0.73rem; color:#475569; margin-bottom:6px; padding-left:2px;">
+                Mostrando <span id="numProductos">0</span> productos
+              </div>
+              <div id="listaProductos"
+                   style="max-height:240px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
+                          scrollbar-width:thin; scrollbar-color:#1e3a5f #0b1220;">
+              </div>
+              <input type="hidden" name="producto" id="productoSeleccionadoId" required>
+              <div id="sinResultadosProducto"
+                   style="display:none; text-align:center; padding:20px; color:#475569; font-size:0.83rem;">
+                <i class="bi bi-search d-block mb-1" style="font-size:1.4rem; color:#334155;"></i>
+                Sin productos que coincidan
+              </div>
+            </div>
 
             <!-- CANTIDAD -->
             <div class="mb-4">
@@ -202,20 +188,19 @@
               <div class="position-relative">
                 <span style="position:absolute; top:50%; left:14px; transform:translateY(-50%);
                              color:#4DA8DA; font-size:0.9rem; font-weight:700; pointer-events:none;">$</span>
-                <input type="number" name="precio_unitario" id="inputPrecio" min="0" step="0.01"
-                       placeholder="0.00"
+                <input type="number" name="precio_unitario" id="inputPrecio" min="0" step="1"
+                       placeholder="Ej: 15000"
                        style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.25);
                               color:#e2e8f0; border-radius:10px; padding:12px 16px 12px 30px;
                               font-size:0.95rem; outline:none; transition:0.2s;"
                        onfocus="this.style.borderColor='#4DA8DA'; this.style.boxShadow='0 0 0 3px rgba(77,168,218,0.12)'"
                        onblur="this.style.borderColor='rgba(77,168,218,0.25)'; this.style.boxShadow='none'">
               </div>
-              <!-- Preview total en tiempo real -->
               <div id="previewTotal" style="display:none; margin-top:8px; padding:8px 12px;
                    background:rgba(74,222,128,0.06); border:1px solid rgba(74,222,128,0.2);
                    border-radius:8px; font-size:0.82rem; color:#4ade80;">
                 <i class="bi bi-calculator me-1"></i>
-                Total estimado: <strong id="valorTotal">$0.00</strong>
+                Total estimado: <strong id="valorTotal"></strong>
               </div>
             </div>
 
@@ -238,9 +223,7 @@
       </div>
     </div>
 
-    <!-- ══════════════════════
-         HISTORIAL
-    ══════════════════════ -->
+    <!-- HISTORIAL -->
     <div class="col-lg-7">
       <div class="cyber-card">
         <div class="cyber-header d-flex align-items-center justify-content-between">
@@ -280,10 +263,18 @@
                   </span>
                 </td>
                 <td style="color:#94a3b8; font-size:0.85rem; font-weight:600;">
-                  {% if compra.precio_unitario %}${{ compra.precio_unitario }}{% else %}<span style="color:#334155;">—</span>{% endif %}
+                  {% if compra.precio_unitario %}
+                    $ {{ compra.precio_unitario|floatformat:"0g" }}
+                  {% else %}
+                    <span style="color:#334155;">—</span>
+                  {% endif %}
                 </td>
                 <td style="color:#4ade80; font-weight:700; font-size:0.85rem;">
-                  {% if compra.total %}${{ compra.total }}{% else %}<span style="color:#334155;">—</span>{% endif %}
+                  {% if compra.total %}
+                    $ {{ compra.total|floatformat:"0g" }}
+                  {% else %}
+                    <span style="color:#334155;">—</span>
+                  {% endif %}
                 </td>
                 <td style="color:#64748b; font-size:0.82rem;">
                   {{ compra.fecha_registro|date:"d/m/Y H:i" }}
@@ -299,7 +290,6 @@
               {% endfor %}
             </tbody>
 
-            <!-- FILA SUBTOTAL -->
             {% if compras %}
             <tfoot>
               <tr style="border-top:2px solid rgba(77,168,218,0.25);">
@@ -309,17 +299,8 @@
                   <i class="bi bi-calculator me-1"></i> Subtotal:
                 </td>
                 <td style="padding:12px 8px; font-weight:800; font-size:0.95rem; color:#4ade80;">
-                  ${% with subtotal=0 %}
-                    {% for compra in compras %}
-                      {% if compra.total %}
-                        {{ subtotal|add:compra.total }}
-                      {% endif %}
-                    {% endfor %}
-                  {% endwith %}
-
-                  {# Django no suma bien en templates, usa una variable del contexto #}
-               <td style="padding:12px 8px; font-weight:800; font-size:0.95rem; color:#4ade80;">
-  ${{ subtotal_compras }}
+                  $ {{ subtotal_compras|floatformat:"0g" }}
+                </td>
                 <td></td>
               </tr>
             </tfoot>
@@ -327,7 +308,6 @@
 
           </table>
         </div>
-
       </div>
     </div>
 
@@ -335,8 +315,17 @@
 </div>
 
 <script>
-// ─── DATOS: reutiliza todoProductos definido en producto.html ─────────────────
-// Si esta página NO extiende producto.html, define aquí el array:
+// ─── FORMATO PESOS COLOMBIANOS ────────────────────────────────────────────────
+function formatCOP(valor) {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(valor);
+}
+
+// ─── DATOS PRODUCTOS ──────────────────────────────────────────────────────────
 const productosCompra = typeof todoProductos !== 'undefined'
   ? todoProductos
   : [
@@ -382,7 +371,6 @@ function renderProductos() {
     const sinStock     = p.cantidad === 0;
     const stockBajo    = p.cantidad > 0 && p.cantidad <= 10;
 
-    // Color badge stock
     let badgeBg, badgeColor, badgeBorder;
     if (sinStock) {
       badgeBg = 'rgba(248,113,113,0.1)'; badgeColor = '#f87171'; badgeBorder = 'rgba(248,113,113,0.25)';
@@ -394,7 +382,9 @@ function renderProductos() {
 
     const stockLabel = sinStock
       ? '<i class="bi bi-x-circle me-1"></i>Sin stock'
-      : (stockBajo ? `<i class="bi bi-exclamation-triangle me-1"></i>${p.cantidad}` : `${p.cantidad}`);
+      : (stockBajo
+          ? `<i class="bi bi-exclamation-triangle me-1"></i>${p.cantidad}`
+          : `${p.cantidad}`);
 
     return `
       <div class="producto-opcion"
@@ -410,10 +400,13 @@ function renderProductos() {
            onmouseenter="${sinStock ? '' : `this.style.borderColor='rgba(77,168,218,0.4)'`}"
            onmouseleave="${sinStock ? '' : `this.style.borderColor='${seleccionado ? '#4DA8DA' : 'rgba(77,168,218,0.12)'}'`}">
         <div class="d-flex align-items-center gap-2">
-          <i class="bi bi-box" style="color:${seleccionado ? '#4DA8DA' : (sinStock ? '#334155' : '#475569')}; font-size:0.9rem;"></i>
+          <i class="bi bi-box"
+             style="color:${seleccionado ? '#4DA8DA' : (sinStock ? '#334155' : '#475569')}; font-size:0.9rem;"></i>
           <div>
             <span style="color:#cbd5e1; font-size:0.88rem; font-weight:500; display:block;">${p.nombre}</span>
-            <span style="color:#334155; font-size:0.72rem;"><i class="bi bi-tag me-1"></i>${p.categoria_nombre}</span>
+            <span style="color:#334155; font-size:0.72rem;">
+              <i class="bi bi-tag me-1"></i>${p.categoria_nombre}
+            </span>
           </div>
         </div>
         <span style="padding:3px 10px; border-radius:20px; font-weight:700; font-size:0.78rem;
@@ -431,22 +424,22 @@ function seleccionarProducto(pk) {
 }
 
 function toggleSoloStock(btn) {
-  soloConStock            = !soloConStock;
-  btn.style.background    = soloConStock ? 'rgba(77,168,218,0.18)' : 'rgba(77,168,218,0.06)';
-  btn.style.borderColor   = soloConStock ? '#4DA8DA'               : 'rgba(77,168,218,0.25)';
+  soloConStock          = !soloConStock;
+  btn.style.background  = soloConStock ? 'rgba(77,168,218,0.18)' : 'rgba(77,168,218,0.06)';
+  btn.style.borderColor = soloConStock ? '#4DA8DA' : 'rgba(77,168,218,0.25)';
   renderProductos();
 }
 
 document.getElementById('buscadorProducto').addEventListener('input', renderProductos);
 
-// ─── PREVIEW TOTAL ────────────────────────────────────────────────────────────
+// ─── PREVIEW TOTAL EN COP ─────────────────────────────────────────────────────
 function actualizarTotal() {
   const cantidad = parseFloat(document.getElementById('inputCantidad').value) || 0;
   const precio   = parseFloat(document.getElementById('inputPrecio').value)   || 0;
   const preview  = document.getElementById('previewTotal');
   const valor    = document.getElementById('valorTotal');
   if (cantidad > 0 && precio > 0) {
-    valor.textContent  = '$' + (cantidad * precio).toFixed(2);
+    valor.textContent     = formatCOP(cantidad * precio);
     preview.style.display = 'block';
   } else {
     preview.style.display = 'none';
