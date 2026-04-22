@@ -314,30 +314,59 @@
               </div>
             </div>
 
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead>
-                  <tr style="border-bottom:2px solid var(--azul-borde);">
-                    <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Producto</th>
-                    <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Stock Sistema</th>
-                    <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Conteo Físico</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for c in conteos %}
-                    <tr style="opacity:.6;">
-                      <td style="font-size:.85rem; font-weight:600; color:#1e3a5f;">{{ c.producto.nombre }}</td>
-                      <td style="font-size:.85rem; color:#1e3a5f;">{{ c.producto.cantidad_disponible }} {{ c.producto.unidad }}</td>
-                      <td style="font-size:.85rem; font-weight:700; color:#1e3a5f;">{{ c.cantidad_contada }} {{ c.producto.unidad }}</td>
-                    </tr>
-                  {% empty %}
-                    <tr>
-                      <td colspan="3" class="text-center py-3" style="color:var(--texto-muted); font-size:.82rem;">No hay registros.</td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
+            <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.75rem;">
+  <i class="bi bi-clock-history me-1" style="color:var(--azul-claro);"></i> Historial de inventarios guardados
+</div>
+<div class="table-responsive" style="max-height:260px; overflow-y:auto; border-top:3px solid var(--azul-claro); border-radius:0 0 10px 10px; background:var(--fondo-card);">
+  <table class="table table-hover align-middle mb-0">
+    <thead>
+      <tr style="border-bottom:2px solid var(--azul-borde);">
+        <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
+        <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Fecha cierre</th>
+        <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Responsable</th>
+        <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Productos contados</th>
+        <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in historial_sesiones %}
+        <tr>
+          <td style="font-size:.82rem; color:#1e3a5f;">#{{ s.pk }}</td>
+          <td style="font-size:.85rem; color:#1e3a5f;">
+            {{ s.fecha_fin|date:"d/m/Y" }}
+            <div style="font-size:.72rem; color:#1e3a5f;">{{ s.fecha_fin|date:"H:i" }} hrs</div>
+          </td>
+          <td style="font-size:.85rem; color:#1e3a5f;">
+            {% if s.responsable %}
+              <i class="bi bi-person-fill me-1" style="color:var(--azul-claro);"></i>
+              {{ s.responsable.get_full_name|default:s.responsable.username }}
+            {% else %}
+              <span style="color:var(--texto-muted);">—</span>
+            {% endif %}
+          </td>
+          <td class="text-center">
+            <span style="font-size:.9rem; font-weight:700; color:var(--azul-claro);">{{ s.conteos.count }}</span>
+          </td>
+          <td class="text-center">
+            <span class="inv-badge" style="background:rgba(39,174,96,.15); color:#27ae60; border:1px solid rgba(39,174,96,.3); font-size:.72rem;">
+              <i class="bi bi-check-circle me-1"></i>Finalizado
+            </span>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5" class="text-center py-3" style="color:var(--texto-muted); font-size:.82rem;">
+            <i class="bi bi-inbox d-block mb-1" style="font-size:1.5rem; color:var(--azul-borde);"></i>
+            No hay inventarios finalizados aún.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div style="padding:5px 12px; font-size:.72rem; color:var(--texto-muted); text-align:center; background:rgba(77,168,218,.04); border-top:1px solid rgba(77,168,218,.1);">
+  ↕ Desliza para ver más registros
+</div>
+</div>
 
           {% else %}
 
