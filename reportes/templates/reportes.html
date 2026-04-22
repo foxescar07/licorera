@@ -150,30 +150,30 @@
       <table class="table table-hover align-middle mb-0">
         <thead>
           <tr style="border-bottom:2px solid var(--azul-borde);">
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Cliente</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Producto</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Cantidad</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Precio Unit.</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Total</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Fecha</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Hora</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">#</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Cliente</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Producto</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Cantidad</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Precio Unit.</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Total</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Fecha</th>
+            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Hora</th>
           </tr>
         </thead>
         <tbody>
           {% for venta in ventas %}
             {% for det in venta.detalles.all %}
             <tr>
-              <td style="font-size:.85rem; color:var(--texto-muted);">{{ forloop.parentloop.counter }}</td>
-              <td style="font-size:.85rem; font-weight:600;">{{ venta.cliente }}</td>
-              <td style="font-size:.85rem;">{{ det.producto.nombre }}</td>
-              <td style="font-size:.85rem;">{{ det.cantidad }}</td>
-              <td style="font-size:.85rem;">${{ det.precio_unitario|floatformat:0 }}</td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">{{ forloop.parentloop.counter }}</td>
+              <td style="font-size:.85rem; font-weight:600; color:var(--azul-claro);">{{ venta.cliente }}</td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">{{ det.producto.nombre }}</td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">{{ det.cantidad }}</td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">${{ det.precio_unitario|floatformat:0 }}</td>
               <td style="font-size:.85rem; font-weight:600; color:var(--azul-claro);">
                 ${{ det.subtotal|floatformat:0 }}
               </td>
-              <td style="font-size:.85rem; color:var(--gris-claro);">{{ venta.fecha|date:"d/m/Y" }}</td>
-              <td style="font-size:.85rem; color:var(--gris-claro);">{{ venta.fecha|date:"h:i A" }}</td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">{{ venta.fecha|date:"d/m/Y" }}</td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">{{ venta.fecha|date:"h:i A" }}</td>
             </tr>
             {% endfor %}
           {% empty %}
@@ -325,7 +325,7 @@
               <td><strong>{{ e.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--ok">+{{ e.cantidad }}</td>
               <td style="font-size:.85rem; color:var(--texto-muted);">{{ e.motivo|default:"—" }}</td>
-              <td style="font-size:.85rem; color:var(--gris-claro);">{{ e.fecha_actualizada|date:"d/m/Y h:i A" }}</td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">{{ e.fecha_actualizada|date:"d/m/Y h:i A" }}</td>
             </tr>
             {% empty %}
             <tr class="inv-empty-row">
@@ -359,7 +359,7 @@
               <td><strong>{{ s.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--out">-{{ s.cantidad }}</td>
               <td style="font-size:.85rem; color:var(--texto-muted);">{{ s.motivo|default:"—" }}</td>
-              <td style="font-size:.85rem; color:var(--gris-claro);">{{ s.fecha_actualizada|date:"d/m/Y h:i A" }}</td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">{{ s.fecha_actualizada|date:"d/m/Y h:i A" }}</td>
             </tr>
             {% empty %}
             <tr class="inv-empty-row">
@@ -427,7 +427,7 @@
                 <td class="text-muted">{{ forloop.counter }}</td>
                 <td><strong>{{ prov.nombre_contacto }}</strong></td>
                 <td><span class="cys-tag">{{ prov.nombre_empresa }}</span></td>
-                <td style="font-size:.85rem; color:var(--texto);">{{ prov.telefono }}</td>
+                <td style="font-size:.85rem; color:var(--azul-claro);">{{ prov.telefono }}</td>
                 <td style="font-size:.85rem; color:var(--azul-claro);">{{ prov.email }}</td>
               </tr>
             {% empty %}
@@ -530,8 +530,8 @@
                 <td>{{ det.producto.nombre }}</td>
                 <td>{{ det.cantidad }}</td>
                 <td class="cys-qty cys-qty--ok">${{ det.subtotal|floatformat:0 }}</td>
-                <td style="font-size:.85rem; color:var(--gris-claro);">{{ v.fecha|date:"d/m/Y" }}</td>
-                <td style="font-size:.85rem; color:var(--gris-claro);">{{ v.fecha|date:"h:i A" }}</td>
+                <td style="font-size:.85rem; color:var(--azul-claro);">{{ v.fecha|date:"d/m/Y" }}</td>
+                <td style="font-size:.85rem; color:var(--azul-claro);">{{ v.fecha|date:"h:i A" }}</td>
               </tr>
               {% endfor %}
             {% empty %}
@@ -564,7 +564,7 @@
               <td><strong>{{ e.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--ok">+{{ e.cantidad }}</td>
               <td style="font-size:.85rem; color:var(--texto-muted);">{{ e.motivo|default:"—" }}</td>
-              <td style="font-size:.85rem; color:var(--gris-claro);">{{ e.fecha_actualizada|date:"d/m/Y" }}</td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">{{ e.fecha_actualizada|date:"d/m/Y" }}</td>
             </tr>
             {% empty %}
             <tr class="rd-empty-row">
@@ -594,7 +594,7 @@
               <td><strong>{{ s.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--out">-{{ s.cantidad }}</td>
               <td style="font-size:.85rem; color:var(--texto-muted);">{{ s.motivo|default:"—" }}</td>
-              <td style="font-size:.85rem; color:var(--gris-claro);">{{ s.fecha_actualizada|date:"d/m/Y" }}</td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">{{ s.fecha_actualizada|date:"d/m/Y" }}</td>
             </tr>
             {% empty %}
             <tr class="rd-empty-row">
