@@ -14,8 +14,8 @@ from .models import ConteoProducto, SesionConteo, ResultadoInventario
 # INVENTARIO HOME
 # ===============================
 def inventario_home(request):
-    agendas = AgendaInventario.objects.all()
-    sesion  = SesionConteo.objects.filter(activa=True).first()
+    agendas = AgendaInventario.objects.filter(estado__in=['pendiente', 'en_proceso']).order_by('fecha_programada')
+    sesion = SesionConteo.objects.order_by('-fecha_inicio').first()
 
     categoria_id = request.GET.get('categoria')
     if categoria_id:
@@ -39,6 +39,8 @@ def inventario_home(request):
 
     productos_con_codigo = productos.exclude(codigo='').exclude(codigo__isnull=True).count()
     productos_sin_codigo = productos.filter(codigo='').count() + productos.filter(codigo__isnull=True).count()
+    
+    historial_sesiones = SesionConteo.objects.filter(activa=False).order_by('-fecha_fin')
 
     if request.method == 'POST':
         AgendaInventario.objects.create(
@@ -58,6 +60,7 @@ def inventario_home(request):
         'categoria_activa': categoria_id,
         'con_codigo': productos_con_codigo,  
         'sin_codigo': productos_sin_codigo,   
+        'historial_sesiones': historial_sesiones, 
     })
 
 
@@ -91,7 +94,10 @@ def guardar_conteo(request):
 def conteo_inventario(request):
     if request.method == 'POST' and 'iniciar_sesion' in request.POST:
         SesionConteo.objects.filter(activa=True).update(activa=False)
-        SesionConteo.objects.create(activa=True)
+        SesionConteo.objects.create(
+            activa=True,
+            responsable=request.user 
+        )
         messages.success(request, '✅ Nueva sesión de conteo iniciada.')
     return redirect('inventario:inventario_home')
 
