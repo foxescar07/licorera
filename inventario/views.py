@@ -39,6 +39,8 @@ def inventario_home(request):
 
     productos_con_codigo = productos.exclude(codigo='').exclude(codigo__isnull=True).count()
     productos_sin_codigo = productos.filter(codigo='').count() + productos.filter(codigo__isnull=True).count()
+    
+    historial_sesiones = SesionConteo.objects.filter(activa=False).order_by('-fecha_fin')
 
     if request.method == 'POST':
         AgendaInventario.objects.create(
@@ -58,6 +60,7 @@ def inventario_home(request):
         'categoria_activa': categoria_id,
         'con_codigo': productos_con_codigo,  
         'sin_codigo': productos_sin_codigo,   
+        'historial_sesiones': historial_sesiones, 
     })
 
 
