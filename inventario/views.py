@@ -14,8 +14,8 @@ from .models import ConteoProducto, SesionConteo, ResultadoInventario
 # INVENTARIO HOME
 # ===============================
 def inventario_home(request):
-    agendas = AgendaInventario.objects.all()
-    sesion  = SesionConteo.objects.filter(activa=True).first()
+    agendas = AgendaInventario.objects.filter(estado__in=['pendiente', 'en_proceso']).order_by('fecha_programada')
+    sesion = SesionConteo.objects.order_by('-fecha_inicio').first()
 
     categoria_id = request.GET.get('categoria')
     if categoria_id:
@@ -91,7 +91,10 @@ def guardar_conteo(request):
 def conteo_inventario(request):
     if request.method == 'POST' and 'iniciar_sesion' in request.POST:
         SesionConteo.objects.filter(activa=True).update(activa=False)
-        SesionConteo.objects.create(activa=True)
+        SesionConteo.objects.create(
+            activa=True,
+            responsable=request.user 
+        )
         messages.success(request, '✅ Nueva sesión de conteo iniciada.')
     return redirect('inventario:inventario_home')
 
