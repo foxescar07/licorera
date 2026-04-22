@@ -19,6 +19,12 @@
   {% endfor %}
 {% endif %}
 
+<<<<<<< HEAD
+=======
+<link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+>>>>>>> main
 <div class="container-fluid p-0">
 
   <div class="row g-3 mb-4">
@@ -344,12 +350,37 @@
     const el = document.getElementById(id);
     const isOpen = el.classList.contains('open');
     cerrarDropdowns();
-    if (!isOpen) el.classList.add('open');
+    if (!isOpen) {
+      el.classList.add('open');
+
+      const btn      = el.querySelector('.pv-actions-btn');
+      const dropdown = el.querySelector('.pv-dropdown');
+      const rect     = btn.getBoundingClientRect();
+
+      dropdown.style.position = 'fixed';
+      dropdown.style.right    = 'auto';
+      dropdown.style.bottom   = 'auto';
+      dropdown.style.top      = (rect.bottom + 4) + 'px';
+      dropdown.style.left     = (rect.right - dropdown.offsetWidth) + 'px';
+      dropdown.style.zIndex   = '9999';
+
+      requestAnimationFrame(() => {
+        const ddRect = dropdown.getBoundingClientRect();
+        if (ddRect.bottom > window.innerHeight) {
+          dropdown.style.top = (rect.top - ddRect.height - 4) + 'px';
+        }
+        if (ddRect.left < 0) {
+          dropdown.style.left = rect.left + 'px';
+        }
+      });
+    }
   }
+
   function cerrarDropdowns() {
     document.querySelectorAll('.pv-actions.open').forEach(el => el.classList.remove('open'));
   }
   document.addEventListener('click', cerrarDropdowns);
+  document.addEventListener('scroll', cerrarDropdowns, true);
 
   function filtrarProveedores(q) {
     q = q.toLowerCase().trim();
