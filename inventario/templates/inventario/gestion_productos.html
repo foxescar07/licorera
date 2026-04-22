@@ -18,7 +18,11 @@
     --gp-muted:  rgba(226,232,240,.45);
     --gp-radius: 14px;
     --gp-danger: #e87070;
+    --gp-green:  #5edb97;
+    --gp-warn:   #f1c40f;
   }
+
+  /* ── GENERALES ── */
   .gp-back {
     display:inline-flex; align-items:center; gap:.45rem;
     color:var(--gp-blue); text-decoration:none;
@@ -57,6 +61,8 @@
     letter-spacing:.1em; text-transform:uppercase;
     display:block; margin-bottom:.35rem;
   }
+
+  /* ── BOTONES ── */
   .gp-btn {
     display:inline-flex; align-items:center; gap:.4rem;
     border:none; border-radius:10px; padding:.6rem 1.1rem;
@@ -71,12 +77,13 @@
     border:1px solid rgba(77,168,218,.4);
   }
   .gp-btn--outline:hover { background:rgba(77,168,218,.1); }
-  .gp-btn--warning { background:rgba(241,196,15,.15); color:#f1c40f; border:1px solid rgba(241,196,15,.35); }
+  .gp-btn--warning { background:rgba(241,196,15,.15); color:var(--gp-warn); border:1px solid rgba(241,196,15,.35); }
   .gp-btn--warning:hover { background:rgba(241,196,15,.28); }
   .gp-btn--danger  { background:rgba(192,57,43,.15); color:var(--gp-danger); border:1px solid rgba(192,57,43,.35); }
   .gp-btn--danger:hover  { background:rgba(192,57,43,.28); }
   .gp-btn--sm { padding:.35rem .7rem; font-size:.75rem; border-radius:8px; }
 
+  /* ── TABS ── */
   .gp-tabs {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -99,6 +106,120 @@
   .gp-section { display:none; }
   .gp-section.active { display:block; }
 
+  /* ── STATS (TAB CATÁLOGO) ── */
+  .gp-stats-grid {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:.75rem; margin-bottom:1rem;
+  }
+  .gp-stat-card {
+    background:var(--gp-card); border:1px solid var(--gp-border);
+    border-radius:12px; padding:.85rem 1rem;
+  }
+  .gp-stat-card__label {
+    font-size:.59rem; font-weight:700; color:var(--gp-muted);
+    letter-spacing:.1em; text-transform:uppercase; margin-bottom:.3rem;
+  }
+  .gp-stat-card__val {
+    font-family:'Rajdhani',sans-serif; font-size:1.65rem;
+    font-weight:700; color:var(--gp-blue); line-height:1;
+  }
+  .gp-stat-card__val.danger { color:var(--gp-danger); }
+
+  /* ── BUSCADOR ── */
+  .gp-search-wrap { position:relative; margin-bottom:1rem; }
+  .gp-search-wrap i {
+    position:absolute; left:.85rem; top:50%; transform:translateY(-50%);
+    color:rgba(77,168,218,.45); pointer-events:none;
+  }
+  .gp-search {
+    width:100%; background:var(--gp-card); border:1px solid var(--gp-border);
+    border-radius:10px; padding:.6rem 1rem .6rem 2.4rem;
+    color:var(--gp-text); font-size:.83rem; outline:none;
+    transition:border-color .2s;
+  }
+  .gp-search:focus { border-color:var(--gp-blue); }
+  .gp-search::placeholder { color:var(--gp-muted); }
+
+  /* ── GRUPOS CATÁLOGO ── */
+  .gp-group { margin-bottom:.65rem; }
+  .gp-group-header {
+    background:var(--gp-card); border:1px solid var(--gp-border);
+    border-radius:10px; padding:.65rem 1rem;
+    display:flex; align-items:center; gap:.65rem;
+    cursor:pointer; transition:background .2s; user-select:none;
+  }
+  .gp-group-header:hover { background:rgba(77,168,218,.07); }
+  .gp-group-header.open { border-radius:10px 10px 0 0; }
+  .gp-group-title {
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.82rem;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--gp-blue); flex:1;
+  }
+  .gp-group-count {
+    font-size:.66rem; background:rgba(77,168,218,.12); color:var(--gp-blue);
+    border:1px solid rgba(77,168,218,.25); border-radius:999px;
+    padding:.15rem .5rem; font-weight:600;
+  }
+  .gp-group-chevron {
+    color:rgba(77,168,218,.5); transition:transform .25s;
+    font-size:.75rem; margin-left:.5rem;
+  }
+  .gp-group-header.open .gp-group-chevron { transform:rotate(180deg); }
+  .gp-group-body {
+    border:1px solid rgba(77,168,218,.15); border-top:none;
+    border-radius:0 0 10px 10px; overflow:hidden; display:none;
+  }
+  .gp-group-body.open { display:block; }
+
+  /* Cabecera de columnas */
+  .gp-col-header {
+    display:grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    padding:.45rem 1rem;
+    border-bottom:1px solid rgba(77,168,218,.12);
+    background:rgba(17,31,51,.8);
+  }
+  .gp-col-header span {
+    font-size:.6rem; font-weight:700; color:var(--gp-muted);
+    letter-spacing:.1em; text-transform:uppercase;
+  }
+
+  /* Filas del catálogo */
+  .gp-fila {
+    display:grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    align-items:center; gap:.5rem;
+    padding:.65rem 1rem;
+    border-bottom:1px solid rgba(77,168,218,.05);
+    font-size:.8rem; transition:background .15s;
+  }
+  .gp-fila:last-child { border-bottom:none; }
+  .gp-fila:hover { background:rgba(77,168,218,.04); }
+  .gp-fila.hidden { display:none !important; }
+
+  .gp-fila__name { font-weight:600; color:var(--gp-text); line-height:1.35; }
+  .gp-fila__sub  { font-size:.68rem; color:var(--gp-muted); font-weight:400; }
+  .gp-fila__code { font-size:.7rem; font-family:monospace; color:var(--gp-blue); }
+  .gp-fila__price { color:var(--gp-blue); font-weight:700; }
+
+  .gp-stock-badge {
+    display:inline-flex; align-items:center; gap:.3rem;
+    font-size:.72rem; font-weight:700;
+    padding:.2rem .55rem; border-radius:999px;
+  }
+  .gp-stock-badge.ok  { background:rgba(94,219,151,.1); color:var(--gp-green); border:1px solid rgba(94,219,151,.25); }
+  .gp-stock-badge.low { background:rgba(232,112,112,.1); color:var(--gp-danger); border:1px solid rgba(232,112,112,.25); }
+
+  .gp-crit-tag {
+    display:inline-flex; align-items:center; gap:.25rem;
+    font-size:.6rem; font-weight:700; text-transform:uppercase;
+    background:rgba(232,112,112,.1); color:var(--gp-danger);
+    border:1px solid rgba(232,112,112,.25); border-radius:999px;
+    padding:.1rem .4rem; margin-left:.35rem; vertical-align:middle;
+  }
+
+  .gp-fila-actions { display:flex; gap:.4rem; align-items:center; }
+
+  /* ── OTRAS TABLAS (si se necesitan) ── */
   .gp-table { width:100%; border-collapse:collapse; }
   .gp-table th {
     font-size:.65rem; font-weight:700; color:var(--gp-muted);
@@ -121,6 +242,8 @@
     background:rgba(192,57,43,.12); color:var(--gp-danger);
     border-color:rgba(192,57,43,.3);
   }
+
+  /* ── CATEGORÍAS ── */
   .gp-cat-item {
     background:var(--gp-card2); border:1px solid var(--gp-border);
     border-radius:10px; padding:.55rem .9rem;
@@ -132,14 +255,17 @@
     padding-left:.8rem; margin-top:.4rem;
     display:flex; flex-wrap:wrap; gap:.4rem;
   }
+
+  /* ── ALERTAS ── */
   .gp-alert {
     padding:.7rem 1rem; border-radius:10px; font-size:.82rem;
     margin-bottom:1rem; display:flex; align-items:center; gap:.6rem;
   }
-  .gp-alert--ok   { background:rgba(46,204,113,.1); border:1px solid rgba(46,204,113,.3); color:#5edb97; }
+  .gp-alert--ok   { background:rgba(46,204,113,.1); border:1px solid rgba(46,204,113,.3); color:var(--gp-green); }
   .gp-alert--err  { background:rgba(192,57,43,.1);  border:1px solid rgba(192,57,43,.3);  color:var(--gp-danger); }
-  .gp-alert--warn { background:rgba(241,196,15,.1); border:1px solid rgba(241,196,15,.3); color:#f1c40f; }
+  .gp-alert--warn { background:rgba(241,196,15,.1); border:1px solid rgba(241,196,15,.3); color:var(--gp-warn); }
 
+  /* ── FORM GRID ── */
   .gp-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -147,7 +273,7 @@
   }
   .gp-form-grid .gp-full { grid-column: 1 / -1; }
 
-  /* MODALES */
+  /* ── MODALES ── */
   .gp-modal-overlay {
     display:none; position:fixed; inset:0; z-index:9999;
     background:rgba(0,0,0,.65); backdrop-filter:blur(4px);
@@ -196,29 +322,41 @@
     border-radius:10px; padding:.75rem 1rem; margin-bottom:.5rem;
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 768px) {
     .gp-tabs { grid-template-columns: repeat(2, 1fr); }
     .gp-form-grid { grid-template-columns: 1fr; }
+    .gp-stats-grid { grid-template-columns: 1fr 1fr; }
+    .gp-col-header { display:none; }
+    .gp-fila {
+      grid-template-columns: 1fr;
+      gap:.4rem; padding:.8rem 1rem;
+    }
+    .gp-fila__code::before { content:"Código: "; color:var(--gp-muted); font-size:.68rem; }
+    .gp-fila__price::before { content:"Precio: "; color:var(--gp-muted); font-size:.68rem; }
   }
 </style>
 
 <div class="container-fluid p-0">
 
+  <!-- ── MENSAJES ── -->
   {% if messages %}
     {% for message in messages %}
       <div class="gp-alert {% if message.tags == 'error' %}gp-alert--err{% elif message.tags == 'warning' %}gp-alert--warn{% else %}gp-alert--ok{% endif %} mb-3">
+        <i class="bi bi-{% if message.tags == 'error' %}x-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}check-circle{% endif %}-fill"></i>
         {{ message }}
       </div>
     {% endfor %}
   {% endif %}
 
+  <!-- ── HEADER ── -->
   <div style="margin-bottom:1.75rem;">
     <a href="{% url 'inventario:inventario_home' %}" class="gp-back mb-1 d-inline-flex">
-     <i class="bi bi-arrow-left-circle"></i> Volver a Inventario
-   </a>
+      <i class="bi bi-arrow-left-circle"></i> Volver a Inventario
+    </a>
     <div class="gp-title mt-1"><i class="bi bi-box-seam-fill me-2"></i>Gestión de Productos</div>
   </div>
 
+  <!-- ── TABS NAV ── -->
   <div class="gp-tabs">
     <button class="gp-tab active" onclick="showTab('productos', this)">
       <i class="bi bi-box-seam"></i> Productos
@@ -234,40 +372,85 @@
     </button>
   </div>
 
-  <!-- ── TAB: CATÁLOGO ── -->
+  <!-- ════════════════════════════════════════
+       TAB 1: CATÁLOGO (diseño agrupado)
+  ═════════════════════════════════════════ -->
   <div id="tab-productos" class="gp-section active">
-    <div class="gp-card">
-      <div class="gp-card__title"><i class="bi bi-box-seam"></i> Catálogo de Productos</div>
-      {% if productos %}
-      <div class="table-responsive">
-        <table class="gp-table">
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Nombre</th>
-              <th>Categoría</th>
-              <th>Stock</th>
-              <th>Precio</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for p in productos %}
-            <tr>
-              <td><span class="gp-badge">{{ p.codigo }}</span></td>
-              <td style="font-weight:600;">{{ p.nombre }}</td>
-              <td style="color:var(--gp-muted);">{{ p.categoria.nombre }}</td>
-              <td>
+
+    <!-- Stats rápidas -->
+    <div class="gp-stats-grid">
+      <div class="gp-stat-card">
+        <div class="gp-stat-card__label"><i class="bi bi-box-seam me-1"></i>Total Productos</div>
+        <div class="gp-stat-card__val">{{ productos|length }}</div>
+      </div>
+      <div class="gp-stat-card">
+        <div class="gp-stat-card__label"><i class="bi bi-exclamation-triangle me-1"></i>Stock Crítico</div>
+        <div class="gp-stat-card__val danger">{{ total_criticos|default:0 }}</div>
+      </div>
+      <div class="gp-stat-card">
+        <div class="gp-stat-card__label"><i class="bi bi-tags me-1"></i>Categorías</div>
+        <div class="gp-stat-card__val">{{ categorias|length }}</div>
+      </div>
+    </div>
+
+    <!-- Buscador -->
+    <div class="gp-search-wrap">
+      <i class="bi bi-search"></i>
+      <input type="text" id="cat-buscador" class="gp-search"
+             placeholder="Buscar producto por nombre o código…"
+             oninput="gpBuscar(this.value)">
+    </div>
+
+    <!-- Grupos por categoría -->
+    <div id="gp-grupos">
+      {% for cat in categorias %}
+        {% if cat %}
+        <div class="gp-group" data-group>
+          <div class="gp-group-header open" onclick="gpToggle(this)">
+            <i class="bi bi-tag-fill" style="color:var(--gp-blue);"></i>
+            <span class="gp-group-title">{{ cat.nombre }}</span>
+            <span class="gp-group-count">
+              {% with total=cat.productos.all|length %}{{ total }} producto{{ total|pluralize:"s" }}{% endwith %}
+            </span>
+            <i class="bi bi-chevron-down gp-group-chevron"></i>
+          </div>
+          <div class="gp-group-body open">
+
+            <!-- Cabecera columnas (desktop) -->
+            <div class="gp-col-header">
+              <span>Nombre</span>
+              <span>Código</span>
+              <span>Stock</span>
+              <span>Precio</span>
+              <span>Acciones</span>
+            </div>
+
+            <!-- Productos directos de la categoría -->
+            {% for p in cat.productos.all %}
+            <div class="gp-fila"
+                 data-nombre="{{ p.nombre|lower }}"
+                 data-codigo="{{ p.codigo|lower }}">
+
+              <div>
+                <span class="gp-fila__name">{{ p.nombre }}</span>
                 {% if p.stock_critico %}
-                  <span class="gp-badge gp-badge--danger">
-                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ p.stock_total }}
+                  <span class="gp-crit-tag">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Crítico
                   </span>
-                {% else %}
-                  <span class="gp-badge">{{ p.stock_total }}</span>
                 {% endif %}
-              </td>
-              <td style="color:var(--gp-blue); font-weight:700;">${{ p.precio_unitario|floatformat:0 }}</td>
-              <td style="display:flex; gap:.4rem; flex-wrap:wrap;">
+              </div>
+
+              <span class="gp-fila__code">{{ p.codigo }}</span>
+
+              <span>
+                <span class="gp-stock-badge {% if p.stock_critico %}low{% else %}ok{% endif %}">
+                  {{ p.stock_total }} {{ p.unidad }}
+                </span>
+              </span>
+
+              <span class="gp-fila__price">${{ p.precio_unitario|floatformat:0 }}</span>
+
+              <div class="gp-fila-actions">
                 <button class="gp-btn gp-btn--warning gp-btn--sm"
                         onclick="abrirEditarProducto(
                           {{ p.pk }},
@@ -280,28 +463,87 @@
                   <i class="bi bi-pencil"></i> Editar
                 </button>
                 <form method="POST" action="{% url 'inventario:gestion_producto_eliminar' p.pk %}"
-                      onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»?')">
+                      onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»? Esta acción no se puede deshacer.')"
+                      style="margin:0;">
                   {% csrf_token %}
                   <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm">
-                    <i class="bi bi-trash"></i> Eliminar
+                    <i class="bi bi-trash"></i>
                   </button>
                 </form>
-              </td>
-            </tr>
+              </div>
+            </div>
             {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-        <div style="text-align:center; padding:2.5rem; color:var(--gp-muted); font-size:.85rem;">
-          <i class="bi bi-inbox" style="font-size:2rem; display:block; margin-bottom:.5rem;"></i>
+
+            <!-- Productos de subcategorías -->
+            {% for sub in cat.subcategorias.all %}
+              {% for p in sub.productos.all %}
+              <div class="gp-fila"
+                   data-nombre="{{ p.nombre|lower }}"
+                   data-codigo="{{ p.codigo|lower }}">
+
+                <div>
+                  <span class="gp-fila__name">{{ p.nombre }}</span>
+                  <span class="gp-fila__sub"> · {{ sub.nombre }}</span>
+                  {% if p.stock_critico %}
+                    <span class="gp-crit-tag">
+                      <i class="bi bi-exclamation-triangle-fill"></i> Crítico
+                    </span>
+                  {% endif %}
+                </div>
+
+                <span class="gp-fila__code">{{ p.codigo }}</span>
+
+                <span>
+                  <span class="gp-stock-badge {% if p.stock_critico %}low{% else %}ok{% endif %}">
+                    {{ p.stock_total }} {{ p.unidad }}
+                  </span>
+                </span>
+
+                <span class="gp-fila__price">${{ p.precio_unitario|floatformat:0 }}</span>
+
+                <div class="gp-fila-actions">
+                  <button class="gp-btn gp-btn--warning gp-btn--sm"
+                          onclick="abrirEditarProducto(
+                            {{ p.pk }},
+                            '{{ p.nombre|escapejs }}',
+                            '{{ p.codigo|escapejs }}',
+                            '{{ p.descripcion|default:''|escapejs }}',
+                            '{{ p.precio_unitario }}',
+                            {{ p.categoria.pk }}
+                          )">
+                    <i class="bi bi-pencil"></i> Editar
+                  </button>
+                  <form method="POST" action="{% url 'inventario:gestion_producto_eliminar' p.pk %}"
+                        onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»?')"
+                        style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+              {% endfor %}
+            {% endfor %}
+
+          </div><!-- /gp-group-body -->
+        </div><!-- /gp-group -->
+        {% endif %}
+      {% empty %}
+        <div style="text-align:center; padding:3rem; color:var(--gp-muted); font-size:.85rem;">
+          <i class="bi bi-inbox" style="font-size:2.5rem; display:block; margin-bottom:.5rem; color:rgba(77,168,218,.3);"></i>
           No hay productos registrados aún.
         </div>
-      {% endif %}
-    </div>
-  </div>
+      {% endfor %}
+    </div><!-- /gp-grupos -->
 
-  <!-- ── TAB: REGISTRAR SALIDA ── -->
+  </div>
+  <!-- /TAB CATÁLOGO -->
+
+
+  <!-- ════════════════════════════════════════
+       TAB 2: REGISTRAR SALIDA
+  ═════════════════════════════════════════ -->
   <div id="tab-salida" class="gp-section">
     <div class="gp-card">
       <div class="gp-card__title"><i class="bi bi-box-arrow-up"></i> Registrar Salida</div>
@@ -341,12 +583,17 @@
         </div>
       </form>
     </div>
+    <!-- Datos de presentaciones para JS -->
     <script id="presData" type="application/json">
       { {% for p in productos %}"{{ p.pk }}": [{% for pr in p.presentaciones.all %}{"id":"{{ pr.pk }}","nombre":"{{ pr.nombre }}","cantidad":{{ pr.cantidad }},"unidades":{{ pr.unidades }}}{% if not forloop.last %},{% endif %}{% endfor %}]{% if not forloop.last %},{% endif %}{% endfor %} }
     </script>
   </div>
+  <!-- /TAB SALIDA -->
 
-  <!-- ── TAB: CATEGORÍAS ── -->
+
+  <!-- ════════════════════════════════════════
+       TAB 3: CATEGORÍAS
+  ═════════════════════════════════════════ -->
   <div id="tab-categorias" class="gp-section">
     <div class="row g-4">
       <div class="col-lg-4">
@@ -381,6 +628,7 @@
           </form>
         </div>
       </div>
+
       <div class="col-lg-8">
         <div class="gp-card">
           <div class="gp-card__title"><i class="bi bi-diagram-3"></i> Árbol de Categorías</div>
@@ -455,8 +703,12 @@
       </div>
     </div>
   </div>
+  <!-- /TAB CATEGORÍAS -->
 
-  <!-- ── TAB: NUEVO PRODUCTO ── -->
+
+  <!-- ════════════════════════════════════════
+       TAB 4: NUEVO PRODUCTO
+  ═════════════════════════════════════════ -->
   <div id="tab-nuevo" class="gp-section">
     <div class="gp-card">
       <div class="gp-card__title"><i class="bi bi-plus-circle"></i> Registrar Nuevo Producto</div>
@@ -477,7 +729,8 @@
           {% endfor %}
           <div class="gp-full d-flex gap-3">
             <button type="button" class="gp-btn gp-btn--outline" style="flex:1;"
-                    id="btnDefinirPresentaciones" onclick="guardarYDefinirPresentaciones()">
+                    id="btnDefinirPresentaciones"
+                    onclick="guardarYDefinirPresentaciones()">
               <i class="bi bi-layers me-1"></i> Guardar y Definir Presentaciones
             </button>
             <button type="submit" class="gp-btn gp-btn--primary" style="flex:1;">
@@ -488,10 +741,14 @@
       </form>
     </div>
   </div>
+  <!-- /TAB NUEVO PRODUCTO -->
 
-</div>
+</div><!-- /container-fluid -->
 
-<!-- ══ MODAL: EDITAR PRODUCTO ══ -->
+
+<!-- ════════════════════════════════════════
+     MODAL: EDITAR PRODUCTO
+═════════════════════════════════════════ -->
 <div id="modalEditarProducto" class="gp-modal-overlay">
   <div class="gp-modal-box gp-modal-box--lg">
     <div class="gp-modal-header">
@@ -559,7 +816,10 @@
   </div>
 </div>
 
-<!-- ══ MODAL: PRESENTACIONES ══ -->
+
+<!-- ════════════════════════════════════════
+     MODAL: PRESENTACIONES
+═════════════════════════════════════════ -->
 <div id="modalPresentaciones" class="gp-modal-overlay">
   <div class="gp-modal-box gp-modal-box--lg">
     <div class="gp-modal-header">
@@ -609,7 +869,8 @@
         <!-- FILAS DINÁMICAS -->
         <div id="contenedor-presentaciones"></div>
         <button type="button" class="gp-btn gp-btn--outline w-100 mt-2"
-                style="border-style:dashed; font-size:.8rem;" onclick="agregarPresentacion()">
+                style="border-style:dashed; font-size:.8rem;"
+                onclick="agregarPresentacion()">
           <i class="bi bi-plus-circle me-1"></i> Agregar Presentación
         </button>
       </div>
@@ -627,7 +888,10 @@
   </div>
 </div>
 
-<!-- ══ MODAL: EDITAR CATEGORÍA ══ -->
+
+<!-- ════════════════════════════════════════
+     MODAL: EDITAR CATEGORÍA
+═════════════════════════════════════════ -->
 <div id="modalEditarCategoria" class="gp-modal-overlay">
   <div class="gp-modal-box">
     <div class="gp-modal-header">
@@ -677,6 +941,10 @@
   </div>
 </div>
 
+
+<!-- ════════════════════════════════════════
+     JAVASCRIPT
+═════════════════════════════════════════ -->
 <script>
 // ── Datos de productos para JS ──
 const todoProductosGP = [
@@ -699,7 +967,9 @@ const todoProductosGP = [
   {% endfor %}
 ];
 
-// ── Tabs ──
+// ────────────────────────────────────────
+// TABS
+// ────────────────────────────────────────
 function showTab(name, btn) {
   document.querySelectorAll('.gp-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.gp-tab').forEach(t => t.classList.remove('active'));
@@ -707,14 +977,57 @@ function showTab(name, btn) {
   btn.classList.add('active');
 }
 
-// ── Presentaciones salida ──
+// ────────────────────────────────────────
+// CATÁLOGO — Toggle grupos
+// ────────────────────────────────────────
+function gpToggle(header) {
+  header.classList.toggle('open');
+  const body = header.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+// ────────────────────────────────────────
+// CATÁLOGO — Buscador
+// ────────────────────────────────────────
+document.getElementById('cat-buscador').addEventListener('input', function () {
+  gpBuscar(this.value);
+});
+
+function gpBuscar(q) {
+  const term = q.toLowerCase().trim();
+  document.querySelectorAll('[data-group]').forEach(grupo => {
+    const filas = grupo.querySelectorAll('.gp-fila');
+    let alguna = false;
+    filas.forEach(fila => {
+      const match = !term
+        || fila.dataset.nombre.includes(term)
+        || fila.dataset.codigo.includes(term);
+      fila.classList.toggle('hidden', !match);
+      if (match) alguna = true;
+    });
+    grupo.style.display = alguna ? '' : 'none';
+    // Auto-abrir grupo si hay coincidencias en búsqueda
+    if (term && alguna) {
+      grupo.querySelector('.gp-group-header').classList.add('open');
+      grupo.querySelector('.gp-group-body').classList.add('open');
+    }
+  });
+}
+
+// ────────────────────────────────────────
+// PRESENTACIONES — Selector de salida
+// ────────────────────────────────────────
 const presData = JSON.parse(document.getElementById('presData').textContent);
+
 function cargarPresentaciones(sel) {
   const pk   = sel.value;
   const wrap = document.getElementById('salidaPresWrap');
   const pres = document.getElementById('salidaPres');
   pres.innerHTML = '<option value="">— Unidades sueltas —</option>';
-  if (!pk || !presData[pk] || presData[pk].length === 0) { wrap.style.display='none'; return; }
+  if (!pk || !presData[pk] || presData[pk].length === 0) {
+    wrap.style.display = 'none';
+    return;
+  }
   presData[pk].forEach(p => {
     const opt = document.createElement('option');
     opt.value = p.id;
@@ -724,22 +1037,28 @@ function cargarPresentaciones(sel) {
   wrap.style.display = 'block';
 }
 
-// ── Modales ──
+// ────────────────────────────────────────
+// MODALES — helpers
+// ────────────────────────────────────────
 function cerrarModal(id) {
   document.getElementById(id).classList.remove('open');
 }
+
 document.querySelectorAll('.gp-modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', function(e) {
+  overlay.addEventListener('click', function (e) {
     if (e.target === this) this.classList.remove('open');
   });
 });
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape')
     document.querySelectorAll('.gp-modal-overlay.open')
             .forEach(m => m.classList.remove('open'));
 });
 
-// ── Editar Producto ──
+// ────────────────────────────────────────
+// MODAL — Editar Producto
+// ────────────────────────────────────────
 function abrirEditarProducto(pk, nombre, codigo, descripcion, precio, categoriaPk) {
   document.getElementById('ep-nombre').value      = nombre;
   document.getElementById('ep-codigo').value      = codigo;
@@ -747,11 +1066,10 @@ function abrirEditarProducto(pk, nombre, codigo, descripcion, precio, categoriaP
   document.getElementById('ep-precio').value      = precio;
   document.getElementById('ep-categoria').value   = categoriaPk;
 
-  // ✅ CORREGIDO: usar URL de inventario en lugar de /proveedores/
   document.getElementById('formEditarProducto').action =
     '{% url "inventario:gestion_producto_editar" 0 %}'.replace('/0/', '/' + pk + '/');
 
-  // Mostrar presentaciones actuales
+  // Presentaciones actuales
   const producto = todoProductosGP.find(p => p.pk == pk);
   const contPres = document.getElementById('ep-presentaciones');
   if (producto && producto.presentaciones.length > 0) {
@@ -762,14 +1080,13 @@ function abrirEditarProducto(pk, nombre, codigo, descripcion, precio, categoriaP
           ${pr.nombre} (${pr.unidades} uds) — Stock: ${pr.cantidad}
         </span>
         <span style="color:var(--gp-blue); font-weight:600;">
-          $${parseInt(pr.precio||0).toLocaleString('es-CO')}
+          $${parseInt(pr.precio || 0).toLocaleString('es-CO')}
         </span>
       </div>`).join('');
   } else {
     contPres.innerHTML = '<span style="font-size:.78rem;">Sin presentaciones definidas.</span>';
   }
 
-  // Botón editar presentaciones
   document.getElementById('btnEditarPresentaciones').onclick = () => {
     cerrarModal('modalEditarProducto');
     setTimeout(() => abrirPresentaciones(pk, nombre), 350);
@@ -778,11 +1095,14 @@ function abrirEditarProducto(pk, nombre, codigo, descripcion, precio, categoriaP
   document.getElementById('modalEditarProducto').classList.add('open');
 }
 
-// ── Presentaciones ──
+// ────────────────────────────────────────
+// MODAL — Presentaciones
+// ────────────────────────────────────────
 function abrirPresentaciones(pk, nombre) {
   document.getElementById('pres-producto-nombre').textContent = nombre;
   document.getElementById('form-presentaciones').action =
-    "{% url 'producto:presentaciones_guardar' 0 %}".replace('/0/', '/' + pk + '/');
+    "{% url 'producto:presentaciones_guardar' 0 %}?next={% url 'inventario:gestion_productos' %}"
+    .replace('/0/', '/' + pk + '/');
 
   document.getElementById('contenedor-presentaciones').innerHTML = '';
   document.getElementById('precio-unidad').value   = '';
@@ -803,7 +1123,7 @@ function abrirPresentaciones(pk, nombre) {
   document.getElementById('modalPresentaciones').classList.add('open');
 }
 
-function agregarPresentacion(nombre='', unidades='', precio='', cantidad='') {
+function agregarPresentacion(nombre = '', unidades = '', precio = '', cantidad = '') {
   const cont = document.getElementById('contenedor-presentaciones');
   const div  = document.createElement('div');
   div.className = 'pres-row';
@@ -845,11 +1165,13 @@ function guardarPresentaciones() {
   document.getElementById('form-presentaciones').submit();
 }
 
-// ── Guardar y definir presentaciones (nuevo producto) ──
+// ────────────────────────────────────────
+// Guardar y definir presentaciones (nuevo)
+// ────────────────────────────────────────
 function guardarYDefinirPresentaciones() {
-  const form = document.getElementById('form-nuevo-producto');
+  const form   = document.getElementById('form-nuevo-producto');
   const nombre = form.querySelector('[name="nombre"]').value.trim();
-  const codigo  = form.querySelector('[name="codigo"]').value.trim();
+  const codigo = form.querySelector('[name="codigo"]').value.trim();
 
   if (!nombre || !codigo) {
     alert('Completa al menos Nombre y Código antes de continuar.');
@@ -883,20 +1205,24 @@ function guardarYDefinirPresentaciones() {
   });
 }
 
-// ── Editar Categoría ──
+// ────────────────────────────────────────
+// MODAL — Editar Categoría
+// ────────────────────────────────────────
 function abrirEditarCategoria(pk, nombre, codigo, descripcion, padrePk) {
   document.getElementById('ec-nombre').value      = nombre;
   document.getElementById('ec-codigo').value      = codigo;
   document.getElementById('ec-descripcion').value = descripcion;
   document.getElementById('ec-padre').value       = padrePk || '';
 
-  // ✅ CORREGIDO: usar URL de inventario en lugar de /proveedores/
   document.getElementById('formEditarCategoria').action =
     '{% url "inventario:gestion_categoria_editar" 0 %}'.replace('/0/', '/' + pk + '/');
 
   document.getElementById('modalEditarCategoria').classList.add('open');
 }
 
+// ────────────────────────────────────────
+// Auto-abrir tab de nuevo producto si hay errores de formulario
+// ────────────────────────────────────────
 {% if form.errors %}
   document.querySelector('.gp-tab:nth-child(4)').click();
 {% endif %}

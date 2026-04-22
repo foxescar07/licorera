@@ -3,8 +3,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
 from django.db import models as db_models
-from django.http import JsonResponse
-
+from django.db.models import Prefetch
 
 from producto.models import Producto, AgendaInventario, Categoria, Inventario, PresentacionProducto
 from .models import ConteoProducto, SesionConteo, ResultadoInventario
@@ -39,7 +38,7 @@ def inventario_home(request):
 
     productos_con_codigo = productos.exclude(codigo='').exclude(codigo__isnull=True).count()
     productos_sin_codigo = productos.filter(codigo='').count() + productos.filter(codigo__isnull=True).count()
-    
+
     historial_sesiones = SesionConteo.objects.filter(activa=False).order_by('-fecha_fin')
 
     if request.method == 'POST':
@@ -52,15 +51,15 @@ def inventario_home(request):
         return redirect('inventario:inventario_home')
 
     return render(request, 'inventario/inventario_home.html', {
-        'agendas':          agendas,
-        'sesion':           sesion,
-        'productos':        productos,
-        'conteos':          conteos,
-        'discrepancias':    discrepancias,
-        'categoria_activa': categoria_id,
-        'con_codigo': productos_con_codigo,  
-        'sin_codigo': productos_sin_codigo,   
-        'historial_sesiones': historial_sesiones, 
+        'agendas':            agendas,
+        'sesion':             sesion,
+        'productos':          productos,
+        'conteos':            conteos,
+        'discrepancias':      discrepancias,
+        'categoria_activa':   categoria_id,
+        'con_codigo':         productos_con_codigo,
+        'sin_codigo':         productos_sin_codigo,
+        'historial_sesiones': historial_sesiones,
     })
 
 
@@ -96,7 +95,7 @@ def conteo_inventario(request):
         SesionConteo.objects.filter(activa=True).update(activa=False)
         SesionConteo.objects.create(
             activa=True,
-            responsable=request.user 
+            responsable=request.user
         )
         messages.success(request, '✅ Nueva sesión de conteo iniciada.')
     return redirect('inventario:inventario_home')
@@ -132,19 +131,18 @@ def finalizar_inventario(request):
                         'diferencia':       conteo.cantidad_contada - conteo.producto.cantidad_disponible,
                     }
                 )
-            sesion.activa   = False
-            sesion.estado   = 'finalizada'
+            sesion.activa    = False
+            sesion.estado    = 'finalizada'
             sesion.fecha_fin = timezone.now()
             sesion.save()
             messages.success(request, '✅ Inventario finalizado y resultados guardados.')
         else:
             messages.error(request, '❌ No hay sesión activa para finalizar.')
+    return redirect('inventario:inventario_home')
 
-        return redirect('inventario:inventario_home')
 
 def guardar_codigo_barras(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
-
     if request.method == 'POST':
         nuevo_codigo = request.POST.get('codigo', '').strip()
         if nuevo_codigo:
@@ -152,19 +150,33 @@ def guardar_codigo_barras(request, pk):
             producto.save()
             return JsonResponse({'ok': True, 'nombre': producto.nombre, 'codigo': nuevo_codigo})
         return JsonResponse({'ok': False, 'error': 'Código vacío'})
-
     return JsonResponse({'ok': False, 'error': 'Método no permitido'})
 
-    return redirect('inventario:inventario_home')
-
 
 # ══════════════════════════════════════════════════════
-# GESTIÓN DE PRODUCTOS (movido desde proveedores)
+# GESTIÓN DE PRODUCTOS
 # ══════════════════════════════════════════════════════
 def gestion_productos(request):
-    productos  = Producto.objects.select_related('categoria').prefetch_related('presentaciones').all()
-    categorias = Categoria.objects.filter(padre__isnull=True).prefetch_related('subcategorias')
-    todas_cats = Categoria.objects.all()
+    productos_qs = Producto.objects.select_related('categoria').prefetch_related('presentaciones').all()
+
+    categorias = Categoria.objects.filter(padre__isnull=True).prefetch_related(
+        Prefetch(
+            'productos',
+            queryset=Producto.objects.prefetch_related('presentaciones').select_related('categoria')
+        ),
+        Prefetch(
+            'subcategorias',
+            queryset=Categoria.objects.prefetch_related(
+                Prefetch(
+                    'productos',
+                    queryset=Producto.objects.prefetch_related('presentaciones').select_related('categoria')
+                )
+            )
+        ),
+    )
+
+    todas_cats     = Categoria.objects.all()
+    total_criticos = sum(1 for p in productos_qs if p.stock_critico)
 
     from producto.forms import ProductoRegistroForm
     form = ProductoRegistroForm()
@@ -185,13 +197,17 @@ def gestion_productos(request):
             messages.error(request, '⚠️ Revisa los campos del formulario.')
 
     return render(request, 'inventario/gestion_productos.html', {
-        'productos':  productos,
-        'categorias': categorias,
-        'todas_cats': todas_cats,
-        'form':       form,
+        'productos':      productos_qs,
+        'categorias':     categorias,
+        'todas_cats':     todas_cats,
+        'form':           form,
+        'total_criticos': total_criticos,
     })
 
 
+# ══════════════════════════════════════════════════════
+# SALIDA
+# ══════════════════════════════════════════════════════
 def gestion_salida(request):
     if request.method == 'POST':
         producto_id     = request.POST.get('producto')
@@ -241,6 +257,9 @@ def gestion_salida(request):
     return redirect('inventario:gestion_productos')
 
 
+# ══════════════════════════════════════════════════════
+# EDITAR / ELIMINAR PRODUCTO
+# ══════════════════════════════════════════════════════
 def gestion_producto_editar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
@@ -275,6 +294,9 @@ def gestion_producto_eliminar(request, pk):
     return redirect('inventario:gestion_productos')
 
 
+# ══════════════════════════════════════════════════════
+# CATEGORÍAS
+# ══════════════════════════════════════════════════════
 def gestion_categoria_crear(request):
     if request.method == 'POST':
         nombre      = request.POST.get('nombre', '').strip()
@@ -333,4 +355,3 @@ def gestion_categoria_eliminar(request, pk):
             categoria.delete()
             messages.success(request, f'✅ Categoría "{nombre}" eliminada.')
     return redirect('inventario:gestion_productos')
-
