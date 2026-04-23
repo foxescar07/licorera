@@ -3,6 +3,8 @@ from django.utils import timezone
 from ventas.models import Venta, DetalleVenta
 from producto.models import Producto, Inventario, Categoria
 from proveedores.models import Proveedor
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 def reportes(request):
@@ -62,6 +64,25 @@ def reportes(request):
     total_entradas_hoy = sum(e.cantidad for e in entradas_hoy)
     total_salidas_hoy  = sum(s.cantidad for s in salidas_hoy)
 
+    # ── ventas_json: datos para las gráficas de Chart.js ──────────────────
+    ventas_data = []
+    for v in ventas:
+        for det in v.detalles.all():
+            ventas_data.append({
+                "fecha":     v.fecha.strftime("%Y-%m-%d"),
+                "cliente":   str(v.cliente),
+                "producto":  det.producto.nombre,
+                "categoria": (
+                    det.producto.categoria.nombre
+                    if det.producto.categoria
+                    else "Sin categoría"
+                ),
+                "cantidad":  det.cantidad,
+                "subtotal":  float(det.subtotal()),  # ← fix: agregados los ()
+            })
+    ventas_json = json.dumps(ventas_data, cls=DjangoJSONEncoder)
+    # ──────────────────────────────────────────────────────────────────────
+
     return render(request, 'reportes.html', {
         'ventas':             ventas,
         'total_ventas':       total_ventas,
@@ -91,6 +112,6 @@ def reportes(request):
         'salidas_hoy':        salidas_hoy,
         'total_entradas_hoy': total_entradas_hoy,
         'total_salidas_hoy':  total_salidas_hoy,
+
+        'ventas_json':        ventas_json,
     })
-    
-    
