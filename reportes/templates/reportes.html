@@ -52,7 +52,9 @@
         <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
           Stock, niveles y productos agotados
         </div>
-        <div style="font-size:.75rem; color:var(--azul-claro); font-weight:600;">Ver reporte →</div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:.75rem; color:var(--azul-claro); font-weight:600;">Ver reporte →</div>
+        </div>
       </div>
     </div>
  
@@ -69,7 +71,9 @@
         <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
           Lista y datos de proveedores activos
         </div>
-        <div style="font-size:.75rem; color:#1D9E75; font-weight:600;">Ver reporte →</div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:.75rem; color:#1D9E75; font-weight:600;">Ver reporte →</div>
+        </div>
       </div>
     </div>
  
@@ -89,6 +93,7 @@
       </div>
     </div>
  
+    <!-- Resumen Diario -->
     <div class="col-md-4">
       <div class="cys-card h-100" style="border-top:2px solid #7F77DD; cursor:pointer;"
            data-bs-toggle="modal" data-bs-target="#modalResumenDiario">
@@ -101,9 +106,12 @@
         <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
           Ingresos, egresos y movimientos de hoy
         </div>
-        <div style="font-size:.75rem; color:#7F77DD; font-weight:600;">Ver reporte →</div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:.75rem; color:#7F77DD; font-weight:600;">Ver reporte →</div>
+        </div>
       </div>
     </div>
+
   </div>
  
   <!-- FILTROS HISTORIAL DE VENTAS -->
@@ -147,17 +155,17 @@
   <section class="cys-card mb-4">
     <div class="cys-card__title">Historial de Ventas</div>
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
+      <table class="cys-inv-table">
         <thead>
-          <tr style="border-bottom:2px solid var(--azul-borde);">
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">#</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Cliente</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Producto</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Cantidad</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Precio Unit.</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Total</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Fecha</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Hora</th>
+          <tr>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unit.</th>
+            <th>Total</th>
+            <th>Fecha</th>
+            <th>Hora</th>
           </tr>
         </thead>
         <tbody>
@@ -206,6 +214,22 @@
         </div>
         <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
+
+      <div style="display:flex; gap:20px; padding:10px 20px; background:rgba(77,168,218,.06);
+                  border-bottom:1px solid var(--azul-borde); flex-wrap:wrap;">
+        <div style="font-size:.72rem; color:var(--texto-muted);">
+          <i class="bi bi-calendar3" style="margin-right:4px;"></i>
+          Generado: <span class="cys-meta-fecha" style="color:var(--azul-claro);"></span>
+        </div>
+        <div style="font-size:.72rem; color:var(--texto-muted);">
+          <i class="bi bi-funnel" style="margin-right:4px;"></i>
+          Filtros activos: <span id="inv-meta-filtros" style="color:var(--azul-claro);">Ninguno</span>
+        </div>
+        <div style="font-size:.72rem; color:var(--texto-muted);">
+          <i class="bi bi-box-seam" style="margin-right:4px;"></i>
+          Total registrados: <span style="color:var(--azul-claro);">{{ productos|length }}</span>
+        </div>
+      </div>
  
       <div class="cys-modal__stats">
         <div class="cys-stat-mini">
@@ -252,6 +276,10 @@
         <input type="text" id="invProductoMov" class="cys-search"
                placeholder="Filtrar entradas/salidas por producto…"
                style="min-width:240px;" oninput="filtrarMovimientosInventario()">
+      </div>
+
+      <div style="padding:6px 20px; border-bottom:1px solid var(--azul-borde);">
+        <span id="inv-contador" style="font-size:.72rem; color:var(--azul-claro);">Mostrando todos los productos</span>
       </div>
  
       <div class="modal-body p-0">
@@ -302,6 +330,21 @@
             {% endfor %}
           </tbody>
         </table>
+
+        <div id="inv-empty" style="display:none; text-align:center; padding:32px 0;
+             color:var(--texto-muted); font-size:.85rem;">
+          <i class="bi bi-search d-block mb-2" style="font-size:2rem; color:var(--azul-borde);"></i>
+          Sin resultados para los filtros aplicados.
+          <br>
+          <button onclick="document.getElementById('invSearch').value='';
+                           document.getElementById('invEstado').value='';
+                           filtrarInventario();"
+                  style="margin-top:10px; font-size:.75rem; padding:5px 14px; background:transparent;
+                         border:1px solid var(--azul-borde); border-radius:6px;
+                         color:var(--azul-claro); cursor:pointer;">
+            Limpiar filtros
+          </button>
+        </div>
  
         <div style="padding: 14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
@@ -309,6 +352,7 @@
                       display:flex; align-items:center; gap:8px;">
             <span style="width:8px;height:8px;border-radius:50%;background:#5DCAA5;display:inline-block;"></span>
             Entradas de productos
+            <span id="inv-cont-entradas" style="font-size:.7rem; font-weight:400; color:var(--texto-muted); text-transform:none; letter-spacing:0; margin-left:auto;"></span>
           </div>
         </div>
         <table class="cys-inv-table" id="invTablaEntradas">
@@ -336,6 +380,14 @@
             {% endfor %}
           </tbody>
         </table>
+        <div id="inv-empty-entradas" style="display:none; text-align:center; padding:20px 0;
+             color:var(--texto-muted); font-size:.82rem;">
+          <i class="bi bi-search" style="margin-right:6px;"></i>Sin entradas para ese filtro.
+          <button onclick="limpiarFiltrosInv()"
+                  style="margin-left:8px; font-size:.72rem; padding:3px 10px; background:transparent;
+                         border:1px solid var(--azul-borde); border-radius:6px;
+                         color:var(--azul-claro); cursor:pointer;">Limpiar</button>
+        </div>
  
         <div style="padding: 14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
@@ -343,6 +395,7 @@
                       display:flex; align-items:center; gap:8px;">
             <span style="width:8px;height:8px;border-radius:50%;background:#E24B4A;display:inline-block;"></span>
             Salidas de productos
+            <span id="inv-cont-salidas" style="font-size:.7rem; font-weight:400; color:var(--texto-muted); text-transform:none; letter-spacing:0; margin-left:auto;"></span>
           </div>
         </div>
         <table class="cys-inv-table" id="invTablaSalidas">
@@ -370,10 +423,22 @@
             {% endfor %}
           </tbody>
         </table>
+        <div id="inv-empty-salidas" style="display:none; text-align:center; padding:20px 0;
+             color:var(--texto-muted); font-size:.82rem;">
+          <i class="bi bi-search" style="margin-right:6px;"></i>Sin salidas para ese filtro.
+          <button onclick="limpiarFiltrosInv()"
+                  style="margin-left:8px; font-size:.72rem; padding:3px 10px; background:transparent;
+                         border:1px solid var(--azul-borde); border-radius:6px;
+                         color:var(--azul-claro); cursor:pointer;">Limpiar</button>
+        </div>
  
       </div>
  
       <div class="modal-footer cys-modal__footer">
+        <div style="font-size:.72rem; color:var(--texto-muted); margin-right:auto; display:flex; gap:14px; flex-wrap:wrap;">
+          <span><i class="bi bi-calendar3" style="margin-right:3px;"></i>Generado: <span class="cys-meta-fecha" style="color:var(--azul-claro);"></span></span>
+          <span><i class="bi bi-funnel" style="margin-right:3px;"></i>Filtros: <span id="inv-footer-filtros" style="color:var(--azul-claro);">Ninguno</span></span>
+        </div>
         <button class="cys-btn-export" onclick="exportarPDF('modalInventario', 'inventario_cys')">⬇ Exportar PDF</button>
       </div>
  
@@ -398,6 +463,18 @@
         </div>
         <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
+
+      <div style="display:flex; gap:20px; padding:10px 20px; background:rgba(29,158,117,.06);
+                  border-bottom:1px solid var(--azul-borde); flex-wrap:wrap;">
+        <div style="font-size:.72rem; color:var(--texto-muted);">
+          <i class="bi bi-calendar3" style="margin-right:4px;"></i>
+          Generado: <span class="cys-meta-fecha" style="color:#5DCAA5;"></span>
+        </div>
+        <div style="font-size:.72rem; color:var(--texto-muted);">
+          <i class="bi bi-people" style="margin-right:4px;"></i>
+          Total proveedores: <span style="color:#5DCAA5;">{{ proveedores|length }}</span>
+        </div>
+      </div>
  
       <div class="cys-modal__stats">
         <div class="cys-stat-mini cys-stat-mini--verde">
@@ -408,6 +485,10 @@
  
       <div class="cys-modal__filters">
         <input type="text" id="provSearch" class="cys-search" placeholder="Buscar proveedor…" onkeyup="filtrarProveedores()">
+      </div>
+
+      <div style="padding:6px 20px; border-bottom:1px solid var(--azul-borde);">
+        <span id="prov-contador" style="font-size:.72rem; color:#5DCAA5;">Mostrando todos los proveedores</span>
       </div>
  
       <div class="modal-body p-0">
@@ -440,9 +521,25 @@
             {% endfor %}
           </tbody>
         </table>
+
+        <div id="prov-empty" style="display:none; text-align:center; padding:32px 0;
+             color:var(--texto-muted); font-size:.85rem;">
+          <i class="bi bi-search d-block mb-2" style="font-size:2rem; color:var(--azul-borde);"></i>
+          Sin resultados para la búsqueda.
+          <br>
+          <button onclick="document.getElementById('provSearch').value=''; filtrarProveedores();"
+                  style="margin-top:10px; font-size:.75rem; padding:5px 14px; background:transparent;
+                         border:1px solid var(--azul-borde); border-radius:6px;
+                         color:#5DCAA5; cursor:pointer;">
+            Limpiar búsqueda
+          </button>
+        </div>
       </div>
  
       <div class="modal-footer cys-modal__footer">
+        <div style="font-size:.72rem; color:var(--texto-muted); margin-right:auto;">
+          <span><i class="bi bi-calendar3" style="margin-right:3px;"></i>Generado: <span class="cys-meta-fecha" style="color:#5DCAA5;"></span></span>
+        </div>
         <button class="cys-btn-export" onclick="exportarPDF('modalProveedores', 'proveedores_cys')">⬇ Exportar PDF</button>
       </div>
  
@@ -466,6 +563,22 @@
           </div>
         </div>
         <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+      </div>
+
+      <div style="display:flex; gap:20px; padding:10px 20px; background:rgba(127,119,221,.06);
+                  border-bottom:1px solid var(--azul-borde); flex-wrap:wrap;">
+        <div style="font-size:.72rem; color:var(--texto-muted);">
+          <i class="bi bi-calendar3" style="margin-right:4px;"></i>
+          Generado: <span class="cys-meta-fecha" style="color:#AFA9EC;"></span>
+        </div>
+        <div style="font-size:.72rem; color:var(--texto-muted);">
+          <i class="bi bi-funnel" style="margin-right:4px;"></i>
+          Filtros: <span id="rd-meta-filtros" style="color:#AFA9EC;">Ninguno</span>
+        </div>
+        <div style="font-size:.72rem; color:var(--texto-muted);">
+          <i class="bi bi-calendar-event" style="margin-right:4px;"></i>
+          Fecha del informe: <span style="color:#AFA9EC;">{{ hoy|date:"d/m/Y" }}</span>
+        </div>
       </div>
  
       <div class="cys-modal__stats">
@@ -506,6 +619,10 @@
                placeholder="Filtrar por producto…"
                style="min-width:200px;" oninput="filtrarResumenDiario()">
       </div>
+
+      <div style="padding:6px 20px; border-bottom:1px solid var(--azul-borde);">
+        <span id="rd-contador" style="font-size:.72rem; color:#AFA9EC;">Mostrando todos los registros</span>
+      </div>
  
       <div class="modal-body p-0">
  
@@ -514,6 +631,7 @@
                       color:#AFA9EC; padding-bottom:10px; display:flex; align-items:center; gap:8px;">
             <span style="width:8px;height:8px;border-radius:50%;background:#7F77DD;display:inline-block;"></span>
             Ventas del día
+            <span id="rd-cont-ventas" style="font-size:.7rem; font-weight:400; color:var(--texto-muted); text-transform:none; letter-spacing:0; margin-left:auto;"></span>
           </div>
         </div>
         <table class="cys-inv-table" id="rdTablaVentas">
@@ -543,6 +661,14 @@
             {% endfor %}
           </tbody>
         </table>
+        <div id="rd-empty-ventas" style="display:none; text-align:center; padding:20px 0;
+             color:var(--texto-muted); font-size:.82rem;">
+          <i class="bi bi-search" style="margin-right:6px;"></i>Sin ventas para ese filtro.
+          <button onclick="limpiarFiltrosRD()"
+                  style="margin-left:8px; font-size:.72rem; padding:3px 10px; background:transparent;
+                         border:1px solid var(--azul-borde); border-radius:6px;
+                         color:#AFA9EC; cursor:pointer;">Limpiar</button>
+        </div>
  
         <div style="padding:14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
@@ -550,6 +676,7 @@
                       display:flex; align-items:center; gap:8px;">
             <span style="width:8px;height:8px;border-radius:50%;background:#5DCAA5;display:inline-block;"></span>
             Entradas de inventario hoy
+            <span id="rd-cont-entradas" style="font-size:.7rem; font-weight:400; color:var(--texto-muted); text-transform:none; letter-spacing:0; margin-left:auto;"></span>
           </div>
         </div>
         <table class="cys-inv-table" id="rdTablaEntradas">
@@ -573,6 +700,14 @@
             {% endfor %}
           </tbody>
         </table>
+        <div id="rd-empty-entradas" style="display:none; text-align:center; padding:20px 0;
+             color:var(--texto-muted); font-size:.82rem;">
+          <i class="bi bi-search" style="margin-right:6px;"></i>Sin entradas para ese filtro.
+          <button onclick="limpiarFiltrosRD()"
+                  style="margin-left:8px; font-size:.72rem; padding:3px 10px; background:transparent;
+                         border:1px solid var(--azul-borde); border-radius:6px;
+                         color:#5DCAA5; cursor:pointer;">Limpiar</button>
+        </div>
  
         <div style="padding:14px 20px 0;">
           <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
@@ -580,6 +715,7 @@
                       display:flex; align-items:center; gap:8px;">
             <span style="width:8px;height:8px;border-radius:50%;background:#E24B4A;display:inline-block;"></span>
             Salidas de inventario hoy
+            <span id="rd-cont-salidas" style="font-size:.7rem; font-weight:400; color:var(--texto-muted); text-transform:none; letter-spacing:0; margin-left:auto;"></span>
           </div>
         </div>
         <table class="cys-inv-table" id="rdTablaSalidas">
@@ -603,24 +739,36 @@
             {% endfor %}
           </tbody>
         </table>
+        <div id="rd-empty-salidas" style="display:none; text-align:center; padding:20px 0;
+             color:var(--texto-muted); font-size:.82rem;">
+          <i class="bi bi-search" style="margin-right:6px;"></i>Sin salidas para ese filtro.
+          <button onclick="limpiarFiltrosRD()"
+                  style="margin-left:8px; font-size:.72rem; padding:3px 10px; background:transparent;
+                         border:1px solid var(--azul-borde); border-radius:6px;
+                         color:#E24B4A; cursor:pointer;">Limpiar</button>
+        </div>
  
       </div>
  
       <div class="modal-footer cys-modal__footer">
+        <div style="font-size:.72rem; color:var(--texto-muted); margin-right:auto; display:flex; gap:14px; flex-wrap:wrap;">
+          <span><i class="bi bi-calendar3" style="margin-right:3px;"></i>Generado: <span class="cys-meta-fecha" style="color:#AFA9EC;"></span></span>
+          <span><i class="bi bi-funnel" style="margin-right:3px;"></i>Filtros: <span id="rd-footer-filtros" style="color:#AFA9EC;">Ninguno</span></span>
+        </div>
         <button class="cys-btn-export" onclick="exportarPDF('modalResumenDiario', 'resumen_diario_cys')">⬇ Exportar PDF</button>
       </div>
  
     </div>
   </div>
 </div>
- 
+
 {% endblock %}
  
 {% block extra_js %}
 <script>
-/* ──────────────────────────────────────────────
-   UTILIDAD: parsear fecha ISO "yyyy-mm-dd"
-   ────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════
+   UTILIDADES GENERALES
+══════════════════════════════════════════════ */
 function parseISO(str) {
   if (!str) return null;
   const [y, m, d] = str.split('-').map(Number);
@@ -636,23 +784,77 @@ function enRango(filaFecha, inicio, fin) {
   return true;
 }
 
-/* ──────────────────────────────────────────────
-   INVENTARIO — filtro de productos (texto + estado)
-   ────────────────────────────────────────────── */
+function rellenarFechaGeneracion() {
+  const ahora = new Date().toLocaleString('es-CO', {
+    day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
+  document.querySelectorAll('.cys-meta-fecha').forEach(el => {
+    el.textContent = ahora;
+  });
+}
+
+document.querySelectorAll('.modal').forEach(modal => {
+  modal.addEventListener('shown.bs.modal', () => rellenarFechaGeneracion());
+});
+
+/* ══════════════════════════════════════════════
+   FUNCIÓN UTILITARIA DE CONTADORES
+══════════════════════════════════════════════ */
+function actualizarContador(tablaId, contadorId, emptyId, selector) {
+  const tbody   = document.querySelector(`#${tablaId} tbody`);
+  const emptyEl = document.getElementById(emptyId);
+  if (!tbody) return;
+
+  const filas     = [...tbody.querySelectorAll(selector || 'tr[data-estado], tr[data-fecha]')];
+  const total     = filas.length;
+  const visibles  = filas.filter(r => r.style.display !== 'none').length;
+  const contEl    = document.getElementById(contadorId);
+
+  if (contEl) {
+    if (total === 0) {
+      contEl.textContent = '';
+    } else if (visibles === total) {
+      contEl.textContent = `Mostrando ${total} de ${total}`;
+    } else {
+      contEl.textContent = `Mostrando ${visibles} de ${total}`;
+    }
+  }
+
+  if (emptyEl) {
+    const hayFilasOriginales = filas.length > 0;
+    emptyEl.style.display = (hayFilasOriginales && visibles === 0) ? 'block' : 'none';
+  }
+}
+
+/* ══════════════════════════════════════════════
+   INVENTARIO — filtro productos
+══════════════════════════════════════════════ */
 function filtrarInventario() {
   const q      = document.getElementById('invSearch').value.toLowerCase();
   const estado = document.getElementById('invEstado').value;
+
   document.querySelectorAll('#invTable tbody tr[data-estado]').forEach(fila => {
     const matchQ = fila.innerText.toLowerCase().includes(q);
     const matchE = estado === '' || fila.dataset.estado === estado;
     fila.style.display = (matchQ && matchE) ? '' : 'none';
   });
+
+  actualizarContador('invTable', 'inv-contador', 'inv-empty', 'tr[data-estado]');
+
+  const partes = [];
+  if (q)      partes.push(`Búsqueda: "${q}"`);
+  if (estado) partes.push(`Estado: ${estado}`);
+  const txt = partes.length ? partes.join(', ') : 'Ninguno';
+  ['inv-meta-filtros', 'inv-footer-filtros'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = txt;
+  });
 }
 
-/* ──────────────────────────────────────────────
-   INVENTARIO — filtro de entradas y salidas
-   (fecha + producto)
-   ────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════
+   INVENTARIO — filtro entradas/salidas
+══════════════════════════════════════════════ */
 function filtrarMovimientosInventario() {
   const inicio   = parseISO(document.getElementById('invFechaInicio').value);
   const fin      = parseISO(document.getElementById('invFechaFin').value);
@@ -667,6 +869,9 @@ function filtrarMovimientosInventario() {
       fila.style.display  = (matchFecha && matchProducto) ? '' : 'none';
     });
   });
+
+  actualizarContador('invTablaEntradas', 'inv-cont-entradas', 'inv-empty-entradas', 'tr[data-fecha]');
+  actualizarContador('invTablaSalidas',  'inv-cont-salidas',  'inv-empty-salidas',  'tr[data-fecha]');
 }
 
 function limpiarFiltrosInv() {
@@ -676,20 +881,32 @@ function limpiarFiltrosInv() {
   filtrarMovimientosInventario();
 }
 
-/* ──────────────────────────────────────────────
+/* ══════════════════════════════════════════════
    PROVEEDORES — filtro por texto
-   ────────────────────────────────────────────── */
+══════════════════════════════════════════════ */
 function filtrarProveedores() {
   const q = document.getElementById('provSearch').value.toLowerCase();
-  document.querySelectorAll('#provTable tbody tr').forEach(fila => {
+  const filas = document.querySelectorAll('#provTable tbody tr');
+  filas.forEach(fila => {
     fila.style.display = fila.innerText.toLowerCase().includes(q) ? '' : 'none';
   });
+
+  const total    = filas.length;
+  const visibles = [...filas].filter(r => r.style.display !== 'none').length;
+  const contEl   = document.getElementById('prov-contador');
+  const emptyEl  = document.getElementById('prov-empty');
+
+  if (contEl) {
+    contEl.textContent = visibles === total
+      ? `Mostrando ${total} de ${total}`
+      : `Mostrando ${visibles} de ${total}`;
+  }
+  if (emptyEl) emptyEl.style.display = (total > 0 && visibles === 0) ? 'block' : 'none';
 }
 
-/* ──────────────────────────────────────────────
+/* ══════════════════════════════════════════════
    RESUMEN DIARIO — filtro por fecha + producto
-   Afecta ventas, entradas y salidas
-   ────────────────────────────────────────────── */
+══════════════════════════════════════════════ */
 function filtrarResumenDiario() {
   const inicio   = parseISO(document.getElementById('rdFechaInicio').value);
   const fin      = parseISO(document.getElementById('rdFechaFin').value);
@@ -704,6 +921,28 @@ function filtrarResumenDiario() {
       fila.style.display  = (matchFecha && matchProducto) ? '' : 'none';
     });
   });
+
+  actualizarContador('rdTablaVentas',   'rd-cont-ventas',   'rd-empty-ventas',   'tr[data-fecha]');
+  actualizarContador('rdTablaEntradas', 'rd-cont-entradas', 'rd-empty-entradas', 'tr[data-fecha]');
+  actualizarContador('rdTablaSalidas',  'rd-cont-salidas',  'rd-empty-salidas',  'tr[data-fecha]');
+
+  const fI  = document.getElementById('rdFechaInicio').value;
+  const fF  = document.getElementById('rdFechaFin').value;
+  const partes = [];
+  if (fI || fF)    partes.push(`Período: ${fI||'…'} → ${fF||'…'}`);
+  if (producto)    partes.push(`Producto: "${producto}"`);
+  const txt = partes.length ? partes.join(' · ') : 'Ninguno';
+
+  const totalV = [...document.querySelectorAll('#rdTablaVentas tbody tr[data-fecha]')].filter(r => r.style.display !== 'none').length;
+  const totalE = [...document.querySelectorAll('#rdTablaEntradas tbody tr[data-fecha]')].filter(r => r.style.display !== 'none').length;
+  const totalS = [...document.querySelectorAll('#rdTablaSalidas tbody tr[data-fecha]')].filter(r => r.style.display !== 'none').length;
+  const contEl = document.getElementById('rd-contador');
+  if (contEl) contEl.textContent = `Mostrando ${totalV} ventas · ${totalE} entradas · ${totalS} salidas`;
+
+  ['rd-meta-filtros', 'rd-footer-filtros'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = txt;
+  });
 }
 
 function limpiarFiltrosRD() {
@@ -713,53 +952,83 @@ function limpiarFiltrosRD() {
   filtrarResumenDiario();
 }
 
-/* ──────────────────────────────────────────────
+/* ══════════════════════════════════════════════
    EXPORTAR PDF
-   ────────────────────────────────────────────── */
+══════════════════════════════════════════════ */
 async function exportarPDF(modalId, nombreArchivo) {
   const { jsPDF } = window.jspdf;
   const modalContent = document.querySelector(`#${modalId} .modal-content`);
- 
+
+  rellenarFechaGeneracion();
+
   const footer  = document.querySelector(`#${modalId} .modal-footer`);
   const filtros = document.querySelector(`#${modalId} .cys-modal__filters`);
   if (footer)  footer.style.display  = 'none';
   if (filtros) filtros.style.display = 'none';
- 
+
+  const scrollEls = modalContent.querySelectorAll('*');
+  const prevStyles = [];
+  scrollEls.forEach(el => {
+    const cs = window.getComputedStyle(el);
+    if (cs.overflowY === 'auto' || cs.overflowY === 'scroll' ||
+        cs.overflow  === 'auto' || cs.overflow  === 'scroll') {
+      prevStyles.push({ el, maxHeight: el.style.maxHeight, overflowY: el.style.overflowY });
+      el.style.maxHeight = 'none';
+      el.style.overflowY = 'visible';
+    }
+  });
+
   const modalBody = document.querySelector(`#${modalId} .modal-body`);
-  const prevMaxHeight = modalBody ? modalBody.style.maxHeight : null;
-  if (modalBody) modalBody.style.maxHeight = 'none';
- 
+  const prevBodyMaxHeight = modalBody ? modalBody.style.maxHeight : null;
+  const prevBodyOverflow  = modalBody ? modalBody.style.overflowY : null;
+  if (modalBody) {
+    modalBody.style.maxHeight = 'none';
+    modalBody.style.overflowY = 'visible';
+  }
+
+  await new Promise(r => setTimeout(r, 300));
+
   const canvas = await html2canvas(modalContent, {
     scale: 2,
     useCORS: true,
     backgroundColor: '#0D1B2A',
+    scrollX: 0,
     scrollY: 0,
-    windowWidth: modalContent.scrollWidth,
-    windowHeight: modalContent.scrollHeight
+    windowWidth:  modalContent.scrollWidth,
+    windowHeight: modalContent.scrollHeight,
+    height:       modalContent.scrollHeight,
+    width:        modalContent.scrollWidth,
   });
- 
+
   if (footer)  footer.style.display  = '';
   if (filtros) filtros.style.display = '';
-  if (modalBody && prevMaxHeight !== null) modalBody.style.maxHeight = prevMaxHeight;
- 
+  prevStyles.forEach(({ el, maxHeight, overflowY }) => {
+    el.style.maxHeight = maxHeight;
+    el.style.overflowY = overflowY;
+  });
+  if (modalBody) {
+    modalBody.style.maxHeight = prevBodyMaxHeight;
+    modalBody.style.overflowY = prevBodyOverflow;
+  }
+
   const imgData = canvas.toDataURL('image/png');
   const pdf     = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
- 
-  const pageW  = pdf.internal.pageSize.getWidth();
-  const pageH  = pdf.internal.pageSize.getHeight();
-  const imgW   = pageW;
-  const imgH   = (canvas.height * imgW) / canvas.width;
- 
+
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  const imgW  = pageW;
+  const imgH  = (canvas.height * imgW) / canvas.width;
+
   let posY      = 0;
   let remaining = imgH;
- 
+
   while (remaining > 0) {
     pdf.addImage(imgData, 'PNG', 0, posY === 0 ? 0 : -posY, imgW, imgH);
     remaining -= pageH;
     posY      += pageH;
     if (remaining > 0) pdf.addPage();
   }
- 
+
   pdf.save(`${nombreArchivo}.pdf`);
 }
 </script>
