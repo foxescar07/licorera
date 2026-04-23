@@ -1,6 +1,6 @@
 from django.db import models
 from producto.models import Producto
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User 
 
 
 class SesionConteo(models.Model):
@@ -41,3 +41,24 @@ class ResultadoInventario(models.Model):
 
     def __str__(self):
         return f"Resultado {self.sesion} - {self.producto}"
+    
+class Lote(models.Model):
+    numero_lote = models.CharField(max_length=100, unique=True, verbose_name="Número de Lote")
+    producto    = models.ForeignKey(
+        Producto,
+        on_delete=models.CASCADE,
+        related_name='lotes',
+        verbose_name="Producto"
+    )
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+    registrado_por = models.ForeignKey(
+        User, null=True, blank=True,
+        on_delete=models.SET_NULL
+    )
+
+    class Meta:
+        verbose_name = 'Lote'
+        ordering = ['-fecha_registro']
+
+    def __str__(self):
+        return f"{self.numero_lote} — {self.producto.nombre}"
