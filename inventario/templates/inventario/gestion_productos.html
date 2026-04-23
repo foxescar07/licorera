@@ -1146,7 +1146,7 @@ function cargarPresentaciones(sel) {
   presData[pk].forEach(p => {
     const opt = document.createElement('option');
     opt.value = p.id;
-    opt.textContent = ${p.nombre} (${p.cantidad} uds × ${p.unidades} c/u);
+    opt.textContent = `${p.nombre} (${p.cantidad} uds × ${p.unidades} c/u)`;
     pres.appendChild(opt);
   });
   wrap.style.display = 'block';
