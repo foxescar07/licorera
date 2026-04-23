@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Devoluciones — CYS Ltda{% endblock %}
+{% block page_title %}Devoluciones{% endblock %}
+
+{% block extra_css %}
+<style>
+.cys-warning-banner {
+    background: rgba(255,77,77,.10);
+    border: 1px solid #ff4d4d;
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    color: #ff4d4d;
+    font-weight: 600;
+    display: none;
+    margin-bottom: 1rem;
+}
+.metodo-pago-btn { background: var(--fondo-card2); border: 1px solid var(--azul-borde); border-radius: 8px; padding: .4rem .8rem; color: var(--texto-muted); cursor: pointer; font-size: .8rem; transition: all .2s; }
+.step-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--azul-claro); color: #000; font-size: .75rem; font-weight: 800; flex-shrink: 0; }
+.prod-check-row { background: var(--fondo-card2); border: 1px solid var(--azul-borde); border-radius: 10px; padding: .75rem 1rem; margin-bottom: .5rem; transition: border-color .2s; }
+.prod-check-row.seleccionado { border-color: var(--azul-claro); background: rgba(77,168,218,.07); }
+.venta-result-row { background: var(--fondo-card2); border: 1px solid var(--azul-borde); border-radius: 10px; padding: .8rem 1rem; cursor: pointer; margin-bottom: .4rem; transition: border-color .2s; }
+.venta-result-row:hover { border-color: var(--azul-claro); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+  <div class="row g-4">
+
+    <!-- ══════════════════════════════════
+         PANEL IZQUIERDO — FORMULARIO
+    ══════════════════════════════════ -->
+    <div class="col-lg-7">
+      <section class="cys-card" style="min-height:600px;">
+        <div class="cys-card__title">Nueva Devolución</div>
+
+        <!-- PASO 1: BUSCAR VENTA -->
+        <div class="mb-4">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="step-badge">1</span>
+            <span style="font-weight:600; color:var(--texto);">Busca la venta original</span>
+          </div>
+          <div style="position:relative;">
+            <i class="bi bi-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--texto-muted);"></i>
+            <input type="text" id="buscadorVenta" placeholder="Nombre del cliente o número de venta..."
+                   style="width:100%; padding:.6rem .9rem .6rem 2.4rem; background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; color:var(--texto); font-size:.9rem;">
+          </div>
+          <div id="resultadosBusqueda" class="mt-2"></div>
+        </div>
+
+        <!-- RESUMEN VENTA SELECCIONADA -->
+        <div id="ventaSeleccionadaInfo" style="display:none; background:rgba(77,168,218,.07); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem 1.1rem; margin-bottom:1rem;">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Venta seleccionada</div>
+              <div id="ventaInfoNombre" style="font-weight:800; color:var(--texto); font-size:1rem;"></div>
+              <div id="ventaInfoFecha" style="font-size:.8rem; color:var(--texto-muted);"></div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:.75rem; color:var(--texto-muted);">Total original</div>
+              <div id="ventaInfoTotal" style="font-size:1.3rem; font-weight:800; color:var(--azul-claro);"></div>
+            </div>
+          </div>
+          <button type="button" onclick="limpiarVenta()" style="margin-top:.6rem; background:none; border:none; color:var(--texto-muted); font-size:.8rem; cursor:pointer; padding:0;">
+            <i class="bi bi-x-circle me-1"></i>Cambiar venta
+          </button>
+        </div>
+
+        <!-- PASO 2: COMPROBANTE -->
+        <div id="seccionComprobante" style="display:none; margin-bottom:1rem;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="step-badge">2</span>
+            <span style="font-weight:600; color:var(--texto);">¿El cliente tiene comprobante de compra?</span>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" id="btnSiComprobante" onclick="setComprobante(true)"
+                    class="metodo-pago-btn" style="font-size:.9rem; padding:.5rem 1.2rem;">
+              <i class="bi bi-check-circle me-1"></i>Sí tiene
+            </button>
+            <button type="button" id="btnNoComprobante" onclick="setComprobante(false)"
+                    class="metodo-pago-btn" style="font-size:.9rem; padding:.5rem 1.2rem;">
+              <i class="bi bi-x-circle me-1"></i>No tiene
+            </button>
+          </div>
+          <!-- Subtarea 2: advertencia sin comprobante -->
+          <div id="warningComprobante" class="cys-warning-banner mt-2">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            Advertencia: El cliente no tiene comprobante de compra. No se puede procesar la devolución sin comprobante.
+          </div>
+        </div>
+
+        <!-- PASO 3: PRODUCTOS A DEVOLVER -->
+        <div id="seccionProductos" style="display:none; margin-bottom:1rem;">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="step-badge">3</span>
+            <span style="font-weight:600; color:var(--texto);">Selecciona los productos a devolver</span>
+          </div>
+          <div id="listaProductosDevolver"></div>
+        </div>
+
+        <!-- PASO 4: OPCIONES Y MOTIVO -->
+        <div id="seccionOpciones" style="display:none; margin-bottom:1rem;">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="step-badge">4</span>
+            <span style="font-weight:600; color:var(--texto);">Opciones de devolución</span>
+          </div>
+
+          <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:1rem 1.1rem;">
+
+            <!-- Restaurar stock -->
+            <div class="mb-3">
+              <label style="font-size:.8rem; color:var(--texto-muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:.5rem;">¿Restaurar stock?</label>
+              <div class="d-flex gap-2">
+                <button type="button" id="btnSiStock" onclick="setStock(true)" class="metodo-pago-btn" style="font-size:.85rem; padding:.4rem 1rem;">
+                  <i class="bi bi-arrow-up-circle me-1"></i>Sí, restaurar inventario
+                </button>
+                <button type="button" id="btnNoStock" onclick="setStock(false)" class="metodo-pago-btn" style="font-size:.85rem; padding:.4rem 1rem;">
+                  <i class="bi bi-slash-circle me-1"></i>No restaurar
+                </button>
+              </div>
+            </div>
+
+            <!-- Motivo -->
+            <div class="mb-3">
+              <label style="font-size:.8rem; color:var(--texto-muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:.5rem;">Motivo</label>
+              <select id="selectMotivo" style="width:100%; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:8px; padding:.5rem .8rem; font-size:.9rem;">
+                <option value="defectuoso">Producto defectuoso</option>
+                <option value="equivocado">Producto equivocado</option>
+                <option value="insatisfecho">Cliente insatisfecho</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+
+            <!-- Observaciones -->
+            <div>
+              <label style="font-size:.8rem; color:var(--texto-muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:.5rem;">Observaciones (opcional)</label>
+              <textarea id="txtObservaciones" rows="2" placeholder="Detalles adicionales..."
+                        style="width:100%; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:8px; padding:.5rem .8rem; font-size:.9rem; resize:vertical;"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOTAL A DEVOLVER -->
+        <div id="totalDevolucion" style="display:none; background:rgba(77,255,145,.06); border:1px solid #4dff91; border-radius:10px; padding:1rem 1.2rem; margin-bottom:1rem;">
+          <div class="d-flex justify-content-between align-items-center">
+            <span style="font-weight:700; color:var(--texto);">TOTAL A DEVOLVER:</span>
+            <span id="totalDevolucionMonto" style="font-size:1.5rem; font-weight:800; color:#4dff91;"></span>
+          </div>
+        </div>
+
+        <!-- BOTÓN REGISTRAR -->
+        <form method="POST" action="{% url 'ventas:registrar_devolucion' %}" id="formDevolucion">
+          {% csrf_token %}
+          <input type="hidden" name="venta_id"          id="hiddenVentaId"      value="">
+          <input type="hidden" name="tiene_comprobante" id="hiddenComprobante"  value="0">
+          <input type="hidden" name="restaurar_stock"   id="hiddenStock"        value="1">
+          <input type="hidden" name="motivo"            id="hiddenMotivo"       value="otro">
+          <input type="hidden" name="observaciones"     id="hiddenObservaciones" value="">
+          <div id="hiddenProductos"></div>
+          <button type="submit" id="btnRegistrarDevolucion" disabled
+                  class="cys-btn cys-btn--danger w-100"
+                  onclick="prepararEnvio()">
+            <i class="bi bi-arrow-return-left me-1"></i> REGISTRAR DEVOLUCIÓN
+          </button>
+        </form>
+      </section>
+    </div>
+
+    <!-- ══════════════════════════════════
+         PANEL DERECHO — HISTORIAL
+    ══════════════════════════════════ -->
+    <div class="col-lg-5">
+      <section class="cys-card" style="min-height:600px;">
+        <div class="cys-card__title">Historial de Devoluciones</div>
+        {% if devoluciones %}
+          {% for dev in devoluciones %}
+          <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem 1rem; margin-bottom:.6rem; cursor:pointer;"
+               onclick="window.location='{% url 'ventas:comprobante_devolucion' dev.pk %}'">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div style="font-size:.7rem; color:var(--azul-claro); font-weight:700; letter-spacing:1px;">{{ dev.numero }}</div>
+                <div style="font-weight:700; color:var(--texto);">{{ dev.venta.cliente }}</div>
+                <div style="font-size:.75rem; color:var(--texto-muted);">{{ dev.fecha|date:"d/m/Y H:i" }}</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:1.1rem; font-weight:800; color:#4dff91;">${{ dev.total_devuelto|floatformat:0 }}</div>
+                <div style="font-size:.7rem; color:var(--texto-muted);">{{ dev.get_motivo_display }}</div>
+                {% if dev.restaurar_stock %}
+                  <span style="font-size:.7rem; background:rgba(77,255,145,.12); border:1px solid #4dff91; border-radius:20px; padding:.1rem .5rem; color:#4dff91;">Stock restaurado</span>
+                {% else %}
+                  <span style="font-size:.7rem; background:rgba(255,77,77,.1); border:1px solid #ff4d4d; border-radius:20px; padding:.1rem .5rem; color:#ff4d4d;">Sin restaurar stock</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="d-flex flex-wrap gap-1 mt-2">
+              {% for det in dev.detalles.all %}
+                <span style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:20px; padding:.15rem .5rem; font-size:.7rem; color:var(--texto-muted);">
+                  {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %} x{{ det.cantidad }}
+                </span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="text-align:center; padding:3rem 0; color:var(--texto-muted);">
+            <i class="bi bi-arrow-return-left" style="font-size:2rem; display:block; margin-bottom:.5rem;"></i>
+            No hay devoluciones registradas
+          </div>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let ventaActual     = null;
+let tieneComprobante = null;
+let restaurarStock   = true;
+let productosSeleccionados = [];
+
+function formatPesos(val) {
+    const esEntero = Math.abs(val - Math.round(val)) < 0.001;
+    if (esEntero) return Math.round(val).toLocaleString('es-CO');
+    return val.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// ── Búsqueda de ventas ────────────────────────────────────────────
+let buscarTimeout;
+document.getElementById('buscadorVenta').addEventListener('input', function () {
+    clearTimeout(buscarTimeout);
+    const q = this.value.trim();
+    if (q.length < 2) { document.getElementById('resultadosBusqueda').innerHTML = ''; return; }
+    buscarTimeout = setTimeout(() => {
+        fetch(`{% url 'ventas:buscar_venta_devolucion' %}?q=${encodeURIComponent(q)}`)
+            .then(r => r.json())
+            .then(data => renderResultados(data.ventas));
+    }, 300);
+});
+
+function renderResultados(ventas) {
+    const cont = document.getElementById('resultadosBusqueda');
+    if (!ventas.length) {
+        cont.innerHTML = '<p style="color:var(--texto-muted); font-size:.85rem; text-align:center; margin-top:.5rem;">No se encontraron ventas.</p>';
+        return;
+    }
+    cont.innerHTML = ventas.map(v => `
+        <div class="venta-result-row" onclick="seleccionarVenta(${v.id}, '${v.cliente}', '${v.fecha}', ${v.total})">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div style="font-weight:700; color:var(--texto);">${v.cliente}</div>
+                    <div style="font-size:.75rem; color:var(--texto-muted);">${v.fecha}</div>
+                </div>
+                <span style="font-weight:800; color:var(--azul-claro);">$${formatPesos(v.total)}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function seleccionarVenta(id, cliente, fecha, total) {
+    ventaActual = { id, cliente, fecha, total };
+    document.getElementById('resultadosBusqueda').innerHTML = '';
+    document.getElementById('buscadorVenta').value = '';
+
+    document.getElementById('ventaInfoNombre').textContent = cliente;
+    document.getElementById('ventaInfoFecha').textContent  = fecha;
+    document.getElementById('ventaInfoTotal').textContent  = '$' + formatPesos(total);
+    document.getElementById('ventaSeleccionadaInfo').style.display = 'block';
+    document.getElementById('seccionComprobante').style.display    = 'block';
+
+    // reset estado
+    tieneComprobante = null;
+    document.getElementById('seccionProductos').style.display  = 'none';
+    document.getElementById('seccionOpciones').style.display   = 'none';
+    document.getElementById('totalDevolucion').style.display   = 'none';
+    document.getElementById('btnRegistrarDevolucion').disabled = true;
+    document.getElementById('warningComprobante').style.display = 'none';
+    document.getElementById('btnSiComprobante').classList.remove('activo');
+    document.getElementById('btnNoComprobante').classList.remove('activo');
+}
+
+function limpiarVenta() {
+    ventaActual      = null;
+    tieneComprobante = null;
+    document.getElementById('ventaSeleccionadaInfo').style.display  = 'none';
+    document.getElementById('seccionComprobante').style.display     = 'none';
+    document.getElementById('seccionProductos').style.display       = 'none';
+    document.getElementById('seccionOpciones').style.display        = 'none';
+    document.getElementById('totalDevolucion').style.display        = 'none';
+    document.getElementById('btnRegistrarDevolucion').disabled      = true;
+}
+
+// ── Comprobante ───────────────────────────────────────────────────
+function setComprobante(tiene) {
+    tieneComprobante = tiene;
+    document.getElementById('btnSiComprobante').classList.toggle('activo',  tiene);
+    document.getElementById('btnNoComprobante').classList.toggle('activo', !tiene);
+
+    // Subtarea 2: mostrar advertencia si no tiene comprobante
+    const warning = document.getElementById('warningComprobante');
+    if (!tiene) {
+        warning.style.display = 'block';
+        document.getElementById('seccionProductos').style.display = 'none';
+        document.getElementById('seccionOpciones').style.display  = 'none';
+        document.getElementById('totalDevolucion').style.display  = 'none';
+        document.getElementById('btnRegistrarDevolucion').disabled = true;
+        return;
+    }
+    warning.style.display = 'none';
+    cargarProductosVenta();
+}
+
+// ── Cargar productos de la venta seleccionada ────────────────────
+function cargarProductosVenta() {
+    fetch(`/ventas/devoluciones/venta/${ventaActual.id}/detalle/`)
+        .then(r => r.json())
+        .then(data => renderProductosDevolver(data.detalles));
+}
+
+function renderProductosDevolver(detalles) {
+    productosSeleccionados = [];
+    const lista = document.getElementById('listaProductosDevolver');
+    lista.innerHTML = detalles.map(d => `
+        <div class="prod-check-row" id="row_${d.detalle_id}">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <input type="checkbox" id="chk_${d.detalle_id}"
+                           onchange="toggleProducto(${d.detalle_id}, ${d.producto_id}, ${d.presentacion_id || 'null'}, '${d.producto}', '${d.presentacion}', ${d.precio}, ${d.cantidad})"
+                           style="width:16px; height:16px; accent-color:var(--azul-claro); cursor:pointer;">
+                    <div>
+                        <div style="font-weight:700; color:var(--texto); font-size:.9rem;">${d.producto}${d.presentacion ? ' — ' + d.presentacion : ''}</div>
+                        <div style="font-size:.75rem; color:var(--texto-muted);">$${formatPesos(d.precio)} c/u</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <input type="number" id="qty_${d.detalle_id}" value="1" min="1" max="${d.cantidad}"
+                           onchange="actualizarCantidadDev(${d.detalle_id})"
+                           style="width:55px; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:6px; padding:.3rem .5rem; text-align:center;">
+                    <span style="font-size:.75rem; color:var(--texto-muted);">/ ${d.cantidad}</span>
+                    <span id="sub_${d.detalle_id}" style="font-weight:700; color:var(--azul-claro); min-width:70px; text-align:right;">$${formatPesos(d.precio)}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    document.getElementById('seccionProductos').style.display = 'block';
+    document.getElementById('seccionOpciones').style.display  = 'block';
+    // Stock por defecto: restaurar
+    setStock(true);
+}
+
+function toggleProducto(detalleId, prodId, presId, prodNombre, presNombre, precio, maxCant) {
+    const chk = document.getElementById('chk_' + detalleId);
+    const row = document.getElementById('row_' + detalleId);
+    row.classList.toggle('seleccionado', chk.checked);
+    if (chk.checked) {
+        const qty = parseInt(document.getElementById('qty_' + detalleId).value) || 1;
+        productosSeleccionados.push({ detalleId, prodId, presId, prodNombre, presNombre, precio, cantidad: qty });
+    } else {
+        productosSeleccionados = productosSeleccionados.filter(p => p.detalleId !== detalleId);
+    }
+    actualizarTotalDevolucion();
+}
+
+function actualizarCantidadDev(detalleId) {
+    const qty = parseInt(document.getElementById('qty_' + detalleId).value) || 1;
+    const chk = document.getElementById('chk_' + detalleId);
+    const prod = productosSeleccionados.find(p => p.detalleId === detalleId);
+    if (prod) {
+        prod.cantidad = qty;
+        document.getElementById('sub_' + detalleId).textContent = '$' + formatPesos(prod.precio * qty);
+    } else {
+        // Actualizar subtotal aunque no esté marcado aún
+        const precio = parseFloat(document.getElementById('sub_' + detalleId).dataset.precio || 0);
+    }
+    actualizarTotalDevolucion();
+}
+
+function actualizarTotalDevolucion() {
+    const total = productosSeleccionados.reduce((s, p) => s + p.precio * p.cantidad, 0);
+    const div   = document.getElementById('totalDevolucion');
+    if (productosSeleccionados.length > 0) {
+        div.style.display = 'block';
+        document.getElementById('totalDevolucionMonto').textContent = '$' + formatPesos(total);
+    } else {
+        div.style.display = 'none';
+    }
+    document.getElementById('btnRegistrarDevolucion').disabled =
+        productosSeleccionados.length === 0 || !tieneComprobante;
+}
+
+// ── Stock ─────────────────────────────────────────────────────────
+function setStock(si) {
+    restaurarStock = si;
+    document.getElementById('btnSiStock').classList.toggle('activo',  si);
+    document.getElementById('btnNoStock').classList.toggle('activo', !si);
+}
+
+// ── Preparar envío ────────────────────────────────────────────────
+function prepararEnvio() {
+    document.getElementById('hiddenVentaId').value       = ventaActual.id;
+    document.getElementById('hiddenComprobante').value   = tieneComprobante ? '1' : '0';
+    document.getElementById('hiddenStock').value         = restaurarStock   ? '1' : '0';
+    document.getElementById('hiddenMotivo').value        = document.getElementById('selectMotivo').value;
+    document.getElementById('hiddenObservaciones').value = document.getElementById('txtObservaciones').value;
+
+    document.getElementById('hiddenProductos').innerHTML = productosSeleccionados.map(p => `
+        <input type="hidden" name="producto_id[]"     value="${p.prodId}">
+        <input type="hidden" name="presentacion_id[]" value="${p.presId || ''}">
+        <input type="hidden" name="cantidad[]"        value="${p.cantidad}">
+        <input type="hidden" name="precio[]"          value="${p.precio}">
+    `).join('');
+}
+</script>
+{% endblock %}

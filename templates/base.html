@@ -51,6 +51,7 @@
   <main class="cys-main">
     {% block content %}{% endblock %}
   </main>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -119,16 +120,60 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
+    // ── SUBMENÚ DEVOLUCIONES ──────────────────────────────
+    function toggleDevoluciones(e, el) {
+      const submenu = document.getElementById('submenuDevoluciones');
+      const chevron = el.querySelector('.cys-chevron');
       const path    = window.location.pathname;
-      const submenu = document.getElementById('submenuVentas');
-      const parent  = document.querySelector('.cys-sb-link--parent');
 
+      if (path.startsWith('/ventas/devoluciones/')) {
+        e.preventDefault();
+        submenu.classList.toggle('abierto');
+        el.classList.toggle('abierto');
+        chevron.classList.toggle('abierto');
+      }
+    }
+
+    // ── SUBMENÚ PROVEEDORES ───────────────────────────────
+    function toggleProveedores(e, el) {
+      const submenu = document.getElementById('submenuProveedores');
+      const chevron = el.querySelector('.cys-chevron');
+      const path    = window.location.pathname;
+
+      if (path.startsWith('/proveedores/') || path.startsWith('/compra/')) {
+        e.preventDefault();
+        submenu.classList.toggle('abierto');
+        el.classList.toggle('abierto');
+        chevron.classList.toggle('abierto');
+      }
+    }
+
+    // ── APERTURA AUTOMÁTICA SEGÚN RUTA ───────────────────
+    document.addEventListener('DOMContentLoaded', function() {
+      const path = window.location.pathname;
+
+      // Ventas
       if (path.startsWith('/ventas/') || path.startsWith('/reportes')) {
-        if (submenu) {
-          submenu.classList.add('abierto');
-          if (parent) parent.classList.add('abierto');
-        }
+        const submenu = document.getElementById('submenuVentas');
+        const parent  = document.getElementById('btnVentas');
+        if (submenu) submenu.classList.add('abierto');
+        if (parent)  parent.classList.add('abierto');
+      }
+
+      // Devoluciones
+      if (path.startsWith('/ventas/devoluciones/')) {
+        const submenu = document.getElementById('submenuDevoluciones');
+        const parent  = document.getElementById('btnDevoluciones');
+        if (submenu) submenu.classList.add('abierto');
+        if (parent)  parent.classList.add('abierto');
+      }
+
+      // Proveedores / Compras
+      if (path.startsWith('/proveedores/') || path.startsWith('/compra/')) {
+        const submenu = document.getElementById('submenuProveedores');
+        const parent  = document.getElementById('btnProveedores');
+        if (submenu) submenu.classList.add('abierto');
+        if (parent)  parent.classList.add('abierto');
       }
     });
   </script>
