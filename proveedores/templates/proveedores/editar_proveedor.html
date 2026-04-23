@@ -3,131 +3,153 @@
 
 {% block content %}
 
-{% if messages %}
-  {% for message in messages %}
-    {% if message.tags == "success" %}
-      <div class="alert alert-dismissible fade show d-flex align-items-center justify-content-between"
-           style="background:#d1fae5;color:#065f46;border:none;border-radius:10px;padding:14px 20px;font-size:0.92rem;font-weight:500;margin-bottom:1rem;">
-        <span>{{ message }}</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    {% endif %}
-  {% endfor %}
-{% endif %}
-
 <link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-dismissible fade show d-flex align-items-center justify-content-between"
+         style="background:{% if message.tags == 'success' %}rgba(46,204,113,.12); color:#5edb97; border:1px solid rgba(46,204,113,.3){% else %}rgba(192,57,43,.12); color:#e87070; border:1px solid rgba(192,57,43,.3){% endif %};
+                border-radius:10px; padding:14px 20px; font-size:.92rem; font-weight:500; margin-bottom:1rem;">
+      <span>{{ message }}</span>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+    </div>
+  {% endfor %}
+{% endif %}
+
 <div class="container-fluid p-0">
 
-  <!-- HEADER -->
+  <!-- ── HEADER ────────────────────────────────────────────── -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h2 style="font-weight:700; color:#e2e8f0; letter-spacing:.06em; font-size:1.4rem;">
-        <i class="bi bi-pencil-square me-2" style="color:#4DA8DA;"></i>
-        Editar Proveedor
+      <h2 style="font-weight:700; color:#e2e8f0; letter-spacing:.04em; font-size:1.35rem; margin-bottom:4px;">
+        <i class="bi bi-pencil-square me-2" style="color:#4DA8DA;"></i>Editar Proveedor
       </h2>
-      <p class="mb-0 small" style="color:#64748b;">
+      <p class="mb-0" style="color:#64748b; font-size:.83rem;">
         Última modificación:
-        <span style="color:#e2e8f0; font-weight:600;">
-          {{ proveedor.ultima_modificacion|date:"d/m/Y H:i" }}
-        </span>
+        <span style="color:#94a3b8; font-weight:600;">{{ proveedor.ultima_modificacion|date:"d/m/Y H:i" }}</span>
       </p>
     </div>
-
-    <a href="{% url 'proveedores' %}" class="action-card text-decoration-none"
-       style="padding:10px 20px !important;">
-      <i class="bi bi-arrow-left icon" style="font-size:18px;"></i>
-      <span style="color:#e2e8f0; font-weight:600; letter-spacing:1px;">Volver</span>
+    <a href="{% url 'proveedores' %}"
+       style="display:inline-flex; align-items:center; gap:8px; padding:9px 18px;
+              border-radius:9px; background:rgba(77,168,218,.06); border:1px solid rgba(77,168,218,.2);
+              color:#e2e8f0; font-weight:600; font-size:.8rem; letter-spacing:.06em;
+              text-decoration:none; transition:.15s;"
+       onmouseover="this.style.background='rgba(77,168,218,.14)'"
+       onmouseout="this.style.background='rgba(77,168,218,.06)'">
+      <i class="bi bi-arrow-left" style="color:#4DA8DA;"></i> Volver
     </a>
   </div>
 
-  <!-- CARD -->
+  <!-- ── CARD FORM ─────────────────────────────────────────── -->
   <div class="cyber-card mb-4">
-
     <div class="cyber-header d-flex align-items-center gap-2">
-      <i class="bi bi-building"></i>
-      Información del Proveedor
+      <i class="bi bi-building"></i> Información del Proveedor
     </div>
 
     <div class="p-4">
       <form method="POST">
         {% csrf_token %}
 
-        <div class="row g-3">
-
+        <!-- Fila 1: Contacto + Empresa -->
+        <div class="row g-4 mb-2">
           <div class="col-md-6">
-            <label class="d-block mb-2"
-              style="color:#4DA8DA; font-size:0.8rem; font-weight:600; letter-spacing:1px; text-transform:uppercase;">
+            <label class="cys-form-label">
               <i class="bi bi-person me-1"></i> Nombre del Contacto
             </label>
             {{ form.nombre_contacto }}
             {% if form.nombre_contacto.errors %}
-              <div class="mt-1 small" style="color:#f87171;">{{ form.nombre_contacto.errors }}</div>
+              <div class="cys-form-error">{{ form.nombre_contacto.errors }}</div>
             {% endif %}
           </div>
-
           <div class="col-md-6">
-            <label class="d-block mb-2"
-              style="color:#4DA8DA; font-size:0.8rem; font-weight:600; letter-spacing:1px; text-transform:uppercase;">
+            <label class="cys-form-label">
               <i class="bi bi-building me-1"></i> Empresa
             </label>
             {{ form.nombre_empresa }}
             {% if form.nombre_empresa.errors %}
-              <div class="mt-1 small" style="color:#f87171;">{{ form.nombre_empresa.errors }}</div>
+              <div class="cys-form-error">{{ form.nombre_empresa.errors }}</div>
             {% endif %}
           </div>
+        </div>
 
+        <!-- Fila 2: Correo + Teléfono -->
+        <div class="row g-4 mb-2">
           <div class="col-md-6">
-            <label class="d-block mb-2"
-              style="color:#4DA8DA; font-size:0.8rem; font-weight:600; letter-spacing:1px; text-transform:uppercase;">
+            <label class="cys-form-label">
               <i class="bi bi-envelope me-1"></i> Correo
             </label>
             {{ form.email }}
             {% if form.email.errors %}
-              <div class="mt-1 small" style="color:#f87171;">{{ form.email.errors }}</div>
+              <div class="cys-form-error">{{ form.email.errors }}</div>
             {% endif %}
           </div>
-
           <div class="col-md-6">
-            <label class="d-block mb-2"
-              style="color:#4DA8DA; font-size:0.8rem; font-weight:600; letter-spacing:1px; text-transform:uppercase;">
+            <label class="cys-form-label">
               <i class="bi bi-telephone me-1"></i> Teléfono
             </label>
             {{ form.telefono }}
             {% if form.telefono.errors %}
-              <div class="mt-1 small" style="color:#f87171;">{{ form.telefono.errors }}</div>
+              <div class="cys-form-error">{{ form.telefono.errors }}</div>
             {% endif %}
           </div>
-
         </div>
 
-        <!-- ACCIONES -->
-        <div class="d-flex justify-content-between align-items-center mt-4 pt-3"
-             style="border-top:1px solid rgba(77,168,218,0.15);">
+        <!-- Divisor -->
+        <div style="height:1px; background:rgba(77,168,218,.1); margin:8px 0 20px;"></div>
 
+        <!-- Fila 3: Tipo + Categorías -->
+        <div class="row g-4 mb-2">
+          <div class="col-md-5">
+            <label class="cys-form-label">
+              <i class="bi bi-tag me-1"></i> Tipo de proveedor
+            </label>
+            {{ form.tipo_proveedor }}
+            {% if form.tipo_proveedor.errors %}
+              <div class="cys-form-error">{{ form.tipo_proveedor.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="col-md-7">
+            <label class="cys-form-label">
+              <i class="bi bi-grid me-1"></i> Categorías que surte
+              <span style="color:#475569; font-weight:400; text-transform:none; font-size:.68rem; margin-left:4px;">(opcional)</span>
+            </label>
+            <div class="cats-check-grid">
+              {% for cat in form.categorias_surtidas %}
+              <label class="cat-check-item">
+                {{ cat.tag }}
+                <span>{{ cat.choice_label }}</span>
+              </label>
+              {% endfor %}
+            </div>
+            {% if form.categorias_surtidas.errors %}
+              <div class="cys-form-error">{{ form.categorias_surtidas.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="d-flex justify-content-between align-items-center mt-4 pt-3"
+             style="border-top:1px solid rgba(77,168,218,.12);">
           <a href="{% url 'proveedores' %}"
-             style="display:inline-flex; align-items:center; gap:6px;
-                    color:#64748b; text-decoration:none; font-size:0.85rem;
-                    letter-spacing:.5px; padding:10px 18px; border-radius:10px;
-                    border:1px solid rgba(255,255,255,0.08); transition:0.2s;"
-             onmouseover="this.style.color='#f87171'; this.style.borderColor='rgba(248,113,113,0.4)'"
-             onmouseout="this.style.color='#64748b'; this.style.borderColor='rgba(255,255,255,0.08)'">
+             style="display:inline-flex; align-items:center; gap:6px; color:#64748b;
+                    text-decoration:none; font-size:.83rem; padding:10px 18px;
+                    border-radius:10px; border:1px solid rgba(255,255,255,.08); transition:.2s;"
+             onmouseover="this.style.color='#f87171'; this.style.borderColor='rgba(248,113,113,.4)'"
+             onmouseout="this.style.color='#64748b'; this.style.borderColor='rgba(255,255,255,.08)'">
             <i class="bi bi-x-lg"></i> Cancelar
           </a>
-
           <button type="submit"
                   style="display:inline-flex; align-items:center; gap:8px;
                          background:linear-gradient(135deg,#1e3a5f,#1a4a7a);
-                         border:1px solid rgba(77,168,218,0.4); color:#4DA8DA;
-                         font-weight:700; letter-spacing:1px; font-size:0.85rem;
-                         padding:12px 28px; border-radius:10px; cursor:pointer;
-                         text-transform:uppercase; transition:0.2s;"
-                  onmouseover="this.style.boxShadow='0 0 18px rgba(77,168,218,0.3)'; this.style.borderColor='#4DA8DA'"
-                  onmouseout="this.style.boxShadow='none'; this.style.borderColor='rgba(77,168,218,0.4)'">
+                         border:1px solid rgba(77,168,218,.4); color:#4DA8DA;
+                         font-weight:700; letter-spacing:1px; font-size:.85rem;
+                         padding:12px 32px; border-radius:10px; cursor:pointer;
+                         text-transform:uppercase; transition:.2s;"
+                  onmouseover="this.style.boxShadow='0 0 18px rgba(77,168,218,.3)'; this.style.borderColor='#4DA8DA'"
+                  onmouseout="this.style.boxShadow='none'; this.style.borderColor='rgba(77,168,218,.4)'">
             <i class="bi bi-save2"></i> Guardar Cambios
           </button>
-
         </div>
 
       </form>

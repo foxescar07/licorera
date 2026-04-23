@@ -179,3 +179,161 @@ def producto_stock_json(request, pk):
         'stock': producto.cantidad_disponible, 'precio': float(producto.precio_unitario),
         'unidad': producto.unidad, 'presentaciones': presentaciones,
     })
+    # ─────────────────────────────────────────────
+# Agrega estas vistas en ventas/views.py
+# ─────────────────────────────────────────────
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.http import JsonResponse
+from django.db import transaction
+from .models import Venta, Devolucion, DetalleDevolucion
+
+
+def lista_devoluciones(request):
+    """Página principal de devoluciones con historial."""
+    devoluciones = Devolucion.objects.select_related('venta').prefetch_related('detalles__producto', 'detalles__presentacion')
+    return render(request, 'ventas/devoluciones.html', {
+        'devoluciones': devoluciones,
+    })
+
+
+def buscar_venta_devolucion(request):
+    """
+    AJAX: busca ventas por cliente o ID para iniciar una devolución.
+    GET ?q=texto
+    """
+    q = request.GET.get('q', '').strip()
+    if not q:
+        return JsonResponse({'ventas': []})
+
+    ventas = Venta.objects.filter(cliente__icontains=q).order_by('-fecha')[:10]
+    # También busca por ID si el query es numérico
+    if q.isdigit():
+        ventas = (Venta.objects.filter(pk=int(q)) | ventas).distinct()
+
+    data = []
+    for v in ventas:
+        data.append({
+            'id':      v.pk,
+            'cliente': v.cliente,
+            'fecha':   v.fecha.strftime('%d/%m/%Y %H:%M'),
+            'total':   float(v.total_venta),
+        })
+    return JsonResponse({'ventas': data})
+
+
+def detalle_venta_devolucion(request, venta_id):
+    """
+    AJAX: devuelve los detalles de una venta para mostrar en el formulario de devolución.
+    GET /ventas/devoluciones/venta/<id>/detalle/
+    """
+    venta = get_object_or_404(Venta, pk=venta_id)
+    detalles = []
+    for d in venta.detalles.select_related('producto', 'presentacion').all():
+        detalles.append({
+            'detalle_id':   d.pk,
+            'producto_id':  d.producto.pk,
+            'producto':     d.producto.nombre,
+            'presentacion_id': d.presentacion.pk if d.presentacion else None,
+            'presentacion': d.presentacion.nombre if d.presentacion else '',
+            'cantidad':     d.cantidad,
+            'precio':       float(d.precio_unitario),
+            'subtotal':     float(d.subtotal()),
+        })
+    return JsonResponse({
+        'venta_id': venta.pk,
+        'cliente':  venta.cliente,
+        'fecha':    venta.fecha.strftime('%d/%m/%Y %H:%M'),
+        'total':    float(venta.total_venta),
+        'descuento': float(venta.descuento_porcentaje),
+        'detalles': detalles,
+    })
+
+
+@transaction.atomic
+def registrar_devolucion(request):
+    """
+    POST: procesa y guarda la devolución.
+    Subtarea 1 — guarda la devolución
+    Subtarea 2 — advierte si no hay comprobante (validado en frontend y aquí)
+    Subtarea 3 — actualiza inventario si corresponde
+    Subtarea 4 — redirige al comprobante generado
+    """
+    if request.method != 'POST':
+        return redirect('ventas:lista_devoluciones')
+
+    venta_id          = request.POST.get('venta_id')
+    tiene_comprobante = request.POST.get('tiene_comprobante') == '1'
+    restaurar_stock   = request.POST.get('restaurar_stock') == '1'
+    motivo            = request.POST.get('motivo', 'otro')
+    observaciones     = request.POST.get('observaciones', '')
+
+    producto_ids      = request.POST.getlist('producto_id[]')
+    presentacion_ids  = request.POST.getlist('presentacion_id[]')
+    cantidades        = request.POST.getlist('cantidad[]')
+    precios           = request.POST.getlist('precio[]')
+
+    # ── Subtarea 2: validar comprobante ──────────────────────────────
+    if not tiene_comprobante:
+        # El frontend ya mostró la advertencia; si el cajero igualmente envió el form
+        # con tiene_comprobante=0, rechazamos a nivel de servidor también.
+        messages.warning(request, 'No se puede registrar la devolución sin comprobante de compra.')
+        return redirect('ventas:lista_devoluciones')
+
+    venta = get_object_or_404(Venta, pk=venta_id)
+
+    # ── Subtarea 1: construir y guardar la devolución ─────────────────
+    total_devuelto = sum(
+        int(cantidades[i]) * float(precios[i])
+        for i in range(len(producto_ids))
+    )
+
+    devolucion = Devolucion.objects.create(
+        venta=venta,
+        motivo=motivo,
+        observaciones=observaciones,
+        restaurar_stock=restaurar_stock,
+        tiene_comprobante=tiene_comprobante,
+        total_devuelto=total_devuelto,
+    )
+
+    for i in range(len(producto_ids)):
+        from producto.models import Producto, PresentacionProducto
+        producto     = get_object_or_404(Producto, pk=producto_ids[i])
+        presentacion = None
+        if presentacion_ids[i] and presentacion_ids[i] != 'null':
+            presentacion = PresentacionProducto.objects.filter(pk=presentacion_ids[i]).first()
+
+        cantidad = int(cantidades[i])
+        precio   = float(precios[i])
+
+        DetalleDevolucion.objects.create(
+            devolucion=devolucion,
+            producto=producto,
+            presentacion=presentacion,
+            cantidad=cantidad,
+            precio_unitario=precio,
+        )
+
+        # ── Subtarea 3: actualizar inventario ─────────────────────────
+        if restaurar_stock and presentacion:
+            presentacion.cantidad += cantidad
+            presentacion.save()
+
+    # ── Subtarea 4: comprobante generado — redirige a la vista ────────
+    messages.success(request, f'Devolución {devolucion.numero} registrada correctamente.')
+    return redirect('ventas:comprobante_devolucion', pk=devolucion.pk)
+
+
+def comprobante_devolucion(request, pk):
+    """Muestra el comprobante imprimible de una devolución."""
+    devolucion = get_object_or_404(
+        Devolucion.objects.select_related('venta').prefetch_related(
+            'detalles__producto', 'detalles__presentacion'
+        ),
+        pk=pk
+    )
+    return render(request, 'ventas/comprobante_devolucion.html', {
+        'devolucion': devolucion,
+    })

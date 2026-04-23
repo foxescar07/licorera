@@ -19,8 +19,14 @@
   {% endfor %}
 {% endif %}
 
+<<<<<<< Updated upstream
+=======
+<link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+>>>>>>> Stashed changes
 <div class="container-fluid p-0">
 
+  <!-- ── MÉTRICAS ─────────────────────────────────────────── -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
       <div class="pv-stat">
@@ -38,28 +44,52 @@
     </div>
     <div class="col-6 col-md-3">
       <div class="pv-stat">
-        <div class="pv-stat__label"><i class="bi bi-exclamation-triangle-fill"></i> Pendientes</div>
-        <div class="pv-stat__val pv-stat__val--red">{{ ordenes_pendientes }}</div>
-        <div class="pv-stat__sub">0 hoy</div>
+        <div class="pv-stat__label"><i class="bi bi-shield-exclamation"></i> Sancionados</div>
+        <div class="pv-stat__val pv-stat__val--red" id="contadorSancionados">{{ proveedores_sancionados }}</div>
+        <div class="pv-stat__sub">
+          <span id="subInactivos">{{ proveedores_inactivos }} inactivo{% if proveedores_inactivos != 1 %}s{% endif %}</span>
+        </div>
       </div>
     </div>
     <div class="col-6 col-md-3">
       <div class="pv-stat pv-stat--dt">
-        <div class="pv-stat__label" style="justify-content:center;">
-          <i class="bi bi-clock-fill"></i> Actualización
-        </div>
+        <div class="pv-stat__label" style="justify-content:center;"><i class="bi bi-clock-fill"></i> Actualización</div>
         <div class="pv-stat__date">{% now "l, j \d\e F" %}</div>
         <div class="pv-stat__time">{% now "g:i a" %}</div>
       </div>
     </div>
   </div>
 
+  <!-- ── TABLA ─────────────────────────────────────────────── -->
   <section class="cys-card mb-4">
     <div class="pv-bar">
       <div class="pv-bar__title">
         <i class="bi bi-building"></i> Lista de Proveedores
       </div>
       <div class="pv-bar__right">
+
+        <!-- Filtros estado -->
+        <div class="pv-filtros">
+          <button class="pv-filtro pv-filtro--all pv-filtro--active" onclick="filtrarEstado('todos', this)">Todos</button>
+          <button class="pv-filtro pv-filtro--activo"     onclick="filtrarEstado('activo', this)"><span class="pv-filtro-dot"></span>Activos</button>
+          <button class="pv-filtro pv-filtro--inactivo"   onclick="filtrarEstado('inactivo', this)"><span class="pv-filtro-dot"></span>Inactivos</button>
+          <button class="pv-filtro pv-filtro--sancionado" onclick="filtrarEstado('sancionado', this)"><span class="pv-filtro-dot"></span>Sancionados</button>
+        </div>
+
+        <!-- Filtro tipo proveedor -->
+        <select id="filtroTipo" onchange="filtrarTipo(this.value)"
+                style="height:36px; background:#0b1220; border:1px solid rgba(77,168,218,.22);
+                       color:rgba(226,232,240,.7); border-radius:9px; padding:0 12px;
+                       font-size:.78rem; outline:none; cursor:pointer; font-family:inherit;">
+          <option value="todos">Todos los tipos</option>
+          <option value="mayorista">Mayorista</option>
+          <option value="minorista">Minorista</option>
+          <option value="distribuidor">Distribuidor</option>
+          <option value="fabricante">Fabricante</option>
+          <option value="importador">Importador</option>
+          <option value="otro">Otro</option>
+        </select>
+
         <div class="pv-search">
           <i class="bi bi-search"></i>
           <input type="text" id="buscadorProveedores"
@@ -86,70 +116,139 @@
             <th style="width:36px;">#</th>
             <th>Empresa</th>
             <th>Contacto</th>
-            <th>Teléfono</th>
+            <th>Tipo</th>
+            <th>Surte</th>
+            <th>Estado</th>
             <th>Responsable</th>
             <th>Fecha</th>
             <th style="width:44px;"></th>
           </tr>
         </thead>
         <tbody id="tablaProveedores">
-         {% for p in proveedores %}
-{% with responsable=p.registrado_por.email|default:"Admin" fecha_reg=p.fecha_registro|date:"d/m/Y" fecha_mod=p.ultima_modificacion|date:"d/m/Y H:i" %}
-<tr class="fila-proveedor"
-    data-empresa="{{ p.nombre_empresa|lower }}"
-    data-contacto="{{ p.nombre_contacto|lower }}"
-    data-email="{{ p.email|lower }}"
-    data-telefono="{{ p.telefono }}">
-  <td style="color:rgba(226,232,240,.25); font-size:.75rem;">{{ forloop.counter }}</td>
-  <td>
-    <div class="pv-empresa">{{ p.nombre_empresa }}</div>
-    <div class="pv-mail">{{ p.email }}</div>
-  </td>
-  <td style="color:rgba(226,232,240,.65); font-size:.82rem;">{{ p.nombre_contacto }}</td>
-  <td><a href="tel:{{ p.telefono }}" class="pv-tel">{{ p.telefono }}</a></td>
-  <td><span class="pv-badge-resp">{{ responsable }}</span></td>
-  <td><span class="pv-date">{{ p.ultima_modificacion|date:"d/m/Y" }}</span></td>
-  <td>
-    <div class="pv-actions" id="acc-{{ p.id }}">
-      <button class="pv-actions-btn"
-              onclick="toggleDropdown('acc-{{ p.id }}', event)"
-              title="Acciones">
-        <i class="bi bi-three-dots-vertical"></i>
-      </button>
-      <div class="pv-dropdown">
-       <a href="{% url 'registrar_compra' %}?proveedor={{ p.id }}">
-          <i class="bi bi-cart-plus" style="color:#5edb97;"></i>
-          Registrar compra
-        </a>
-        <button onclick="verDetalle('{{ p.nombre_empresa }}','{{ p.nombre_contacto }}','{{ p.email }}','{{ p.telefono }}','{{ responsable }}','{{ fecha_reg }}','{{ fecha_mod }}','{{ p.id }}'); cerrarDropdowns();">
-          <i class="bi bi-eye" style="color:#4DA8DA;"></i>
-          Ver información
-        </button>
-        <a href="{% url 'editar_proveedor' p.id %}">
-          <i class="bi bi-pencil-square" style="color:#facc15;"></i>
-          Editar
-        </a>
-        <div class="dd-divider"></div>
-        <button class="dd-danger"
-                onclick="confirmarEliminar('{% url 'eliminar_proveedor' p.id %}','{{ p.nombre_empresa }}'); cerrarDropdowns();">
-          <i class="bi bi-trash3"></i>
-          Eliminar
-        </button>
-      </div>
-    </div>
-  </td>
-</tr>
-{% endwith %}
-{% empty %}
-<tr>
-  <td colspan="7" class="text-center py-5" style="color:rgba(226,232,240,.25);">
-    <i class="bi bi-building d-block mb-2" style="font-size:2rem;"></i>
-    No hay proveedores registrados
-  </td>
-</tr>
-{% endfor %}
+          {% for p in proveedores %}
+          {% with responsable=p.registrado_por.email|default:"Admin" fecha_reg=p.fecha_registro|date:"d/m/Y" fecha_mod=p.ultima_modificacion|date:"d/m/Y H:i" %}
+          <tr class="fila-proveedor"
+              id="fila-{{ p.id }}"
+              data-empresa="{{ p.nombre_empresa|lower }}"
+              data-contacto="{{ p.nombre_contacto|lower }}"
+              data-email="{{ p.email|lower }}"
+              data-telefono="{{ p.telefono }}"
+              data-estado="{{ p.estado|default:'activo' }}"
+              data-tipo="{{ p.tipo_proveedor }}">
+
+            <td style="color:rgba(226,232,240,.25); font-size:.75rem;">{{ forloop.counter }}</td>
+
+            <td>
+              <div class="pv-empresa">{{ p.nombre_empresa }}</div>
+              <div class="pv-mail">{{ p.email }}</div>
+            </td>
+
+            <td style="color:rgba(226,232,240,.65); font-size:.82rem;">{{ p.nombre_contacto }}</td>
+
+            <!-- TIPO PROVEEDOR -->
+            <td>
+              <span class="tipo-badge tipo-{{ p.tipo_proveedor }}">
+                {{ p.get_tipo_proveedor_display }}
+              </span>
+            </td>
+
+            <!-- CATEGORÍAS QUE SURTE -->
+            <td>
+              <div class="cats-surte">
+                {% for cat in p.categorias_surtidas.all %}
+                  <span class="cat-pill">{{ cat.nombre }}</span>
+                {% empty %}
+                  <span style="color:rgba(226,232,240,.2); font-size:.75rem;">—</span>
+                {% endfor %}
+              </div>
+            </td>
+
+            <!-- ESTADO -->
+            <td>
+              <span class="estado-badge {{ p.estado|default:'activo' }}" id="badge-{{ p.id }}">
+                <span class="estado-dot"></span>
+                {% if p.estado == 'inactivo' %}Inactivo
+                {% elif p.estado == 'sancionado' %}Sancionado
+                {% else %}Activo{% endif %}
+              </span>
+            </td>
+
+            <td><span class="pv-badge-resp">{{ responsable }}</span></td>
+            <td><span class="pv-date">{{ p.ultima_modificacion|date:"d/m/Y" }}</span></td>
+
+            <td>
+              <div class="pv-actions" id="acc-{{ p.id }}">
+                <button class="pv-actions-btn"
+                        onclick="toggleDropdown('acc-{{ p.id }}', event)"
+                        title="Acciones">
+                  <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <div class="pv-dropdown">
+                  <a href="{% url 'registrar_compra' %}?proveedor={{ p.id }}">
+                    <i class="bi bi-cart-plus" style="color:#5edb97;"></i> Registrar compra
+                  </a>
+                  <button onclick="verDetalle(
+                      '{{ p.nombre_empresa|escapejs }}',
+                      '{{ p.nombre_contacto|escapejs }}',
+                      '{{ p.email|escapejs }}',
+                      '{{ p.telefono|escapejs }}',
+                      '{{ responsable|escapejs }}',
+                      '{{ fecha_reg }}',
+                      '{{ fecha_mod }}',
+                      '{{ p.id }}',
+                      '{{ p.estado|default:'activo' }}',
+                      '{{ p.motivo_sancion|escapejs }}',
+                      '{{ p.get_tipo_proveedor_display|escapejs }}',
+                      '{{ p.tipo_proveedor }}',
+                      [{% for cat in p.categorias_surtidas.all %}'{{ cat.nombre|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}]
+                    ); cerrarDropdowns();">
+                    <i class="bi bi-eye" style="color:#4DA8DA;"></i> Ver información
+                  </button>
+                  <a href="{% url 'editar_proveedor' p.id %}">
+                    <i class="bi bi-pencil-square" style="color:#facc15;"></i> Editar
+                  </a>
+
+                  <div class="dd-divider"></div>
+
+                  {% with est=p.estado|default:'activo' %}
+                  <button class="dd-estado-activar{% if est == 'activo' %} dd-estado-current{% endif %}"
+                          {% if est != 'activo' %}onclick="cambiarEstado({{ p.id }},'activo','{{ p.nombre_empresa|escapejs }}'); cerrarDropdowns();"{% endif %}>
+                    <i class="bi bi-{% if est == 'activo' %}check-circle-fill{% else %}check-circle{% endif %}"></i>
+                    Activar{% if est == 'activo' %} <span class="dd-current-tag">actual</span>{% endif %}
+                  </button>
+                  <button class="dd-estado-inactivar{% if est == 'inactivo' %} dd-estado-current{% endif %}"
+                          {% if est != 'inactivo' %}onclick="cambiarEstado({{ p.id }},'inactivo','{{ p.nombre_empresa|escapejs }}'); cerrarDropdowns();"{% endif %}>
+                    <i class="bi bi-{% if est == 'inactivo' %}pause-circle-fill{% else %}pause-circle{% endif %}"></i>
+                    Desactivar{% if est == 'inactivo' %} <span class="dd-current-tag">actual</span>{% endif %}
+                  </button>
+                  <button class="dd-estado-sancionar{% if est == 'sancionado' %} dd-estado-current{% endif %}"
+                          onclick="abrirModalSancion({{ p.id }},'{{ p.nombre_empresa|escapejs }}'); cerrarDropdowns();">
+                    <i class="bi bi-{% if est == 'sancionado' %}shield-fill-exclamation{% else %}shield-exclamation{% endif %}"></i>
+                    Sancionar{% if est == 'sancionado' %} <span class="dd-current-tag">actual</span>{% endif %}
+                  </button>
+                  {% endwith %}
+
+                  <div class="dd-divider"></div>
+                  <button class="dd-danger"
+                          onclick="confirmarEliminar('{% url 'eliminar_proveedor' p.id %}','{{ p.nombre_empresa|escapejs }}'); cerrarDropdowns();">
+                    <i class="bi bi-trash3"></i> Eliminar
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% endwith %}
+          {% empty %}
+          <tr>
+            <td colspan="9" class="text-center py-5" style="color:rgba(226,232,240,.25);">
+              <i class="bi bi-building d-block mb-2" style="font-size:2rem;"></i>
+              No hay proveedores registrados
+            </td>
+          </tr>
+          {% endfor %}
         </tbody>
       </table>
+
       <div id="sinResultados" class="text-center py-5"
            style="display:none; color:rgba(226,232,240,.25);">
         <i class="bi bi-search d-block mb-2" style="font-size:2rem;"></i>
@@ -160,7 +259,10 @@
 
 </div>
 
-<!-- MODAL: DETALLE -->
+
+<!-- ════════════════════════════════════════════════
+     MODAL: DETALLE PROVEEDOR
+═══════════════════════════════════════════════════ -->
 <div class="modal fade" id="detalleModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg"
@@ -175,10 +277,19 @@
       </div>
       <div class="modal-body p-4">
         <div class="d-flex flex-column gap-3">
-          <div>
-            <div style="font-size:.62rem; color:rgba(226,232,240,.3); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.3rem;">Empresa</div>
-            <div id="det-empresa" style="color:#4DA8DA; font-weight:700; font-size:1.05rem;"></div>
+
+          <!-- Empresa + estado -->
+          <div class="d-flex align-items-start justify-content-between gap-3">
+            <div>
+              <div style="font-size:.62rem; color:rgba(226,232,240,.3); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.3rem;">Empresa</div>
+              <div id="det-empresa" style="color:#4DA8DA; font-weight:700; font-size:1.05rem;"></div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:5px; margin-top:14px; flex-shrink:0;">
+              <span id="det-estado-badge" class="estado-badge"></span>
+              <span id="det-tipo-badge"   class="tipo-badge"></span>
+            </div>
           </div>
+
           <div class="row g-3">
             <div class="col-6">
               <div style="font-size:.62rem; color:rgba(226,232,240,.3); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.3rem;">Contacto</div>
@@ -192,6 +303,15 @@
               <div style="font-size:.62rem; color:rgba(226,232,240,.3); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.3rem;">Correo</div>
               <div id="det-email" style="color:rgba(226,232,240,.55); font-size:.88rem;"></div>
             </div>
+
+            <!-- Categorías que surte -->
+            <div class="col-12">
+              <div style="font-size:.62rem; color:rgba(226,232,240,.3); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.5rem;">
+                <i class="bi bi-tag me-1"></i> Categorías que surte
+              </div>
+              <div id="det-categorias" style="display:flex; flex-wrap:wrap; gap:5px;"></div>
+            </div>
+
             <div class="col-6">
               <div style="font-size:.62rem; color:rgba(226,232,240,.3); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.3rem;">Registrado por</div>
               <div id="det-responsable" style="color:rgba(226,232,240,.45); font-size:.85rem;"></div>
@@ -204,6 +324,20 @@
               <div style="font-size:.62rem; color:rgba(226,232,240,.3); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.3rem;">Última modificación</div>
               <div id="det-modificacion" style="color:rgba(226,232,240,.45); font-size:.85rem;"></div>
             </div>
+
+            <!-- Motivo sanción -->
+            <div class="col-12" id="det-motivo-box" style="display:none;">
+              <div style="height:1px; background:rgba(248,113,113,.12); margin-bottom:.75rem;"></div>
+              <div style="font-size:.62rem; color:#f87171; text-transform:uppercase; letter-spacing:.1em;
+                          margin-bottom:.4rem; display:flex; align-items:center; gap:.4rem;">
+                <i class="bi bi-shield-exclamation"></i> Motivo de sanción
+              </div>
+              <div id="det-motivo"
+                   style="background:rgba(248,113,113,.07); border:1px solid rgba(248,113,113,.2);
+                          border-radius:8px; padding:10px 13px; font-size:.85rem;
+                          color:#fca5a5; line-height:1.55;"></div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -221,8 +355,73 @@
     </div>
   </div>
 </div>
+<<<<<<< Updated upstream
 
-<!-- MODAL: NUEVO PROVEEDOR -->
+
+<!-- ════════════════════════════════════════════════
+     MODAL: SANCIONAR
+═══════════════════════════════════════════════════ -->
+<div class="modal fade" id="sancionModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:460px;">
+    <div class="modal-content border-0 shadow-lg"
+         style="background:#0f1a2e; border:1px solid rgba(248,113,113,.3) !important; border-radius:14px;">
+      <div class="modal-header border-0" style="padding:1.4rem 1.6rem 1rem;">
+        <div style="display:flex; align-items:center; gap:.75rem;">
+          <div style="width:36px; height:36px; border-radius:10px;
+                      background:rgba(248,113,113,.12); border:1px solid rgba(248,113,113,.3);
+                      display:flex; align-items:center; justify-content:center;
+                      color:#f87171; font-size:1rem; flex-shrink:0;">
+            <i class="bi bi-shield-exclamation"></i>
+          </div>
+          <span style="font-family:'Rajdhani',sans-serif; font-weight:700;
+                       font-size:1rem; letter-spacing:.1em; text-transform:uppercase; color:#e2e8f0;">
+            Sancionar Proveedor
+          </span>
+        </div>
+        <button type="button" class="btn-close btn-close-white"
+                data-bs-dismiss="modal" style="margin-left:auto;"></button>
+      </div>
+      <div class="modal-body px-4 pt-0 pb-3">
+        <div style="height:1px; background:rgba(226,232,240,.07); margin-bottom:1rem;"></div>
+        <p style="color:#cbd5e1; font-size:.9rem; margin:0 0 1rem; line-height:1.6;">
+          Vas a sancionar a <strong id="nombreSancion" style="color:#f87171;"></strong>.
+          Opcionalmente indica el motivo:
+        </p>
+        <textarea id="motivoSancion" rows="3"
+                  placeholder="Ej: Incumplimiento en entregas, precios incorrectos..."
+                  style="width:100%; background:#0b1220; border:1px solid rgba(248,113,113,.25);
+                         color:#e2e8f0; border-radius:9px; padding:10px 14px; font-size:.83rem;
+                         outline:none; resize:vertical; font-family:inherit; box-sizing:border-box;
+                         transition:border-color .2s;"
+                  onfocus="this.style.borderColor='#f87171'"
+                  onblur="this.style.borderColor='rgba(248,113,113,.25)'"></textarea>
+        <p style="color:rgba(226,232,240,.3); font-size:.78rem; margin-top:.5rem;">
+          El proveedor quedará marcado como sancionado y aparecerá en el contador.
+        </p>
+      </div>
+      <div class="modal-footer border-0 px-4 pb-4 pt-2 d-flex gap-3">
+        <button type="button" class="pv-del-cancel" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" onclick="confirmarSancion()"
+                style="flex:1; padding:.75rem; border-radius:10px; cursor:pointer;
+                       background:linear-gradient(135deg,#b91c1c,#ef4444); border:none;
+                       color:#fff; font-family:'Rajdhani',sans-serif; font-weight:700;
+                       font-size:.9rem; letter-spacing:.08em; text-transform:uppercase;
+                       display:flex; align-items:center; justify-content:center; gap:.5rem;
+                       box-shadow:0 4px 14px rgba(239,68,68,.35);"
+                onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          <i class="bi bi-shield-fill-exclamation"></i> Confirmar sanción
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════
+     MODAL: NUEVO PROVEEDOR
+═══════════════════════════════════════════════════ -->
+=======
+>>>>>>> Stashed changes
 <div class="modal fade" id="nuevoModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg"
@@ -238,28 +437,72 @@
       <form method="POST" action="{% url 'proveedores' %}">
         {% csrf_token %}
         <div class="modal-body p-4">
-          <div class="row g-3">
+
+          <!-- Fila 1: Empresa + Contacto -->
+          <div class="row g-3 mb-1">
             <div class="col-md-6">
-              <label class="cys-form-label">Empresa</label>
+              <label class="cys-form-label">
+                <i class="bi bi-building me-1" style="color:#4DA8DA;"></i> Empresa
+              </label>
               {{ form.nombre_empresa }}
               {% if form.nombre_empresa.errors %}<div class="cys-form-error">{{ form.nombre_empresa.errors }}</div>{% endif %}
             </div>
             <div class="col-md-6">
-              <label class="cys-form-label">Contacto</label>
+              <label class="cys-form-label">
+                <i class="bi bi-person me-1" style="color:#4DA8DA;"></i> Contacto
+              </label>
               {{ form.nombre_contacto }}
               {% if form.nombre_contacto.errors %}<div class="cys-form-error">{{ form.nombre_contacto.errors }}</div>{% endif %}
             </div>
+          </div>
+
+          <!-- Fila 2: Correo + Teléfono -->
+          <div class="row g-3 mb-1">
             <div class="col-md-6">
-              <label class="cys-form-label">Correo</label>
+              <label class="cys-form-label">
+                <i class="bi bi-envelope me-1" style="color:#4DA8DA;"></i> Correo
+              </label>
               {{ form.email }}
               {% if form.email.errors %}<div class="cys-form-error">{{ form.email.errors }}</div>{% endif %}
             </div>
             <div class="col-md-6">
-              <label class="cys-form-label">Teléfono</label>
+              <label class="cys-form-label">
+                <i class="bi bi-telephone me-1" style="color:#4DA8DA;"></i> Teléfono
+              </label>
               {{ form.telefono }}
               {% if form.telefono.errors %}<div class="cys-form-error">{{ form.telefono.errors }}</div>{% endif %}
             </div>
           </div>
+
+          <!-- Divisor -->
+          <div style="height:1px; background:rgba(77,168,218,.1); margin:16px 0 14px;"></div>
+
+          <!-- Fila 3: Tipo (pequeño) + Categorías (ancho) -->
+          <div class="row g-3">
+            <div class="col-md-5">
+              <label class="cys-form-label">
+                <i class="bi bi-tag me-1" style="color:#4DA8DA;"></i> Tipo de proveedor
+              </label>
+              {{ form.tipo_proveedor }}
+              {% if form.tipo_proveedor.errors %}<div class="cys-form-error">{{ form.tipo_proveedor.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-7">
+              <label class="cys-form-label">
+                <i class="bi bi-grid me-1" style="color:#4DA8DA;"></i> Categorías que surte
+                <span style="color:#475569; font-weight:400; text-transform:none; font-size:.68rem;">(opcional)</span>
+              </label>
+              <div class="cats-check-grid">
+                {% for cat in form.categorias_surtidas %}
+                <label class="cat-check-item">
+                  {{ cat.tag }}
+                  <span>{{ cat.choice_label }}</span>
+                </label>
+                {% endfor %}
+              </div>
+              {% if form.categorias_surtidas.errors %}<div class="cys-form-error">{{ form.categorias_surtidas.errors }}</div>{% endif %}
+            </div>
+          </div>
+
         </div>
         <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex justify-content-between">
           <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
@@ -272,7 +515,10 @@
   </div>
 </div>
 
-<!-- MODAL: CONFIRMAR ELIMINAR -->
+
+<!-- ════════════════════════════════════════════════
+     MODAL: CONFIRMAR ELIMINAR
+═══════════════════════════════════════════════════ -->
 <div class="modal fade pv-modal-del" id="eliminarModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered" style="max-width:440px;">
     <div class="modal-content">
@@ -298,9 +544,7 @@
           ¿Estás seguro de que deseas eliminar al proveedor
           <strong id="nombreEliminar" style="color:#e87070;"></strong>?
         </p>
-        <p style="color:rgba(226,232,240,.3); font-size:.8rem; margin-top:.4rem;">
-          Esta acción no se puede deshacer.
-        </p>
+        <p style="color:rgba(226,232,240,.3); font-size:.8rem; margin-top:.4rem;">Esta acción no se puede deshacer.</p>
       </div>
       <div class="modal-footer border-0 px-4 pb-4 pt-3 d-flex gap-3">
         <button type="button" class="pv-del-cancel" data-bs-dismiss="modal">Cancelar</button>
@@ -315,6 +559,21 @@
   </div>
 </div>
 
+
+<!-- ── TOAST ─────────────────────────────────────────────── -->
+<div id="toastEstado"
+     style="position:fixed; bottom:24px; right:24px; background:#0f1a2e;
+            border:1px solid rgba(77,168,218,.3); border-radius:10px;
+            padding:12px 18px; font-size:.83rem; color:#e2e8f0;
+            display:flex; align-items:center; gap:10px; z-index:99999;
+            opacity:0; transform:translateY(10px);
+            transition:opacity .25s, transform .25s;
+            pointer-events:none; min-width:240px;">
+  <span id="toastIcon" style="font-size:1rem; flex-shrink:0;"></span>
+  <span id="toastMsg"></span>
+</div>
+
+
 {% if form.errors %}
 <script>
   document.addEventListener('DOMContentLoaded', () =>
@@ -324,100 +583,243 @@
 {% endif %}
 
 <script>
-  function toggleDropdown(id, e) {
+// ══════════════════════════════════════════════════
+// DROPDOWN
+// ══════════════════════════════════════════════════
+function toggleDropdown(id, e) {
   e.stopPropagation();
-  const el     = document.getElementById(id);
+  const el = document.getElementById(id);
   const isOpen = el.classList.contains('open');
   cerrarDropdowns();
   if (!isOpen) {
     el.classList.add('open');
-    // Posicionar el dropdown relativo al botón
-    const btn    = el.querySelector('.pv-actions-btn');
-    const rect   = btn.getBoundingClientRect();
-    const menu   = el.querySelector('.pv-dropdown');
-    menu.style.top  = (rect.bottom + 4) + 'px';
-    menu.style.left = (rect.right - 170) + 'px';
+    const btn      = el.querySelector('.pv-actions-btn');
+    const dropdown = el.querySelector('.pv-dropdown');
+    const rect     = btn.getBoundingClientRect();
+    dropdown.style.position = 'fixed';
+    dropdown.style.top      = (rect.bottom + 4) + 'px';
+    dropdown.style.left     = (rect.right - dropdown.offsetWidth) + 'px';
+    dropdown.style.zIndex   = '9999';
+    requestAnimationFrame(() => {
+      const ddRect = dropdown.getBoundingClientRect();
+      if (ddRect.bottom > window.innerHeight)
+        dropdown.style.top = (rect.top - ddRect.height - 4) + 'px';
+      if (ddRect.left < 0)
+        dropdown.style.left = rect.left + 'px';
+    });
   }
 }
-  function toggleDropdown(id, e) {
-    e.stopPropagation();
-    const el = document.getElementById(id);
-    const isOpen = el.classList.contains('open');
-    cerrarDropdowns();
-    if (!isOpen) {
-      el.classList.add('open');
+function cerrarDropdowns() {
+  document.querySelectorAll('.pv-actions.open').forEach(el => el.classList.remove('open'));
+}
+document.addEventListener('click', cerrarDropdowns);
+document.addEventListener('scroll', cerrarDropdowns, true);
 
-      const btn      = el.querySelector('.pv-actions-btn');
-      const dropdown = el.querySelector('.pv-dropdown');
-      const rect     = btn.getBoundingClientRect();
 
-      dropdown.style.position = 'fixed';
-      dropdown.style.right    = 'auto';
-      dropdown.style.bottom   = 'auto';
-      dropdown.style.top      = (rect.bottom + 4) + 'px';
-      dropdown.style.left     = (rect.right - dropdown.offsetWidth) + 'px';
-      dropdown.style.zIndex   = '9999';
+// ══════════════════════════════════════════════════
+// FILTROS: búsqueda + estado + tipo
+// ══════════════════════════════════════════════════
+let filtroEstadoActual = 'todos';
+let filtroTipoActual   = 'todos';
+let busquedaActual     = '';
 
-      requestAnimationFrame(() => {
-        const ddRect = dropdown.getBoundingClientRect();
-        if (ddRect.bottom > window.innerHeight) {
-          dropdown.style.top = (rect.top - ddRect.height - 4) + 'px';
-        }
-        if (ddRect.left < 0) {
-          dropdown.style.left = rect.left + 'px';
-        }
-      });
+function aplicarFiltros() {
+  const filas  = document.querySelectorAll('.fila-proveedor');
+  const sinRes = document.getElementById('sinResultados');
+  let visibles = 0;
+
+  filas.forEach(f => {
+    const matchBusq  = !busquedaActual ||
+      f.dataset.empresa.includes(busquedaActual)  ||
+      f.dataset.contacto.includes(busquedaActual) ||
+      f.dataset.email.includes(busquedaActual)    ||
+      f.dataset.telefono.includes(busquedaActual);
+    const matchEstado = filtroEstadoActual === 'todos' || f.dataset.estado === filtroEstadoActual;
+    const matchTipo   = filtroTipoActual   === 'todos' || f.dataset.tipo   === filtroTipoActual;
+    const visible     = matchBusq && matchEstado && matchTipo;
+    f.style.display   = visible ? '' : 'none';
+    if (visible) visibles++;
+  });
+
+  sinRes.style.display = visibles === 0 ? 'block' : 'none';
+  const contador = document.getElementById('contadorResultados');
+  if (busquedaActual) {
+    contador.style.display = 'block';
+    document.getElementById('numResultados').textContent   = visibles;
+    document.getElementById('terminoBusqueda').textContent = busquedaActual;
+  } else {
+    contador.style.display = 'none';
+  }
+}
+
+function filtrarProveedores(q) { busquedaActual = q.toLowerCase().trim(); aplicarFiltros(); }
+function filtrarEstado(estado, btn) {
+  filtroEstadoActual = estado;
+  document.querySelectorAll('.pv-filtro').forEach(b => b.classList.remove('pv-filtro--active'));
+  btn.classList.add('pv-filtro--active');
+  aplicarFiltros();
+}
+function filtrarTipo(tipo) { filtroTipoActual = tipo; aplicarFiltros(); }
+
+
+// ══════════════════════════════════════════════════
+// CAMBIAR ESTADO (AJAX)
+// ══════════════════════════════════════════════════
+const LABELS = {
+  activo:     { texto:'Activo',     icon:'✓', color:'#4ade80', msg:'activado'    },
+  inactivo:   { texto:'Inactivo',   icon:'⏸', color:'#94a3b8', msg:'desactivado' },
+  sancionado: { texto:'Sancionado', icon:'⚠', color:'#f87171', msg:'sancionado'  },
+};
+
+function cambiarEstado(id, nuevoEstado, nombre, motivo) {
+  motivo = motivo || '';
+  fetch(`/proveedores/${id}/estado/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+    body: JSON.stringify({ estado: nuevoEstado, motivo }),
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.ok) { mostrarToastError('No se pudo cambiar el estado'); return; }
+    const badge = document.getElementById(`badge-${id}`);
+    if (badge) {
+      badge.className = `estado-badge ${nuevoEstado}`;
+      badge.innerHTML = `<span class="estado-dot"></span>${LABELS[nuevoEstado].texto}`;
     }
+    const fila = document.getElementById(`fila-${id}`);
+    if (fila) fila.dataset.estado = nuevoEstado;
+    actualizarContadores();
+    aplicarFiltros();
+    mostrarToast(nuevoEstado, nombre);
+  })
+  .catch(() => mostrarToastError('Error de conexión'));
+}
+
+let _sancionId = null, _sancionNombre = '';
+function abrirModalSancion(id, nombre) {
+  _sancionId = id; _sancionNombre = nombre;
+  document.getElementById('nombreSancion').textContent = nombre;
+  document.getElementById('motivoSancion').value = '';
+  new bootstrap.Modal(document.getElementById('sancionModal')).show();
+}
+function confirmarSancion() {
+  const motivo = document.getElementById('motivoSancion').value.trim();
+  bootstrap.Modal.getInstance(document.getElementById('sancionModal')).hide();
+  cambiarEstado(_sancionId, 'sancionado', _sancionNombre, motivo);
+}
+
+
+// ══════════════════════════════════════════════════
+// CONTADORES DINÁMICOS
+// ══════════════════════════════════════════════════
+function actualizarContadores() {
+  let sancionados = 0, inactivos = 0;
+  document.querySelectorAll('.fila-proveedor').forEach(f => {
+    if (f.dataset.estado === 'sancionado') sancionados++;
+    if (f.dataset.estado === 'inactivo')   inactivos++;
+  });
+  const elS = document.getElementById('contadorSancionados');
+  const elI = document.getElementById('subInactivos');
+  if (elS) elS.textContent = sancionados;
+  if (elI) elI.textContent = inactivos + ' inactivo' + (inactivos !== 1 ? 's' : '');
+}
+
+
+// ══════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════
+let _toastTimer = null;
+function mostrarToast(estado, nombre) {
+  const cfg = LABELS[estado] || {};
+  const toast = document.getElementById('toastEstado');
+  document.getElementById('toastIcon').textContent = cfg.icon  || '●';
+  document.getElementById('toastIcon').style.color = cfg.color || '#4DA8DA';
+  document.getElementById('toastMsg').textContent  = `"${nombre}" ${cfg.msg || 'actualizado'}`;
+  toast.style.borderColor = (cfg.color || '#4DA8DA') + '55';
+  toast.style.opacity = '1'; toast.style.transform = 'translateY(0)';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; }, 3000);
+}
+function mostrarToastError(txt) {
+  const toast = document.getElementById('toastEstado');
+  document.getElementById('toastIcon').textContent = '✕';
+  document.getElementById('toastIcon').style.color = '#f87171';
+  document.getElementById('toastMsg').textContent  = txt;
+  toast.style.borderColor = 'rgba(248,113,113,.4)';
+  toast.style.opacity = '1'; toast.style.transform = 'translateY(0)';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; }, 3000);
+}
+
+
+// ══════════════════════════════════════════════════
+// MODAL DETALLE
+// ══════════════════════════════════════════════════
+const TIPO_LABELS = {
+  mayorista:'Mayorista', minorista:'Minorista', distribuidor:'Distribuidor',
+  fabricante:'Fabricante', importador:'Importador', otro:'Otro',
+};
+
+function verDetalle(empresa, contacto, email, telefono, responsable, fecha, modificacion, id, estado, motivo, tipoLabel, tipoKey, categorias) {
+  document.getElementById('det-empresa').textContent      = empresa;
+  document.getElementById('det-contacto').textContent     = contacto;
+  document.getElementById('det-email').textContent        = email;
+  document.getElementById('det-telefono').textContent     = telefono;
+  document.getElementById('det-responsable').textContent  = responsable;
+  document.getElementById('det-fecha').textContent        = fecha;
+  document.getElementById('det-modificacion').textContent = modificacion;
+  document.getElementById('det-link-compra').href         = '/proveedores/compra/?proveedor=' + id;
+
+  // Estado badge
+  const estadoBadge = document.getElementById('det-estado-badge');
+  const estadoLabel = { activo:'Activo', inactivo:'Inactivo', sancionado:'Sancionado' };
+  estadoBadge.className = `estado-badge ${estado || 'activo'}`;
+  estadoBadge.innerHTML = `<span class="estado-dot"></span>${estadoLabel[estado] || 'Activo'}`;
+
+  // Tipo badge
+  const tipoBadge = document.getElementById('det-tipo-badge');
+  tipoBadge.className   = `tipo-badge tipo-${tipoKey}`;
+  tipoBadge.textContent = tipoLabel;
+
+  // Categorías
+  const catsEl = document.getElementById('det-categorias');
+  if (categorias && categorias.length) {
+    catsEl.innerHTML = categorias.map(c => `<span class="cat-pill">${c}</span>`).join('');
+  } else {
+    catsEl.innerHTML = '<span style="color:rgba(226,232,240,.3); font-size:.8rem;">Sin categorías asignadas</span>';
   }
 
-  function cerrarDropdowns() {
-    document.querySelectorAll('.pv-actions.open').forEach(el => el.classList.remove('open'));
-  }
-  document.addEventListener('click', cerrarDropdowns);
-  document.addEventListener('scroll', cerrarDropdowns, true);
-
-  function filtrarProveedores(q) {
-    q = q.toLowerCase().trim();
-    const filas    = document.querySelectorAll('.fila-proveedor');
-    const contador = document.getElementById('contadorResultados');
-    const sinRes   = document.getElementById('sinResultados');
-    let visibles   = 0;
-    filas.forEach(f => {
-      const ok = f.dataset.empresa.includes(q)  ||
-                 f.dataset.contacto.includes(q) ||
-                 f.dataset.email.includes(q)    ||
-                 f.dataset.telefono.includes(q);
-      f.style.display = ok ? '' : 'none';
-      if (ok) visibles++;
-    });
-    if (!q) {
-      contador.style.display = 'none';
-      sinRes.style.display   = 'none';
-    } else {
-      contador.style.display = 'block';
-      document.getElementById('numResultados').textContent   = visibles;
-      document.getElementById('terminoBusqueda').textContent = q;
-      sinRes.style.display = visibles === 0 ? 'block' : 'none';
-    }
+  // Motivo sanción
+  const motivoBox = document.getElementById('det-motivo-box');
+  const motivoEl  = document.getElementById('det-motivo');
+  if (estado === 'sancionado') {
+    motivoEl.textContent    = motivo && motivo.trim() ? motivo : 'Sin motivo registrado';
+    motivoBox.style.display = 'block';
+  } else {
+    motivoBox.style.display = 'none';
   }
 
-  function verDetalle(empresa, contacto, email, telefono, responsable, fecha, modificacion, id) {
-    document.getElementById('det-empresa').textContent      = empresa;
-    document.getElementById('det-contacto').textContent     = contacto;
-    document.getElementById('det-email').textContent        = email;
-    document.getElementById('det-telefono').textContent     = telefono;
-    document.getElementById('det-responsable').textContent  = responsable;
-    document.getElementById('det-fecha').textContent        = fecha;
-    document.getElementById('det-modificacion').textContent = modificacion;
-    document.getElementById('det-link-compra').href = '/proveedores/compra/?proveedor=' + id;
-    new bootstrap.Modal(document.getElementById('detalleModal')).show();
-  }
+  new bootstrap.Modal(document.getElementById('detalleModal')).show();
+}
 
-  function confirmarEliminar(url, nombre) {
-    document.getElementById('nombreEliminar').textContent = nombre;
-    document.getElementById('formEliminar').action = url;
-    new bootstrap.Modal(document.getElementById('eliminarModal')).show();
-  }
+
+// ══════════════════════════════════════════════════
+// MODAL ELIMINAR
+// ══════════════════════════════════════════════════
+function confirmarEliminar(url, nombre) {
+  document.getElementById('nombreEliminar').textContent = nombre;
+  document.getElementById('formEliminar').action = url;
+  new bootstrap.Modal(document.getElementById('eliminarModal')).show();
+}
+
+
+// ══════════════════════════════════════════════════
+// CSRF
+// ══════════════════════════════════════════════════
+function getCookie(name) {
+  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+  return v ? v[2] : null;
+}
 </script>
 
 {% endblock %}
