@@ -20,4 +20,6 @@ urlpatterns = [
     path('gestion/categoria/crear/', views.gestion_categoria_crear, name='gestion_categoria_crear'),
     path('gestion/categoria/eliminar/<int:pk>/', views.gestion_categoria_eliminar, name='gestion_categoria_eliminar'),
     path('gestion/categoria/editar/<int:pk>/', views.gestion_categoria_editar, name='gestion_categoria_editar'),
+    path('lote/registrar/', views.registrar_lote, name='registrar_lote'),
+
 ]

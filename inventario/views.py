@@ -6,7 +6,9 @@ from django.db import models as db_models
 from django.db.models import Prefetch
 
 from producto.models import Producto, AgendaInventario, Categoria, Inventario, PresentacionProducto
+
 from .models import ConteoProducto, SesionConteo, ResultadoInventario
+from .models import ConteoProducto, SesionConteo, ResultadoInventario, Lote
 
 
 # ===============================
