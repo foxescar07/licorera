@@ -6,7 +6,9 @@ from django.db import models as db_models
 from django.db.models import Prefetch
 
 from producto.models import Producto, AgendaInventario, Categoria, Inventario, PresentacionProducto
+
 from .models import ConteoProducto, SesionConteo, ResultadoInventario
+from .models import ConteoProducto, SesionConteo, ResultadoInventario, Lote
 
 
 # ===============================
@@ -354,4 +356,38 @@ def gestion_categoria_eliminar(request, pk):
             nombre = categoria.nombre
             categoria.delete()
             messages.success(request, f'✅ Categoría "{nombre}" eliminada.')
+    return redirect('inventario:gestion_productos')
+
+
+def registrar_lote(request):
+    if request.method == 'POST':
+        numero_lote = request.POST.get('numero_lote', '').strip()
+        producto_id = request.POST.get('producto')
+
+        # Validaciones
+        if not numero_lote:
+            messages.error(request, '⚠️ El número de lote es obligatorio.')
+            return redirect('inventario:gestion_productos')
+
+        if not producto_id:
+            messages.error(request, '⚠️ Debes seleccionar un producto.')
+            return redirect('inventario:gestion_productos')
+
+        if Lote.objects.filter(numero_lote=numero_lote).exists():
+            messages.error(request, f'⚠️ El lote "{numero_lote}" ya está registrado.')
+            return redirect('inventario:gestion_productos')
+
+        producto = get_object_or_404(Producto, pk=producto_id)
+
+        # SCRUM-102: Guarda el registro
+        Lote.objects.create(
+            numero_lote=numero_lote,
+            producto=producto,
+            registrado_por=request.user if request.user.is_authenticated else None
+        )
+
+        # SCRUM-104: redirige a confirmación
+        messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}".')
+        return redirect('inventario:gestion_productos')
+
     return redirect('inventario:gestion_productos')
