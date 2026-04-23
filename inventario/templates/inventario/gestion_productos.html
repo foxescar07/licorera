@@ -459,6 +459,7 @@
 
                 <button class="gp-btn gp-btn--outline gp-btn--sm"
                         onclick="abrirDetalleProducto(
+                          {{ p.pk }},
                           '{{ p.nombre|escapejs }}',
                           '{{ p.codigo|escapejs }}',
                           '{{ p.categoria.nombre|escapejs }}',
@@ -524,6 +525,7 @@
 
                   <button class="gp-btn gp-btn--outline gp-btn--sm"
                           onclick="abrirDetalleProducto(
+                              {{ p.pk }},
                             '{{ p.nombre|escapejs }}',
                             '{{ p.codigo|escapejs }}',
                             '{{ p.categoria.nombre|escapejs }}',
@@ -848,7 +850,10 @@
           <span class="gp-det-label">Descripción</span>
           <span id="gp-det-descripcion" style="font-size:.85rem; color:var(--gp-muted); line-height:1.55;"></span>
         </div>
-
+         <div class="gp-det-row">
+          <span class="gp-det-label"><i class="bi bi-upc-scan me-1"></i>Lotes registrados</span>
+          <div id="gp-det-lotes" style="margin-top:.35rem;"></div>
+        </div>
       </div>
     </div>
     <div class="gp-modal-footer">
@@ -1058,6 +1063,7 @@
      JAVASCRIPT
 ═════════════════════════════════════════ -->
 <script>
+// REEMPLAZA el array todoProductosGP por este:
 const todoProductosGP = [
   {% for p in productos %}
   {
@@ -1071,6 +1077,14 @@ const todoProductosGP = [
         unidades: {{ pr.unidades }},
         precio: "{{ pr.precio }}",
         cantidad: {{ pr.cantidad }}
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ],
+    lotes: [
+      {% for l in p.lotes.all %}
+      {
+        numero: "{{ l.numero_lote|escapejs }}",
+        fecha: "{{ l.fecha_registro|date:'d/m/Y' }}"
       }{% if not forloop.last %},{% endif %}
       {% endfor %}
     ]
@@ -1156,7 +1170,7 @@ document.addEventListener('keydown', e => {
 });
 
 // ── MODAL: VER DETALLE PRODUCTO ───────────────────
-function abrirDetalleProducto(nombre, codigo, categoria, precio, stock, unidad, descripcion) {
+function abrirDetalleProducto(pk, nombre, codigo, categoria, precio, stock, unidad, descripcion) {
   document.getElementById('gp-det-nombre').textContent    = nombre;
   document.getElementById('gp-det-codigo').textContent    = codigo;
   document.getElementById('gp-det-categoria').textContent = categoria;
@@ -1167,6 +1181,24 @@ function abrirDetalleProducto(nombre, codigo, categoria, precio, stock, unidad, 
   stockEl.style.color = parseInt(stock) <= 5 ? 'var(--gp-danger)' : 'var(--gp-green)';
 
   document.getElementById('gp-det-descripcion').textContent = descripcion || 'Sin descripción.';
+
+  // ── Lotes ──
+  const producto = todoProductosGP.find(p => p.pk == pk);
+  const lotesEl  = document.getElementById('gp-det-lotes');
+  if (producto && producto.lotes.length > 0) {
+    lotesEl.innerHTML = producto.lotes.map(l => `
+      <div style="display:flex; justify-content:space-between; align-items:center;
+                  padding:.3rem .6rem; border-radius:7px;
+                  background:rgba(77,168,218,.06); border:1px solid rgba(77,168,218,.12);
+                  margin-bottom:.3rem;">
+        <span style="font-family:monospace; color:var(--gp-blue); font-size:.82rem; font-weight:600;">
+          <i class="bi bi-upc-scan me-1"></i>${l.numero}
+        </span>
+        <span style="font-size:.7rem; color:var(--gp-muted);">${l.fecha}</span>
+      </div>`).join('');
+  } else {
+    lotesEl.innerHTML = '<span style="font-size:.78rem; color:var(--gp-muted);">Sin lotes registrados.</span>';
+  }
 
   document.getElementById('modalDetalleProducto').classList.add('open');
 }
