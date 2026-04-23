@@ -33,7 +33,7 @@ class PresentacionForm(forms.ModelForm):
         labels = {
             "nombre":   "Nombre presentación",
             "unidades": "Unidades que contiene",
-            "cantidad": "Cantidad existente",  # ✅ Label actualizado
+            "cantidad": "Cantidad existente",
             "precio":   "Precio (COP)",
         }
 
@@ -65,7 +65,20 @@ class ProductoRegistroForm(forms.ModelForm):
         model  = Producto
         fields = ["codigo", "nombre", "categoria"]
         widgets = {
-            "codigo":    forms.TextInput(attrs={"class": "form-control", "placeholder": "Ej: AGU330"}),
-            "nombre":    forms.TextInput(attrs={"class": "form-control", "placeholder": "Ej: Aguila Lata"}),
-            "categoria": forms.Select(attrs={"class": "form-select"}),
+            "codigo":    forms.TextInput(attrs={
+                "class":       "np-input",
+                "placeholder": "Ej: AGU330"
+            }),
+            "nombre":    forms.TextInput(attrs={
+                "class":       "np-input",
+                "placeholder": "Ej: Aguila Lata"
+            }),
+            "categoria": forms.Select(attrs={
+                "class": "np-input",
+            }),
+        }
+        labels = {
+            "codigo":    "Código / Referencia",
+            "nombre":    "Nombre del Producto",
+            "categoria": "Categoría",
         }

@@ -10,15 +10,13 @@ urlpatterns = [
     path('conteo/', views.conteo_inventario, name='conteo_inventario'),
     path('ajustar/<int:pk>/', views.ajustar_inventario, name='ajustar_inventario'),
     path('finalizar/', views.finalizar_inventario, name='finalizar_inventario'),
-
     path('codigos/<int:pk>/guardar/', views.guardar_codigo_barras, name='guardar_codigo'),
 
-
-    # ── Gestión de Productos (movido desde proveedores) ──
+    # ── Gestión de Inventario ──
     path('gestion/', views.gestion_productos, name='gestion_productos'),
     path('gestion/salida/', views.gestion_salida, name='gestion_salida'),
     path('gestion/producto/eliminar/<int:pk>/', views.gestion_producto_eliminar, name='gestion_producto_eliminar'),
-    path('gestion/producto/editar/<int:pk>/', views.gestion_producto_editar, name='gestion_producto_editar'),
+    # EDITAR producto → movido a producto:producto_editar
     path('gestion/categoria/crear/', views.gestion_categoria_crear, name='gestion_categoria_crear'),
     path('gestion/categoria/eliminar/<int:pk>/', views.gestion_categoria_eliminar, name='gestion_categoria_eliminar'),
     path('gestion/categoria/editar/<int:pk>/', views.gestion_categoria_editar, name='gestion_categoria_editar'),
