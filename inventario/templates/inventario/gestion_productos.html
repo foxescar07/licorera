@@ -22,7 +22,6 @@
     --gp-warn:   #f1c40f;
   }
 
-  /* ── GENERALES ── */
   .gp-back {
     display:inline-flex; align-items:center; gap:.45rem;
     color:var(--gp-blue); text-decoration:none;
@@ -62,7 +61,6 @@
     display:block; margin-bottom:.35rem;
   }
 
-  /* ── BOTONES ── */
   .gp-btn {
     display:inline-flex; align-items:center; gap:.4rem;
     border:none; border-radius:10px; padding:.6rem 1.1rem;
@@ -83,10 +81,9 @@
   .gp-btn--danger:hover  { background:rgba(192,57,43,.28); }
   .gp-btn--sm { padding:.35rem .7rem; font-size:.75rem; border-radius:8px; }
 
-  /* ── TABS ── */
   .gp-tabs {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: .5rem;
     margin-bottom: 1.5rem;
   }
@@ -106,7 +103,6 @@
   .gp-section { display:none; }
   .gp-section.active { display:block; }
 
-  /* ── STATS (TAB CATÁLOGO) ── */
   .gp-stats-grid {
     display:grid; grid-template-columns:repeat(3,1fr);
     gap:.75rem; margin-bottom:1rem;
@@ -125,7 +121,6 @@
   }
   .gp-stat-card__val.danger { color:var(--gp-danger); }
 
-  /* ── BUSCADOR ── */
   .gp-search-wrap { position:relative; margin-bottom:1rem; }
   .gp-search-wrap i {
     position:absolute; left:.85rem; top:50%; transform:translateY(-50%);
@@ -140,7 +135,6 @@
   .gp-search:focus { border-color:var(--gp-blue); }
   .gp-search::placeholder { color:var(--gp-muted); }
 
-  /* ── GRUPOS CATÁLOGO ── */
   .gp-group { margin-bottom:.65rem; }
   .gp-group-header {
     background:var(--gp-card); border:1px solid var(--gp-border);
@@ -170,7 +164,6 @@
   }
   .gp-group-body.open { display:block; }
 
-  /* Cabecera de columnas */
   .gp-col-header {
     display:grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
@@ -183,7 +176,6 @@
     letter-spacing:.1em; text-transform:uppercase;
   }
 
-  /* Filas del catálogo */
   .gp-fila {
     display:grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
@@ -219,7 +211,6 @@
 
   .gp-fila-actions { display:flex; gap:.4rem; align-items:center; }
 
-  /* ── OTRAS TABLAS (si se necesitan) ── */
   .gp-table { width:100%; border-collapse:collapse; }
   .gp-table th {
     font-size:.65rem; font-weight:700; color:var(--gp-muted);
@@ -243,7 +234,6 @@
     border-color:rgba(192,57,43,.3);
   }
 
-  /* ── CATEGORÍAS ── */
   .gp-cat-item {
     background:var(--gp-card2); border:1px solid var(--gp-border);
     border-radius:10px; padding:.55rem .9rem;
@@ -256,7 +246,6 @@
     display:flex; flex-wrap:wrap; gap:.4rem;
   }
 
-  /* ── ALERTAS ── */
   .gp-alert {
     padding:.7rem 1rem; border-radius:10px; font-size:.82rem;
     margin-bottom:1rem; display:flex; align-items:center; gap:.6rem;
@@ -265,7 +254,6 @@
   .gp-alert--err  { background:rgba(192,57,43,.1);  border:1px solid rgba(192,57,43,.3);  color:var(--gp-danger); }
   .gp-alert--warn { background:rgba(241,196,15,.1); border:1px solid rgba(241,196,15,.3); color:var(--gp-warn); }
 
-  /* ── FORM GRID ── */
   .gp-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -316,7 +304,14 @@
     border-top:1px solid rgba(77,168,218,.1);
   }
 
-  /* Fila presentación */
+  /* Filas de detalle */
+  .gp-det-row { display:flex; flex-direction:column; gap:.15rem; }
+  .gp-det-label {
+    font-size:.62rem; font-weight:700; color:var(--gp-muted);
+    letter-spacing:.1em; text-transform:uppercase;
+  }
+  .gp-det-val { font-size:.9rem; color:var(--gp-text); }
+
   .pres-row {
     background:var(--gp-card2); border:1px solid var(--gp-border);
     border-radius:10px; padding:.75rem 1rem; margin-bottom:.5rem;
@@ -370,14 +365,16 @@
     <button class="gp-tab" onclick="showTab('nuevo', this)">
       <i class="bi bi-plus-circle"></i> Nuevo Producto
     </button>
+    <button class="gp-tab" onclick="showTab('lotes', this)">
+      <i class="bi bi-upc-scan"></i> Registrar Lote
+    </button>
   </div>
 
   <!-- ════════════════════════════════════════
-       TAB 1: CATÁLOGO (diseño agrupado)
+       TAB 1: CATÁLOGO
   ═════════════════════════════════════════ -->
   <div id="tab-productos" class="gp-section active">
 
-    <!-- Stats rápidas -->
     <div class="gp-stats-grid">
       <div class="gp-stat-card">
         <div class="gp-stat-card__label"><i class="bi bi-box-seam me-1"></i>Total Productos</div>
@@ -393,7 +390,6 @@
       </div>
     </div>
 
-    <!-- Buscador -->
     <div class="gp-search-wrap">
       <i class="bi bi-search"></i>
       <input type="text" id="cat-buscador" class="gp-search"
@@ -401,7 +397,6 @@
              oninput="gpBuscar(this.value)">
     </div>
 
-    <!-- Grupos por categoría -->
     <div id="gp-grupos">
       {% for cat in categorias %}
         {% if cat %}
@@ -416,7 +411,6 @@
           </div>
           <div class="gp-group-body open">
 
-            <!-- Cabecera columnas (desktop) -->
             <div class="gp-col-header">
               <span>Nombre</span>
               <span>Código</span>
@@ -462,6 +456,20 @@
                         )">
                   <i class="bi bi-pencil"></i> Editar
                 </button>
+
+                <button class="gp-btn gp-btn--outline gp-btn--sm"
+                        onclick="abrirDetalleProducto(
+                          '{{ p.nombre|escapejs }}',
+                          '{{ p.codigo|escapejs }}',
+                          '{{ p.categoria.nombre|escapejs }}',
+                          '{{ p.precio_unitario }}',
+                          '{{ p.stock_total }}',
+                          '{{ p.unidad }}',
+                          '{{ p.descripcion|default:''|escapejs }}'
+                        )">
+                  <i class="bi bi-eye"></i>
+                </button>
+
                 <form method="POST" action="{% url 'inventario:gestion_producto_eliminar' p.pk %}"
                       onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»? Esta acción no se puede deshacer.')"
                       style="margin:0;">
@@ -513,6 +521,20 @@
                           )">
                     <i class="bi bi-pencil"></i> Editar
                   </button>
+
+                  <button class="gp-btn gp-btn--outline gp-btn--sm"
+                          onclick="abrirDetalleProducto(
+                            '{{ p.nombre|escapejs }}',
+                            '{{ p.codigo|escapejs }}',
+                            '{{ p.categoria.nombre|escapejs }}',
+                            '{{ p.precio_unitario }}',
+                            '{{ p.stock_total }}',
+                            '{{ p.unidad }}',
+                            '{{ p.descripcion|default:''|escapejs }}'
+                          )">
+                    <i class="bi bi-eye"></i>
+                  </button>
+
                   <form method="POST" action="{% url 'inventario:gestion_producto_eliminar' p.pk %}"
                         onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»?')"
                         style="margin:0;">
@@ -535,7 +557,7 @@
           No hay productos registrados aún.
         </div>
       {% endfor %}
-    </div><!-- /gp-grupos -->
+    </div>
 
   </div>
   <!-- /TAB CATÁLOGO -->
@@ -583,7 +605,6 @@
         </div>
       </form>
     </div>
-    <!-- Datos de presentaciones para JS -->
     <script id="presData" type="application/json">
       { {% for p in productos %}"{{ p.pk }}": [{% for pr in p.presentaciones.all %}{"id":"{{ pr.pk }}","nombre":"{{ pr.nombre }}","cantidad":{{ pr.cantidad }},"unidades":{{ pr.unidades }}}{% if not forloop.last %},{% endif %}{% endfor %}]{% if not forloop.last %},{% endif %}{% endfor %} }
     </script>
@@ -741,9 +762,103 @@
       </form>
     </div>
   </div>
-  <!-- /TAB NUEVO PRODUCTO -->
+  <!-- TAB 5: REGISTRAR LOTE -->
+<div id="tab-lotes" class="gp-section">
+  <div class="gp-card">
+    <div class="gp-card__title">
+      <i class="bi bi-upc-scan"></i> Registrar Lote
+    </div>
+    <form method="POST" action="{% url 'inventario:registrar_lote' %}">
+      {% csrf_token %}
+      <div class="gp-form-grid">
+
+        <!-- SCRUM-96: Ingresar número de lote -->
+        <div>
+          <label class="gp-label">Número de Lote</label>
+          <input type="text" name="numero_lote" class="gp-input"
+                 placeholder="Ej: LOT-2025-001" required>
+        </div>
+
+        <!-- SCRUM-99: Asociar al producto -->
+        <div>
+          <label class="gp-label">Producto</label>
+          <select name="producto" class="gp-input" required>
+            <option value="">— Selecciona un producto —</option>
+            {% for p in productos %}
+              <option value="{{ p.pk }}">{{ p.nombre }} ({{ p.codigo }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- SCRUM-102: Botón guardar -->
+        <div class="gp-full">
+          <button type="submit" class="gp-btn gp-btn--primary w-100">
+            <i class="bi bi-save"></i> Guardar Lote
+          </button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
 
 </div><!-- /container-fluid -->
+
+
+<!-- ════════════════════════════════════════
+     MODAL: DETALLE PRODUCTO
+═════════════════════════════════════════ -->
+<div id="modalDetalleProducto" class="gp-modal-overlay">
+  <div class="gp-modal-box">
+    <div class="gp-modal-header">
+      <div class="gp-modal-header__icon"><i class="bi bi-eye"></i></div>
+      <span class="gp-modal-header__title">Detalle del Producto</span>
+      <button class="gp-modal-close" onclick="cerrarModal('modalDetalleProducto')">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="gp-modal-body">
+      <div style="display:flex; flex-direction:column; gap:1.1rem;">
+
+        <div class="gp-det-row">
+          <span class="gp-det-label">Nombre</span>
+          <span id="gp-det-nombre" style="font-size:1.05rem; font-weight:700; color:var(--gp-text);"></span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="gp-det-row">
+            <span class="gp-det-label">Código</span>
+            <span id="gp-det-codigo" style="font-family:monospace; color:var(--gp-blue); font-weight:600; font-size:.9rem;"></span>
+          </div>
+          <div class="gp-det-row">
+            <span class="gp-det-label">Categoría</span>
+            <span id="gp-det-categoria" class="gp-det-val"></span>
+          </div>
+          <div class="gp-det-row">
+            <span class="gp-det-label">Precio unitario</span>
+            <span id="gp-det-precio" style="color:var(--gp-blue); font-weight:700; font-size:.95rem;"></span>
+          </div>
+          <div class="gp-det-row">
+            <span class="gp-det-label">Stock disponible</span>
+            <span id="gp-det-stock" style="font-weight:700; font-size:.95rem;"></span>
+          </div>
+        </div>
+
+        <div class="gp-det-row">
+          <span class="gp-det-label">Descripción</span>
+          <span id="gp-det-descripcion" style="font-size:.85rem; color:var(--gp-muted); line-height:1.55;"></span>
+        </div>
+
+      </div>
+    </div>
+    <div class="gp-modal-footer">
+      <button type="button" class="gp-btn gp-btn--outline" style="flex:1;"
+              onclick="cerrarModal('modalDetalleProducto')">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
 
 
 <!-- ════════════════════════════════════════
@@ -788,7 +903,6 @@
           </div>
         </div>
 
-        <!-- Presentaciones actuales -->
         <div style="margin-top:1.25rem;">
           <div style="font-family:'Rajdhani',sans-serif; font-size:.82rem; font-weight:700;
                       color:var(--gp-blue); letter-spacing:.08em; text-transform:uppercase;
@@ -838,7 +952,6 @@
           Define las presentaciones del producto. La
           <strong style="color:var(--gp-blue);">Unidad</strong> es siempre la base.
         </div>
-        <!-- FILA FIJA: Unidad -->
         <div class="pres-row mb-2">
           <div class="row g-2 align-items-center">
             <div class="col-md-3">
@@ -866,7 +979,6 @@
             </div>
           </div>
         </div>
-        <!-- FILAS DINÁMICAS -->
         <div id="contenedor-presentaciones"></div>
         <button type="button" class="gp-btn gp-btn--outline w-100 mt-2"
                 style="border-style:dashed; font-size:.8rem;"
@@ -946,7 +1058,6 @@
      JAVASCRIPT
 ═════════════════════════════════════════ -->
 <script>
-// ── Datos de productos para JS ──
 const todoProductosGP = [
   {% for p in productos %}
   {
@@ -967,9 +1078,7 @@ const todoProductosGP = [
   {% endfor %}
 ];
 
-// ────────────────────────────────────────
-// TABS
-// ────────────────────────────────────────
+// ── TABS ──────────────────────────────────────────
 function showTab(name, btn) {
   document.querySelectorAll('.gp-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.gp-tab').forEach(t => t.classList.remove('active'));
@@ -977,18 +1086,13 @@ function showTab(name, btn) {
   btn.classList.add('active');
 }
 
-// ────────────────────────────────────────
-// CATÁLOGO — Toggle grupos
-// ────────────────────────────────────────
+// ── GRUPOS ────────────────────────────────────────
 function gpToggle(header) {
   header.classList.toggle('open');
-  const body = header.nextElementSibling;
-  body.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
 }
 
-// ────────────────────────────────────────
-// CATÁLOGO — Buscador
-// ────────────────────────────────────────
+// ── BUSCADOR ──────────────────────────────────────
 document.getElementById('cat-buscador').addEventListener('input', function () {
   gpBuscar(this.value);
 });
@@ -1006,7 +1110,6 @@ function gpBuscar(q) {
       if (match) alguna = true;
     });
     grupo.style.display = alguna ? '' : 'none';
-    // Auto-abrir grupo si hay coincidencias en búsqueda
     if (term && alguna) {
       grupo.querySelector('.gp-group-header').classList.add('open');
       grupo.querySelector('.gp-group-body').classList.add('open');
@@ -1014,9 +1117,7 @@ function gpBuscar(q) {
   });
 }
 
-// ────────────────────────────────────────
-// PRESENTACIONES — Selector de salida
-// ────────────────────────────────────────
+// ── PRESENTACIONES SALIDA ─────────────────────────
 const presData = JSON.parse(document.getElementById('presData').textContent);
 
 function cargarPresentaciones(sel) {
@@ -1037,9 +1138,7 @@ function cargarPresentaciones(sel) {
   wrap.style.display = 'block';
 }
 
-// ────────────────────────────────────────
-// MODALES — helpers
-// ────────────────────────────────────────
+// ── MODALES — helpers ─────────────────────────────
 function cerrarModal(id) {
   document.getElementById(id).classList.remove('open');
 }
@@ -1056,9 +1155,23 @@ document.addEventListener('keydown', e => {
             .forEach(m => m.classList.remove('open'));
 });
 
-// ────────────────────────────────────────
-// MODAL — Editar Producto
-// ────────────────────────────────────────
+// ── MODAL: VER DETALLE PRODUCTO ───────────────────
+function abrirDetalleProducto(nombre, codigo, categoria, precio, stock, unidad, descripcion) {
+  document.getElementById('gp-det-nombre').textContent    = nombre;
+  document.getElementById('gp-det-codigo').textContent    = codigo;
+  document.getElementById('gp-det-categoria').textContent = categoria;
+  document.getElementById('gp-det-precio').textContent    = '$' + parseInt(precio).toLocaleString('es-CO');
+
+  const stockEl = document.getElementById('gp-det-stock');
+  stockEl.textContent = stock + ' ' + unidad;
+  stockEl.style.color = parseInt(stock) <= 5 ? 'var(--gp-danger)' : 'var(--gp-green)';
+
+  document.getElementById('gp-det-descripcion').textContent = descripcion || 'Sin descripción.';
+
+  document.getElementById('modalDetalleProducto').classList.add('open');
+}
+
+// ── MODAL: EDITAR PRODUCTO ────────────────────────
 function abrirEditarProducto(pk, nombre, codigo, descripcion, precio, categoriaPk) {
   document.getElementById('ep-nombre').value      = nombre;
   document.getElementById('ep-codigo').value      = codigo;
@@ -1069,7 +1182,6 @@ function abrirEditarProducto(pk, nombre, codigo, descripcion, precio, categoriaP
   document.getElementById('formEditarProducto').action =
     '{% url "inventario:gestion_producto_editar" 0 %}'.replace('/0/', '/' + pk + '/');
 
-  // Presentaciones actuales
   const producto = todoProductosGP.find(p => p.pk == pk);
   const contPres = document.getElementById('ep-presentaciones');
   if (producto && producto.presentaciones.length > 0) {
@@ -1095,9 +1207,7 @@ function abrirEditarProducto(pk, nombre, codigo, descripcion, precio, categoriaP
   document.getElementById('modalEditarProducto').classList.add('open');
 }
 
-// ────────────────────────────────────────
-// MODAL — Presentaciones
-// ────────────────────────────────────────
+// ── MODAL: PRESENTACIONES ─────────────────────────
 function abrirPresentaciones(pk, nombre) {
   document.getElementById('pres-producto-nombre').textContent = nombre;
   document.getElementById('form-presentaciones').action =
@@ -1165,9 +1275,7 @@ function guardarPresentaciones() {
   document.getElementById('form-presentaciones').submit();
 }
 
-// ────────────────────────────────────────
-// Guardar y definir presentaciones (nuevo)
-// ────────────────────────────────────────
+// ── GUARDAR Y DEFINIR PRESENTACIONES (nuevo) ──────
 function guardarYDefinirPresentaciones() {
   const form   = document.getElementById('form-nuevo-producto');
   const nombre = form.querySelector('[name="nombre"]').value.trim();
@@ -1205,9 +1313,7 @@ function guardarYDefinirPresentaciones() {
   });
 }
 
-// ────────────────────────────────────────
-// MODAL — Editar Categoría
-// ────────────────────────────────────────
+// ── MODAL: EDITAR CATEGORÍA ───────────────────────
 function abrirEditarCategoria(pk, nombre, codigo, descripcion, padrePk) {
   document.getElementById('ec-nombre').value      = nombre;
   document.getElementById('ec-codigo').value      = codigo;
@@ -1220,9 +1326,7 @@ function abrirEditarCategoria(pk, nombre, codigo, descripcion, padrePk) {
   document.getElementById('modalEditarCategoria').classList.add('open');
 }
 
-// ────────────────────────────────────────
-// Auto-abrir tab de nuevo producto si hay errores de formulario
-// ────────────────────────────────────────
+// ── Auto-abrir tab nuevo si hay errores ───────────
 {% if form.errors %}
   document.querySelector('.gp-tab:nth-child(4)').click();
 {% endif %}
