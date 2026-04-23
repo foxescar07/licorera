@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
-
+ 
 {% block title %}Ventas — CYS Ltda{% endblock %}
 {% block page_title %}Ventas{% endblock %}
 {% block nav_ventas %}active{% endblock %}
-
+ 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/ventas.css' %}">
 <style>
@@ -16,7 +16,7 @@
 }#id_cliente {
     color: var(--texto) !important;
 }
-
+ 
 #id_cliente::placeholder {
     color: var(--texto-muted) !important;
 }
@@ -24,7 +24,7 @@
 .metodo-pago-btn.activo { border-color: var(--azul-claro); color: var(--azul-claro); background: rgba(77,168,218,.1); }
 </style>
 {% endblock %}
-
+ 
 {% block content %}
 <div class="container-fluid p-0">
   <div class="row g-4">
@@ -79,7 +79,7 @@
         </div>
       </section>
     </div>
-
+ 
     <div class="col-lg-5">
       <section class="cys-card" style="min-height:600px;">
         <div class="cys-card__title">Carrito de Venta</div>
@@ -104,7 +104,7 @@
             </div>
           </div>
           <div id="totalGeneral" style="display:none; background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; padding:1.1rem 1.3rem; margin-bottom:1rem; font-size:1rem;"></div>
-
+ 
           <!-- MÉTODOS DE PAGO -->
           <div id="seccionPagos" style="display:none; margin-bottom:1rem;">
             <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:1rem 1.1rem;">
@@ -120,7 +120,7 @@
               <div id="validacionPago" style="font-size:1rem; font-weight:700; margin-top:.8rem; display:none;"></div>
             </div>
           </div>
-
+ 
           <input type="hidden" name="pago_efectivo" id="hiddenEfectivo" value="0">
           <input type="hidden" name="pago_tarjeta" id="hiddenTarjeta" value="0">
           <input type="hidden" name="pago_transferencia" id="hiddenTransferencia" value="0">
@@ -134,7 +134,7 @@
       </section>
     </div>
   </div>
-
+ 
   <!-- HISTORIAL DE VENTAS -->
   <div class="row mt-4">
     <div class="col-12">
@@ -191,7 +191,7 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- MODAL RECIBO -->
 <div id="overlayRecibo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.7); z-index:9998;" onclick="cerrarRecibo()"></div>
 <div id="modalRecibo" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999; width:440px; max-width:95vw; max-height:90vh; overflow-y:auto; background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;">
@@ -210,7 +210,7 @@
     <button onclick="cerrarRecibo()" style="flex:1; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
   </div>
 </div>
-
+ 
 <!-- DATOS VENTAS PARA JS -->
 <div id="datosVentas" style="display:none;">
   {% for venta in ventas %}
@@ -238,19 +238,39 @@
   {% endfor %}
 </div>
 {% endblock %}
-
+ 
 {% block extra_js %}
 <script>
 let carrito = [];
 let metodosActivos = new Set();
 let totalActual = 0;
-
+ 
 function formatPesos(val) {
     const esEntero = Math.abs(val - Math.round(val)) < 0.001;
     if (esEntero) return Math.round(val).toLocaleString('es-CO');
     return val.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
-
+ 
+// ── NUEVO: formatea el input mientras el usuario escribe ──────────────────────
+function formatearInputPago(input, metodo) {
+    const cursor = input.selectionStart;
+    const prevLen = input.value.length;
+ 
+    // Quitar todo lo que no sea dígito
+    const soloNumeros = input.value.replace(/\D/g, '');
+    const numero = parseInt(soloNumeros) || 0;
+ 
+    // Mostrar con separadores de miles (es-CO usa puntos)
+    input.value = numero > 0 ? numero.toLocaleString('es-CO') : '';
+ 
+    // Ajustar cursor para que no salte al final al insertar puntos
+    const newLen = input.value.length;
+    const diff = newLen - prevLen;
+    input.setSelectionRange(cursor + diff, cursor + diff);
+ 
+    actualizarPagos();
+}
+ 
 function toggleMetodo(metodo) {
     if (metodosActivos.has(metodo)) {
         metodosActivos.delete(metodo);
@@ -263,7 +283,7 @@ function toggleMetodo(metodo) {
     });
     renderInputsPago();
 }
-
+ 
 function renderInputsPago() {
     const nombres = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', nequi: 'Nequi', daviplata: 'Daviplata' };
     const iconos  = { efectivo: 'bi-cash', tarjeta: 'bi-credit-card', transferencia: 'bi-bank', nequi: 'bi-phone', daviplata: 'bi-phone' };
@@ -272,36 +292,38 @@ function renderInputsPago() {
     metodosActivos.forEach(m => {
         const div = document.createElement('div');
         div.className = 'd-flex align-items-center gap-2';
+        // ── CAMBIO: type="text" + inputmode="numeric" + oninput llama formatearInputPago ──
         div.innerHTML = `
             <i class="bi ${iconos[m]}" style="color:var(--azul-claro); width:16px;"></i>
             <span style="font-size:.8rem; color:var(--texto); min-width:90px;">${nombres[m]}</span>
-            <input type="number" id="input_${m}" placeholder="0" min="0"
-                   oninput="actualizarPagos()"
+            <input type="text" id="input_${m}" placeholder="0" inputmode="numeric"
+                   oninput="formatearInputPago(this, '${m}')"
                    style="flex:1; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:6px; padding:.3rem .6rem; font-size:.85rem;">
         `;
         cont.appendChild(div);
     });
     actualizarPagos();
 }
-
+ 
 function actualizarPagos() {
     let totalPagado = 0;
     ['efectivo','tarjeta','transferencia','nequi','daviplata'].forEach(m => {
         const inp = document.getElementById('input_' + m);
-        const val = inp ? (parseFloat(inp.value) || 0) : 0;
+        // ── CAMBIO: quitar puntos de miles antes de parsear ──
+        const val = inp ? (parseFloat(inp.value.replace(/\./g, '').replace(/,/g, '.')) || 0) : 0;
         document.getElementById('hidden' + m.charAt(0).toUpperCase() + m.slice(1)).value = val;
         totalPagado += val;
     });
-
+ 
     const faltante = totalActual - totalPagado;
     const validDiv = document.getElementById('validacionPago');
-
+ 
     if (metodosActivos.size === 0) {
         validDiv.style.display = 'none';
         document.getElementById('btnRegistrar').disabled = true;
         return;
     }
-
+ 
     validDiv.style.display = 'block';
     if (faltante > 0.01) {
         validDiv.innerHTML = '<span style="color:#ff4d4d;"><i class="bi bi-exclamation-circle me-1"></i>Falta: $' + formatPesos(faltante) + '</span>';
@@ -315,7 +337,7 @@ function actualizarPagos() {
         document.getElementById('btnRegistrar').disabled = carrito.length === 0;
     }
 }
-
+ 
 function agregarAlCarrito(prodId, prodNombre, presId, presNombre, stock, precio) {
     const precioNum = parseFloat(precio) || 0;
     const key = prodId + '_' + presId;
@@ -330,19 +352,19 @@ function agregarAlCarrito(prodId, prodNombre, presId, presNombre, stock, precio)
     }
     renderCarrito();
 }
-
+ 
 function renderCarrito() {
     const lista = document.getElementById('listaCarrito');
     const totalDiv = document.getElementById('totalGeneral');
     const displayItems = carrito.length > 0 ? 'block' : 'none';
-
+ 
     document.getElementById('carritoItems').style.display = displayItems;
     document.getElementById('seccionDescuento').style.display = displayItems;
     document.getElementById('seccionPagos').style.display = displayItems;
     totalDiv.style.display = displayItems;
     document.getElementById('carritoVacio').style.display = carrito.length === 0 ? 'block' : 'none';
     document.getElementById('btnRegistrar').disabled = true;
-
+ 
     lista.innerHTML = carrito.map((item, i) => `
         <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem .9rem;">
             <div class="d-flex justify-content-between">
@@ -358,13 +380,13 @@ function renderCarrito() {
             </div>
         </div>
     `).join('');
-
+ 
     const subtotal = carrito.reduce((s, c) => s + c.subtotal, 0);
     const pct = parseFloat(document.getElementById('inputDescuento').value) || 0;
     const ahorro = subtotal * (pct / 100);
     const totalFinal = subtotal - ahorro;
     totalActual = totalFinal;
-
+ 
     totalDiv.innerHTML = `
         <div class="d-flex justify-content-between mb-1" style="font-size:.75rem; color:var(--texto-muted);">
             <span>Subtotal original:</span>
@@ -383,16 +405,16 @@ function renderCarrito() {
     actualizarHiddens();
     actualizarPagos();
 }
-
+ 
 function actualizarCant(i, v) {
     const val = parseInt(v) || 1;
     carrito[i].cantidad = val > carrito[i].stock ? carrito[i].stock : val;
     carrito[i].subtotal = carrito[i].cantidad * carrito[i].precio;
     renderCarrito();
 }
-
+ 
 function quitar(i) { carrito.splice(i, 1); renderCarrito(); }
-
+ 
 function actualizarHiddens() {
     document.getElementById('camposHidden').innerHTML = carrito.map(item => `
         <input type="hidden" name="producto_id[]" value="${item.prodId}">
@@ -401,7 +423,7 @@ function actualizarHiddens() {
         <input type="hidden" name="precio[]" value="${item.precio}">
     `).join('');
 }
-
+ 
 function mostrarPresentaciones(prodId, prodNombre) {
     document.getElementById('presTitulo').textContent = prodNombre;
     const prodDiv = document.querySelector('.dato-producto[data-id="' + prodId + '"]');
@@ -437,7 +459,7 @@ function mostrarPresentaciones(prodId, prodNombre) {
     document.getElementById('vistaProductos').style.display = 'none';
     document.getElementById('vistaPresentaciones').style.display = 'block';
 }
-
+ 
 function renderizarProductos(datos) {
     const lista = document.getElementById('productoLista');
     lista.innerHTML = '';
@@ -456,7 +478,7 @@ function renderizarProductos(datos) {
         lista.appendChild(div);
     });
 }
-
+ 
 function mostrarProductos(catId, catNombre) {
     document.getElementById('catTitulo').textContent = catNombre;
     const datos = Array.from(document.querySelectorAll('.dato-producto[data-cat="' + catId + '"]'));
@@ -464,22 +486,22 @@ function mostrarProductos(catId, catNombre) {
     document.getElementById('vistaCategorias').style.display = 'none';
     document.getElementById('vistaProductos').style.display = 'block';
 }
-
+ 
 function volverCategorias() {
     document.getElementById('vistaProductos').style.display = 'none';
     document.getElementById('vistaPresentaciones').style.display = 'none';
     document.getElementById('vistaCategorias').style.display = 'block';
 }
-
+ 
 function volverProductos() {
     document.getElementById('vistaPresentaciones').style.display = 'none';
     document.getElementById('vistaProductos').style.display = 'block';
 }
-
+ 
 function verRecibo(ventaId) {
     const ventaDiv = document.querySelector('.dato-venta[data-id="' + ventaId + '"]');
     if (!ventaDiv) return;
-
+ 
     const cliente      = ventaDiv.dataset.cliente;
     const fecha        = ventaDiv.dataset.fecha;
     const descuento    = parseFloat(ventaDiv.dataset.descuento) || 0;
@@ -490,7 +512,7 @@ function verRecibo(ventaId) {
     const nequi        = parseFloat(ventaDiv.dataset.nequi) || 0;
     const daviplata    = parseFloat(ventaDiv.dataset.daviplata) || 0;
     const detalles     = Array.from(ventaDiv.querySelectorAll('.dato-detalle'));
-
+ 
     let subtotalBruto = 0;
     let itemsHTML = detalles.map(d => {
         const sub = parseFloat(d.dataset.subtotal) || 0;
@@ -505,9 +527,9 @@ function verRecibo(ventaId) {
                 <span style="font-weight:700; color:var(--azul-claro);">$${formatPesos(sub)}</span>
             </div>`;
     }).join('');
-
+ 
     const ahorro = subtotalBruto * (descuento / 100);
-
+ 
     const pagosInfo = [
         { label: 'Efectivo', val: efectivo, icon: 'bi-cash' },
         { label: 'Tarjeta', val: tarjeta, icon: 'bi-credit-card' },
@@ -515,30 +537,30 @@ function verRecibo(ventaId) {
         { label: 'Nequi', val: nequi, icon: 'bi-phone' },
         { label: 'Daviplata', val: daviplata, icon: 'bi-phone' },
     ].filter(p => p.val > 0);
-
-   const totalPagado = pagosInfo.reduce((s, p) => s + p.val, 0);
-const cambio = totalPagado - total;
-
-const pagosHTML = pagosInfo.length > 0 ? `
-    <div style="margin-top:1rem;">
-        <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; margin-bottom:.5rem;">Métodos de Pago</div>
-        ${pagosInfo.map(p => `
-            <div style="display:flex; justify-content:space-between; padding:.3rem 0; font-size:.85rem;">
-                <span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span>
-                <span style="color:var(--texto); font-weight:600;">$${formatPesos(p.val)}</span>
+ 
+    const totalPagado = pagosInfo.reduce((s, p) => s + p.val, 0);
+    const cambio = totalPagado - total;
+ 
+    const pagosHTML = pagosInfo.length > 0 ? `
+        <div style="margin-top:1rem;">
+            <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; margin-bottom:.5rem;">Métodos de Pago</div>
+            ${pagosInfo.map(p => `
+                <div style="display:flex; justify-content:space-between; padding:.3rem 0; font-size:.85rem;">
+                    <span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span>
+                    <span style="color:var(--texto); font-weight:600;">$${formatPesos(p.val)}</span>
+                </div>
+            `).join('')}
+            <div style="display:flex; justify-content:space-between; padding:.4rem 0; margin-top:.3rem; border-top:1px solid var(--azul-borde); font-size:.85rem;">
+                <span style="color:var(--texto-muted);">Total recibido:</span>
+                <span style="color:var(--texto); font-weight:600;">$${formatPesos(totalPagado)}</span>
             </div>
-        `).join('')}
-        <div style="display:flex; justify-content:space-between; padding:.4rem 0; margin-top:.3rem; border-top:1px solid var(--azul-borde); font-size:.85rem;">
-            <span style="color:var(--texto-muted);">Total recibido:</span>
-            <span style="color:var(--texto); font-weight:600;">$${formatPesos(totalPagado)}</span>
-        </div>
-        ${cambio > 0.01 ? `
-        <div style="display:flex; justify-content:space-between; padding:.4rem .7rem; background:rgba(77,255,145,.1); border:1px solid #4dff91; border-radius:8px; margin-top:.4rem; font-size:.9rem;">
-            <span style="color:#4dff91; font-weight:700;"><i class="bi bi-arrow-return-left me-1"></i>Cambio a devolver:</span>
-            <span style="color:#4dff91; font-weight:800;">$${formatPesos(cambio)}</span>
-        </div>` : ''}
-    </div>` : '';
-
+            ${cambio > 0.01 ? `
+            <div style="display:flex; justify-content:space-between; padding:.4rem .7rem; background:rgba(77,255,145,.1); border:1px solid #4dff91; border-radius:8px; margin-top:.4rem; font-size:.9rem;">
+                <span style="color:#4dff91; font-weight:700;"><i class="bi bi-arrow-return-left me-1"></i>Cambio a devolver:</span>
+                <span style="color:#4dff91; font-weight:800;">$${formatPesos(cambio)}</span>
+            </div>` : ''}
+        </div>` : '';
+ 
     document.getElementById('reciboContenido').innerHTML = `
         <div style="background:var(--fondo-card2); border-radius:10px; padding:1rem; margin-bottom:1rem;">
             <div style="display:flex; justify-content:space-between; margin-bottom:.3rem;">
@@ -571,16 +593,16 @@ const pagosHTML = pagosInfo.length > 0 ? `
         </div>
         ${pagosHTML}
     `;
-
+ 
     document.getElementById('overlayRecibo').style.display = 'block';
     document.getElementById('modalRecibo').style.display = 'block';
 }
-
+ 
 function cerrarRecibo() {
     document.getElementById('overlayRecibo').style.display = 'none';
     document.getElementById('modalRecibo').style.display = 'none';
 }
-
+ 
 document.getElementById('buscadorProducto').addEventListener('input', function() {
     const q = this.value.toLowerCase().trim();
     const filtrados = Array.from(document.querySelectorAll('.dato-producto')).filter(d => d.dataset.nombre.toLowerCase().includes(q));
@@ -595,7 +617,8 @@ document.getElementById('buscadorProducto').addEventListener('input', function()
         document.getElementById('vistaCategorias').style.display = 'block';
     }
 });
-
+ 
 document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
 </script>
 {% endblock %}
+ 
