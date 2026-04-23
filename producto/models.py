@@ -18,7 +18,7 @@ class Categoria(models.Model):
         verbose_name_plural = "Categorías"
         ordering            = ["nombre"]
 
-    def __str__(self):
+    def _str_(self):
         if self.padre:
             return f"{self.padre.nombre} → {self.nombre}"
         return self.nombre
@@ -38,7 +38,7 @@ class Producto(models.Model):
         verbose_name_plural = "Productos"
         ordering            = ["nombre"]
 
-    def __str__(self):
+    def _str_(self):
         return f"{self.nombre} ({self.codigo})"
 
     @property
@@ -68,22 +68,8 @@ class PresentacionProducto(models.Model):
         ordering            = ["unidades"]
         unique_together     = ('producto', 'unidades')
 
-    def __str__(self):
+    def _str_(self):
         return f"{self.producto.nombre} — {self.nombre} ({self.unidades} uds)"
-
-
-class Lote(models.Model):
-    producto       = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='lotes')
-    numero_lote    = models.CharField(max_length=50)
-    fecha_registro = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name        = "Lote"
-        verbose_name_plural = "Lotes"
-        ordering            = ["-fecha_registro"]
-
-    def __str__(self):
-        return f"{self.numero_lote} — {self.producto.nombre}"
 
 
 class Inventario(models.Model):
@@ -103,7 +89,7 @@ class Inventario(models.Model):
         verbose_name_plural = "Registros de Inventario"
         ordering            = ["-fecha_actualizada"]
 
-    def __str__(self):
+    def _str_(self):
         return f"{self.tipo} | {self.producto.nombre} | {self.cantidad} | {self.fecha_actualizada:%d/%m/%Y}"
 
 
@@ -125,5 +111,5 @@ class AgendaInventario(models.Model):
         verbose_name_plural = "Agendas de Inventario"
         ordering            = ["fecha_programada"]
 
-    def __str__(self):
+    def _str_(self):
         return f"{self.titulo} — {self.fecha_programada:%d/%m/%Y %H:%M}"

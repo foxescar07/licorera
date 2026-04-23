@@ -15,23 +15,16 @@ from .models import ConteoProducto, SesionConteo, ResultadoInventario, Lote
 # INVENTARIO HOME
 # ===============================
 def inventario_home(request):
-    agendas = AgendaInventario.objects.filter(
-        estado__in=['pendiente', 'en_proceso']
-    ).order_by('fecha_programada')
+    agendas = AgendaInventario.objects.filter(estado__in=['pendiente', 'en_proceso']).order_by('fecha_programada')
     sesion = SesionConteo.objects.order_by('-fecha_inicio').first()
 
     categoria_id = request.GET.get('categoria')
     if categoria_id:
-        productos = Producto.objects.select_related('categoria').filter(
-            categoria__pk=categoria_id
-        )
+        productos = Producto.objects.select_related('categoria').filter(categoria__pk=categoria_id)
     else:
         productos = Producto.objects.select_related('categoria').all()
 
-    conteos = (
-        ConteoProducto.objects.filter(sesion=sesion).select_related('producto')
-        if sesion else []
-    )
+    conteos = ConteoProducto.objects.filter(sesion=sesion).select_related('producto') if sesion else []
 
     discrepancias = []
     if sesion:
@@ -46,10 +39,7 @@ def inventario_home(request):
             })
 
     productos_con_codigo = productos.exclude(codigo='').exclude(codigo__isnull=True).count()
-    productos_sin_codigo = (
-        productos.filter(codigo='').count() +
-        productos.filter(codigo__isnull=True).count()
-    )
+    productos_sin_codigo = productos.filter(codigo='').count() + productos.filter(codigo__isnull=True).count()
 
     historial_sesiones = SesionConteo.objects.filter(activa=False).order_by('-fecha_fin')
 
@@ -105,7 +95,10 @@ def guardar_conteo(request):
 def conteo_inventario(request):
     if request.method == 'POST' and 'iniciar_sesion' in request.POST:
         SesionConteo.objects.filter(activa=True).update(activa=False)
-        SesionConteo.objects.create(activa=True, responsable=request.user)
+        SesionConteo.objects.create(
+            activa=True,
+            responsable=request.user
+        )
         messages.success(request, '✅ Nueva sesión de conteo iniciada.')
     return redirect('inventario:inventario_home')
 
@@ -163,9 +156,7 @@ def guardar_codigo_barras(request, pk):
 
 
 # ══════════════════════════════════════════════════════
-# GESTIÓN DE INVENTARIO
-# Crear y editar producto → movidos a producto:producto_crear / producto_editar
-# Aquí quedan: ver catálogo, salidas, categorías, eliminar producto
+# GESTIÓN DE PRODUCTOS
 # ══════════════════════════════════════════════════════
 def gestion_productos(request):
     productos_qs = Producto.objects.select_related('categoria').prefetch_related('presentaciones').all()
@@ -189,10 +180,29 @@ def gestion_productos(request):
     todas_cats     = Categoria.objects.all()
     total_criticos = sum(1 for p in productos_qs if p.stock_critico)
 
+    from producto.forms import ProductoRegistroForm
+    form = ProductoRegistroForm()
+
+    if request.method == 'POST' and request.POST.get('accion') == 'crear_producto':
+        form = ProductoRegistroForm(request.POST)
+        if form.is_valid():
+            p = form.save(commit=False)
+            p.cantidad_disponible = 0
+            p.save()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'ok': True, 'pk': p.pk, 'nombre': p.nombre})
+            messages.success(request, f'✅ Producto "{p.nombre}" registrado.')
+            return redirect('inventario:gestion_productos')
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'ok': False, 'error': 'Revisa los campos del formulario.'})
+            messages.error(request, '⚠️ Revisa los campos del formulario.')
+
     return render(request, 'inventario/gestion_productos.html', {
         'productos':      productos_qs,
         'categorias':     categorias,
         'todas_cats':     todas_cats,
+        'form':           form,
         'total_criticos': total_criticos,
     })
 
@@ -224,11 +234,7 @@ def gestion_salida(request):
         if presentacion_id:
             presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id, producto=producto)
             if cantidad > presentacion.cantidad:
-                messages.error(
-                    request,
-                    f'⚠️ Stock insuficiente: solo hay {presentacion.cantidad} '
-                    f'unidades de "{presentacion.nombre}".'
-                )
+                messages.error(request, f'⚠️ Stock insuficiente: solo hay {presentacion.cantidad} unidades de "{presentacion.nombre}".')
                 return redirect('inventario:gestion_productos')
             presentacion.cantidad -= cantidad
             presentacion.save()
@@ -240,11 +246,7 @@ def gestion_salida(request):
             messages.success(request, f'✅ Salida de {cantidad} × "{presentacion.nombre}" registrada.')
         else:
             if cantidad > producto.cantidad_disponible:
-                messages.error(
-                    request,
-                    f'⚠️ Stock insuficiente: solo hay {producto.cantidad_disponible} '
-                    f'unidades de "{producto.nombre}".'
-                )
+                messages.error(request, f'⚠️ Stock insuficiente: solo hay {producto.cantidad_disponible} unidades de "{producto.nombre}".')
                 return redirect('inventario:gestion_productos')
             producto.cantidad_disponible -= cantidad
             producto.save()
@@ -258,9 +260,33 @@ def gestion_salida(request):
 
 
 # ══════════════════════════════════════════════════════
-# ELIMINAR PRODUCTO
-# (Editar → movido a producto:producto_editar)
+# EDITAR / ELIMINAR PRODUCTO
 # ══════════════════════════════════════════════════════
+def gestion_producto_editar(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == 'POST':
+        nombre       = request.POST.get('nombre', '').strip()
+        codigo       = request.POST.get('codigo', '').strip()
+        descripcion  = request.POST.get('descripcion', '').strip()
+        precio       = request.POST.get('precio_unitario', '').strip()
+        categoria_id = request.POST.get('categoria') or None
+
+        if not nombre or not codigo:
+            messages.error(request, '⚠️ Nombre y código son obligatorios.')
+            return redirect('inventario:gestion_productos')
+
+        producto.nombre      = nombre
+        producto.codigo      = codigo
+        producto.descripcion = descripcion
+        if precio:
+            producto.precio_unitario = precio
+        if categoria_id:
+            producto.categoria = get_object_or_404(Categoria, pk=categoria_id)
+        producto.save()
+        messages.success(request, f'✅ Producto "{nombre}" actualizado.')
+    return redirect('inventario:gestion_productos')
+
+
 def gestion_producto_eliminar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
@@ -316,17 +342,52 @@ def gestion_categoria_editar(request, pk):
         categoria.codigo      = codigo
         categoria.descripcion = descripcion
         categoria.padre       = get_object_or_404(Categoria, pk=padre_id) if padre_id else None
-
         categoria.save()
         messages.success(request, f'✅ Categoría "{nombre}" actualizada.')
-
     return redirect('inventario:gestion_productos')
 
 
 def gestion_categoria_eliminar(request, pk):
     categoria = get_object_or_404(Categoria, pk=pk)
     if request.method == 'POST':
-        nombre = categoria.nombre
-        categoria.delete()
-        messages.success(request, f'✅ Categoría "{nombre}" eliminada.')
+        if categoria.productos.exists() or categoria.subcategorias.exists():
+            messages.error(request, f'⚠️ No se puede eliminar "{categoria.nombre}": tiene productos o subcategorías asociadas.')
+        else:
+            nombre = categoria.nombre
+            categoria.delete()
+            messages.success(request, f'✅ Categoría "{nombre}" eliminada.')
+    return redirect('inventario:gestion_productos')
+
+
+def registrar_lote(request):
+    if request.method == 'POST':
+        numero_lote = request.POST.get('numero_lote', '').strip()
+        producto_id = request.POST.get('producto')
+
+        # Validaciones
+        if not numero_lote:
+            messages.error(request, '⚠️ El número de lote es obligatorio.')
+            return redirect('inventario:gestion_productos')
+
+        if not producto_id:
+            messages.error(request, '⚠️ Debes seleccionar un producto.')
+            return redirect('inventario:gestion_productos')
+
+        if Lote.objects.filter(numero_lote=numero_lote).exists():
+            messages.error(request, f'⚠️ El lote "{numero_lote}" ya está registrado.')
+            return redirect('inventario:gestion_productos')
+
+        producto = get_object_or_404(Producto, pk=producto_id)
+
+        # SCRUM-102: Guarda el registro
+        Lote.objects.create(
+            numero_lote=numero_lote,
+            producto=producto,
+            registrado_por=request.user if request.user.is_authenticated else None
+        )
+
+        # SCRUM-104: redirige a confirmación
+        messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}".')
+        return redirect('inventario:gestion_productos')
+
     return redirect('inventario:gestion_productos')
