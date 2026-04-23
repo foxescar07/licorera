@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.db.models import Sum
 from .models import Producto, Categoria, Inventario, AgendaInventario, PresentacionProducto
 from .forms import ProductoForm, AgendaInventarioForm, PresentacionForm, ProductoRegistroForm
-
+from django.db import transaction
 
 def producto_lista(request):
     form = ProductoForm()
@@ -55,7 +55,6 @@ def producto_editar(request, pk):
             messages.error(request, "⚠️ Revisa los campos del formulario.")
     return redirect("producto:producto_lista")
 
-
 def presentaciones_guardar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == "POST":
@@ -64,24 +63,27 @@ def presentaciones_guardar(request, pk):
         precios    = request.POST.getlist("precio[]")
         cantidades = request.POST.getlist("cantidad[]")
 
-        producto.presentaciones.all().delete()
+        try:
+            with transaction.atomic():
+                producto.presentaciones.all().delete()
+                for n, u, p, c in zip(nombres, unidades, precios, cantidades):
+                    n = n.strip()
+                    if n and u and p:
+                        PresentacionProducto.objects.create(
+                            producto=producto,
+                            nombre=n,
+                            unidades=int(u),
+                            precio=p,
+                            cantidad=int(c) if c else 0
+                        )
+            messages.success(request, f"✅ Presentaciones de {producto.nombre} guardadas.")
+        except Exception as e:
+            messages.error(request, f"❌ Error al guardar presentaciones: {e}")
 
-        for n, u, p, c in zip(nombres, unidades, precios, cantidades):
-            if n and u and p:
-                try:
-                    PresentacionProducto.objects.create(
-                        producto=producto,
-                        nombre=n,
-                        unidades=int(u),
-                        precio=p,
-                        cantidad=int(c) if c else 0
-                    )
-                except Exception as e:
-                    print("Error creando presentación:", e)
-
-        messages.success(request, f"✅ Presentaciones de {producto.nombre} guardadas.")
+    next_url = request.POST.get('next') or request.GET.get('next')
+    if next_url:
+        return redirect(next_url)
     return redirect("producto:producto_lista")
-
 
 def presentaciones_json(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
