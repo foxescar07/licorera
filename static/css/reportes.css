@@ -93,7 +93,7 @@
 .cys-search:focus, .cys-select:focus { border-color: var(--azul-claro); }
 .cys-select option { background: #0b1622; }
 
-/* ===== TABLA ===== */
+/* ===== TABLA MODAL ===== */
 .cys-inv-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
 .cys-inv-table thead th {
   position: sticky; top: 0; background: #0b1622;
@@ -139,4 +139,15 @@
 #modalProveedores .modal-body {
   max-height: 60vh;
   overflow-y: auto;
+}
+
+/* ===== FONDO AZUL EN FILAS DEL HISTORIAL DE VENTAS ===== */
+.table > tbody > tr {
+  background-color: rgba(13, 35, 64, 0.6);
+}
+.table > tbody > tr:hover {
+  background-color: rgba(77, 168, 218, 0.08) !important;
+}
+.table > thead > tr {
+  background-color: rgba(7, 20, 38, 0.8);
 }
