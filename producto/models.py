@@ -72,6 +72,20 @@ class PresentacionProducto(models.Model):
         return f"{self.producto.nombre} — {self.nombre} ({self.unidades} uds)"
 
 
+class Lote(models.Model):
+    producto       = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='lotes')
+    numero_lote    = models.CharField(max_length=50)
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name        = "Lote"
+        verbose_name_plural = "Lotes"
+        ordering            = ["-fecha_registro"]
+
+    def __str__(self):
+        return f"{self.numero_lote} — {self.producto.nombre}"
+
+
 class Inventario(models.Model):
     TIPO_CHOICES = [
         ('entrada', 'Entrada'),

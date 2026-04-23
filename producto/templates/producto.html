@@ -1,330 +1,774 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block page_title %}Productos{% endblock %}
-{% block title %}Productos — CYS Ltda{% endblock %}
-{% block nav_productos %}active{% endblock %}
+{% block title %}Gestión de Productos — CYS Ltda{% endblock %}
+{% block page_title %}Gestión de Productos{% endblock %}
+{% block nav_proveedores %}active{% endblock %}
 
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+  :root {
+    --gp-card:   #0f1a2e;
+    --gp-card2:  #111f33;
+    --gp-border: rgba(77,168,218,.2);
+    --gp-blue:   #4DA8DA;
+    --gp-text:   #e2e8f0;
+    --gp-muted:  rgba(226,232,240,.45);
+    --gp-radius: 14px;
+    --gp-danger: #e87070;
+    --gp-green:  #5edb97;
+    --gp-warn:   #f1c40f;
+  }
+  .gp-back {
+    display:inline-flex; align-items:center; gap:.45rem;
+    color:var(--gp-blue); text-decoration:none;
+    font-size:.82rem; opacity:.8; transition:opacity .2s;
+  }
+  .gp-back:hover { opacity:1; }
+  .gp-title {
+    font-family:'Rajdhani',sans-serif; font-weight:700;
+    font-size:1.5rem; letter-spacing:.06em; color:var(--gp-text);
+  }
+  .gp-card {
+    background:var(--gp-card); border:1px solid var(--gp-border);
+    border-radius:var(--gp-radius); padding:1.5rem; margin-bottom:1.5rem;
+  }
+  .gp-card__title {
+    font-family:'Rajdhani',sans-serif; font-weight:700;
+    font-size:1rem; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--gp-blue); margin-bottom:1.25rem;
+    display:flex; align-items:center; gap:.5rem;
+  }
+  .gp-input {
+    background:var(--gp-card2) !important; color:var(--gp-text) !important;
+    border:1px solid var(--gp-border) !important; border-radius:10px !important;
+    padding:10px 14px !important; font-size:.85rem; width:100%; outline:none;
+    transition:border-color .2s;
+  }
+  .gp-input:focus { border-color:var(--gp-blue) !important; }
+  .gp-label {
+    font-size:.65rem; font-weight:600; color:var(--gp-muted);
+    letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.35rem;
+  }
+  .gp-btn {
+    display:inline-flex; align-items:center; gap:.4rem;
+    border:none; border-radius:10px; padding:.6rem 1.1rem;
+    font-family:'Rajdhani',sans-serif; font-weight:700;
+    font-size:.85rem; letter-spacing:.08em; text-transform:uppercase;
+    cursor:pointer; transition:all .2s; text-decoration:none;
+  }
+  .gp-btn--primary  { background:var(--gp-blue); color:#011936; box-shadow:0 4px 14px rgba(77,168,218,.3); }
+  .gp-btn--primary:hover { background:#6dc0e8; }
+  .gp-btn--outline  { background:transparent; color:var(--gp-blue); border:1px solid rgba(77,168,218,.4); }
+  .gp-btn--outline:hover { background:rgba(77,168,218,.1); }
+  .gp-btn--warning  { background:rgba(241,196,15,.15); color:var(--gp-warn); border:1px solid rgba(241,196,15,.35); }
+  .gp-btn--warning:hover { background:rgba(241,196,15,.28); }
+  .gp-btn--danger   { background:rgba(192,57,43,.15); color:var(--gp-danger); border:1px solid rgba(192,57,43,.35); }
+  .gp-btn--danger:hover  { background:rgba(192,57,43,.28); }
+  .gp-btn--sm { padding:.35rem .7rem; font-size:.75rem; border-radius:8px; }
+  .gp-tabs {
+    display:grid; grid-template-columns:repeat(5,1fr); gap:.5rem; margin-bottom:1.5rem;
+  }
+  .gp-tab {
+    padding:.65rem 1rem; border-radius:10px; cursor:pointer;
+    font-family:'Rajdhani',sans-serif; font-weight:700;
+    font-size:.82rem; letter-spacing:.08em; text-transform:uppercase;
+    border:1px solid var(--gp-border); color:var(--gp-muted);
+    background:transparent; transition:all .2s;
+    display:flex; align-items:center; justify-content:center; gap:.4rem; text-align:center;
+  }
+  .gp-tab.active, .gp-tab:hover {
+    background:rgba(77,168,218,.12); color:var(--gp-blue); border-color:rgba(77,168,218,.4);
+  }
+  .gp-section { display:none; }
+  .gp-section.active { display:block; }
+  .gp-stats-grid {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem; margin-bottom:1rem;
+  }
+  .gp-stat-card {
+    background:var(--gp-card); border:1px solid var(--gp-border);
+    border-radius:12px; padding:.85rem 1rem;
+  }
+  .gp-stat-card__label {
+    font-size:.59rem; font-weight:700; color:var(--gp-muted);
+    letter-spacing:.1em; text-transform:uppercase; margin-bottom:.3rem;
+  }
+  .gp-stat-card__val {
+    font-family:'Rajdhani',sans-serif; font-size:1.65rem; font-weight:700;
+    color:var(--gp-blue); line-height:1;
+  }
+  .gp-stat-card__val.danger { color:var(--gp-danger); }
+  .gp-search-wrap { position:relative; margin-bottom:1rem; }
+  .gp-search-wrap i {
+    position:absolute; left:.85rem; top:50%; transform:translateY(-50%);
+    color:rgba(77,168,218,.45); pointer-events:none;
+  }
+  .gp-search {
+    width:100%; background:var(--gp-card); border:1px solid var(--gp-border);
+    border-radius:10px; padding:.6rem 1rem .6rem 2.4rem;
+    color:var(--gp-text); font-size:.83rem; outline:none; transition:border-color .2s;
+  }
+  .gp-search:focus { border-color:var(--gp-blue); }
+  .gp-search::placeholder { color:var(--gp-muted); }
+  .gp-group { margin-bottom:.65rem; }
+  .gp-group-header {
+    background:var(--gp-card); border:1px solid var(--gp-border);
+    border-radius:10px; padding:.65rem 1rem;
+    display:flex; align-items:center; gap:.65rem;
+    cursor:pointer; transition:background .2s; user-select:none;
+  }
+  .gp-group-header:hover { background:rgba(77,168,218,.07); }
+  .gp-group-header.open { border-radius:10px 10px 0 0; }
+  .gp-group-title {
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.82rem;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--gp-blue); flex:1;
+  }
+  .gp-group-count {
+    font-size:.66rem; background:rgba(77,168,218,.12); color:var(--gp-blue);
+    border:1px solid rgba(77,168,218,.25); border-radius:999px; padding:.15rem .5rem; font-weight:600;
+  }
+  .gp-group-chevron { color:rgba(77,168,218,.5); transition:transform .25s; font-size:.75rem; margin-left:.5rem; }
+  .gp-group-header.open .gp-group-chevron { transform:rotate(180deg); }
+  .gp-group-body {
+    border:1px solid rgba(77,168,218,.15); border-top:none;
+    border-radius:0 0 10px 10px; overflow:hidden; display:none;
+  }
+  .gp-group-body.open { display:block; }
+  .gp-col-header {
+    display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr;
+    padding:.45rem 1rem; border-bottom:1px solid rgba(77,168,218,.12);
+    background:rgba(17,31,51,.8);
+  }
+  .gp-col-header span {
+    font-size:.6rem; font-weight:700; color:var(--gp-muted);
+    letter-spacing:.1em; text-transform:uppercase;
+  }
+  .gp-fila {
+    display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr;
+    align-items:center; gap:.5rem; padding:.65rem 1rem;
+    border-bottom:1px solid rgba(77,168,218,.05);
+    font-size:.8rem; transition:background .15s;
+  }
+  .gp-fila:last-child { border-bottom:none; }
+  .gp-fila:hover { background:rgba(77,168,218,.04); }
+  .gp-fila.hidden { display:none !important; }
+  .gp-fila__name  { font-weight:600; color:var(--gp-text); line-height:1.35; }
+  .gp-fila__sub   { font-size:.68rem; color:var(--gp-muted); font-weight:400; }
+  .gp-fila__code  { font-size:.7rem; font-family:monospace; color:var(--gp-blue); }
+  .gp-fila__price { color:var(--gp-blue); font-weight:700; }
+  .gp-stock-badge {
+    display:inline-flex; align-items:center; gap:.3rem;
+    font-size:.72rem; font-weight:700; padding:.2rem .55rem; border-radius:999px;
+  }
+  .gp-stock-badge.ok  { background:rgba(94,219,151,.1); color:var(--gp-green); border:1px solid rgba(94,219,151,.25); }
+  .gp-stock-badge.low { background:rgba(232,112,112,.1); color:var(--gp-danger); border:1px solid rgba(232,112,112,.25); }
+  .gp-crit-tag {
+    display:inline-flex; align-items:center; gap:.25rem;
+    font-size:.6rem; font-weight:700; text-transform:uppercase;
+    background:rgba(232,112,112,.1); color:var(--gp-danger);
+    border:1px solid rgba(232,112,112,.25); border-radius:999px;
+    padding:.1rem .4rem; margin-left:.35rem; vertical-align:middle;
+  }
+  .gp-fila-actions { display:flex; gap:.4rem; align-items:center; }
+  .gp-cat-item {
+    background:var(--gp-card2); border:1px solid var(--gp-border);
+    border-radius:10px; padding:.55rem .9rem;
+    display:flex; align-items:center; gap:.5rem; font-size:.82rem; color:var(--gp-text);
+  }
+  .gp-cat-item__sub {
+    margin-left:1.2rem; border-left:2px solid var(--gp-border);
+    padding-left:.8rem; margin-top:.4rem; display:flex; flex-wrap:wrap; gap:.4rem;
+  }
+  .gp-alert {
+    padding:.7rem 1rem; border-radius:10px; font-size:.82rem;
+    margin-bottom:1rem; display:flex; align-items:center; gap:.6rem;
+  }
+  .gp-alert--ok   { background:rgba(46,204,113,.1); border:1px solid rgba(46,204,113,.3); color:var(--gp-green); }
+  .gp-alert--err  { background:rgba(192,57,43,.1);  border:1px solid rgba(192,57,43,.3);  color:var(--gp-danger); }
+  .gp-alert--warn { background:rgba(241,196,15,.1); border:1px solid rgba(241,196,15,.3); color:var(--gp-warn); }
+  .gp-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .gp-form-grid .gp-full { grid-column:1 / -1; }
+  .gp-badge {
+    display:inline-block; font-size:.65rem; padding:.2rem .55rem;
+    border-radius:999px; font-weight:600; text-transform:uppercase;
+    background:rgba(77,168,218,.12); color:var(--gp-blue); border:1px solid var(--gp-border);
+  }
+  .gp-badge--danger { background:rgba(192,57,43,.12); color:var(--gp-danger); border-color:rgba(192,57,43,.3); }
+  .pres-row {
+    background:var(--gp-card2); border:1px solid var(--gp-border);
+    border-radius:10px; padding:.75rem 1rem; margin-bottom:.5rem;
+  }
+  /* MODALES */
+  .gp-modal-overlay {
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,.65); backdrop-filter:blur(4px);
+    align-items:center; justify-content:center; padding:1rem;
+  }
+  .gp-modal-overlay.open { display:flex; }
+  .gp-modal-box {
+    background:#0D1B2E; border:1px solid var(--gp-border);
+    border-radius:16px; width:100%; max-width:560px;
+    box-shadow:0 16px 48px rgba(0,0,0,.7); overflow:hidden;
+    max-height:90vh; overflow-y:auto;
+  }
+  .gp-modal-box--lg { max-width:720px; }
+  .gp-modal-header {
+    padding:1.1rem 1.4rem; display:flex; align-items:center; gap:.75rem;
+    border-bottom:1px solid rgba(77,168,218,.15);
+    background:var(--gp-card2); position:sticky; top:0; z-index:1;
+  }
+  .gp-modal-header__icon {
+    width:34px; height:34px; border-radius:9px; flex-shrink:0;
+    background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3);
+    display:flex; align-items:center; justify-content:center; color:var(--gp-blue); font-size:.95rem;
+  }
+  .gp-modal-header__title {
+    font-family:'Rajdhani',sans-serif; font-weight:700;
+    font-size:.95rem; letter-spacing:.1em; text-transform:uppercase; color:var(--gp-text); flex:1;
+  }
+  .gp-modal-close {
+    background:transparent; border:none; cursor:pointer;
+    color:rgba(226,232,240,.35); font-size:.95rem; padding:.2rem .4rem; border-radius:6px; transition:color .2s;
+  }
+  .gp-modal-close:hover { color:var(--gp-text); }
+  .gp-modal-body { padding:1.25rem 1.4rem; }
+  .gp-modal-footer {
+    padding:.75rem 1.4rem 1.25rem; display:flex; gap:.75rem;
+    border-top:1px solid rgba(77,168,218,.1);
+  }
+  .gp-det-row { display:flex; flex-direction:column; gap:.15rem; }
+  .gp-det-label { font-size:.62rem; font-weight:700; color:var(--gp-muted); letter-spacing:.1em; text-transform:uppercase; }
+  .gp-det-val   { font-size:.9rem; color:var(--gp-text); }
+  @media (max-width:768px) {
+    .gp-tabs { grid-template-columns:repeat(2,1fr); }
+    .gp-form-grid { grid-template-columns:1fr; }
+    .gp-stats-grid { grid-template-columns:1fr 1fr; }
+    .gp-col-header { display:none; }
+    .gp-fila { grid-template-columns:1fr; gap:.4rem; padding:.8rem 1rem; }
+  }
+</style>
+
 <div class="container-fluid p-0">
 
   {% if messages %}
     {% for message in messages %}
-      <div class="alert alert-dismissible fade show mb-3"
-          style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:var(--radius);"
-          role="alert">
+      <div class="gp-alert {% if message.tags == 'error' %}gp-alert--err{% elif message.tags == 'warning' %}gp-alert--warn{% else %}gp-alert--ok{% endif %} mb-3">
+        <i class="bi bi-{% if message.tags == 'error' %}x-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}check-circle{% endif %}-fill"></i>
         {{ message }}
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
       </div>
     {% endfor %}
   {% endif %}
 
-  {% include 'stock_widget.html' %}
+  <div style="margin-bottom:1.75rem;">
+    <a href="{% url 'inventario:inventario_home' %}" class="gp-back mb-1 d-inline-flex">
+      <i class="bi bi-arrow-left-circle"></i> Volver a Inventario
+    </a>
+    <div class="gp-title mt-1"><i class="bi bi-box-seam-fill me-2"></i>Gestión de Productos</div>
+  </div>
 
-  <style>
-    @keyframes pulso-rojo {
-      0%   { box-shadow: 0 0 0 0 rgba(192,57,43,0.7); }
-      70%  { box-shadow: 0 0 0 10px rgba(192,57,43,0); }
-      100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
-    }
+  <div class="gp-tabs">
+    <button class="gp-tab active" onclick="showTab('productos', this)">
+      <i class="bi bi-box-seam"></i> Productos
+    </button>
+    <button class="gp-tab" onclick="showTab('salida', this)">
+      <i class="bi bi-box-arrow-up"></i> Registrar Salida
+    </button>
+    <button class="gp-tab" onclick="showTab('categorias', this)">
+      <i class="bi bi-tags"></i> Categorías
+    </button>
+    <button class="gp-tab" onclick="showTab('nuevo', this)">
+      <i class="bi bi-plus-circle"></i> Nuevo Producto
+    </button>
+    <button class="gp-tab" onclick="showTab('lotes', this)">
+      <i class="bi bi-upc-scan"></i> Registrar Lote
+    </button>
+  </div>
 
-    .np-input {
-      background: #111f33 !important;
-      color: #e2e8f0 !important;
-      border: 1px solid rgba(77,168,218,.25) !important;
-      border-radius: 10px !important;
-      padding: 10px 14px !important;
-      font-size: .85rem;
-      width: 100%;
-      outline: none;
-      transition: border-color .2s;
-      display: block;
-    }
-    .np-input:focus {
-      border-color: #4DA8DA !important;
-      box-shadow: none !important;
-    }
-    .np-input option {
-      background: #111f33;
-      color: #e2e8f0;
-    }
-    .np-label {
-      font-size: .65rem;
-      font-weight: 600;
-      color: rgba(226,232,240,.45);
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      display: block;
-      margin-bottom: .35rem;
-    }
-    .np-form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-    .np-form-grid .np-full {
-      grid-column: 1 / -1;
-    }
-    .pres-row {
-      background: #111f33;
-      border: 1px solid rgba(77,168,218,.2);
-      border-radius: 10px;
-      padding: .75rem 1rem;
-      margin-bottom: .5rem;
-    }
-    @media (max-width: 576px) {
-      .np-form-grid { grid-template-columns: 1fr; }
-    }
-  </style>
-
-  <section class="cys-card mb-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div class="cys-card__title mb-0">Inventario por Categoría</div>
-      <button class="cys-btn cys-btn--primary" onclick="abrirModalNuevo()">
-        <i class="bi bi-plus-lg me-2"></i> Nuevo Producto
-      </button>
+  <!-- TAB 1: CATÁLOGO -->
+  <div id="tab-productos" class="gp-section active">
+    <div class="gp-stats-grid">
+      <div class="gp-stat-card">
+        <div class="gp-stat-card__label"><i class="bi bi-box-seam me-1"></i>Total Productos</div>
+        <div class="gp-stat-card__val">{{ productos|length }}</div>
+      </div>
+      <div class="gp-stat-card">
+        <div class="gp-stat-card__label"><i class="bi bi-exclamation-triangle me-1"></i>Stock Crítico</div>
+        <div class="gp-stat-card__val danger">{{ total_criticos|default:0 }}</div>
+      </div>
+      <div class="gp-stat-card">
+        <div class="gp-stat-card__label"><i class="bi bi-tags me-1"></i>Categorías</div>
+        <div class="gp-stat-card__val">{{ categorias|length }}</div>
+      </div>
     </div>
-    <div class="row g-3">
-      {% for cat in resumen_categorias %}
-        <div class="col-md-4">
-          <div class="cys-stat-card text-center" style="cursor:pointer;"
-              onclick="abrirCategoria('{{ cat.pk }}', '{{ cat.nombre }}')">
-            <div class="cys-stat-card__label">{{ cat.nombre }}</div>
-            <div class="cys-stat-card__val">{{ cat.total }}</div>
-            <div style="font-size:.62rem; color:var(--texto-muted); margin-top:.25rem;">productos</div>
+
+    <div class="gp-search-wrap">
+      <i class="bi bi-search"></i>
+      <input type="text" id="cat-buscador" class="gp-search"
+             placeholder="Buscar producto por nombre o código…"
+             oninput="gpBuscar(this.value)">
+    </div>
+
+    <div id="gp-grupos">
+      {% for cat in categorias %}
+        {% if cat %}
+        <div class="gp-group" data-group>
+          <div class="gp-group-header open" onclick="gpToggle(this)">
+            <i class="bi bi-tag-fill" style="color:var(--gp-blue);"></i>
+            <span class="gp-group-title">{{ cat.nombre }}</span>
+            <span class="gp-group-count">
+              {% with total=cat.productos.all|length %}{{ total }} producto{{ total|pluralize:"s" }}{% endwith %}
+            </span>
+            <i class="bi bi-chevron-down gp-group-chevron"></i>
+          </div>
+          <div class="gp-group-body open">
+            <div class="gp-col-header">
+              <span>Nombre</span><span>Código</span><span>Stock</span><span>Precio</span><span>Acciones</span>
+            </div>
+
+            {% for p in cat.productos.all %}
+            <div class="gp-fila" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
+              <div>
+                <span class="gp-fila__name">{{ p.nombre }}</span>
+                {% if p.stock_critico %}
+                  <span class="gp-crit-tag"><i class="bi bi-exclamation-triangle-fill"></i> Crítico</span>
+                {% endif %}
+              </div>
+              <span class="gp-fila__code">{{ p.codigo }}</span>
+              <span>
+                <span class="gp-stock-badge {% if p.stock_critico %}low{% else %}ok{% endif %}">
+                  {{ p.stock_total }} {{ p.unidad }}
+                </span>
+              </span>
+              <span class="gp-fila__price">${{ p.precio_unitario|floatformat:0 }}</span>
+              <div class="gp-fila-actions">
+                <button class="gp-btn gp-btn--warning gp-btn--sm"
+                        onclick="abrirEditarProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.descripcion|default:''|escapejs }}','{{ p.precio_unitario }}',{{ p.categoria.pk }})">
+                  <i class="bi bi-pencil"></i> Editar
+                </button>
+                <button class="gp-btn gp-btn--outline gp-btn--sm"
+                        onclick="abrirDetalleProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.categoria.nombre|escapejs }}','{{ p.precio_unitario }}','{{ p.stock_total }}','{{ p.unidad }}','{{ p.descripcion|default:''|escapejs }}')">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <form method="POST" action="{% url 'inventario:gestion_producto_eliminar' p.pk %}"
+                      onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»? Esta acción no se puede deshacer.')" style="margin:0;">
+                  {% csrf_token %}
+                  <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm"><i class="bi bi-trash"></i></button>
+                </form>
+              </div>
+            </div>
+            {% endfor %}
+
+            {% for sub in cat.subcategorias.all %}
+              {% for p in sub.productos.all %}
+              <div class="gp-fila" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
+                <div>
+                  <span class="gp-fila__name">{{ p.nombre }}</span>
+                  <span class="gp-fila__sub"> · {{ sub.nombre }}</span>
+                  {% if p.stock_critico %}
+                    <span class="gp-crit-tag"><i class="bi bi-exclamation-triangle-fill"></i> Crítico</span>
+                  {% endif %}
+                </div>
+                <span class="gp-fila__code">{{ p.codigo }}</span>
+                <span>
+                  <span class="gp-stock-badge {% if p.stock_critico %}low{% else %}ok{% endif %}">
+                    {{ p.stock_total }} {{ p.unidad }}
+                  </span>
+                </span>
+                <span class="gp-fila__price">${{ p.precio_unitario|floatformat:0 }}</span>
+                <div class="gp-fila-actions">
+                  <button class="gp-btn gp-btn--warning gp-btn--sm"
+                          onclick="abrirEditarProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.descripcion|default:''|escapejs }}','{{ p.precio_unitario }}',{{ p.categoria.pk }})">
+                    <i class="bi bi-pencil"></i> Editar
+                  </button>
+                  <button class="gp-btn gp-btn--outline gp-btn--sm"
+                          onclick="abrirDetalleProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.categoria.nombre|escapejs }}','{{ p.precio_unitario }}','{{ p.stock_total }}','{{ p.unidad }}','{{ p.descripcion|default:''|escapejs }}')">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <form method="POST" action="{% url 'inventario:gestion_producto_eliminar' p.pk %}"
+                        onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»?')" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm"><i class="bi bi-trash"></i></button>
+                  </form>
+                </div>
+              </div>
+              {% endfor %}
+            {% endfor %}
+
           </div>
         </div>
+        {% endif %}
       {% empty %}
-        <div class="col-12 text-center py-4" style="color:var(--texto-muted); font-size:.85rem;">
-          No hay categorías registradas.
+        <div style="text-align:center; padding:3rem; color:var(--gp-muted); font-size:.85rem;">
+          <i class="bi bi-inbox" style="font-size:2.5rem; display:block; margin-bottom:.5rem; color:rgba(77,168,218,.3);"></i>
+          No hay productos registrados aún.
         </div>
       {% endfor %}
     </div>
-  </section>
+  </div>
+
+  <!-- TAB 2: REGISTRAR SALIDA -->
+  <div id="tab-salida" class="gp-section">
+    <div class="gp-card">
+      <div class="gp-card__title"><i class="bi bi-box-arrow-up"></i> Registrar Salida</div>
+      <form method="POST" action="{% url 'inventario:gestion_salida' %}">
+        {% csrf_token %}
+        <div class="gp-form-grid">
+          <div class="gp-full">
+            <label class="gp-label">Producto</label>
+            <select name="producto" id="salidaProducto" class="gp-input" onchange="cargarPresentaciones(this)">
+              <option value="">— Selecciona un producto —</option>
+              {% for p in productos %}
+                <option value="{{ p.pk }}" data-stock="{{ p.cantidad_disponible }}">
+                  {{ p.nombre }} ({{ p.cantidad_disponible }} uds sueltas)
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div id="salidaPresWrap" style="display:none;" class="gp-full">
+            <label class="gp-label">Presentación (opcional)</label>
+            <select name="presentacion" id="salidaPres" class="gp-input">
+              <option value="">— Unidades sueltas —</option>
+            </select>
+          </div>
+          <div>
+            <label class="gp-label">Cantidad</label>
+            <input type="number" name="cantidad" class="gp-input" min="1" placeholder="Ej: 5" required>
+          </div>
+          <div>
+            <label class="gp-label">Motivo</label>
+            <input type="text" name="motivo" class="gp-input" placeholder="Ej: Venta, merma, daño…" required>
+          </div>
+          <div class="gp-full">
+            <button type="submit" class="gp-btn gp-btn--danger w-100">
+              <i class="bi bi-box-arrow-up"></i> Registrar Salida
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <script id="presData" type="application/json">
+      { {% for p in productos %}"{{ p.pk }}": [{% for pr in p.presentaciones.all %}{"id":"{{ pr.pk }}","nombre":"{{ pr.nombre }}","cantidad":{{ pr.cantidad }},"unidades":{{ pr.unidades }}}{% if not forloop.last %},{% endif %}{% endfor %}]{% if not forloop.last %},{% endif %}{% endfor %} }
+    </script>
+  </div>
+
+  <!-- TAB 3: CATEGORÍAS -->
+  <div id="tab-categorias" class="gp-section">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="gp-card">
+          <div class="gp-card__title"><i class="bi bi-plus-circle"></i> Nueva Categoría</div>
+          <form method="POST" action="{% url 'inventario:gestion_categoria_crear' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="gp-label">Nombre</label>
+              <input type="text" name="nombre" class="gp-input" placeholder="Ej: Cervezas" required>
+            </div>
+            <div class="mb-3">
+              <label class="gp-label">Código</label>
+              <input type="text" name="codigo" class="gp-input" placeholder="Ej: CRV" required>
+            </div>
+            <div class="mb-3">
+              <label class="gp-label">Descripción (opcional)</label>
+              <textarea name="descripcion" class="gp-input" rows="2" placeholder="Descripción…"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="gp-label">Categoría padre (si es subcategoría)</label>
+              <select name="padre" class="gp-input">
+                <option value="">— Es categoría principal —</option>
+                {% for cat in todas_cats %}
+                  <option value="{{ cat.pk }}">{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="gp-btn gp-btn--primary w-100">
+              <i class="bi bi-plus-lg"></i> Crear
+            </button>
+          </form>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="gp-card">
+          <div class="gp-card__title"><i class="bi bi-diagram-3"></i> Árbol de Categorías</div>
+          {% if categorias %}
+            {% for cat in categorias %}
+            <div style="margin-bottom:.75rem;">
+              <div class="gp-cat-item">
+                <i class="bi bi-tag-fill" style="color:var(--gp-blue);"></i>
+                <span style="font-weight:600;">{{ cat.nombre }}</span>
+                <span class="gp-badge ms-1">{{ cat.codigo }}</span>
+                <span style="margin-left:auto; font-size:.75rem; color:var(--gp-muted);">{{ cat.productos.count }} productos</span>
+                <button class="gp-btn gp-btn--warning gp-btn--sm"
+                        onclick="abrirEditarCategoria({{ cat.pk }},'{{ cat.nombre|escapejs }}','{{ cat.codigo|escapejs }}','{{ cat.descripcion|default:''|escapejs }}','')">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <form method="POST" action="{% url 'inventario:gestion_categoria_eliminar' cat.pk %}"
+                      onsubmit="return confirm('¿Eliminar «{{ cat.nombre }}»?')" style="margin:0;">
+                  {% csrf_token %}
+                  <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm"><i class="bi bi-trash"></i></button>
+                </form>
+              </div>
+              {% if cat.subcategorias.all %}
+              <div class="gp-cat-item__sub">
+                {% for sub in cat.subcategorias.all %}
+                <div class="gp-cat-item">
+                  <i class="bi bi-arrow-return-right" style="color:var(--gp-muted);"></i>
+                  <span>{{ sub.nombre }}</span>
+                  <span class="gp-badge ms-1">{{ sub.codigo }}</span>
+                  <span style="margin-left:.5rem; font-size:.75rem; color:var(--gp-muted);">{{ sub.productos.count }} prod.</span>
+                  <button class="gp-btn gp-btn--warning gp-btn--sm"
+                          onclick="abrirEditarCategoria({{ sub.pk }},'{{ sub.nombre|escapejs }}','{{ sub.codigo|escapejs }}','{{ sub.descripcion|default:''|escapejs }}','{{ sub.padre.pk|default:'' }}')">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <form method="POST" action="{% url 'inventario:gestion_categoria_eliminar' sub.pk %}"
+                        onsubmit="return confirm('¿Eliminar subcategoría «{{ sub.nombre }}»?')" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm"><i class="bi bi-trash"></i></button>
+                  </form>
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          {% else %}
+            <div style="text-align:center; padding:2rem; color:var(--gp-muted); font-size:.85rem;">
+              <i class="bi bi-tags" style="font-size:2rem; display:block; margin-bottom:.5rem;"></i>
+              No hay categorías creadas.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: NUEVO PRODUCTO -->
+  <div id="tab-nuevo" class="gp-section">
+    <div class="gp-card">
+      <div class="gp-card__title"><i class="bi bi-plus-circle"></i> Registrar Nuevo Producto</div>
+      <form id="form-nuevo-producto" method="POST" action="{% url 'inventario:gestion_productos' %}">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="crear_producto">
+        <div class="gp-form-grid">
+          {% for field in form %}
+          <div {% if forloop.last %}class="gp-full"{% endif %}>
+            <label class="gp-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+              <div style="color:var(--gp-danger); font-size:.75rem; margin-top:.3rem;">
+                {{ field.errors|join:", " }}
+              </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+          <div class="gp-full d-flex gap-3">
+            <button type="button" class="gp-btn gp-btn--outline" style="flex:1;"
+                    id="btnDefinirPresentaciones"
+                    onclick="guardarYDefinirPresentaciones()">
+              <i class="bi bi-layers me-1"></i> Guardar y Definir Presentaciones
+            </button>
+            <button type="submit" class="gp-btn gp-btn--primary" style="flex:1;">
+              <i class="bi bi-save"></i> Guardar Producto
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TAB 5: REGISTRAR LOTE -->
+  <div id="tab-lotes" class="gp-section">
+    <div class="gp-card">
+      <div class="gp-card__title"><i class="bi bi-upc-scan"></i> Registrar Lote</div>
+      <form method="POST" action="{% url 'inventario:registrar_lote' %}">
+        {% csrf_token %}
+        <div class="gp-form-grid">
+          <div>
+            <label class="gp-label">Número de Lote</label>
+            <input type="text" name="numero_lote" class="gp-input" placeholder="Ej: LOT-2025-001" required>
+          </div>
+          <div>
+            <label class="gp-label">Producto</label>
+            <select name="producto" class="gp-input" required>
+              <option value="">— Selecciona un producto —</option>
+              {% for p in productos %}
+                <option value="{{ p.pk }}">{{ p.nombre }} ({{ p.codigo }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="gp-full">
+            <button type="submit" class="gp-btn gp-btn--primary w-100">
+              <i class="bi bi-save"></i> Guardar Lote
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 
 </div>
 
 
-<!-- ══════════════════════════════════════════════
-     MODAL: Nuevo Producto
-══════════════════════════════════════════════ -->
-<div id="modalNuevoProducto" style="
-  display:none; position:fixed; inset:0; z-index:9999;
-  background:rgba(0,0,0,.65); backdrop-filter:blur(4px);
-  align-items:center; justify-content:center; padding:1rem;">
-
-  <div style="
-    background:#0D1B2E; border:1px solid rgba(77,168,218,.3);
-    border-radius:16px; width:100%; max-width:580px;
-    box-shadow:0 16px 48px rgba(0,0,0,.7);
-    font-family:'Inter',sans-serif; margin:auto;
-    max-height:90vh; overflow-y:auto;">
-
-    <!-- Header -->
-    <div style="padding:1.1rem 1.4rem; display:flex; align-items:center; gap:.75rem;
-                border-bottom:1px solid rgba(77,168,218,.15);
-                background:#111f33; border-radius:16px 16px 0 0;
-                position:sticky; top:0; z-index:1;">
-      <div style="width:34px; height:34px; border-radius:9px; flex-shrink:0;
-                  background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3);
-                  display:flex; align-items:center; justify-content:center;
-                  color:#4DA8DA; font-size:.95rem;">
-        <i class="bi bi-plus-circle-fill"></i>
-      </div>
-      <span style="font-family:'Rajdhani',sans-serif; font-weight:700;
-                   font-size:.95rem; letter-spacing:.1em; text-transform:uppercase;
-                   color:#e2e8f0; flex:1;">Registrar Nuevo Producto</span>
-      <button onclick="cerrarModalNuevo()" style="
-        background:transparent; border:none; cursor:pointer;
-        color:rgba(226,232,240,.35); font-size:.95rem; padding:.2rem .4rem;
-        border-radius:6px; transition:color .2s;"
-        onmouseover="this.style.color='#e2e8f0'"
-        onmouseout="this.style.color='rgba(226,232,240,.35)'">
-        <i class="bi bi-x-lg"></i>
-      </button>
+<!-- MODAL: DETALLE PRODUCTO -->
+<div id="modalDetalleProducto" class="gp-modal-overlay">
+  <div class="gp-modal-box">
+    <div class="gp-modal-header">
+      <div class="gp-modal-header__icon"><i class="bi bi-eye"></i></div>
+      <span class="gp-modal-header__title">Detalle del Producto</span>
+      <button class="gp-modal-close" onclick="cerrarModal('modalDetalleProducto')"><i class="bi bi-x-lg"></i></button>
     </div>
-
-    <!-- Form -->
-    <form id="formNuevoProducto" method="post" action="{% url 'producto:producto_crear' %}">
-      {% csrf_token %}
-      <div style="padding:1.25rem 1.4rem;">
-        <div class="np-form-grid">
-
-          <!-- Código -->
-          <div>
-            <label class="np-label">{{ form.codigo.label }}</label>
-            {{ form.codigo }}
-            {% if form.codigo.errors %}
-              <div style="color:#e87070; font-size:.72rem; margin-top:.3rem;">{{ form.codigo.errors|join:", " }}</div>
-            {% endif %}
-          </div>
-
-          <!-- Nombre -->
-          <div>
-            <label class="np-label">{{ form.nombre.label }}</label>
-            {{ form.nombre }}
-            {% if form.nombre.errors %}
-              <div style="color:#e87070; font-size:.72rem; margin-top:.3rem;">{{ form.nombre.errors|join:", " }}</div>
-            {% endif %}
-          </div>
-
-          <!-- Categoría -->
-          <div class="np-full">
-            <label class="np-label">{{ form.categoria.label }}</label>
-            {{ form.categoria }}
-            {% if form.categoria.errors %}
-              <div style="color:#e87070; font-size:.72rem; margin-top:.3rem;">{{ form.categoria.errors|join:", " }}</div>
-            {% endif %}
-          </div>
-
-          <!-- Botones -->
-          <div class="np-full d-flex gap-3 mt-1">
-            <button type="button" id="btnDefinirPresentaciones"
-                    onclick="guardarYDefinirPresentaciones()"
-                    style="flex:1; padding:.7rem; border-radius:10px; cursor:pointer;
-                           background:transparent; border:1px solid rgba(77,168,218,.4);
-                           color:#4DA8DA; font-family:'Rajdhani',sans-serif; font-weight:700;
-                           font-size:.85rem; letter-spacing:.08em; text-transform:uppercase;
-                           display:flex; align-items:center; justify-content:center; gap:.4rem;
-                           transition:background .2s;"
-                    onmouseover="this.style.background='rgba(77,168,218,.1)'"
-                    onmouseout="this.style.background='transparent'">
-              <i class="bi bi-layers"></i> Guardar y Definir Presentaciones
-            </button>
-            <button type="submit"
-                    style="flex:1; padding:.7rem; border-radius:10px; cursor:pointer;
-                           background:#4DA8DA; border:none; color:#011936;
-                           font-family:'Rajdhani',sans-serif; font-weight:700;
-                           font-size:.85rem; letter-spacing:.08em; text-transform:uppercase;
-                           display:flex; align-items:center; justify-content:center; gap:.4rem;
-                           box-shadow:0 4px 14px rgba(77,168,218,.35); transition:background .2s;"
-                    onmouseover="this.style.background='#6dc0e8'"
-                    onmouseout="this.style.background='#4DA8DA'">
-              <i class="bi bi-save"></i> Guardar Producto
-            </button>
-          </div>
-
+    <div class="gp-modal-body">
+      <div style="display:flex; flex-direction:column; gap:1.1rem;">
+        <div class="gp-det-row">
+          <span class="gp-det-label">Nombre</span>
+          <span id="gp-det-nombre" style="font-size:1.05rem; font-weight:700; color:var(--gp-text);"></span>
         </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="gp-det-row">
+            <span class="gp-det-label">Código</span>
+            <span id="gp-det-codigo" style="font-family:monospace; color:var(--gp-blue); font-weight:600; font-size:.9rem;"></span>
+          </div>
+          <div class="gp-det-row">
+            <span class="gp-det-label">Categoría</span>
+            <span id="gp-det-categoria" class="gp-det-val"></span>
+          </div>
+          <div class="gp-det-row">
+            <span class="gp-det-label">Precio unitario</span>
+            <span id="gp-det-precio" style="color:var(--gp-blue); font-weight:700; font-size:.95rem;"></span>
+          </div>
+          <div class="gp-det-row">
+            <span class="gp-det-label">Stock disponible</span>
+            <span id="gp-det-stock" style="font-weight:700; font-size:.95rem;"></span>
+          </div>
+        </div>
+        <div class="gp-det-row">
+          <span class="gp-det-label">Descripción</span>
+          <span id="gp-det-descripcion" style="font-size:.85rem; color:var(--gp-muted); line-height:1.55;"></span>
+        </div>
+        <div class="gp-det-row">
+          <span class="gp-det-label"><i class="bi bi-upc-scan me-1"></i>Lotes registrados</span>
+          <div id="gp-det-lotes" style="margin-top:.35rem;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="gp-modal-footer">
+      <button type="button" class="gp-btn gp-btn--outline" style="flex:1;"
+              onclick="cerrarModal('modalDetalleProducto')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL: EDITAR PRODUCTO -->
+<div id="modalEditarProducto" class="gp-modal-overlay">
+  <div class="gp-modal-box gp-modal-box--lg">
+    <div class="gp-modal-header">
+      <div class="gp-modal-header__icon"><i class="bi bi-pencil-square"></i></div>
+      <span class="gp-modal-header__title">Editar Producto</span>
+      <button class="gp-modal-close" onclick="cerrarModal('modalEditarProducto')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form id="formEditarProducto" method="POST" action="">
+      {% csrf_token %}
+      <div class="gp-modal-body">
+        <div class="gp-form-grid">
+          <div>
+            <label class="gp-label">Nombre</label>
+            <input type="text" name="nombre" id="ep-nombre" class="gp-input" required>
+          </div>
+          <div>
+            <label class="gp-label">Código</label>
+            <input type="text" name="codigo" id="ep-codigo" class="gp-input" required>
+          </div>
+          <div>
+            <label class="gp-label">Precio Unitario</label>
+            <input type="number" name="precio_unitario" id="ep-precio" class="gp-input" step="0.01">
+          </div>
+          <div>
+            <label class="gp-label">Categoría</label>
+            <select name="categoria" id="ep-categoria" class="gp-input">
+              {% for cat in todas_cats %}
+                <option value="{{ cat.pk }}">{{ cat.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="gp-full">
+            <label class="gp-label">Descripción</label>
+            <textarea name="descripcion" id="ep-descripcion" class="gp-input" rows="2"></textarea>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem;">
+          <div style="font-family:'Rajdhani',sans-serif; font-size:.82rem; font-weight:700;
+                      color:var(--gp-blue); letter-spacing:.08em; text-transform:uppercase; margin-bottom:.6rem;">
+            <i class="bi bi-layers me-1"></i> Presentaciones actuales
+          </div>
+          <div id="ep-presentaciones" style="color:var(--gp-muted); font-size:.8rem; margin-bottom:.75rem;">—</div>
+          <button type="button" class="gp-btn gp-btn--outline gp-btn--sm" id="btnEditarPresentaciones">
+            <i class="bi bi-layers me-1"></i> Editar Presentaciones
+          </button>
+        </div>
+      </div>
+      <div class="gp-modal-footer">
+        <button type="button" class="gp-btn gp-btn--danger" style="flex:1;"
+                onclick="cerrarModal('modalEditarProducto')">Cancelar</button>
+        <button type="submit" class="gp-btn gp-btn--primary" style="flex:1;">
+          <i class="bi bi-save"></i> Guardar cambios
+        </button>
       </div>
     </form>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════════
-     MODAL: Presentaciones
-══════════════════════════════════════════════ -->
-<div id="modalPresentaciones" style="
-  display:none; position:fixed; inset:0; z-index:10000;
-  background:rgba(0,0,0,.65); backdrop-filter:blur(4px);
-  align-items:center; justify-content:center; padding:1rem;">
-
-  <div style="
-    background:#0D1B2E; border:1px solid rgba(77,168,218,.3);
-    border-radius:16px; width:100%; max-width:700px;
-    box-shadow:0 16px 48px rgba(0,0,0,.7);
-    font-family:'Inter',sans-serif; margin:auto;
-    max-height:90vh; overflow-y:auto;">
-
-    <!-- Header -->
-    <div style="padding:1.1rem 1.4rem; display:flex; align-items:center; gap:.75rem;
-                border-bottom:1px solid rgba(77,168,218,.15);
-                background:#111f33; border-radius:16px 16px 0 0;
-                position:sticky; top:0; z-index:1;">
-      <div style="width:34px; height:34px; border-radius:9px; flex-shrink:0;
-                  background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3);
-                  display:flex; align-items:center; justify-content:center;
-                  color:#4DA8DA; font-size:.95rem;">
-        <i class="bi bi-layers"></i>
-      </div>
-      <span style="font-family:'Rajdhani',sans-serif; font-weight:700;
-                   font-size:.95rem; letter-spacing:.1em; text-transform:uppercase;
-                   color:#e2e8f0; flex:1;">
-        Presentaciones — <span id="pres-producto-nombre"></span>
-      </span>
-      <button onclick="cerrarModalPresentaciones()" style="
-        background:transparent; border:none; cursor:pointer;
-        color:rgba(226,232,240,.35); font-size:.95rem; padding:.2rem .4rem;
-        border-radius:6px; transition:color .2s;"
-        onmouseover="this.style.color='#e2e8f0'"
-        onmouseout="this.style.color='rgba(226,232,240,.35)'">
-        <i class="bi bi-x-lg"></i>
-      </button>
+<!-- MODAL: PRESENTACIONES -->
+<div id="modalPresentaciones" class="gp-modal-overlay">
+  <div class="gp-modal-box gp-modal-box--lg">
+    <div class="gp-modal-header">
+      <div class="gp-modal-header__icon"><i class="bi bi-layers"></i></div>
+      <span class="gp-modal-header__title">Presentaciones — <span id="pres-producto-nombre"></span></span>
+      <button class="gp-modal-close" onclick="cerrarModal('modalPresentaciones')"><i class="bi bi-x-lg"></i></button>
     </div>
-
-    <form id="formPresentaciones" method="POST" action="">
+    <form id="form-presentaciones" method="POST" action="">
       {% csrf_token %}
-      <div style="padding:1.25rem 1.4rem;">
-
-        <div style="font-size:.78rem; color:rgba(226,232,240,.45); margin-bottom:1rem; line-height:1.6;">
-          Define las presentaciones del producto. La
-          <strong style="color:#4DA8DA;">Unidad</strong> es siempre la base.
+      <div class="gp-modal-body">
+        <div style="font-size:.78rem; color:var(--gp-muted); margin-bottom:1rem; line-height:1.6;">
+          Define las presentaciones. La <strong style="color:var(--gp-blue);">Unidad</strong> es siempre la base.
         </div>
-
-        <!-- Fila base: Unidad -->
         <div class="pres-row mb-2">
           <div class="row g-2 align-items-center">
             <div class="col-md-3">
-              <label class="np-label">Presentación</label>
-              <input type="text" name="nombre[]" value="Unidad"
-                     class="np-input" readonly style="opacity:.6;">
+              <label class="gp-label">Presentación</label>
+              <input type="text" name="nombre[]" value="Unidad" class="gp-input" readonly style="opacity:.6;">
             </div>
             <div class="col-md-2">
-              <label class="np-label">Unidades</label>
-              <input type="number" name="unidades_base[]" value="1"
-                     class="np-input" readonly style="opacity:.6;">
+              <label class="gp-label">Unidades</label>
+              <input type="number" name="unidades_base[]" value="1" class="gp-input" readonly style="opacity:.6;">
             </div>
             <div class="col-md-3">
-              <label class="np-label">Cantidad existente</label>
-              <input type="number" name="cantidad[]" id="cantidad-unidad"
-                     class="np-input" placeholder="Ej: 50" min="0" value="0">
+              <label class="gp-label">Cantidad existente</label>
+              <input type="number" name="cantidad[]" id="cantidad-unidad" class="gp-input" placeholder="Ej: 50" min="0" value="0">
             </div>
             <div class="col-md-3">
-              <label class="np-label">Precio (COP)</label>
-              <input type="number" name="precio[]" id="precio-unidad"
-                     class="np-input" placeholder="Ej: 2500" min="0">
+              <label class="gp-label">Precio (COP)</label>
+              <input type="number" name="precio[]" id="precio-unidad" class="gp-input" placeholder="Ej: 2500" min="0" required>
             </div>
             <div class="col-md-1 d-flex align-items-end justify-content-center pb-1">
-              <span style="color:#4DA8DA; font-size:.62rem; text-align:center;">Base</span>
+              <span style="color:var(--gp-blue); font-size:.62rem;">Base</span>
             </div>
           </div>
         </div>
-
-        <!-- Filas dinámicas -->
-        <div id="contenedor-presentaciones-modal"></div>
-
-        <button type="button" onclick="agregarFilaPresentacion()"
-                style="width:100%; padding:.6rem; margin-top:.5rem;
-                       border-radius:10px; cursor:pointer;
-                       background:transparent; border:1px dashed rgba(77,168,218,.35);
-                       color:#4DA8DA; font-family:'Rajdhani',sans-serif; font-weight:700;
-                       font-size:.8rem; letter-spacing:.08em; text-transform:uppercase;
-                       transition:background .2s;"
-                onmouseover="this.style.background='rgba(77,168,218,.08)'"
-                onmouseout="this.style.background='transparent'">
+        <div id="contenedor-presentaciones"></div>
+        <button type="button" class="gp-btn gp-btn--outline w-100 mt-2"
+                style="border-style:dashed; font-size:.8rem;"
+                onclick="agregarPresentacion()">
           <i class="bi bi-plus-circle me-1"></i> Agregar Presentación
         </button>
       </div>
-
-      <!-- Footer -->
-      <div style="padding:.75rem 1.4rem 1.25rem; display:flex; gap:.75rem;
-                  border-top:1px solid rgba(77,168,218,.1);">
-        <button type="button" onclick="cerrarModalPresentaciones()" style="
-          flex:1; padding:.7rem; border-radius:10px; cursor:pointer;
-          background:rgba(192,57,43,.15); border:1px solid rgba(192,57,43,.35);
-          color:#e87070; font-family:'Rajdhani',sans-serif; font-weight:700;
-          font-size:.85rem; letter-spacing:.08em; text-transform:uppercase;">
-          Cancelar
-        </button>
-        <button type="button" onclick="guardarPresentaciones()" style="
-          flex:1; padding:.7rem; border-radius:10px; cursor:pointer;
-          background:#4DA8DA; border:none; color:#011936;
-          font-family:'Rajdhani',sans-serif; font-weight:700;
-          font-size:.85rem; letter-spacing:.08em; text-transform:uppercase;
-          display:flex; align-items:center; justify-content:center; gap:.4rem;
-          box-shadow:0 4px 14px rgba(77,168,218,.35); transition:background .2s;"
-          onmouseover="this.style.background='#6dc0e8'"
-          onmouseout="this.style.background='#4DA8DA'">
+      <div class="gp-modal-footer">
+        <button type="button" class="gp-btn gp-btn--danger" style="flex:1;"
+                onclick="cerrarModal('modalPresentaciones')">Cancelar</button>
+        <button type="button" class="gp-btn gp-btn--primary" style="flex:1;"
+                onclick="guardarPresentaciones()">
           <i class="bi bi-save me-1"></i> Guardar Presentaciones
         </button>
       </div>
@@ -333,190 +777,75 @@
 </div>
 
 
-<!-- MODAL: Detalle Producto -->
-<div class="modal fade" id="modalDetalleProducto" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-        style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-          style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-eye me-2" style="color:var(--azul-claro);"></i> Detalle Producto
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <div class="d-flex flex-column gap-3">
-          <div>
-            <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Nombre</div>
-            <div id="det-nombre" style="font-size:1rem; font-weight:600; color:var(--texto);"></div>
-          </div>
-          <div class="row g-3">
-            <div class="col-6">
-              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Código</div>
-              <div id="det-codigo" style="font-size:.9rem; color:var(--azul-claro); font-weight:600;"></div>
-            </div>
-            <div class="col-6">
-              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Categoría</div>
-              <div id="det-categoria" style="font-size:.9rem; color:var(--texto);"></div>
-            </div>
-            <div class="col-6">
-              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Stock (unidades sueltas)</div>
-              <div id="det-cantidad" style="font-size:.9rem; color:var(--azul-claro); font-weight:700;"></div>
-            </div>
-          </div>
-          <div>
-            <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.5rem;">Presentaciones</div>
-            <div id="det-presentaciones"></div>
-          </div>
-          <div>
-            <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Descripción</div>
-            <div id="det-descripcion" style="font-size:.85rem; color:var(--texto-muted);"></div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
-      </div>
+<!-- MODAL: EDITAR CATEGORÍA -->
+<div id="modalEditarCategoria" class="gp-modal-overlay">
+  <div class="gp-modal-box">
+    <div class="gp-modal-header">
+      <div class="gp-modal-header__icon"><i class="bi bi-tag"></i></div>
+      <span class="gp-modal-header__title">Editar Categoría</span>
+      <button class="gp-modal-close" onclick="cerrarModal('modalEditarCategoria')"><i class="bi bi-x-lg"></i></button>
     </div>
+    <form id="formEditarCategoria" method="POST" action="">
+      {% csrf_token %}
+      <div class="gp-modal-body">
+        <div class="gp-form-grid">
+          <div>
+            <label class="gp-label">Nombre</label>
+            <input type="text" name="nombre" id="ec-nombre" class="gp-input" required>
+          </div>
+          <div>
+            <label class="gp-label">Código</label>
+            <input type="text" name="codigo" id="ec-codigo" class="gp-input" required>
+          </div>
+          <div class="gp-full">
+            <label class="gp-label">Categoría padre (si es subcategoría)</label>
+            <select name="padre" id="ec-padre" class="gp-input">
+              <option value="">— Es categoría principal —</option>
+              {% for cat in todas_cats %}
+                <option value="{{ cat.pk }}">{{ cat.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="gp-full">
+            <label class="gp-label">Descripción (opcional)</label>
+            <textarea name="descripcion" id="ec-descripcion" class="gp-input" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="gp-modal-footer">
+        <button type="button" class="gp-btn gp-btn--danger" style="flex:1;"
+                onclick="cerrarModal('modalEditarCategoria')">Cancelar</button>
+        <button type="submit" class="gp-btn gp-btn--primary" style="flex:1;">
+          <i class="bi bi-save"></i> Guardar cambios
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 
 
-<!-- MODAL: Productos por Categoría -->
-<div class="modal fade" id="modalProductosCategoria" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg"
-        style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0"
-          style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-box-seam me-2" style="color:var(--azul-claro);"></i>
-          Productos — <span id="titulo-categoria"></span>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0"
-                 style="--bs-table-bg: transparent; --bs-table-hover-bg: rgba(77,168,218,.08); color: var(--texto);">
-            <thead style="background:var(--fondo-card2);">
-              <tr style="border-bottom:2px solid var(--azul-borde);">
-                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
-                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Nombre</th>
-                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Stock</th>
-                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Presentaciones</th>
-                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Últ. Entrada</th>
-                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="cuerpo-categoria"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- MODAL: Confirmar ir a Gestión -->
-<div id="modalConfirmGestion" style="
-  display:none; position:fixed; inset:0; z-index:9999;
-  background:rgba(0,0,0,.65); backdrop-filter:blur(4px);
-  align-items:center; justify-content:center; padding:1rem;">
-  <div style="
-    background:#0D1B2E; border:1px solid rgba(77,168,218,.3);
-    border-radius:16px; width:100%; max-width:460px;
-    box-shadow:0 16px 48px rgba(0,0,0,.7);
-    overflow:hidden; font-family:'Inter',sans-serif;">
-
-    <div style="padding:1.2rem 1.5rem; display:flex; align-items:center;
-                gap:.75rem; border-bottom:1px solid rgba(77,168,218,.15);">
-      <div style="width:36px; height:36px; border-radius:10px; flex-shrink:0;
-                  background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3);
-                  display:flex; align-items:center; justify-content:center;
-                  color:#4DA8DA; font-size:1rem;">
-        <i class="bi bi-box-seam-fill"></i>
-      </div>
-      <span style="font-family:'Rajdhani',sans-serif; font-weight:700;
-                   font-size:1rem; letter-spacing:.1em; text-transform:uppercase;
-                   color:#e2e8f0; flex:1;">Gestión de Productos</span>
-      <button onclick="cerrarModalGestion()" style="
-        background:transparent; border:none; cursor:pointer;
-        color:rgba(226,232,240,.35); font-size:1rem; padding:.2rem .4rem;
-        border-radius:6px; transition:color .2s;"
-        onmouseover="this.style.color='#e2e8f0'"
-        onmouseout="this.style.color='rgba(226,232,240,.35)'">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
-
-    <div style="padding:1.25rem 1.5rem 1rem;">
-      <div style="height:1px; background:rgba(77,168,218,.1); margin-bottom:1.1rem;"></div>
-      <p style="color:#cbd5e1; font-size:.95rem; margin:0; line-height:1.65;">
-        ¿Deseas ir a <strong style="color:#4DA8DA;">Gestión de Productos</strong> en Inventario?
-      </p>
-      <p style="color:rgba(226,232,240,.35); font-size:.8rem; margin-top:.45rem;">
-        Allí puedes crear, editar o eliminar productos y categorías.
-      </p>
-    </div>
-
-    <div style="padding:.75rem 1.5rem 1.4rem; display:flex; gap:.75rem;">
-      <button onclick="cerrarModalGestion()" style="
-        flex:1; padding:.75rem; border-radius:10px; cursor:pointer;
-        background:#111f33; border:1px solid rgba(226,232,240,.1);
-        color:#e2e8f0; font-family:'Rajdhani',sans-serif;
-        font-weight:700; font-size:.9rem; letter-spacing:.08em;
-        text-transform:uppercase; transition:background .2s;"
-        onmouseover="this.style.background='#1a2a45'"
-        onmouseout="this.style.background='#111f33'">
-        Cancelar
-      </button>
-      <button onclick="window.location.href=GESTION_URL" style="
-        flex:1; padding:.75rem; border-radius:10px; cursor:pointer;
-        background:#4DA8DA; border:none; color:#011936;
-        font-family:'Rajdhani',sans-serif; font-weight:700;
-        font-size:.9rem; letter-spacing:.08em; text-transform:uppercase;
-        display:flex; align-items:center; justify-content:center; gap:.5rem;
-        transition:background .2s; box-shadow:0 4px 14px rgba(77,168,218,.35);"
-        onmouseover="this.style.background='#6dc0e8'"
-        onmouseout="this.style.background='#4DA8DA'">
-        <i class="bi bi-arrow-right-circle-fill"></i> Ir ahora
-      </button>
-    </div>
-  </div>
-</div>
-
-{% endblock %}
-
-
-{% block extra_js %}
 <script>
-const GESTION_URL = "{% url 'inventario:gestion_productos' %}";
-
-const todoProductos = [
-  {% for producto in productos %}
+const todoProductosGP = [
+  {% for p in productos %}
   {
-    pk: {{ producto.pk }},
-    nombre: "{{ producto.nombre|escapejs }}",
-    codigo: "{{ producto.codigo|escapejs }}",
-    categoria_pk: {{ producto.categoria.pk }},
-    categoria_nombre: "{{ producto.categoria.nombre|escapejs }}",
-    cantidad: {{ producto.cantidad_disponible }},
-    descripcion: "{{ producto.descripcion|default:''|escapejs }}",
-    ultima_entrada: "{% with ultimo=producto.movimientos.first %}{% if ultimo %}{{ ultimo.fecha_actualizada|date:'d/m/Y' }}{% else %}—{% endif %}{% endwith %}",
-    stock_critico: {% if producto.stock_critico %}true{% else %}false{% endif %},
+    pk: {{ p.pk }},
+    nombre: "{{ p.nombre|escapejs }}",
     presentaciones: [
-      {% for pres in producto.presentaciones.all %}
+      {% for pr in p.presentaciones.all %}
       {
-        id: {{ pres.pk }},
-        nombre: "{{ pres.nombre|escapejs }}",
-        unidades: {{ pres.unidades }},
-        precio: "{{ pres.precio }}",
-        cantidad: {{ pres.cantidad }}
+        id: {{ pr.pk }},
+        nombre: "{{ pr.nombre|escapejs }}",
+        unidades: {{ pr.unidades }},
+        precio: "{{ pr.precio }}",
+        cantidad: {{ pr.cantidad }}
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ],
+    lotes: [
+      {% for l in p.lotes.all %}
+      {
+        numero: "{{ l.numero_lote|escapejs }}",
+        fecha: "{{ l.fecha_registro|date:'d/m/Y' }}"
       }{% if not forloop.last %},{% endif %}
       {% endfor %}
     ]
@@ -524,36 +853,191 @@ const todoProductos = [
   {% endfor %}
 ];
 
-// ── Modal Nuevo Producto ──────────────────────────
-function abrirModalNuevo() {
-  document.getElementById('modalNuevoProducto').style.display = 'flex';
+function showTab(name, btn) {
+  document.querySelectorAll('.gp-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.gp-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
 }
 
-function cerrarModalNuevo() {
-  document.getElementById('modalNuevoProducto').style.display = 'none';
-  document.getElementById('formNuevoProducto').reset();
+function gpToggle(header) {
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
 }
 
-document.getElementById('modalNuevoProducto').addEventListener('click', function(e) {
-  if (e.target === this) cerrarModalNuevo();
+function gpBuscar(q) {
+  const term = q.toLowerCase().trim();
+  document.querySelectorAll('[data-group]').forEach(grupo => {
+    const filas = grupo.querySelectorAll('.gp-fila');
+    let alguna = false;
+    filas.forEach(fila => {
+      const match = !term || fila.dataset.nombre.includes(term) || fila.dataset.codigo.includes(term);
+      fila.classList.toggle('hidden', !match);
+      if (match) alguna = true;
+    });
+    grupo.style.display = alguna ? '' : 'none';
+    if (term && alguna) {
+      grupo.querySelector('.gp-group-header').classList.add('open');
+      grupo.querySelector('.gp-group-body').classList.add('open');
+    }
+  });
+}
+
+document.getElementById('cat-buscador').addEventListener('input', function() { gpBuscar(this.value); });
+
+const presData = JSON.parse(document.getElementById('presData').textContent);
+
+function cargarPresentaciones(sel) {
+  const pk   = sel.value;
+  const wrap = document.getElementById('salidaPresWrap');
+  const pres = document.getElementById('salidaPres');
+  pres.innerHTML = '<option value="">— Unidades sueltas —</option>';
+  if (!pk || !presData[pk] || presData[pk].length === 0) { wrap.style.display = 'none'; return; }
+  presData[pk].forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.nombre} (${p.cantidad} uds × ${p.unidades} c/u)`;
+    pres.appendChild(opt);
+  });
+  wrap.style.display = 'block';
+}
+
+function cerrarModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.gp-modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
 });
 
-// ── Guardar y Definir Presentaciones (AJAX) ───────
-function guardarYDefinirPresentaciones() {
-  const form   = document.getElementById('formNuevoProducto');
-  const nombre = form.querySelector('[name="nombre"]')?.value.trim();
-  const codigo = form.querySelector('[name="codigo"]')?.value.trim();
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape')
+    document.querySelectorAll('.gp-modal-overlay.open').forEach(m => m.classList.remove('open'));
+});
 
-  if (!nombre || !codigo) {
-    alert('Completa al menos Nombre y Código antes de continuar.');
-    return;
+function abrirDetalleProducto(pk, nombre, codigo, categoria, precio, stock, unidad, descripcion) {
+  document.getElementById('gp-det-nombre').textContent    = nombre;
+  document.getElementById('gp-det-codigo').textContent    = codigo;
+  document.getElementById('gp-det-categoria').textContent = categoria;
+  document.getElementById('gp-det-precio').textContent    = '$' + parseInt(precio).toLocaleString('es-CO');
+  const stockEl = document.getElementById('gp-det-stock');
+  stockEl.textContent = stock + ' ' + unidad;
+  stockEl.style.color = parseInt(stock) <= 5 ? 'var(--gp-danger)' : 'var(--gp-green)';
+  document.getElementById('gp-det-descripcion').textContent = descripcion || 'Sin descripción.';
+
+  const producto = todoProductosGP.find(p => p.pk == pk);
+  const lotesEl  = document.getElementById('gp-det-lotes');
+  if (producto && producto.lotes.length > 0) {
+    lotesEl.innerHTML = producto.lotes.map(l => `
+      <div style="display:flex; justify-content:space-between; align-items:center;
+                  padding:.3rem .6rem; border-radius:7px;
+                  background:rgba(77,168,218,.06); border:1px solid rgba(77,168,218,.12); margin-bottom:.3rem;">
+        <span style="font-family:monospace; color:var(--gp-blue); font-size:.82rem; font-weight:600;">
+          <i class="bi bi-upc-scan me-1"></i>${l.numero}
+        </span>
+        <span style="font-size:.7rem; color:var(--gp-muted);">${l.fecha}</span>
+      </div>`).join('');
+  } else {
+    lotesEl.innerHTML = '<span style="font-size:.78rem; color:var(--gp-muted);">Sin lotes registrados.</span>';
+  }
+  document.getElementById('modalDetalleProducto').classList.add('open');
+}
+
+function abrirEditarProducto(pk, nombre, codigo, descripcion, precio, categoriaPk) {
+  document.getElementById('ep-nombre').value      = nombre;
+  document.getElementById('ep-codigo').value      = codigo;
+  document.getElementById('ep-descripcion').value = descripcion;
+  document.getElementById('ep-precio').value      = precio;
+  document.getElementById('ep-categoria').value   = categoriaPk;
+  document.getElementById('formEditarProducto').action =
+    '{% url "inventario:gestion_producto_editar" 0 %}'.replace('/0/', '/' + pk + '/');
+
+  const producto = todoProductosGP.find(p => p.pk == pk);
+  const contPres = document.getElementById('ep-presentaciones');
+  if (producto && producto.presentaciones.length > 0) {
+    contPres.innerHTML = producto.presentaciones.map(pr => `
+      <div style="display:flex; justify-content:space-between; padding:.35rem 0;
+                  border-bottom:1px solid rgba(77,168,218,.1); font-size:.8rem;">
+        <span style="color:var(--gp-text);">${pr.nombre} (${pr.unidades} uds) — Stock: ${pr.cantidad}</span>
+        <span style="color:var(--gp-blue); font-weight:600;">$${parseInt(pr.precio||0).toLocaleString('es-CO')}</span>
+      </div>`).join('');
+  } else {
+    contPres.innerHTML = '<span style="font-size:.78rem;">Sin presentaciones definidas.</span>';
   }
 
+  document.getElementById('btnEditarPresentaciones').onclick = () => {
+    cerrarModal('modalEditarProducto');
+    setTimeout(() => abrirPresentaciones(pk, nombre), 350);
+  };
+  document.getElementById('modalEditarProducto').classList.add('open');
+}
+
+function abrirPresentaciones(pk, nombre) {
+  document.getElementById('pres-producto-nombre').textContent = nombre;
+  document.getElementById('form-presentaciones').action =
+    "{% url 'producto:presentaciones_guardar' 0 %}?next={% url 'inventario:gestion_productos' %}"
+    .replace('/0/', '/' + pk + '/');
+
+  document.getElementById('contenedor-presentaciones').innerHTML = '';
+  document.getElementById('precio-unidad').value   = '';
+  document.getElementById('cantidad-unidad').value = '0';
+
+  const producto = todoProductosGP.find(p => p.pk == pk);
+  if (producto) {
+    const unidad = producto.presentaciones.find(pr => pr.unidades === 1);
+    if (unidad) {
+      document.getElementById('precio-unidad').value   = unidad.precio;
+      document.getElementById('cantidad-unidad').value = unidad.cantidad || 0;
+    }
+    producto.presentaciones.filter(pr => pr.unidades > 1)
+      .forEach(pr => agregarPresentacion(pr.nombre, pr.unidades, pr.precio, pr.cantidad));
+  }
+  document.getElementById('modalPresentaciones').classList.add('open');
+}
+
+function agregarPresentacion(nombre = '', unidades = '', precio = '', cantidad = '') {
+  const cont = document.getElementById('contenedor-presentaciones');
+  const div  = document.createElement('div');
+  div.className = 'pres-row';
+  div.innerHTML = `
+    <div class="row g-2 align-items-center">
+      <div class="col-md-3">
+        <label class="gp-label">Presentación</label>
+        <input type="text" name="nombre[]" value="${nombre}" class="gp-input" placeholder="Ej: Six-pack" required>
+      </div>
+      <div class="col-md-2">
+        <label class="gp-label">Unidades</label>
+        <input type="number" name="unidades_base[]" value="${unidades}" class="gp-input" placeholder="Ej: 6" min="2" required>
+      </div>
+      <div class="col-md-3">
+        <label class="gp-label">Cantidad existente</label>
+        <input type="number" name="cantidad[]" value="${cantidad}" class="gp-input" placeholder="Stock actual" min="0">
+      </div>
+      <div class="col-md-3">
+        <label class="gp-label">Precio (COP)</label>
+        <input type="number" name="precio[]" value="${precio}" class="gp-input" placeholder="Ej: 13000" min="0" required>
+      </div>
+      <div class="col-md-1 d-flex align-items-end pb-1 justify-content-center">
+        <button type="button" onclick="this.closest('.pres-row').remove()"
+                style="background:rgba(192,57,43,.15); border:1px solid rgba(192,57,43,.3);
+                       color:var(--gp-danger); width:30px; height:30px; border-radius:6px;
+                       display:flex; align-items:center; justify-content:center; cursor:pointer;">
+          <i class="bi bi-trash" style="font-size:.75rem;"></i>
+        </button>
+      </div>
+    </div>`;
+  cont.appendChild(div);
+}
+
+function guardarPresentaciones() { document.getElementById('form-presentaciones').submit(); }
+
+function guardarYDefinirPresentaciones() {
+  const form   = document.getElementById('form-nuevo-producto');
+  const nombre = form.querySelector('[name="nombre"]').value.trim();
+  const codigo = form.querySelector('[name="codigo"]').value.trim();
+  if (!nombre || !codigo) { alert('Completa al menos Nombre y Código antes de continuar.'); return; }
   const btn = document.getElementById('btnDefinirPresentaciones');
   btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> Guardando...';
   btn.disabled  = true;
-
-  fetch("{% url 'producto:producto_crear' %}", {
+  fetch("{% url 'inventario:gestion_productos' %}", {
     method:  'POST',
     body:    new FormData(form),
     headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -562,8 +1046,7 @@ function guardarYDefinirPresentaciones() {
   .then(data => {
     if (data.ok) {
       form.reset();
-      cerrarModalNuevo();
-      setTimeout(() => abrirModalPresentaciones(data.pk, data.nombre), 300);
+      setTimeout(() => abrirPresentaciones(data.pk, data.nombre), 200);
     } else {
       alert(data.error || 'Error al guardar el producto.');
     }
@@ -577,189 +1060,19 @@ function guardarYDefinirPresentaciones() {
   });
 }
 
-// ── Modal Presentaciones ──────────────────────────
-function abrirModalPresentaciones(pk, nombre) {
-  document.getElementById('pres-producto-nombre').textContent = nombre;
-  document.getElementById('formPresentaciones').action =
-    "{% url 'producto:presentaciones_guardar' 0 %}".replace('/0/', '/' + pk + '/');
-
-  document.getElementById('contenedor-presentaciones-modal').innerHTML = '';
-  document.getElementById('precio-unidad').value   = '';
-  document.getElementById('cantidad-unidad').value = '0';
-
-  const producto = todoProductos.find(p => p.pk == pk);
-  if (producto) {
-    const unidad = producto.presentaciones.find(pr => pr.unidades === 1);
-    if (unidad) {
-      document.getElementById('precio-unidad').value   = unidad.precio;
-      document.getElementById('cantidad-unidad').value = unidad.cantidad || 0;
-    }
-    producto.presentaciones
-      .filter(pr => pr.unidades > 1)
-      .forEach(pr => agregarFilaPresentacion(pr.nombre, pr.unidades, pr.precio, pr.cantidad));
-  }
-
-  document.getElementById('modalPresentaciones').style.display = 'flex';
+function abrirEditarCategoria(pk, nombre, codigo, descripcion, padrePk) {
+  document.getElementById('ec-nombre').value      = nombre;
+  document.getElementById('ec-codigo').value      = codigo;
+  document.getElementById('ec-descripcion').value = descripcion;
+  document.getElementById('ec-padre').value       = padrePk || '';
+  document.getElementById('formEditarCategoria').action =
+    '{% url "inventario:gestion_categoria_editar" 0 %}'.replace('/0/', '/' + pk + '/');
+  document.getElementById('modalEditarCategoria').classList.add('open');
 }
 
-function cerrarModalPresentaciones() {
-  document.getElementById('modalPresentaciones').style.display = 'none';
-}
-
-document.getElementById('modalPresentaciones').addEventListener('click', function(e) {
-  if (e.target === this) cerrarModalPresentaciones();
-});
-
-function agregarFilaPresentacion(nombre = '', unidades = '', precio = '', cantidad = '') {
-  const cont = document.getElementById('contenedor-presentaciones-modal');
-  const div  = document.createElement('div');
-  div.className = 'pres-row';
-  div.innerHTML = `
-    <div class="row g-2 align-items-center">
-      <div class="col-md-3">
-        <label class="np-label">Presentación</label>
-        <input type="text" name="nombre[]" value="${nombre}"
-               class="np-input" placeholder="Ej: Six-pack" required>
-      </div>
-      <div class="col-md-2">
-        <label class="np-label">Unidades</label>
-        <input type="number" name="unidades_base[]" value="${unidades}"
-               class="np-input" placeholder="Ej: 6" min="2" required>
-      </div>
-      <div class="col-md-3">
-        <label class="np-label">Cantidad existente</label>
-        <input type="number" name="cantidad[]" value="${cantidad}"
-               class="np-input" placeholder="Stock actual" min="0">
-      </div>
-      <div class="col-md-3">
-        <label class="np-label">Precio (COP)</label>
-        <input type="number" name="precio[]" value="${precio}"
-               class="np-input" placeholder="Ej: 13000" min="0" required>
-      </div>
-      <div class="col-md-1 d-flex align-items-end pb-1 justify-content-center">
-        <button type="button" onclick="this.closest('.pres-row').remove()"
-                style="background:rgba(192,57,43,.15); border:1px solid rgba(192,57,43,.3);
-                       color:#e87070; width:30px; height:30px; border-radius:6px;
-                       display:flex; align-items:center; justify-content:center; cursor:pointer;">
-          <i class="bi bi-trash" style="font-size:.75rem;"></i>
-        </button>
-      </div>
-    </div>`;
-  cont.appendChild(div);
-}
-
-function guardarPresentaciones() {
-  document.getElementById('formPresentaciones').submit();
-}
-
-// ── Categorías ────────────────────────────────────
-function abrirCategoria(categoriaPk, categoriaNombre) {
-  document.getElementById('titulo-categoria').textContent = categoriaNombre;
-  const filtrados = todoProductos.filter(p => p.categoria_pk == categoriaPk);
-  const tbody     = document.getElementById('cuerpo-categoria');
-
-  if (filtrados.length === 0) {
-    tbody.innerHTML = `<tr style="background:var(--fondo-card2);">
-      <td colspan="6" class="text-center py-4" style="color:var(--texto-muted); font-size:.85rem;">
-        <i class="bi bi-box-seam d-block mb-2" style="font-size:2rem; color:var(--azul-borde);"></i>
-        No hay productos en esta categoría.
-      </td></tr>`;
-  } else {
-    tbody.innerHTML = filtrados.map((p, i) => {
-      const pres = p.presentaciones.length > 0
-        ? p.presentaciones.map(pr =>
-            `<span class="badge me-1"
-                   style="background:rgba(77,168,218,.15); color:var(--azul-claro);
-                          border:1px solid var(--azul-borde); font-size:.65rem; padding:.3rem .5rem;">
-              ${pr.nombre} (${pr.unidades} uds) — ${pr.cantidad} en stock — $${parseInt(pr.precio||0).toLocaleString('es-CO')}
-            </span>`).join('')
-        : `<span style="color:var(--texto-muted); font-size:.75rem;">Sin definir</span>`;
-
-      return `
-        <tr style="background:var(--fondo-card2); ${p.stock_critico ? 'border-left:3px solid var(--rojo);' : ''}">
-          <td style="font-size:.85rem; color:var(--texto-muted);">${i+1}</td>
-          <td style="font-size:.85rem; font-weight:600; color:var(--texto);">${p.nombre}</td>
-          <td>
-            <span style="font-size:.85rem; font-weight:600;
-                         color:${p.stock_critico ? 'var(--rojo)' : 'var(--azul-claro)'};">
-              ${p.cantidad} uds
-            </span>
-          </td>
-          <td>${pres}</td>
-          <td style="font-size:.85rem; color:var(--texto-muted);">${p.ultima_entrada}</td>
-          <td style="display:flex; gap:.4rem; align-items:center;">
-            <button class="cys-btn-sm cys-btn-sm--primary" title="Ver detalle"
-                    onclick="cerrarYDetalle(${p.pk},\`${p.nombre}\`,\`${p.codigo}\`,\`${p.categoria_nombre}\`,${p.cantidad},\`${p.descripcion}\`)">
-              <i class="bi bi-eye"></i>
-            </button>
-            <button class="cys-btn-sm cys-btn-sm--warning" title="Ir a gestión de productos"
-                    onclick="mostrarModalGestion()">
-              <i class="bi bi-arrow-right-circle"></i>
-            </button>
-          </td>
-        </tr>`;
-    }).join('');
-  }
-  new bootstrap.Modal(document.getElementById('modalProductosCategoria')).show();
-}
-
-function mostrarModalGestion() {
-  const m = bootstrap.Modal.getInstance(document.getElementById('modalProductosCategoria'));
-  if (m) m.hide();
-  setTimeout(() => {
-    document.getElementById('modalConfirmGestion').style.display = 'flex';
-  }, 350);
-}
-
-function cerrarModalGestion() {
-  document.getElementById('modalConfirmGestion').style.display = 'none';
-}
-
-function cerrarYDetalle(pk, nombre, codigo, categoria, cantidad, descripcion) {
-  const m = bootstrap.Modal.getInstance(document.getElementById('modalProductosCategoria'));
-  if (m) m.hide();
-  setTimeout(() => abrirDetalle(pk, nombre, codigo, categoria, cantidad, descripcion), 400);
-}
-
-function abrirDetalle(pk, nombre, codigo, categoria, cantidad, descripcion) {
-  document.getElementById('det-nombre').textContent      = nombre;
-  document.getElementById('det-codigo').textContent      = codigo;
-  document.getElementById('det-categoria').textContent   = categoria;
-  document.getElementById('det-cantidad').textContent    = cantidad + ' uds';
-  document.getElementById('det-descripcion').textContent = descripcion || 'Sin descripción';
-
-  const producto = todoProductos.find(p => p.pk == pk);
-  const contPres = document.getElementById('det-presentaciones');
-
-  if (producto && producto.presentaciones.length > 0) {
-    contPres.innerHTML = producto.presentaciones.map(pr => `
-      <div class="d-flex justify-content-between py-1"
-           style="border-bottom:1px solid rgba(77,168,218,.1); font-size:.82rem;">
-        <span style="color:var(--texto);">
-          ${pr.nombre} <span style="color:var(--texto-muted);">(${pr.unidades} uds)</span>
-          — <span style="color:var(--texto-muted);">Stock: ${pr.cantidad}</span>
-        </span>
-        <span style="color:var(--azul-claro); font-weight:600;">
-          $${parseInt(pr.precio||0).toLocaleString('es-CO')}
-        </span>
-      </div>`).join('');
-  } else {
-    contPres.innerHTML = `<span style="color:var(--texto-muted); font-size:.8rem;">Sin presentaciones definidas.</span>`;
-  }
-
-  new bootstrap.Modal(document.getElementById('modalDetalleProducto')).show();
-}
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    cerrarModalNuevo();
-    cerrarModalPresentaciones();
-    cerrarModalGestion();
-  }
-});
-
-document.getElementById('modalConfirmGestion').addEventListener('click', function(e) {
-  if (e.target === this) cerrarModalGestion();
-});
+{% if form.errors %}
+  document.querySelector('.gp-tab:nth-child(4)').click();
+{% endif %}
 </script>
+
 {% endblock %}
