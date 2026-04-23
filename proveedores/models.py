@@ -7,9 +7,25 @@ from django.contrib.auth.models import User
 # MODELO PROVEEDOR
 # =======================
 class Proveedor(models.Model):
+
+    ESTADO_CHOICES = [
+        ('activo',     'Activo'),
+        ('inactivo',   'Inactivo'),
+        ('sancionado', 'Sancionado'),
+    ]
+
+    TIPO_CHOICES = [
+        ('mayorista',   'Mayorista'),
+        ('minorista',   'Minorista'),
+        ('distribuidor','Distribuidor'),
+        ('fabricante',  'Fabricante'),
+        ('importador',  'Importador'),
+        ('otro',        'Otro'),
+    ]
+
     nombre_contacto = models.CharField(max_length=100)
-    nombre_empresa = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
+    nombre_empresa  = models.CharField(max_length=100)
+    email           = models.EmailField(unique=True)
 
     telefono_regex = RegexValidator(
         regex=r'^\d{10}$',
@@ -21,8 +37,35 @@ class Proveedor(models.Model):
         verbose_name="Celular"
     )
 
-    fecha_registro = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Registro")
-    ultima_modificacion = models.DateTimeField(auto_now=True, verbose_name="Última modificación")
+    # ── Categorización ──────────────────────────────────────────
+    tipo_proveedor = models.CharField(
+        max_length=20,
+        choices=TIPO_CHOICES,
+        default='mayorista',
+        verbose_name="Tipo de proveedor"
+    )
+    categorias_surtidas = models.ManyToManyField(
+        'producto.Categoria',
+        blank=True,
+        related_name='proveedores',
+        verbose_name="Categorías que surte"
+    )
+
+    # ── Estado ──────────────────────────────────────────────────
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default='activo',
+        verbose_name="Estado"
+    )
+    motivo_sancion = models.TextField(
+        blank=True,
+        default='',
+        verbose_name="Motivo de sanción"
+    )
+
+    fecha_registro      = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Registro")
+    ultima_modificacion = models.DateTimeField(auto_now=True,     verbose_name="Última modificación")
 
     registrado_por = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True,
@@ -42,8 +85,6 @@ class Proveedor(models.Model):
 
 # =======================
 # MODELO COMPRA
-# Cada compra representa un ingreso de stock
-# vinculado a un proveedor específico.
 # =======================
 class Compra(models.Model):
     proveedor       = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='compras')
@@ -60,8 +101,8 @@ class Compra(models.Model):
         return None
 
     class Meta:
-        ordering = ['-fecha_registro']
-        verbose_name = 'Compra'
+        ordering        = ['-fecha_registro']
+        verbose_name    = 'Compra'
         verbose_name_plural = 'Compras'
 
     def __str__(self):

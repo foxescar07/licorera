@@ -8,7 +8,6 @@ class Venta(models.Model):
     descuento_porcentaje = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     total_con_descuento  = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
-    # Métodos de pago
     pago_efectivo       = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     pago_tarjeta        = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     pago_transferencia  = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -49,3 +48,57 @@ class DetalleVenta(models.Model):
     def __str__(self):
         pres = f" ({self.presentacion.nombre})" if self.presentacion else " (unidad suelta)"
         return f"{self.producto.nombre}{pres} x{self.cantidad}"
+
+
+class Devolucion(models.Model):
+    MOTIVO_CHOICES = [
+        ('defectuoso',   'Producto defectuoso'),
+        ('equivocado',   'Producto equivocado'),
+        ('insatisfecho', 'Cliente insatisfecho'),
+        ('otro',         'Otro'),
+    ]
+
+    venta             = models.ForeignKey(Venta, on_delete=models.PROTECT,
+                                          related_name='devoluciones',
+                                          verbose_name='Venta original')
+    fecha             = models.DateTimeField(auto_now_add=True)
+    motivo            = models.CharField(max_length=20, choices=MOTIVO_CHOICES, default='otro')
+    observaciones     = models.TextField(blank=True)
+    restaurar_stock   = models.BooleanField(default=True, verbose_name='Restaurar stock')
+    tiene_comprobante = models.BooleanField(default=True, verbose_name='Tiene comprobante de compra')
+    total_devuelto    = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    class Meta:
+        verbose_name        = 'Devolución'
+        verbose_name_plural = 'Devoluciones'
+        ordering            = ['-fecha']
+
+    def __str__(self):
+        return f'DEV-{self.pk:04d} | {self.venta.cliente} — {self.fecha:%d/%m/%Y %H:%M}'
+
+    @property
+    def numero(self):
+        return f'DEV-{self.pk:04d}'
+
+
+class DetalleDevolucion(models.Model):
+    devolucion      = models.ForeignKey(Devolucion, on_delete=models.CASCADE,
+                                        related_name='detalles')
+    producto        = models.ForeignKey(Producto, on_delete=models.PROTECT,
+                                        related_name='detalles_devolucion')
+    presentacion    = models.ForeignKey(PresentacionProducto, on_delete=models.SET_NULL,
+                                        null=True, blank=True,
+                                        related_name='detalles_devolucion')
+    cantidad        = models.PositiveIntegerField()
+    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
+
+    class Meta:
+        verbose_name        = 'Detalle de Devolución'
+        verbose_name_plural = 'Detalles de Devolución'
+
+    def subtotal(self):
+        return self.cantidad * self.precio_unitario
+
+    def __str__(self):
+        pres = f' ({self.presentacion.nombre})' if self.presentacion else ''
+        return f'{self.producto.nombre}{pres} x{self.cantidad}'

@@ -5,6 +5,215 @@
 <link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
+<style>
+  /* ── Reset & Base ─────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* ── Tarjeta principal ────────────────────────────────────── */
+  .cyber-card {
+    background: #0f1a2e;
+    border: 1px solid rgba(77,168,218,0.18);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .cyber-header {
+    background: rgba(77,168,218,0.07);
+    border-bottom: 1px solid rgba(77,168,218,0.15);
+    padding: 14px 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #e2e8f0;
+  }
+
+  /* ── Tabla historial ──────────────────────────────────────── */
+  .table-cyber {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+  }
+  .table-cyber thead tr {
+    border-bottom: 1px solid rgba(77,168,218,0.18);
+  }
+  .table-cyber th {
+    padding: 11px 14px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #475569;
+    white-space: nowrap;
+  }
+  .table-cyber td {
+    padding: 11px 14px;
+    color: #cbd5e1;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(77,168,218,0.06);
+    white-space: nowrap;
+  }
+  .table-cyber tfoot td {
+    border-bottom: none;
+  }
+
+  /* ── Scrollbar personalizada ──────────────────────────────── */
+  .scroll-list {
+    scrollbar-width: thin;
+    scrollbar-color: #1e3a5f #0b1220;
+  }
+  .scroll-list::-webkit-scrollbar { width: 5px; }
+  .scroll-list::-webkit-scrollbar-track { background: #0b1220; }
+  .scroll-list::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
+
+  /* ── Input base ───────────────────────────────────────────── */
+  .input-cyber {
+    width: 100%;
+    background: #0b1220;
+    border: 1px solid rgba(77,168,218,0.25);
+    color: #e2e8f0;
+    border-radius: 9px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .input-cyber:focus {
+    border-color: #4DA8DA;
+    box-shadow: 0 0 0 3px rgba(77,168,218,0.12);
+  }
+  .input-cyber::placeholder { color: #334155; }
+
+  /* ── Label sección ────────────────────────────────────────── */
+  .field-label {
+    display: block;
+    color: #4DA8DA;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  /* ── Botón submit ─────────────────────────────────────────── */
+  .btn-registrar {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #912F40, #b33a4e);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.83rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: box-shadow .2s, transform .15s;
+    box-shadow: 0 4px 15px rgba(145,47,64,0.35);
+  }
+  .btn-registrar:hover {
+    box-shadow: 0 4px 25px rgba(145,47,64,0.6);
+    transform: translateY(-1px);
+  }
+
+  /* ── Opciones proveedor / producto ────────────────────────── */
+  .opcion-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #0b1220;
+    border: 1px solid rgba(77,168,218,0.12);
+    transition: border-color .15s, background .15s;
+  }
+  .opcion-item:hover { border-color: rgba(77,168,218,0.4); }
+  .opcion-item.activo {
+    background: rgba(77,168,218,0.08);
+    border-color: #4DA8DA;
+  }
+
+  /* ── Separador ────────────────────────────────────────────── */
+  .divider { border-top: 1px solid rgba(77,168,218,0.1); margin: 20px 0; }
+
+  /* ── Badge pill genérico ──────────────────────────────────── */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 11px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* ── Modal ────────────────────────────────────────────────── */
+  #modalOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(5,10,20,0.82);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-box {
+    background: #0f1a2e;
+    border: 1px solid rgba(77,168,218,0.25);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+  .modal-header {
+    background: rgba(77,168,218,0.07);
+    border-bottom: 1px solid rgba(77,168,218,0.15);
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 14px 14px 0 0;
+  }
+  .modal-body { padding: 22px 24px; }
+  .modal-footer {
+    border-top: 1px solid rgba(77,168,218,0.1);
+    padding: 14px 24px;
+    display: flex;
+    justify-content: flex-end;
+    border-radius: 0 0 14px 14px;
+  }
+  .modal-section-label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #4DA8DA;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .modal-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(77,168,218,0.1);
+  }
+  .modal-field-label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 3px;
+  }
+</style>
+
 <div class="container-fluid p-0">
 
   {% if messages %}
@@ -13,223 +222,182 @@
            style="background:{% if message.tags == 'success' %}rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); color:#4ade80;
                   {% elif message.tags == 'error' %}rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:#f87171;
                   {% else %}rgba(77,168,218,0.1); border:1px solid rgba(77,168,218,0.3); color:#4DA8DA;{% endif %}
-                  border-radius:10px; font-size:0.88rem;">
+                  border-radius:10px; font-size:0.85rem;">
         {{ message }}
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
       </div>
     {% endfor %}
   {% endif %}
 
-  <!-- HEADER -->
+  <!-- ── HEADER ───────────────────────────────────────────────── -->
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
-      <h2 style="font-weight:700; color:#e2e8f0; font-size:1.35rem; letter-spacing:.05em;">
-        <i class="bi bi-bag-plus me-2" style="color:#4DA8DA;"></i>
-        Registrar Compra
+      <h2 style="font-weight:700; color:#e2e8f0; font-size:1.3rem; letter-spacing:.04em; margin-bottom:4px;">
+        <i class="bi bi-bag-plus me-2" style="color:#4DA8DA;"></i>Registrar Compra
       </h2>
-      <p class="mb-0" style="color:#64748b; font-size:0.85rem;">
-        Proveedor:
+      <p class="mb-0" style="color:#64748b; font-size:0.82rem; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
         <span style="color:#4DA8DA; font-weight:700;" id="labelNombreProveedor">{{ proveedor.nombre_empresa }}</span>
-        <span style="color:#1e293b; margin:0 8px;">|</span>
-        <i class="bi bi-person me-1"></i><span id="labelContacto">{{ proveedor.nombre_contacto }}</span>
-        <span style="color:#1e293b; margin:0 8px;">|</span>
-        <i class="bi bi-telephone me-1"></i><span id="labelTelefono">{{ proveedor.telefono }}</span>
+        <span style="color:#1e3a5f;">|</span>
+        <i class="bi bi-person"></i><span id="labelContacto">{{ proveedor.nombre_contacto }}</span>
+        <span style="color:#1e3a5f;">|</span>
+        <i class="bi bi-telephone"></i><span id="labelTelefono">{{ proveedor.telefono }}</span>
       </p>
     </div>
-    <a href="{% url 'proveedores' %}" class="action-card text-decoration-none"
-       style="padding:10px 20px !important;">
-      <i class="bi bi-arrow-left icon" style="font-size:18px;"></i>
-      <span style="color:#e2e8f0; font-weight:600; letter-spacing:1px;">Volver</span>
+    <a href="{% url 'proveedores' %}"
+       style="display:inline-flex; align-items:center; gap:8px;
+              padding:9px 18px; border-radius:9px;
+              background:rgba(77,168,218,0.06); border:1px solid rgba(77,168,218,0.2);
+              color:#e2e8f0; font-weight:600; font-size:0.8rem; letter-spacing:.06em;
+              text-decoration:none; transition:.15s;"
+       onmouseover="this.style.background='rgba(77,168,218,0.14)'"
+       onmouseout="this.style.background='rgba(77,168,218,0.06)'">
+      <i class="bi bi-arrow-left" style="color:#4DA8DA;"></i> Volver
     </a>
   </div>
 
-  <!-- ═══ TARJETAS MÉTRICAS ═══ -->
+  <!-- ── MÉTRICAS ──────────────────────────────────────────────── -->
   <div class="row g-3 mb-4">
 
     <div class="col-12 col-md-4">
-      <div style="background:#0f1a2e; border:1px solid rgba(74,222,128,0.2);
-                  border-radius:12px; padding:16px 20px;
-                  display:flex; align-items:center; justify-content:space-between;">
+      <div style="background:#0f1a2e; border:1px solid rgba(74,222,128,0.2); border-radius:12px; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
         <div>
-          <div style="font-size:0.7rem; font-weight:700; letter-spacing:.12em;
-                      text-transform:uppercase; color:#475569; margin-bottom:6px;">Total gastado</div>
-          <div style="font-size:1.35rem; font-weight:700; color:#4ade80; line-height:1;"
-               id="metricaTotalGastado">$ ...</div>
-          <div style="font-size:0.72rem; color:#334155; margin-top:4px;">Histórico acumulado</div>
+          <div style="font-size:0.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#475569; margin-bottom:5px;">Total gastado</div>
+          <div style="font-size:1.3rem; font-weight:700; color:#4ade80; line-height:1.1;" id="metricaTotalGastado">$ ...</div>
+          <div style="font-size:0.7rem; color:#334155; margin-top:4px;">Histórico acumulado</div>
         </div>
-        <div style="width:38px; height:38px; border-radius:10px;
-                    background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.2);
-                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <div style="flex-shrink:0; width:38px; height:38px; border-radius:10px; background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.2); display:flex; align-items:center; justify-content:center;">
           <i class="bi bi-cash-coin" style="color:#4ade80; font-size:1.1rem;"></i>
         </div>
       </div>
     </div>
 
     <div class="col-12 col-md-4">
-      <div style="background:#0f1a2e; border:1px solid rgba(77,168,218,0.2);
-                  border-radius:12px; padding:16px 20px;
-                  display:flex; align-items:center; justify-content:space-between;">
+      <div style="background:#0f1a2e; border:1px solid rgba(77,168,218,0.2); border-radius:12px; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
         <div>
-          <div style="font-size:0.7rem; font-weight:700; letter-spacing:.12em;
-                      text-transform:uppercase; color:#475569; margin-bottom:6px;">Compras este mes</div>
-          <div style="font-size:1.35rem; font-weight:700; color:#e2e8f0; line-height:1;">
-            {{ count_mes }}
-            <span style="font-size:0.8rem; color:#475569; font-weight:400;">registros</span>
+          <div style="font-size:0.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#475569; margin-bottom:5px;">Compras este mes</div>
+          <div style="font-size:1.3rem; font-weight:700; color:#e2e8f0; line-height:1.1;">
+            {{ count_mes }}<span style="font-size:0.78rem; color:#475569; font-weight:400; margin-left:4px;">registros</span>
           </div>
-          <div style="font-size:0.72rem; color:#4DA8DA; margin-top:4px;"
-               id="metricaTotalMes">$ ... este mes</div>
+          <div style="font-size:0.7rem; color:#4DA8DA; margin-top:4px;" id="metricaTotalMes">$ ... este mes</div>
         </div>
-        <div style="width:38px; height:38px; border-radius:10px;
-                    background:rgba(77,168,218,0.08); border:1px solid rgba(77,168,218,0.2);
-                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <div style="flex-shrink:0; width:38px; height:38px; border-radius:10px; background:rgba(77,168,218,0.08); border:1px solid rgba(77,168,218,0.2); display:flex; align-items:center; justify-content:center;">
           <i class="bi bi-calendar-check" style="color:#4DA8DA; font-size:1.1rem;"></i>
         </div>
       </div>
     </div>
 
     <div class="col-12 col-md-4">
-      <div style="background:#0f1a2e; border:1px solid rgba(251,191,36,0.2);
-                  border-radius:12px; padding:16px 20px;
-                  display:flex; align-items:center; justify-content:space-between;">
+      <div style="background:#0f1a2e; border:1px solid rgba(251,191,36,0.2); border-radius:12px; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
         <div style="min-width:0; flex:1;">
-          <div style="font-size:0.7rem; font-weight:700; letter-spacing:.12em;
-                      text-transform:uppercase; color:#475569; margin-bottom:6px;">Producto más comprado</div>
-          <div style="font-size:0.95rem; font-weight:700; color:#fbbf24;
-                      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          <div style="font-size:0.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#475569; margin-bottom:5px;">Producto más comprado</div>
+          <div style="font-size:0.92rem; font-weight:700; color:#fbbf24; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.1;">
             {% if producto_top %}{{ producto_top.producto__nombre }}{% else %}—{% endif %}
           </div>
-          <div style="font-size:0.72rem; color:#334155; margin-top:4px;">
-            {% if producto_top %}
-              <span style="color:#fbbf24;">{{ producto_top.total_und }} und.</span> en total
-            {% else %}Sin datos aún{% endif %}
+          <div style="font-size:0.7rem; color:#334155; margin-top:4px;">
+            {% if producto_top %}<span style="color:#fbbf24;">{{ producto_top.total_und }} und.</span> en total{% else %}Sin datos aún{% endif %}
           </div>
         </div>
-        <div style="width:38px; height:38px; border-radius:10px; margin-left:12px;
-                    background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2);
-                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <div style="flex-shrink:0; width:38px; height:38px; border-radius:10px; margin-left:8px; background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2); display:flex; align-items:center; justify-content:center;">
           <i class="bi bi-trophy" style="color:#fbbf24; font-size:1.1rem;"></i>
         </div>
       </div>
     </div>
 
   </div>
-  <!-- ═══ FIN TARJETAS ═══ -->
+  <!-- ── FIN MÉTRICAS ── -->
 
   <div class="row g-4">
 
-    <!-- FORMULARIO -->
+    <!-- ── FORMULARIO ───────────────────────────────────────── -->
     <div class="col-lg-5">
       <div class="cyber-card">
         <div class="cyber-header d-flex align-items-center gap-2">
-          <i class="bi bi-clipboard2-plus"></i>
-          Nueva Compra
+          <i class="bi bi-clipboard2-plus"></i> Nueva Compra
         </div>
         <div class="p-4">
           <form method="POST">
             {% csrf_token %}
 
-            <!-- SELECTOR PROVEEDOR -->
+            <!-- PROVEEDOR -->
             <div class="mb-4">
-              <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
-                            letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
-                <i class="bi bi-building me-1"></i> Proveedor
-              </label>
+              <label class="field-label"><i class="bi bi-building me-1"></i> Proveedor</label>
+
+              <!-- Buscador proveedor -->
               <div class="position-relative mb-2">
                 <i class="bi bi-search position-absolute"
-                   style="top:50%; left:13px; transform:translateY(-50%);
-                          color:#4DA8DA; font-size:0.8rem; pointer-events:none;"></i>
+                   style="top:50%; left:12px; transform:translateY(-50%); color:#4DA8DA; font-size:0.78rem; pointer-events:none;"></i>
                 <input type="text" id="buscadorProveedor" placeholder="Filtrar proveedor..."
-                       style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.2);
-                              color:#e2e8f0; border-radius:8px; padding:9px 13px 9px 34px;
-                              font-size:0.85rem; outline:none;"
-                       onfocus="this.style.borderColor='#4DA8DA'"
-                       onblur="this.style.borderColor='rgba(77,168,218,0.2)'">
+                       class="input-cyber" style="padding-left:32px;">
               </div>
-              <div id="listaProveedores"
-                   style="max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
-                          scrollbar-width:thin; scrollbar-color:#1e3a5f #0b1220;">
+
+              <!-- Lista proveedores -->
+              <div id="listaProveedores" class="scroll-list"
+                   style="max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;">
                 {% for prov in todos_proveedores %}
-                <label class="proveedor-opcion"
+                <label class="opcion-item {% if prov.id == proveedor.id %}activo{% endif %}"
                        data-id="{{ prov.id }}"
                        data-nombre="{{ prov.nombre_empresa }}"
                        data-contacto="{{ prov.nombre_contacto }}"
                        data-telefono="{{ prov.telefono }}"
-                       data-url="/proveedores/compra/?proveedor={{ prov.id }}"
-                       style="display:flex; align-items:center; justify-content:space-between;
-                              padding:10px 13px; border-radius:8px; cursor:pointer;
-                              background:{% if prov.id == proveedor.id %}rgba(77,168,218,0.08){% else %}#0b1220{% endif %};
-                              border:1px solid {% if prov.id == proveedor.id %}#4DA8DA{% else %}rgba(77,168,218,0.12){% endif %};
-                              transition:0.15s;">
+                       data-url="/proveedores/compra/?proveedor={{ prov.id }}">
                   <input type="radio" name="proveedor_id" value="{{ prov.id }}"
                          {% if prov.id == proveedor.id %}checked{% endif %}
-                         style="display:none;"
-                         onchange="seleccionarProveedor(this)">
+                         style="display:none;" onchange="seleccionarProveedor(this)">
                   <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-building"
-                       style="color:{% if prov.id == proveedor.id %}#4DA8DA{% else %}#475569{% endif %}; font-size:0.9rem;"></i>
+                       style="color:{% if prov.id == proveedor.id %}#4DA8DA{% else %}#475569{% endif %}; font-size:0.88rem;"></i>
                     <div>
-                      <span style="color:#cbd5e1; font-size:0.88rem; font-weight:500; display:block;"
-                            data-nombre="{{ prov.nombre_empresa|lower }}">
-                        {{ prov.nombre_empresa }}
-                      </span>
-                      <span style="color:#475569; font-size:0.75rem;">{{ prov.nombre_contacto }}</span>
+                      <span style="color:#cbd5e1; font-size:0.85rem; font-weight:500; display:block;"
+                            data-nombre="{{ prov.nombre_empresa|lower }}">{{ prov.nombre_empresa }}</span>
+                      <span style="color:#475569; font-size:0.73rem;">{{ prov.nombre_contacto }}</span>
                     </div>
                   </div>
                   {% if prov.id == proveedor.id %}
-                  <span style="background:rgba(77,168,218,0.15); color:#4DA8DA;
-                               padding:2px 8px; border-radius:20px; font-size:0.72rem; font-weight:700;">
-                    Actual
-                  </span>
+                  <span class="pill" style="background:rgba(77,168,218,0.15); color:#4DA8DA; border:1px solid rgba(77,168,218,0.25);">Actual</span>
                   {% endif %}
                 </label>
                 {% empty %}
-                <div class="empty-state">
-                  <i class="bi bi-building icon"></i>
-                  <p>No hay proveedores registrados.</p>
+                <div style="text-align:center; padding:20px; color:#475569; font-size:0.82rem;">
+                  <i class="bi bi-building d-block mb-1" style="font-size:1.5rem; color:#334155;"></i>
+                  No hay proveedores registrados.
                 </div>
                 {% endfor %}
               </div>
             </div>
 
-            <div style="border-top:1px solid rgba(77,168,218,0.1); margin-bottom:20px;"></div>
+            <div class="divider"></div>
 
-            <!-- SELECTOR PRODUCTO -->
+            <!-- PRODUCTO -->
             <div class="mb-4">
-              <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
-                            letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
-                <i class="bi bi-box me-1"></i> Producto
-              </label>
-              <div class="d-flex gap-2 mb-2">
-                <div class="position-relative flex-grow-1">
+              <label class="field-label"><i class="bi bi-box me-1"></i> Producto</label>
+
+              <!-- Fila buscador + filtro -->
+              <div style="display:flex; gap:8px; margin-bottom:6px; align-items:stretch;">
+                <div class="position-relative" style="flex:1;">
                   <i class="bi bi-search position-absolute"
-                     style="top:50%; left:13px; transform:translateY(-50%);
-                            color:#4DA8DA; font-size:0.8rem; pointer-events:none;"></i>
+                     style="top:50%; left:12px; transform:translateY(-50%); color:#4DA8DA; font-size:0.78rem; pointer-events:none;"></i>
                   <input type="text" id="buscadorProducto" placeholder="Buscar producto..."
-                         style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.2);
-                                color:#e2e8f0; border-radius:8px; padding:9px 13px 9px 34px;
-                                font-size:0.85rem; outline:none;"
-                         onfocus="this.style.borderColor='#4DA8DA'"
-                         onblur="this.style.borderColor='rgba(77,168,218,0.2)'">
+                         class="input-cyber" style="padding-left:32px;">
                 </div>
                 <button type="button" id="btnSoloStock" onclick="toggleSoloStock(this)"
-                        title="Solo productos con stock"
-                        style="padding:9px 13px; border-radius:8px; cursor:pointer; font-size:0.75rem;
-                               font-weight:700; white-space:nowrap;
+                        style="flex-shrink:0; padding:0 13px; border-radius:9px; cursor:pointer;
+                               font-size:0.73rem; font-weight:700; white-space:nowrap;
                                background:rgba(77,168,218,0.06); border:1px solid rgba(77,168,218,0.25);
-                               color:#4DA8DA; transition:0.2s;">
+                               color:#4DA8DA; transition:.2s; line-height:1;">
                   <i class="bi bi-funnel me-1"></i>Con stock
                 </button>
               </div>
-              <div style="font-size:0.73rem; color:#475569; margin-bottom:6px; padding-left:2px;">
+
+              <div style="font-size:0.71rem; color:#475569; margin-bottom:6px;">
                 Mostrando <span id="numProductos">0</span> productos
               </div>
-              <div id="listaProductos"
-                   style="max-height:240px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;
-                          scrollbar-width:thin; scrollbar-color:#1e3a5f #0b1220;">
-              </div>
+
+              <div id="listaProductos" class="scroll-list"
+                   style="max-height:240px; overflow-y:auto; display:flex; flex-direction:column; gap:5px;"></div>
+
               <input type="hidden" name="producto" id="productoSeleccionadoId" required>
-              <div id="sinResultadosProducto"
-                   style="display:none; text-align:center; padding:20px; color:#475569; font-size:0.83rem;">
+
+              <div id="sinResultadosProducto" style="display:none; text-align:center; padding:20px; color:#475569; font-size:0.82rem;">
                 <i class="bi bi-search d-block mb-1" style="font-size:1.4rem; color:#334155;"></i>
                 Sin productos que coincidan
               </div>
@@ -237,56 +405,34 @@
 
             <!-- CANTIDAD -->
             <div class="mb-4">
-              <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
-                            letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
-                <i class="bi bi-hash me-1"></i> Cantidad
-              </label>
+              <label class="field-label" for="inputCantidad"><i class="bi bi-hash me-1"></i> Cantidad</label>
               <input type="number" name="cantidad" id="inputCantidad" min="1" placeholder="Ej: 10" required
-                     style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.25);
-                            color:#e2e8f0; border-radius:10px; padding:12px 16px;
-                            font-size:0.95rem; outline:none; transition:0.2s;"
-                     onfocus="this.style.borderColor='#4DA8DA'; this.style.boxShadow='0 0 0 3px rgba(77,168,218,0.12)'"
-                     onblur="this.style.borderColor='rgba(77,168,218,0.25)'; this.style.boxShadow='none'">
+                     class="input-cyber">
             </div>
 
             <!-- PRECIO UNITARIO -->
             <div class="mb-4">
-              <label style="color:#4DA8DA; font-size:0.78rem; font-weight:700;
-                            letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px;">
+              <label class="field-label">
                 <i class="bi bi-currency-dollar me-1"></i> Precio Unitario
-                <span style="color:#475569; font-weight:400; text-transform:none;
-                             font-size:0.72rem; margin-left:6px;">(opcional)</span>
+                <span style="color:#475569; font-weight:400; text-transform:none; font-size:0.72rem; margin-left:4px;">(opcional)</span>
               </label>
               <div class="position-relative">
-                <span style="position:absolute; top:50%; left:14px; transform:translateY(-50%);
+                <span style="position:absolute; top:50%; left:13px; transform:translateY(-50%);
                              color:#4DA8DA; font-size:0.9rem; font-weight:700; pointer-events:none;">$</span>
                 <input type="number" name="precio_unitario" id="inputPrecio" min="0" step="1"
-                       placeholder="Ej: 15000"
-                       style="width:100%; background:#0b1220; border:1px solid rgba(77,168,218,0.25);
-                              color:#e2e8f0; border-radius:10px; padding:12px 16px 12px 30px;
-                              font-size:0.95rem; outline:none; transition:0.2s;"
-                       onfocus="this.style.borderColor='#4DA8DA'; this.style.boxShadow='0 0 0 3px rgba(77,168,218,0.12)'"
-                       onblur="this.style.borderColor='rgba(77,168,218,0.25)'; this.style.boxShadow='none'">
+                       placeholder="Ej: 15000" class="input-cyber" style="padding-left:28px;">
               </div>
-              <div id="previewTotal" style="display:none; margin-top:8px; padding:8px 12px;
+              <div id="previewTotal" style="display:none; margin-top:8px; padding:9px 13px;
                    background:rgba(74,222,128,0.06); border:1px solid rgba(74,222,128,0.2);
-                   border-radius:8px; font-size:0.82rem; color:#4ade80;">
+                   border-radius:8px; font-size:0.8rem; color:#4ade80;">
                 <i class="bi bi-calculator me-1"></i>
                 Total estimado: <strong id="valorTotal"></strong>
               </div>
             </div>
 
-            <div style="border-top:1px solid rgba(77,168,218,0.1); margin-bottom:20px;"></div>
+            <div class="divider"></div>
 
-            <button type="submit"
-                    style="width:100%; padding:13px; border:none; border-radius:10px;
-                           background:linear-gradient(135deg,#912F40,#b33a4e);
-                           color:#fff; font-weight:700; font-size:0.85rem;
-                           letter-spacing:1.5px; text-transform:uppercase; cursor:pointer;
-                           display:flex; align-items:center; justify-content:center; gap:8px;
-                           transition:0.2s; box-shadow:0 4px 15px rgba(145,47,64,0.35);"
-                    onmouseover="this.style.boxShadow='0 4px 25px rgba(145,47,64,0.6)'; this.style.transform='translateY(-1px)'"
-                    onmouseout="this.style.boxShadow='0 4px 15px rgba(145,47,64,0.35)'; this.style.transform='none'">
+            <button type="submit" class="btn-registrar">
               <i class="bi bi-bag-check"></i> Registrar Compra
             </button>
 
@@ -295,30 +441,29 @@
       </div>
     </div>
 
-    <!-- HISTORIAL -->
+    <!-- ── HISTORIAL ─────────────────────────────────────────── -->
     <div class="col-lg-7">
       <div class="cyber-card">
         <div class="cyber-header d-flex align-items-center justify-content-between">
           <span class="d-flex align-items-center gap-2">
             <i class="bi bi-clock-history"></i> Historial de Compras
           </span>
-          <span style="background:rgba(77,168,218,0.1); color:#4DA8DA;
-                       padding:2px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">
+          <span class="pill" style="background:rgba(77,168,218,0.1); color:#4DA8DA; border:1px solid rgba(77,168,218,0.18);">
             {{ compras|length }} registros
           </span>
         </div>
 
         <div class="table-responsive">
-          <table class="table-cyber w-100">
+          <table class="table-cyber">
             <thead>
               <tr>
-                <th>#</th>
-                <th style="text-align:left;">PRODUCTO</th>
-                <th>CANTIDAD</th>
-                <th>PRECIO UNIT.</th>
-                <th>TOTAL</th>
-                <th>FECHA</th>
-                <th></th>
+                <th style="width:36px;">#</th>
+                <th style="text-align:left;">Producto</th>
+                <th style="text-align:center;">Cant.</th>
+                <th style="text-align:right;">Precio Unit.</th>
+                <th style="text-align:right;">Total</th>
+                <th style="text-align:center;">Fecha</th>
+                <th style="width:60px;"></th>
               </tr>
             </thead>
             <tbody>
@@ -326,62 +471,68 @@
               <tr style="transition:background .15s;"
                   onmouseenter="this.style.background='rgba(77,168,218,0.04)'"
                   onmouseleave="this.style.background='transparent'">
-                <td>{{ forloop.counter }}</td>
-                <td style="text-align:left;">
-                  <i class="bi bi-box me-2" style="color:#4DA8DA;"></i>
+
+                <td style="color:#475569;">{{ forloop.counter }}</td>
+
+                <td style="text-align:left; max-width:160px; overflow:hidden; text-overflow:ellipsis;">
+                  <i class="bi bi-box me-1" style="color:#4DA8DA; font-size:0.78rem;"></i>
                   {{ compra.producto.nombre }}
                 </td>
-                <td>
-                  <span style="background:rgba(77,168,218,0.1); color:#4DA8DA;
-                               padding:3px 12px; border-radius:20px; font-weight:700; font-size:0.82rem;">
+
+                <td style="text-align:center;">
+                  <span class="pill" style="background:rgba(77,168,218,0.1); color:#4DA8DA; border:1px solid rgba(77,168,218,0.2);">
                     {{ compra.cantidad }}
                   </span>
                 </td>
-                <td style="color:#94a3b8; font-size:0.85rem; font-weight:600;">
+
+                <td style="text-align:right; color:#94a3b8; font-size:0.82rem;">
                   {% if compra.precio_unitario %}
                     <span class="precio-cop" data-valor="{{ compra.precio_unitario }}">$ ...</span>
                   {% else %}
                     <span style="color:#334155;">—</span>
                   {% endif %}
                 </td>
-                <td style="color:#4ade80; font-weight:700; font-size:0.85rem;">
+
+                <td style="text-align:right; color:#4ade80; font-weight:700; font-size:0.82rem;">
                   {% if compra.precio_unitario %}
                     <span class="precio-cop" data-valor="{{ compra.total }}">$ ...</span>
                   {% else %}
                     <span style="color:#334155;">—</span>
                   {% endif %}
                 </td>
-                <td style="color:#64748b; font-size:0.82rem;">
+
+                <td style="text-align:center; color:#64748b; font-size:0.78rem;">
                   {{ compra.fecha_registro|date:"d/m/Y H:i" }}
                 </td>
-                <td>
+
+                <td style="text-align:center;">
                   <button type="button"
                           onclick="abrirDetalle(
                             '{{ compra.id }}',
                             '{{ compra.producto.nombre|escapejs }}',
                             '{{ compra.producto.categoria.nombre|escapejs }}',
                             {{ compra.cantidad }},
-                            {% if compra.precio_unitario %}{{ compra.precio_unitario }}{% else %}null{% endif %},
-                            {% if compra.precio_unitario %}{{ compra.total }}{% else %}null{% endif %},
+                            {% if compra.precio_unitario %}'{{ compra.precio_unitario }}'{% else %}null{% endif %},
+                            {% if compra.precio_unitario %}'{{ compra.total }}'{% else %}null{% endif %},
                             '{{ compra.fecha_registro|date:"d/m/Y H:i" }}',
                             '{{ proveedor.nombre_empresa|escapejs }}',
                             '{{ proveedor.nombre_contacto|escapejs }}',
                             '{{ proveedor.telefono|escapejs }}'
                           )"
                           style="background:rgba(77,168,218,0.08); border:1px solid rgba(77,168,218,0.2);
-                                 color:#4DA8DA; border-radius:7px; padding:5px 11px;
-                                 font-size:0.75rem; cursor:pointer; transition:0.15s; white-space:nowrap;"
+                                 color:#4DA8DA; border-radius:7px; padding:5px 10px;
+                                 font-size:0.73rem; cursor:pointer; transition:.15s; white-space:nowrap;"
                           onmouseover="this.style.background='rgba(77,168,218,0.18)'"
                           onmouseout="this.style.background='rgba(77,168,218,0.08)'">
-                    <i class="bi bi-eye me-1"></i> Ver
+                    <i class="bi bi-eye me-1"></i>Ver
                   </button>
                 </td>
               </tr>
               {% empty %}
               <tr>
-                <td colspan="7" class="text-center py-5" style="color:#475569;">
+                <td colspan="7" style="text-align:center; padding:40px 14px; color:#475569;">
                   <i class="bi bi-clock-history d-block mb-2" style="font-size:2rem; color:#334155;"></i>
-                  <span style="font-size:0.88rem;">Sin compras registradas aún</span>
+                  <span style="font-size:0.85rem;">Sin compras registradas aún</span>
                 </td>
               </tr>
               {% endfor %}
@@ -389,158 +540,119 @@
 
             {% if compras %}
             <tfoot>
-              <tr style="border-top:2px solid rgba(77,168,218,0.25);">
-                <td colspan="4"
-                    style="text-align:right; padding:12px 16px; color:#4DA8DA;
-                           font-size:0.82rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;">
+              <tr style="border-top:1px solid rgba(77,168,218,0.2);">
+                <td colspan="4" style="text-align:right; padding:12px 14px; color:#4DA8DA; font-size:0.75rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;">
                   <i class="bi bi-calculator me-1"></i> Subtotal:
                 </td>
-                <td style="padding:12px 8px; font-weight:800; font-size:0.95rem; color:#4ade80;">
+                <td style="padding:12px 14px; text-align:right; font-weight:800; font-size:0.92rem; color:#4ade80;">
                   <span class="precio-cop" data-valor="{{ subtotal_compras }}">$ ...</span>
                 </td>
                 <td colspan="2"></td>
               </tr>
             </tfoot>
             {% endif %}
-
           </table>
         </div>
       </div>
     </div>
 
-  </div>
-</div>
+  </div><!-- /row -->
+</div><!-- /container -->
 
 
-<!-- ═══ MODAL DETALLE DE COMPRA ═══ -->
-<div id="modalOverlay"
-     style="display:none; position:fixed; inset:0; background:rgba(5,10,20,0.82);
-            z-index:9999; align-items:center; justify-content:center; padding:20px;"
-     onclick="if(event.target===this) cerrarDetalle()">
-
-  <div style="background:#0f1a2e; border:1px solid rgba(77,168,218,0.25);
-              border-radius:14px; width:100%; max-width:480px;
-              box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+<!-- ── MODAL DETALLE ──────────────────────────────────────────── -->
+<div id="modalOverlay" onclick="if(event.target===this) cerrarDetalle()">
+  <div class="modal-box">
 
     <!-- Cabecera -->
-    <div style="background:rgba(77,168,218,0.07); border-bottom:1px solid rgba(77,168,218,0.15);
-                padding:16px 20px; display:flex; align-items:center; justify-content:space-between;
-                border-radius:14px 14px 0 0;">
+    <div class="modal-header">
       <div style="display:flex; align-items:center; gap:10px;">
         <div style="width:32px; height:32px; border-radius:8px;
                     background:rgba(77,168,218,0.12); border:1px solid rgba(77,168,218,0.25);
                     display:flex; align-items:center; justify-content:center;">
-          <i class="bi bi-receipt" style="color:#4DA8DA; font-size:0.9rem;"></i>
+          <i class="bi bi-receipt" style="color:#4DA8DA; font-size:0.88rem;"></i>
         </div>
-        <span style="font-size:0.78rem; font-weight:700; letter-spacing:.1em;
-                     text-transform:uppercase; color:#e2e8f0;">Detalle de Compra</span>
+        <span style="font-size:0.76rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#e2e8f0;">
+          Detalle de Compra
+        </span>
       </div>
       <button onclick="cerrarDetalle()"
               style="width:28px; height:28px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);
-                     background:transparent; color:#64748b; cursor:pointer;
-                     display:flex; align-items:center; justify-content:center; transition:.15s;"
+                     background:transparent; color:#64748b; cursor:pointer; display:flex;
+                     align-items:center; justify-content:center; transition:.15s;"
               onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#e2e8f0'"
               onmouseout="this.style.background='transparent'; this.style.color='#64748b'">
-        <i class="bi bi-x-lg" style="font-size:0.8rem;"></i>
+        <i class="bi bi-x-lg" style="font-size:0.78rem;"></i>
       </button>
     </div>
 
     <!-- Cuerpo -->
-    <div style="padding:22px 24px;">
+    <div class="modal-body">
 
-      <div style="font-size:0.72rem; color:#334155; letter-spacing:.06em;
-                  text-transform:uppercase; margin-bottom:18px;">
+      <div style="font-size:0.7rem; color:#334155; letter-spacing:.06em; text-transform:uppercase; margin-bottom:16px;">
         ID compra: <span id="m-id" style="color:#4DA8DA; font-weight:700;"></span>
       </div>
 
       <!-- Producto -->
-      <div style="margin-bottom:18px;">
-        <div style="font-size:0.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
-                    color:#4DA8DA; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
-          <i class="bi bi-box" style="font-size:0.7rem;"></i> Producto
-          <span style="flex:1; height:1px; background:rgba(77,168,218,0.1); display:block;"></span>
+      <div class="modal-section-label"><i class="bi bi-box" style="font-size:0.68rem;"></i> Producto</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px;">
+        <div style="grid-column:1/-1;">
+          <div class="modal-field-label">Nombre</div>
+          <div id="m-producto" style="font-size:0.9rem; font-weight:600; color:#cbd5e1;"></div>
         </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div style="grid-column:1/-1;">
-            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
-                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Nombre</div>
-            <div id="m-producto" style="font-size:0.92rem; font-weight:600; color:#cbd5e1;"></div>
-          </div>
-          <div>
-            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
-                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Categoría</div>
-            <div id="m-categoria"
-                 style="display:inline-block; background:rgba(100,116,139,0.1); color:#64748b;
-                        border:1px solid rgba(100,116,139,0.2); padding:2px 10px;
-                        border-radius:20px; font-size:0.78rem;"></div>
-          </div>
-          <div>
-            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
-                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Cantidad</div>
-            <div id="m-cantidad"
-                 style="display:inline-block; background:rgba(77,168,218,0.1); color:#4DA8DA;
-                        border:1px solid rgba(77,168,218,0.2); padding:2px 12px;
-                        border-radius:20px; font-size:0.82rem; font-weight:700;"></div>
-          </div>
-          <div>
-            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
-                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Precio unitario</div>
-            <div id="m-precio" style="font-size:0.88rem; font-weight:600; color:#94a3b8;"></div>
-          </div>
-          <div>
-            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
-                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Fecha</div>
-            <div id="m-fecha" style="font-size:0.82rem; color:#64748b;"></div>
-          </div>
+        <div>
+          <div class="modal-field-label">Categoría</div>
+          <span id="m-categoria" class="pill" style="background:rgba(100,116,139,0.1); color:#64748b; border:1px solid rgba(100,116,139,0.2);"></span>
+        </div>
+        <div>
+          <div class="modal-field-label">Cantidad</div>
+          <span id="m-cantidad" class="pill" style="background:rgba(77,168,218,0.1); color:#4DA8DA; border:1px solid rgba(77,168,218,0.2);"></span>
+        </div>
+        <div>
+          <div class="modal-field-label">Precio unitario</div>
+          <div id="m-precio" style="font-size:0.86rem; font-weight:600; color:#94a3b8;"></div>
+        </div>
+        <div>
+          <div class="modal-field-label">Fecha</div>
+          <div id="m-fecha" style="font-size:0.82rem; color:#64748b;"></div>
         </div>
       </div>
 
       <!-- Total -->
       <div id="m-total-box"
            style="background:rgba(74,222,128,0.06); border:1px solid rgba(74,222,128,0.15);
-                  border-radius:10px; padding:13px 16px;
+                  border-radius:10px; padding:12px 16px;
                   display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
-        <span style="font-size:0.72rem; font-weight:700; letter-spacing:.08em;
-                     text-transform:uppercase; color:#4ade80;">
+        <span style="font-size:0.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#4ade80;">
           <i class="bi bi-calculator me-1"></i> Total compra
         </span>
-        <span id="m-total" style="font-size:1.15rem; font-weight:700; color:#4ade80;"></span>
+        <span id="m-total" style="font-size:1.1rem; font-weight:700; color:#4ade80;"></span>
       </div>
 
       <!-- Proveedor -->
-      <div>
-        <div style="font-size:0.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
-                    color:#4DA8DA; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
-          <i class="bi bi-building" style="font-size:0.7rem;"></i> Proveedor
-          <span style="flex:1; height:1px; background:rgba(77,168,218,0.1); display:block;"></span>
+      <div class="modal-section-label"><i class="bi bi-building" style="font-size:0.68rem;"></i> Proveedor</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div style="grid-column:1/-1;">
+          <div class="modal-field-label">Empresa</div>
+          <div id="m-empresa" style="font-size:0.9rem; font-weight:600; color:#4DA8DA;"></div>
         </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div style="grid-column:1/-1;">
-            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
-                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Empresa</div>
-            <div id="m-empresa" style="font-size:0.92rem; font-weight:600; color:#4DA8DA;"></div>
-          </div>
-          <div>
-            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
-                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Contacto</div>
-            <div id="m-contacto" style="font-size:0.88rem; color:#cbd5e1;"></div>
-          </div>
-          <div>
-            <div style="font-size:0.68rem; font-weight:700; letter-spacing:.1em;
-                        text-transform:uppercase; color:#475569; margin-bottom:3px;">Teléfono</div>
-            <div id="m-telefono" style="font-size:0.88rem; color:#4DA8DA; font-weight:600;"></div>
-          </div>
+        <div>
+          <div class="modal-field-label">Contacto</div>
+          <div id="m-contacto" style="font-size:0.85rem; color:#cbd5e1;"></div>
+        </div>
+        <div>
+          <div class="modal-field-label">Teléfono</div>
+          <div id="m-telefono" style="font-size:0.85rem; color:#4DA8DA; font-weight:600;"></div>
         </div>
       </div>
 
     </div>
 
     <!-- Pie -->
-    <div style="border-top:1px solid rgba(77,168,218,0.1); padding:14px 24px;
-                display:flex; justify-content:flex-end; border-radius:0 0 14px 14px;">
+    <div class="modal-footer">
       <button onclick="cerrarDetalle()"
-              style="padding:9px 28px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);
-                     background:rgba(255,255,255,0.04); color:#94a3b8; font-size:0.78rem;
+              style="padding:9px 26px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);
+                     background:rgba(255,255,255,0.04); color:#94a3b8; font-size:0.76rem;
                      font-weight:700; letter-spacing:1px; text-transform:uppercase;
                      cursor:pointer; transition:.15s;"
               onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#e2e8f0'"
@@ -548,43 +660,39 @@
         Cerrar
       </button>
     </div>
-
   </div>
 </div>
-<!-- ═══ FIN MODAL ═══ -->
+<!-- ── FIN MODAL ── -->
 
 
 <script>
-// ─── FORMATO PESOS COLOMBIANOS ────────────────────────────────────────────────
+// ── Formato pesos colombianos ───────────────────────────────────
 function formatCOP(valor) {
   return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    style: 'currency', currency: 'COP',
+    minimumFractionDigits: 0, maximumFractionDigits: 0,
   }).format(valor);
 }
 
-// ─── RENDERIZAR TODOS LOS PRECIOS CON PUNTOS ──────────────────────────────────
+// ── Renderizar precios ─────────────────────────────────────────
 function renderizarPrecios() {
   document.querySelectorAll('.precio-cop').forEach(el => {
     const v = parseFloat(el.dataset.valor);
     el.textContent = isNaN(v) ? '—' : formatCOP(v);
   });
-
   const tg = parseFloat('{{ total_gastado }}');
   const tm = parseFloat('{{ total_mes }}');
   if (!isNaN(tg)) document.getElementById('metricaTotalGastado').textContent = formatCOP(tg);
   if (!isNaN(tm)) document.getElementById('metricaTotalMes').textContent = formatCOP(tm) + ' este mes';
 }
 
-// ─── MODAL DETALLE ────────────────────────────────────────────────────────────
+// ── Modal detalle ──────────────────────────────────────────────
 function abrirDetalle(id, producto, categoria, cantidad, precio, total, fecha, empresa, contacto, telefono) {
   document.getElementById('m-id').textContent        = '#' + String(id).padStart(4, '0');
   document.getElementById('m-producto').textContent  = producto;
   document.getElementById('m-categoria').textContent = categoria;
   document.getElementById('m-cantidad').textContent  = cantidad + ' und.';
-  document.getElementById('m-precio').textContent    = precio ? formatCOP(precio) : '—';
+  document.getElementById('m-precio').textContent    = precio ? formatCOP(parseFloat(precio)) : '—';
   document.getElementById('m-fecha').textContent     = fecha;
   document.getElementById('m-empresa').textContent   = empresa;
   document.getElementById('m-contacto').textContent  = contacto;
@@ -593,7 +701,7 @@ function abrirDetalle(id, producto, categoria, cantidad, precio, total, fecha, e
   const totalBox = document.getElementById('m-total-box');
   const totalEl  = document.getElementById('m-total');
   if (total) {
-    totalEl.textContent        = formatCOP(total);
+    totalEl.textContent        = formatCOP(parseFloat(total));
     totalEl.style.color        = '#4ade80';
     totalBox.style.borderColor = 'rgba(74,222,128,0.15)';
     totalBox.style.background  = 'rgba(74,222,128,0.06)';
@@ -612,12 +720,9 @@ function cerrarDetalle() {
   document.getElementById('modalOverlay').style.display = 'none';
   document.body.style.overflow = '';
 }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarDetalle(); });
 
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') cerrarDetalle();
-});
-
-// ─── DATOS PRODUCTOS ──────────────────────────────────────────────────────────
+// ── Datos productos ────────────────────────────────────────────
 const productosCompra = [
   {% for p in productos %}
   {
@@ -630,45 +735,38 @@ const productosCompra = [
   {% endfor %}
 ];
 
-// ─── ESTADO ───────────────────────────────────────────────────────────────────
 let soloConStock   = false;
 let pkSeleccionado = null;
 
-// ─── RENDER LISTA PRODUCTOS ───────────────────────────────────────────────────
+// ── Render lista productos ─────────────────────────────────────
 function renderProductos() {
   const q      = document.getElementById('buscadorProducto').value.toLowerCase().trim();
   const lista  = document.getElementById('listaProductos');
   const sinRes = document.getElementById('sinResultadosProducto');
   const numEl  = document.getElementById('numProductos');
 
-  const filtrados = productosCompra.filter(p => {
-    const pasaNombre = p.nombre.toLowerCase().includes(q);
-    const pasaStock  = !soloConStock || p.cantidad > 0;
-    return pasaNombre && pasaStock;
-  });
+  const filtrados = productosCompra.filter(p =>
+    p.nombre.toLowerCase().includes(q) && (!soloConStock || p.cantidad > 0)
+  );
 
   numEl.textContent = filtrados.length;
 
-  if (filtrados.length === 0) {
-    lista.innerHTML      = '';
+  if (!filtrados.length) {
+    lista.innerHTML = '';
     sinRes.style.display = 'block';
     return;
   }
   sinRes.style.display = 'none';
 
   lista.innerHTML = filtrados.map(p => {
-    const seleccionado = p.pk === pkSeleccionado;
-    const sinStock     = p.cantidad === 0;
-    const stockBajo    = p.cantidad > 0 && p.cantidad <= 10;
+    const sel       = p.pk === pkSeleccionado;
+    const sinStock  = p.cantidad === 0;
+    const stockBajo = p.cantidad > 0 && p.cantidad <= 10;
 
-    let badgeBg, badgeColor, badgeBorder;
-    if (sinStock) {
-      badgeBg = 'rgba(248,113,113,0.1)'; badgeColor = '#f87171'; badgeBorder = 'rgba(248,113,113,0.25)';
-    } else if (stockBajo) {
-      badgeBg = 'rgba(251,191,36,0.1)';  badgeColor = '#fbbf24'; badgeBorder = 'rgba(251,191,36,0.25)';
-    } else {
-      badgeBg = 'rgba(74,222,128,0.1)';  badgeColor = '#4ade80'; badgeBorder = 'rgba(74,222,128,0.25)';
-    }
+    let bBg, bColor, bBorder;
+    if (sinStock)       { bBg='rgba(248,113,113,0.1)'; bColor='#f87171'; bBorder='rgba(248,113,113,0.25)'; }
+    else if (stockBajo) { bBg='rgba(251,191,36,0.1)';  bColor='#fbbf24'; bBorder='rgba(251,191,36,0.25)'; }
+    else                { bBg='rgba(74,222,128,0.1)';  bColor='#4ade80'; bBorder='rgba(74,222,128,0.25)'; }
 
     const stockLabel = sinStock
       ? '<i class="bi bi-x-circle me-1"></i>Sin stock'
@@ -676,34 +774,22 @@ function renderProductos() {
           ? `<i class="bi bi-exclamation-triangle me-1"></i>${p.cantidad}`
           : `${p.cantidad}`);
 
-    return `
-      <div class="producto-opcion"
-           data-pk="${p.pk}"
-           onclick="${sinStock ? '' : `seleccionarProducto(${p.pk})`}"
-           style="display:flex; align-items:center; justify-content:space-between;
-                  padding:10px 13px; border-radius:8px;
-                  cursor:${sinStock ? 'not-allowed' : 'pointer'};
-                  opacity:${sinStock ? '0.45' : '1'};
-                  background:${seleccionado ? 'rgba(77,168,218,0.08)' : '#0b1220'};
-                  border:1px solid ${seleccionado ? '#4DA8DA' : 'rgba(77,168,218,0.12)'};
-                  transition:0.15s;"
-           onmouseenter="${sinStock ? '' : `this.style.borderColor='rgba(77,168,218,0.4)'`}"
-           onmouseleave="${sinStock ? '' : `this.style.borderColor='${seleccionado ? '#4DA8DA' : 'rgba(77,168,218,0.12)'}'`}">
-        <div class="d-flex align-items-center gap-2">
-          <i class="bi bi-box"
-             style="color:${seleccionado ? '#4DA8DA' : (sinStock ? '#334155' : '#475569')}; font-size:0.9rem;"></i>
-          <div>
-            <span style="color:#cbd5e1; font-size:0.88rem; font-weight:500; display:block;">${p.nombre}</span>
-            <span style="color:#334155; font-size:0.72rem;">
-              <i class="bi bi-tag me-1"></i>${p.categoria_nombre}
-            </span>
-          </div>
+    return `<div class="opcion-item${sel ? ' activo' : ''}"
+         data-pk="${p.pk}"
+         onclick="${sinStock ? '' : `seleccionarProducto(${p.pk})`}"
+         style="opacity:${sinStock ? '.45' : '1'}; cursor:${sinStock ? 'not-allowed' : 'pointer'};"
+         ${sinStock ? '' : `onmouseenter="this.style.borderColor='rgba(77,168,218,0.4)'"
+         onmouseleave="this.style.borderColor='${sel ? '#4DA8DA' : 'rgba(77,168,218,0.12)'}'"`}>
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-box" style="color:${sel ? '#4DA8DA' : (sinStock ? '#334155' : '#475569')}; font-size:0.88rem;"></i>
+        <div>
+          <span style="color:#cbd5e1; font-size:0.85rem; font-weight:500; display:block;">${p.nombre}</span>
+          <span style="color:#334155; font-size:0.72rem;"><i class="bi bi-tag me-1"></i>${p.categoria_nombre}</span>
         </div>
-        <span style="padding:3px 10px; border-radius:20px; font-weight:700; font-size:0.78rem;
-                     background:${badgeBg}; color:${badgeColor}; border:1px solid ${badgeBorder};">
-          ${stockLabel}
-        </span>
-      </div>`;
+      </div>
+      <span style="padding:3px 10px; border-radius:20px; font-weight:700; font-size:0.75rem;
+                   background:${bBg}; color:${bColor}; border:1px solid ${bBorder};">${stockLabel}</span>
+    </div>`;
   }).join('');
 }
 
@@ -719,56 +805,51 @@ function toggleSoloStock(btn) {
   btn.style.borderColor = soloConStock ? '#4DA8DA' : 'rgba(77,168,218,0.25)';
   renderProductos();
 }
-
 document.getElementById('buscadorProducto').addEventListener('input', renderProductos);
 
-// ─── PREVIEW TOTAL EN COP ─────────────────────────────────────────────────────
+// ── Preview total ──────────────────────────────────────────────
 function actualizarTotal() {
-  const cantidad = parseFloat(document.getElementById('inputCantidad').value) || 0;
-  const precio   = parseFloat(document.getElementById('inputPrecio').value)   || 0;
-  const preview  = document.getElementById('previewTotal');
-  const valor    = document.getElementById('valorTotal');
-  if (cantidad > 0 && precio > 0) {
-    valor.textContent     = formatCOP(cantidad * precio);
-    preview.style.display = 'block';
+  const cant   = parseFloat(document.getElementById('inputCantidad').value) || 0;
+  const precio = parseFloat(document.getElementById('inputPrecio').value)   || 0;
+  const prev   = document.getElementById('previewTotal');
+  const val    = document.getElementById('valorTotal');
+  if (cant > 0 && precio > 0) {
+    val.textContent   = formatCOP(cant * precio);
+    prev.style.display = 'block';
   } else {
-    preview.style.display = 'none';
+    prev.style.display = 'none';
   }
 }
 document.getElementById('inputCantidad').addEventListener('input', actualizarTotal);
 document.getElementById('inputPrecio').addEventListener('input', actualizarTotal);
 
-// ─── BUSCADOR PROVEEDOR ───────────────────────────────────────────────────────
+// ── Buscador proveedor ─────────────────────────────────────────
 document.getElementById('buscadorProveedor').addEventListener('input', function () {
   const q = this.value.toLowerCase();
-  document.querySelectorAll('.proveedor-opcion').forEach(label => {
+  document.querySelectorAll('#listaProveedores .opcion-item').forEach(label => {
     const nombre = label.querySelector('[data-nombre]').dataset.nombre;
     label.style.display = nombre.includes(q) ? 'flex' : 'none';
   });
 });
 
 function seleccionarProveedor(radio) {
-  const label    = radio.closest('.proveedor-opcion');
-  const nombre   = label.dataset.nombre;
-  const contacto = label.dataset.contacto;
-  const telefono = label.dataset.telefono;
-  const url      = label.dataset.url;
-  document.querySelectorAll('.proveedor-opcion').forEach(l => {
-    l.style.borderColor = 'rgba(77,168,218,0.12)';
-    l.style.background  = '#0b1220';
-    l.querySelector('i').style.color = '#475569';
+  const label = radio.closest('.opcion-item');
+  document.querySelectorAll('.opcion-item').forEach(l => {
+    l.classList.remove('activo');
+    const ico = l.querySelector('.bi-building');
+    if (ico) ico.style.color = '#475569';
   });
-  label.style.borderColor = '#4DA8DA';
-  label.style.background  = 'rgba(77,168,218,0.08)';
-  label.querySelector('i').style.color = '#4DA8DA';
-  document.getElementById('labelNombreProveedor').textContent = nombre;
-  document.getElementById('labelContacto').textContent        = contacto;
-  document.getElementById('labelTelefono').textContent        = telefono;
-  window.location.href = url;
+  label.classList.add('activo');
+  const ico = label.querySelector('.bi-building');
+  if (ico) ico.style.color = '#4DA8DA';
+  document.getElementById('labelNombreProveedor').textContent = label.dataset.nombre;
+  document.getElementById('labelContacto').textContent        = label.dataset.contacto;
+  document.getElementById('labelTelefono').textContent        = label.dataset.telefono;
+  window.location.href = label.dataset.url;
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
+// ── Init ───────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
   renderProductos();
   renderizarPrecios();
 });

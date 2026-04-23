@@ -61,7 +61,6 @@
 
     <!-- USUARIO con hover desplegable -->
     <div id="userHoverWrapper">
-
       <div class="cys-sb-user"
            onclick="abrirModalPerfil()"
            style="cursor:pointer; user-select:none;"
@@ -83,7 +82,6 @@
         <i class="bi bi-person-circle" style="font-size:1rem; color:var(--azul-claro); opacity:.6; flex-shrink:0;"></i>
       </div>
 
-      <!-- Dropdown solo para admin y cajero -->
       {% if request.session.usuario_rol == 'admin' or request.session.usuario_rol == 'cajero' %}
       <div id="userDropdown">
         <a href="{% url 'usuario' %}">
@@ -91,19 +89,19 @@
         </a>
       </div>
       {% endif %}
-
     </div>
-    <!-- fin userHoverWrapper -->
 
     <!-- NAV -->
     <div style="margin-top:.75rem;">
       <div class="cys-sb-label">Navegación</div>
       <nav class="cys-sb-nav">
+
         <a href="{% url 'home' %}" class="cys-sb-link {% block nav_tablero %}{% endblock %}">
           <i class="bi bi-grid-1x2-fill"></i> Tablero
         </a>
 
-        <a href="{% url 'ventas:ventas_lista' %}"
+        <!-- VENTAS -->
+          <a href="{% url 'ventas:ventas_lista' %}"
            class="cys-sb-link cys-sb-link--parent {% block nav_ventas %}{% endblock %}"
            id="btnVentas" onclick="toggleVentas(event, this)">
           <i class="bi bi-receipt"></i> Ventas
@@ -113,6 +111,17 @@
           <a href="{% url 'reportes' %}" class="cys-sb-sublink {% block nav_reportes %}{% endblock %}">
             <i class="bi bi-bar-chart-fill"></i> Reportes
           </a>
+          <a href="{% url 'ventas:lista_devoluciones' %}" class="cys-sb-sublink {% block nav_devoluciones %}{% endblock %}">
+            <i class="bi bi-arrow-return-left"></i> Devoluciones
+          </a>
+        </div>
+
+        <!-- DEVOLUCIONES -->
+    
+        <div class="cys-sb-submenu" id="submenuDevoluciones">
+          <a href="{% url 'ventas:lista_devoluciones' %}" class="cys-sb-sublink {% block nav_historial_dev %}{% endblock %}">
+            <i class="bi bi-clock-history"></i> Historial
+          </a>
         </div>
 
         <a href="{% url 'producto:producto_lista' %}" class="cys-sb-link {% block nav_productos %}{% endblock %}">
@@ -121,9 +130,20 @@
         <a href="{% url 'inventario:inventario_home' %}" class="cys-sb-link {% block nav_inventario %}{% endblock %}">
           <i class="bi bi-clipboard-data-fill"></i> Inventario
         </a>
-        <a href="{% url 'proveedores' %}" class="cys-sb-link {% block nav_proveedores %}{% endblock %}">
+
+        <!-- PROVEEDORES -->
+        <a href="{% url 'proveedores' %}"
+           class="cys-sb-link cys-sb-link--parent {% block nav_proveedores %}{% endblock %}"
+           id="btnProveedores" onclick="toggleProveedores(event, this)">
           <i class="bi bi-truck"></i> Proveedores
+          <i class="bi bi-chevron-down ms-auto cys-chevron" id="chevronProveedores"></i>
         </a>
+        <div class="cys-sb-submenu" id="submenuProveedores">
+          <a href="{% url 'registrar_compra' %}" class="cys-sb-sublink {% block nav_compras %}{% endblock %}">
+            <i class="bi bi-cart-plus-fill"></i> Compras
+          </a>
+        </div>
+
       </nav>
     </div>
 
@@ -170,9 +190,7 @@
 </div>
 
 
-<!-- ══════════════════════════════════════
-     MODAL PERFIL — vista rápida
-══════════════════════════════════════ -->
+<!-- MODAL PERFIL -->
 <div id="modalPerfil" style="
   display:none; position:fixed; inset:0; z-index:9999;
   background:rgba(0,0,0,.65); backdrop-filter:blur(4px);
@@ -266,9 +284,7 @@
 </div>
 
 
-<!-- ══════════════════════════════════════
-     MODAL EDITAR PERFIL
-══════════════════════════════════════ -->
+<!-- MODAL EDITAR PERFIL -->
 <div id="modalEditar" style="
   display:none; position:fixed; inset:0; z-index:10000;
   background:rgba(0,0,0,.7); backdrop-filter:blur(4px);
@@ -302,12 +318,10 @@
       border-radius:8px; padding:.6rem .9rem; font-size:.8rem;"></div>
 
     <div style="padding:1.25rem 1.4rem 1.4rem;">
-
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:.85rem;">
         <div>
           <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.45);
-                        letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
-            Nombres</label>
+                        letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">Nombres</label>
           <input type="text" id="editNombre" style="
             background:#111f33; border:1px solid rgba(77,168,218,.35); color:#E8EDF2;
             border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%;
@@ -317,8 +331,7 @@
         </div>
         <div>
           <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.45);
-                        letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
-            Apellidos</label>
+                        letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">Apellidos</label>
           <input type="text" id="editApellidos" style="
             background:#111f33; border:1px solid rgba(77,168,218,.35); color:#E8EDF2;
             border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%;
@@ -330,8 +343,7 @@
 
       <div style="margin-bottom:.85rem;">
         <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.45);
-                      letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
-          Correo Electrónico</label>
+                      letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">Correo Electrónico</label>
         <input type="email" id="editEmail" style="
           background:#111f33; border:1px solid rgba(77,168,218,.35); color:#E8EDF2;
           border-radius:10px; padding:.65rem .9rem; font-size:.85rem; width:100%;
@@ -348,8 +360,7 @@
 
       <div style="margin-bottom:.85rem;">
         <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.45);
-                      letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
-          Contraseña Actual</label>
+                      letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">Contraseña Actual</label>
         <input type="password" id="editClaveActual"
           placeholder="Solo si deseas cambiar la contraseña" style="
           background:#111f33; border:1px solid rgba(77,168,218,.35); color:#E8EDF2;
@@ -362,8 +373,7 @@
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:1.1rem;">
         <div>
           <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.45);
-                        letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
-            Nueva Contraseña</label>
+                        letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">Nueva Contraseña</label>
           <input type="password" id="editClaveNueva"
             placeholder="Mín. 6 car., 2 núm., 1 may." style="
             background:#111f33; border:1px solid rgba(77,168,218,.35); color:#E8EDF2;
@@ -374,8 +384,7 @@
         </div>
         <div>
           <label style="font-size:.62rem; font-weight:600; color:rgba(232,237,242,.45);
-                        letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">
-            Confirmar</label>
+                        letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem;">Confirmar</label>
           <input type="password" id="editClaveConfirmar"
             placeholder="Repite la contraseña" style="
             background:#111f33; border:1px solid rgba(77,168,218,.35); color:#E8EDF2;
@@ -396,7 +405,6 @@
         onmouseout="this.style.background='#4DA8DA'">
         <i class="bi bi-check-lg me-1"></i> Guardar Cambios
       </button>
-
     </div>
   </div>
 </div>
@@ -535,28 +543,52 @@
     if (e.key === 'Escape') { cerrarModalPerfil(); cerrarModalEditar(); }
   });
 
-function toggleVentas(e, el) {
-  const submenu = document.getElementById('submenuVentas');
-  const chevron = document.getElementById('chevronVentas');
-
-  if (window.location.pathname.startsWith('/ventas/')) {
-    e.preventDefault();
+  // ── TOGGLE VENTAS ─────────────────────────────────────
+  function toggleVentas(e, el) {
+    if (window.location.pathname.startsWith('/ventas/')) e.preventDefault();
+    document.getElementById('submenuVentas').classList.toggle('open');
+    document.getElementById('chevronVentas').classList.toggle('open');
+    el.classList.toggle('open');
   }
 
-  submenu.classList.toggle('open');
-  chevron.classList.toggle('open');
-  el.classList.toggle('open');
-}
+  // ── TOGGLE DEVOLUCIONES ───────────────────────────────
+  function toggleDevoluciones(e, el) {
+    if (window.location.pathname.startsWith('/ventas/devoluciones/')) e.preventDefault();
+    document.getElementById('submenuDevoluciones').classList.toggle('open');
+    document.getElementById('chevronDevoluciones').classList.toggle('open');
+    el.classList.toggle('open');
+  }
+
+  // ── TOGGLE PROVEEDORES ────────────────────────────────
+  function toggleProveedores(e, el) {
+    if (window.location.pathname.startsWith('/proveedores/') ||
+        window.location.pathname.startsWith('/compra/')) e.preventDefault();
+    document.getElementById('submenuProveedores').classList.toggle('open');
+    document.getElementById('chevronProveedores').classList.toggle('open');
+    el.classList.toggle('open');
+  }
+
+  // ── APERTURA AUTOMÁTICA SEGÚN RUTA ───────────────────
   (function () {
-  const path    = window.location.pathname;
-  const submenu = document.getElementById('submenuVentas');
-  const parent  = document.getElementById('btnVentas');
-  const chevron = document.getElementById('chevronVentas');
+    const path = window.location.pathname;
 
-  if (path.startsWith('/ventas/') || path.startsWith('/reportes')) {
-    if (submenu) submenu.classList.add('open');
-    if (parent)  parent.classList.add('open');
-    if (chevron) chevron.classList.add('open');
-  }
-})();
+    function abrirSubmenu(submenuId, btnId, chevronId) {
+      const s = document.getElementById(submenuId);
+      const b = document.getElementById(btnId);
+      const c = document.getElementById(chevronId);
+      if (s) s.classList.add('open');
+      if (b) b.classList.add('open');
+      if (c) c.classList.add('open');
+    }
+
+    if (path.startsWith('/ventas/') || path.startsWith('/reportes')) {
+      abrirSubmenu('submenuVentas', 'btnVentas', 'chevronVentas');
+    }
+    if (path.startsWith('/ventas/devoluciones/')) {
+      abrirSubmenu('submenuDevoluciones', 'btnDevoluciones', 'chevronDevoluciones');
+    }
+    if (path.startsWith('/proveedores/') || path.startsWith('/compra/')) {
+      abrirSubmenu('submenuProveedores', 'btnProveedores', 'chevronProveedores');
+    }
+  })();
 </script>

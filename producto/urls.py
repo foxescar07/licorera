@@ -5,13 +5,13 @@ app_name = "producto"
 
 urlpatterns = [
     path("", views.producto_lista, name="producto_lista"),
+    path("crear/", views.producto_crear, name="producto_crear"),  # ← esta
     path("producto/<int:pk>/", views.producto_detalle, name="producto_detalle"),
     path("producto/<int:pk>/editar/", views.producto_editar, name="producto_editar"),
     path("registro/", views.producto_registro, name="producto_registro"),
     path("agenda/", views.agenda_lista, name="agenda_lista"),
     path("agenda/<int:pk>/eliminar/", views.agenda_eliminar, name="agenda_eliminar"),
     path("categoria/crear/", views.categoria_crear, name="categoria_crear"),
-    # ✅ "ingreso/" eliminado — el ingreso de stock viene de proveedores/compra/
     path("salida/", views.producto_salida, name="producto_salida"),
     path("presentaciones/<int:pk>/guardar/", views.presentaciones_guardar, name="presentaciones_guardar"),
     path("presentaciones/<int:pk>/json/", views.presentaciones_json, name="presentaciones_json"),
