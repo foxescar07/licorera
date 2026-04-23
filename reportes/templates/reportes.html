@@ -113,38 +113,23 @@
       </div>
     </div>
 
-<<<<<<< Updated upstream
-=======
-    <!-- Gráficas de Ventas -->
-    <div class="col-md-4">
-      <div class="cys-card h-100" style="border-top:2px solid #4D9EDA; cursor:pointer;"
-           data-bs-toggle="modal" data-bs-target="#modalGraficasVentas">
-        <div style="width:36px; height:36px; border-radius:8px; background:rgba(77,158,218,.15);
-                    display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
-          <i class="bi bi-bar-chart-line" style="color:#4D9EDA; font-size:16px;"></i>
-        </div>
-        <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
-                    color:var(--texto); margin-bottom:4px;">Gráficas de Ventas</div>
-        <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
-          Ventas por período, categoría y cliente
-        </div>
-        <div style="font-size:.75rem; color:#4D9EDA; font-weight:600;">Ver reporte →</div>
-      </div>
-    </div>
-
->>>>>>> Stashed changes
   </div>
  
   <!-- FILTROS HISTORIAL DE VENTAS -->
   <section class="cys-card mb-4">
     <div class="cys-card__title">Filtrar Ventas</div>
     <form method="GET" class="row gx-3 gy-2 align-items-end">
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Fecha inicio</label>
         <input type="date" name="fecha_inicio" class="form-control form-control-sm"
                value="{{ fecha_inicio }}">
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
+        <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Fecha fin</label>
+        <input type="date" name="fecha_fin" class="form-control form-control-sm"
+               value="{{ fecha_fin }}">
+      </div>
+      <div class="col-md-2">
         <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Categoría</label>
         <select name="categoria" class="form-select form-select-sm">
           <option value="">Todas</option>
@@ -155,12 +140,12 @@
           {% endfor %}
         </select>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Cliente</label>
         <input type="text" name="cliente" class="form-control form-control-sm"
                placeholder="Nombre cliente…" value="{{ cliente_q }}">
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Producto</label>
         <input type="text" name="producto" class="form-control form-control-sm"
                placeholder="Nombre producto…" value="{{ producto_q }}">
@@ -178,26 +163,15 @@
     <div class="table-responsive">
       <table class="cys-inv-table">
         <thead>
-<<<<<<< Updated upstream
           <tr>
             <th>#</th>
             <th>Cliente</th>
             <th>Producto</th>
+            <th>Categoría</th>
             <th>Cantidad</th>
             <th>Precio Unit.</th>
             <th>Total</th>
             <th>Fecha</th>
-            <th>Hora</th>
-=======
-          <tr style="border-bottom:2px solid var(--azul-borde);">
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">#</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Fecha</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Cliente</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Producto</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Categoría</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Cant.</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--azul-claro); font-weight:600;">Total</th>
->>>>>>> Stashed changes
           </tr>
         </thead>
         <tbody>
@@ -205,19 +179,20 @@
             {% for det in venta.detalles.all %}
             <tr>
               <td style="font-size:.85rem; color:var(--azul-claro);">{{ forloop.parentloop.counter }}</td>
-              <td style="font-size:.85rem; color:var(--azul-claro);">{{ venta.fecha|date:"Y-m-d" }}</td>
               <td style="font-size:.85rem; font-weight:600; color:var(--azul-claro);">{{ venta.cliente }}</td>
               <td style="font-size:.85rem; color:var(--azul-claro);">{{ det.producto.nombre }}</td>
               <td><span class="cys-tag">{{ det.producto.categoria|default:"—" }}</span></td>
               <td style="font-size:.85rem; color:var(--azul-claro);">{{ det.cantidad }}</td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">${{ det.precio_unitario|floatformat:0 }}</td>
               <td style="font-size:.85rem; font-weight:600; color:var(--azul-claro);">
                 ${{ det.subtotal|floatformat:0 }}
               </td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">{{ venta.fecha|date:"Y-m-d" }}</td>
             </tr>
             {% endfor %}
           {% empty %}
           <tr>
-            <td colspan="7" class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
+            <td colspan="8" class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
               <i class="bi bi-bar-chart d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
               No hay ventas registradas aún.
             </td>
@@ -778,7 +753,33 @@
                          border:1px solid var(--azul-borde); border-radius:6px;
                          color:#E24B4A; cursor:pointer;">Limpiar</button>
         </div>
- 
+
+        {% if top_productos_hoy %}
+        <div style="padding:14px 20px 0;">
+          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
+                      color:#7F77DD; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
+                      display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#7F77DD;display:inline-block;"></span>
+            Top productos del día
+          </div>
+        </div>
+        <table class="cys-inv-table" style="margin-bottom:16px;">
+          <thead>
+            <tr><th>#</th><th>Producto</th><th>Unidades vendidas</th><th>Total generado</th></tr>
+          </thead>
+          <tbody>
+            {% for nombre, datos in top_productos_hoy %}
+            <tr>
+              <td class="text-muted">{{ forloop.counter }}</td>
+              <td><strong>{{ nombre }}</strong></td>
+              <td style="font-size:.85rem; color:var(--azul-claro);">{{ datos.cantidad }}</td>
+              <td style="font-size:.85rem; font-weight:600; color:#5DCAA5;">${{ datos.subtotal|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+
       </div>
  
       <div class="modal-footer cys-modal__footer">
@@ -793,171 +794,6 @@
   </div>
 </div>
 
-<<<<<<< Updated upstream
-=======
-
-<!-- ===== MODAL GRÁFICAS DE VENTAS ===== -->
-<div class="modal fade" id="modalGraficasVentas" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable" style="max-width:92vw; width:92vw;">
-    <div class="modal-content cys-modal">
-
-      <div class="modal-header cys-modal__header"
-           style="background:linear-gradient(135deg,#0A2540,#185FA5);">
-        <div class="d-flex align-items-center gap-3">
-          <div class="cys-modal__icon" style="background:rgba(77,158,218,.25);">
-            <i class="bi bi-bar-chart-line" style="color:#85B7EB;"></i>
-          </div>
-          <div>
-            <div class="cys-modal__title">Gráficas de Ventas</div>
-            <div class="cys-modal__subtitle" id="gv-subtitle">CYS Ltda · todos los períodos</div>
-          </div>
-        </div>
-        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
-      </div>
-
-      <div class="cys-modal__stats">
-        <div class="cys-stat-mini cys-stat-mini--verde">
-          <div class="cys-stat-mini__val" id="gv-kpi-total">${{ total_ventas|floatformat:0 }}</div>
-          <div class="cys-stat-mini__label">Total ventas</div>
-        </div>
-        <div class="cys-stat-mini">
-          <div class="cys-stat-mini__val" id="gv-kpi-transacciones">—</div>
-          <div class="cys-stat-mini__label">Transacciones</div>
-        </div>
-        <div class="cys-stat-mini">
-          <div class="cys-stat-mini__val" id="gv-kpi-productos">{{ total_productos }}</div>
-          <div class="cys-stat-mini__label">Unidades vendidas</div>
-        </div>
-        <div class="cys-stat-mini">
-          <div class="cys-stat-mini__val" id="gv-kpi-clientes">{{ total_clientes }}</div>
-          <div class="cys-stat-mini__label">Clientes</div>
-        </div>
-      </div>
-
-      <div class="cys-modal__filters" style="flex-wrap:wrap; gap:10px; padding:14px 20px;">
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-          <span style="font-size:.75rem; color:var(--texto-muted); white-space:nowrap;">Período:</span>
-          <input type="date" id="gvFechaInicio" class="cys-search" style="max-width:150px;"
-                 title="Fecha inicio" onchange="aplicarFiltrosGV()">
-          <span style="font-size:.75rem; color:var(--texto-muted);">–</span>
-          <input type="date" id="gvFechaFin" class="cys-search" style="max-width:150px;"
-                 title="Fecha fin" onchange="aplicarFiltrosGV()">
-        </div>
-        <select id="gvCategoria" class="cys-select" onchange="aplicarFiltrosGV()">
-          <option value="">Todas las categorías</option>
-          {% for cat in categorias %}
-            <option value="{{ cat.nombre|lower }}">{{ cat.nombre }}</option>
-          {% endfor %}
-        </select>
-        <input type="text" id="gvCliente" class="cys-search"
-               placeholder="Buscar cliente…" style="min-width:180px;"
-               oninput="aplicarFiltrosGV()">
-        <input type="text" id="gvProducto" class="cys-search"
-               placeholder="Buscar producto…" style="min-width:180px;"
-               oninput="aplicarFiltrosGV()">
-        <button onclick="limpiarFiltrosGV()"
-                style="font-size:.72rem; padding:4px 10px; background:transparent;
-                       border:1px solid var(--azul-borde); border-radius:6px;
-                       color:var(--texto-muted); cursor:pointer; white-space:nowrap;">
-          Limpiar filtros
-        </button>
-        <div id="gv-filtros-activos"
-             style="display:none; align-items:center; gap:6px; font-size:.72rem;
-                    color:#85B7EB; background:rgba(24,95,165,.12);
-                    padding:4px 10px; border-radius:6px; border:1px solid rgba(24,95,165,.3);">
-          <i class="bi bi-funnel-fill"></i>
-          <span id="gv-filtros-texto"></span>
-        </div>
-      </div>
-
-      <div class="modal-body" style="padding:16px 20px;">
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
-          <div style="background:var(--fondo-card,#0D1B2A); border:1px solid var(--azul-borde);
-                      border-radius:10px; padding:14px;">
-            <div style="font-size:.72rem; font-weight:700; text-transform:uppercase;
-                        letter-spacing:.6px; color:var(--azul-claro); margin-bottom:10px;">
-              Ventas por fecha
-            </div>
-            <div style="position:relative; height:220px;">
-              <canvas id="gvChartLinea" role="img"
-                      aria-label="Gráfica de línea: ventas totales agrupadas por fecha">
-              </canvas>
-            </div>
-          </div>
-          <div style="background:var(--fondo-card,#0D1B2A); border:1px solid var(--azul-borde);
-                      border-radius:10px; padding:14px;">
-            <div style="font-size:.72rem; font-weight:700; text-transform:uppercase;
-                        letter-spacing:.6px; color:var(--azul-claro); margin-bottom:10px;">
-              Ventas por categoría
-            </div>
-            <div style="position:relative; height:220px;">
-              <canvas id="gvChartDona" role="img"
-                      aria-label="Gráfica de dona: distribución de ventas por categoría">
-              </canvas>
-            </div>
-          </div>
-        </div>
-
-        <div style="background:var(--fondo-card,#0D1B2A); border:1px solid var(--azul-borde);
-                    border-radius:10px; padding:14px; margin-bottom:16px;">
-          <div style="font-size:.72rem; font-weight:700; text-transform:uppercase;
-                      letter-spacing:.6px; color:var(--azul-claro); margin-bottom:10px;">
-            Top clientes por monto ($)
-          </div>
-          <div id="gvChartClientesWrapper" style="position:relative; height:200px;">
-            <canvas id="gvChartClientes" role="img"
-                    aria-label="Barras horizontales: clientes ordenados por monto total comprado">
-            </canvas>
-          </div>
-        </div>
-
-        <div style="background:var(--fondo-card,#0D1B2A); border:1px solid var(--azul-borde);
-                    border-radius:10px; padding:14px; margin-bottom:16px;">
-          <div style="font-size:.72rem; font-weight:700; text-transform:uppercase;
-                      letter-spacing:.6px; color:var(--azul-claro); margin-bottom:10px;">
-            Top productos más vendidos (unidades)
-          </div>
-          <div style="position:relative; height:220px;">
-            <canvas id="gvChartProductos" role="img"
-                    aria-label="Barras verticales: productos ordenados por unidades vendidas">
-            </canvas>
-          </div>
-        </div>
-
-        <div style="background:var(--fondo-card,#0D1B2A); border:1px solid var(--azul-borde);
-                    border-radius:10px; padding:14px;">
-          <div style="font-size:.72rem; font-weight:700; text-transform:uppercase;
-                      letter-spacing:.6px; color:var(--azul-claro); margin-bottom:10px;">
-            Detalle de ventas filtradas
-          </div>
-          <div class="table-responsive">
-            <table class="cys-inv-table" id="gvTablaDetalle">
-              <thead>
-                <tr>
-                  <th>#</th><th>Fecha</th><th>Cliente</th>
-                  <th>Producto</th><th>Categoría</th><th>Cant.</th><th>Total</th>
-                </tr>
-              </thead>
-              <tbody id="gvTbody"></tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="modal-footer cys-modal__footer">
-        <button class="cys-btn-export"
-                onclick="exportarPDF('modalGraficasVentas','graficas_ventas_cys')">
-          ⬇ Exportar PDF
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
->>>>>>> Stashed changes
 {% endblock %}
  
 {% block extra_js %}
@@ -1048,15 +884,9 @@ function filtrarInventario() {
   });
 }
 
-<<<<<<< Updated upstream
 /* ══════════════════════════════════════════════
    INVENTARIO — filtro entradas/salidas
 ══════════════════════════════════════════════ */
-=======
-/* ──────────────────────────────────────────────
-   INVENTARIO — filtro de entradas y salidas
-   ────────────────────────────────────────────── */
->>>>>>> Stashed changes
 function filtrarMovimientosInventario() {
   const inicio   = parseISO(document.getElementById('invFechaInicio').value);
   const fin      = parseISO(document.getElementById('invFechaFin').value);
@@ -1108,11 +938,7 @@ function filtrarProveedores() {
 
 /* ══════════════════════════════════════════════
    RESUMEN DIARIO — filtro por fecha + producto
-<<<<<<< Updated upstream
 ══════════════════════════════════════════════ */
-=======
-   ────────────────────────────────────────────── */
->>>>>>> Stashed changes
 function filtrarResumenDiario() {
   const inicio   = parseISO(document.getElementById('rdFechaInicio').value);
   const fin      = parseISO(document.getElementById('rdFechaFin').value);
@@ -1158,25 +984,15 @@ function limpiarFiltrosRD() {
   filtrarResumenDiario();
 }
 
-<<<<<<< Updated upstream
 /* ══════════════════════════════════════════════
    EXPORTAR PDF
 ══════════════════════════════════════════════ */
-=======
-/* ──────────────────────────────────────────────
-   EXPORTAR PDF — captura todo el contenido
-   sin restricciones de scroll ni altura
-   ────────────────────────────────────────────── */
->>>>>>> Stashed changes
 async function exportarPDF(modalId, nombreArchivo) {
   const { jsPDF } = window.jspdf;
   const modalContent = document.querySelector(`#${modalId} .modal-content`);
 
-<<<<<<< Updated upstream
   rellenarFechaGeneracion();
 
-=======
->>>>>>> Stashed changes
   const footer  = document.querySelector(`#${modalId} .modal-footer`);
   const filtros = document.querySelector(`#${modalId} .cys-modal__filters`);
   if (footer)  footer.style.display  = 'none';
@@ -1247,236 +1063,5 @@ async function exportarPDF(modalId, nombreArchivo) {
 
   pdf.save(`${nombreArchivo}.pdf`);
 }
-
-/* ══════════════════════════════════════════════════════════════
-   GRÁFICAS DE VENTAS
-   ══════════════════════════════════════════════════════════════ */
-
-const GV_RAW = {{ ventas_json|safe }};
-
-let gvChartLinea     = null;
-let gvChartDona      = null;
-let gvChartClientes  = null;
-let gvChartProductos = null;
-
-const GV_COLORS = ['#4D9EDA','#5DCAA5','#7F77DD','#E24B4A','#EF9F27',
-                   '#85B7EB','#9FE1CB','#AFA9EC','#F09595','#FAC775'];
-
-function fmt$(n){ return '$' + Math.round(n).toLocaleString('es-CO'); }
-
-function gvDatos() {
-  const fi  = parseISO(document.getElementById('gvFechaInicio').value);
-  const ff  = parseISO(document.getElementById('gvFechaFin').value);
-  const cat = document.getElementById('gvCategoria').value.toLowerCase().trim();
-  const cli = document.getElementById('gvCliente').value.toLowerCase().trim();
-  const pro = document.getElementById('gvProducto').value.toLowerCase().trim();
-
-  return GV_RAW.filter(r => {
-    if (!enRango(r.fecha, fi, ff))                        return false;
-    if (cat && !r.categoria.toLowerCase().includes(cat))  return false;
-    if (cli && !r.cliente.toLowerCase().includes(cli))    return false;
-    if (pro && !r.producto.toLowerCase().includes(pro))   return false;
-    return true;
-  });
-}
-
-function gvEtiquetaFiltros() {
-  const partes = [];
-  const fi  = document.getElementById('gvFechaInicio').value;
-  const ff  = document.getElementById('gvFechaFin').value;
-  const cat = document.getElementById('gvCategoria').value;
-  const cli = document.getElementById('gvCliente').value.trim();
-  const pro = document.getElementById('gvProducto').value.trim();
-  if (fi || ff)  partes.push('Período: ' + (fi||'…') + ' → ' + (ff||'…'));
-  if (cat)       partes.push('Categoría: ' + cat);
-  if (cli)       partes.push('Cliente: ' + cli);
-  if (pro)       partes.push('Producto: ' + pro);
-  return partes;
-}
-
-function gvRenderizar(datos) {
-
-  const etiquetas  = gvEtiquetaFiltros();
-  const subtitleEl = document.getElementById('gv-subtitle');
-  const badgeEl    = document.getElementById('gv-filtros-activos');
-  const badgeTxt   = document.getElementById('gv-filtros-texto');
-
-  if (etiquetas.length) {
-    subtitleEl.textContent = 'CYS Ltda · filtros aplicados';
-    badgeEl.style.display  = 'flex';
-    badgeTxt.textContent   = etiquetas.join('  ·  ');
-  } else {
-    subtitleEl.textContent = 'CYS Ltda · todos los períodos';
-    badgeEl.style.display  = 'none';
-  }
-
-  const totalMonto = datos.reduce((s, r) => s + r.subtotal, 0);
-  const totalTrans = [...new Set(datos.map(r => r.fecha + '|' + r.cliente))].length;
-  const totalUnid  = datos.reduce((s, r) => s + r.cantidad, 0);
-  const totalClis  = new Set(datos.map(r => r.cliente)).size;
-  document.getElementById('gv-kpi-total').textContent         = fmt$(totalMonto);
-  document.getElementById('gv-kpi-transacciones').textContent = totalTrans;
-  document.getElementById('gv-kpi-productos').textContent     = totalUnid;
-  document.getElementById('gv-kpi-clientes').textContent      = totalClis;
-
-  /* 1. LÍNEA */
-  const byFecha = {};
-  datos.forEach(r => { byFecha[r.fecha] = (byFecha[r.fecha] || 0) + r.subtotal; });
-  const fechaLabels = Object.keys(byFecha).sort();
-  const fechaVals   = fechaLabels.map(f => Math.round(byFecha[f]));
-
-  if (gvChartLinea) gvChartLinea.destroy();
-  gvChartLinea = new Chart(document.getElementById('gvChartLinea'), {
-    type: 'line',
-    data: {
-      labels: fechaLabels,
-      datasets: [{
-        label: 'Ventas ($)', data: fechaVals,
-        borderColor: '#4D9EDA', backgroundColor: 'rgba(77,158,218,.12)',
-        borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#4D9EDA',
-        fill: true, tension: .35
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false },
-                 tooltip: { callbacks: { label: ctx => fmt$(ctx.parsed.y) } } },
-      scales: {
-        x: { ticks: { color: '#8BA5BC', font: { size: 10 }, maxRotation: 45, autoSkip: true },
-             grid: { color: 'rgba(255,255,255,.05)' } },
-        y: { ticks: { color: '#8BA5BC', font: { size: 10 },
-                      callback: v => '$' + Math.round(v / 1000) + 'k' },
-             grid: { color: 'rgba(255,255,255,.07)' } }
-      }
-    }
-  });
-
-  /* 2. DONA */
-  const byCat = {};
-  datos.forEach(r => { byCat[r.categoria] = (byCat[r.categoria] || 0) + r.subtotal; });
-  const catLabels = Object.keys(byCat);
-  const catVals   = catLabels.map(c => Math.round(byCat[c]));
-
-  if (gvChartDona) gvChartDona.destroy();
-  gvChartDona = new Chart(document.getElementById('gvChartDona'), {
-    type: 'doughnut',
-    data: {
-      labels: catLabels,
-      datasets: [{ data: catVals,
-                   backgroundColor: GV_COLORS.slice(0, catLabels.length),
-                   borderColor: '#0D1B2A', borderWidth: 2 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: true, position: 'right',
-                  labels: { color: '#8BA5BC', font: { size: 11 }, boxWidth: 10, padding: 12 } },
-        tooltip: { callbacks: { label: ctx => ctx.label + ': ' + fmt$(ctx.parsed) } }
-      }
-    }
-  });
-
-  /* 3. BARRAS HORIZONTALES: top clientes */
-  const byCli = {};
-  datos.forEach(r => { byCli[r.cliente] = (byCli[r.cliente] || 0) + r.subtotal; });
-  const cliSorted = Object.entries(byCli).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  const cliLabels = cliSorted.map(e => e[0]);
-  const cliVals   = cliSorted.map(e => Math.round(e[1]));
-
-  const hClientes = Math.max(180, cliLabels.length * 38 + 60);
-  document.getElementById('gvChartClientesWrapper').style.height = hClientes + 'px';
-
-  if (gvChartClientes) gvChartClientes.destroy();
-  gvChartClientes = new Chart(document.getElementById('gvChartClientes'), {
-    type: 'bar',
-    data: {
-      labels: cliLabels,
-      datasets: [{ label: 'Total ($)', data: cliVals,
-                   backgroundColor: 'rgba(93,202,165,.7)', borderColor: '#5DCAA5',
-                   borderWidth: 1, borderRadius: 4 }]
-    },
-    options: {
-      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false },
-                 tooltip: { callbacks: { label: ctx => fmt$(ctx.parsed.x) } } },
-      scales: {
-        x: { ticks: { color: '#8BA5BC', font: { size: 10 },
-                      callback: v => '$' + Math.round(v / 1000) + 'k' },
-             grid: { color: 'rgba(255,255,255,.07)' } },
-        y: { ticks: { color: '#8BA5BC', font: { size: 10 } },
-             grid: { color: 'rgba(255,255,255,.04)' } }
-      }
-    }
-  });
-
-  /* 4. BARRAS VERTICALES: top productos */
-  const byProd = {};
-  datos.forEach(r => { byProd[r.producto] = (byProd[r.producto] || 0) + r.cantidad; });
-  const prodSorted = Object.entries(byProd).sort((a, b) => b[1] - a[1]).slice(0, 10);
-  const prodLabels = prodSorted.map(e => e[0]);
-  const prodVals   = prodSorted.map(e => e[1]);
-
-  if (gvChartProductos) gvChartProductos.destroy();
-  gvChartProductos = new Chart(document.getElementById('gvChartProductos'), {
-    type: 'bar',
-    data: {
-      labels: prodLabels,
-      datasets: [{ label: 'Unidades', data: prodVals,
-                   backgroundColor: 'rgba(127,119,221,.7)', borderColor: '#7F77DD',
-                   borderWidth: 1, borderRadius: 4 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false },
-                 tooltip: { callbacks: { label: ctx => ctx.parsed.y + ' uds.' } } },
-      scales: {
-        x: { ticks: { color: '#8BA5BC', font: { size: 10 }, maxRotation: 35, autoSkip: false },
-             grid: { color: 'rgba(255,255,255,.04)' } },
-        y: { ticks: { color: '#8BA5BC', font: { size: 10 }, stepSize: 1 },
-             grid: { color: 'rgba(255,255,255,.07)' } }
-      }
-    }
-  });
-
-  /* 5. TABLA DETALLE */
-  const tbody = document.getElementById('gvTbody');
-  if (!datos.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4"
-      style="color:var(--texto-muted);">Sin resultados para los filtros aplicados.</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = datos.map((r, i) => `
-    <tr>
-      <td class="text-muted">${i + 1}</td>
-      <td style="font-size:.85rem; color:var(--azul-claro);">${r.fecha}</td>
-      <td style="font-size:.85rem; font-weight:600; color:var(--azul-claro);">${r.cliente}</td>
-      <td style="font-size:.85rem; color:var(--azul-claro);">${r.producto}</td>
-      <td><span class="cys-tag">${r.categoria}</span></td>
-      <td style="font-size:.85rem; color:var(--azul-claro);">${r.cantidad}</td>
-      <td style="font-size:.85rem; font-weight:600; color:var(--azul-claro);">${fmt$(r.subtotal)}</td>
-    </tr>`).join('');
-}
-
-function aplicarFiltrosGV() {
-  gvRenderizar(gvDatos());
-}
-
-function limpiarFiltrosGV() {
-  ['gvFechaInicio', 'gvFechaFin', 'gvCliente', 'gvProducto'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  document.getElementById('gvCategoria').value = '';
-  aplicarFiltrosGV();
-}
-
-document.getElementById('modalGraficasVentas')
-  .addEventListener('shown.bs.modal', () => aplicarFiltrosGV());
-
-document.getElementById('modalGraficasVentas')
-  .addEventListener('hidden.bs.modal', () => {
-    [gvChartLinea, gvChartDona, gvChartClientes, gvChartProductos]
-      .forEach(c => { if (c) c.destroy(); });
-    gvChartLinea = gvChartDona = gvChartClientes = gvChartProductos = null;
-  });
 </script>
 {% endblock %}
