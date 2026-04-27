@@ -6,6 +6,10 @@ from .models import Producto, Categoria, Inventario, AgendaInventario, Presentac
 from .forms import ProductoForm, AgendaInventarioForm, PresentacionForm, ProductoRegistroForm
 from django.db import transaction
 
+
+# ===============================
+# LISTA DE PRODUCTOS
+# ===============================
 def producto_lista(request):
     form = ProductoForm()
 
@@ -23,7 +27,7 @@ def producto_lista(request):
                 return JsonResponse({'ok': False, 'error': 'Revisa los campos del formulario.', 'errores': errores})
             messages.error(request, "⚠️ Revisa los campos del formulario.")
 
-    categorias        = Categoria.objects.all()
+    categorias = Categoria.objects.all()
     resumen_categorias = []
     for cat in categorias:
         resumen_categorias.append({"nombre": cat.nombre, "total": cat.productos.count(), "pk": cat.pk})
@@ -38,12 +42,55 @@ def producto_lista(request):
     return render(request, "producto.html", context)
 
 
+# ===============================
+# CREAR PRODUCTO
+# Endpoint centralizado — lo usan:
+#   · inventario/gestion_productos.html (form + fetch AJAX)
+#   · producto_registro.html (si se mantiene)
+# ===============================
+def crear_producto(request):
+    """
+    POST único para registrar un producto nuevo.
+    Acepta AJAX (X-Requested-With: XMLHttpRequest) → devuelve JSON.
+    Acepta POST normal                              → redirect con mensaje.
+
+    El parámetro ?next=<url> define a dónde redirigir tras éxito (POST normal).
+    Si no se indica, redirige a inventario:gestion_productos.
+    """
+    if request.method != 'POST':
+        return redirect('inventario:gestion_productos')
+
+    form    = ProductoRegistroForm(request.POST)
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    next_url = request.POST.get('next') or request.GET.get('next') or 'inventario:gestion_productos'
+
+    if form.is_valid():
+        p = form.save(commit=False)
+        p.cantidad_disponible = 0
+        p.save()
+        if is_ajax:
+            return JsonResponse({'ok': True, 'pk': p.pk, 'nombre': p.nombre})
+        messages.success(request, f'✅ Producto "{p.nombre}" registrado.')
+        return redirect(next_url)
+    else:
+        if is_ajax:
+            return JsonResponse({'ok': False, 'error': 'Revisa los campos del formulario.'})
+        messages.error(request, '⚠️ Revisa los campos del formulario.')
+        return redirect(next_url)
+
+
+# ===============================
+# DETALLE
+# ===============================
 def producto_detalle(request, pk):
     producto    = get_object_or_404(Producto, pk=pk)
     movimientos = producto.movimientos.all()
     return render(request, "producto_detalle.html", {"producto": producto, "movimientos": movimientos})
 
 
+# ===============================
+# EDITAR
+# ===============================
 def producto_editar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == "POST":
@@ -55,6 +102,10 @@ def producto_editar(request, pk):
             messages.error(request, "⚠️ Revisa los campos del formulario.")
     return redirect("producto:producto_lista")
 
+
+# ===============================
+# PRESENTACIONES
+# ===============================
 def presentaciones_guardar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == "POST":
@@ -85,6 +136,7 @@ def presentaciones_guardar(request, pk):
         return redirect(next_url)
     return redirect("producto:producto_lista")
 
+
 def presentaciones_json(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     data     = list(producto.presentaciones.values("id", "nombre", "unidades", "precio", "cantidad"))
@@ -97,6 +149,9 @@ def presentaciones_json(request, pk):
 # ---------------------------------------------------------------
 
 
+# ===============================
+# AGENDA
+# ===============================
 def agenda_lista(request):
     form = AgendaInventarioForm()
     if request.method == "POST":
@@ -119,6 +174,9 @@ def agenda_eliminar(request, pk):
     return redirect("producto:agenda_lista")
 
 
+# ===============================
+# CATEGORÍA
+# ===============================
 def categoria_crear(request):
     if request.method == "POST":
         nombre      = request.POST.get("nombre")
@@ -132,6 +190,9 @@ def categoria_crear(request):
     return redirect("producto:producto_lista")
 
 
+# ===============================
+# REGISTRO (vista standalone, opcional)
+# ===============================
 def producto_registro(request):
     form = ProductoRegistroForm()
     if request.method == "POST":
@@ -147,6 +208,9 @@ def producto_registro(request):
     return render(request, "producto_registro.html", {"form": form})
 
 
+# ===============================
+# STOCK STATUS (API)
+# ===============================
 def stock_status(request):
     productos = Producto.objects.prefetch_related('presentaciones').all()
 
@@ -182,8 +246,6 @@ def stock_status(request):
 
 # ===============================
 # SALIDA DE PRODUCTOS
-# Las salidas SÍ se gestionan desde producto:
-# ventas, mermas, daños, ajustes de inventario.
 # ===============================
 def producto_salida(request):
     if request.method == "POST":

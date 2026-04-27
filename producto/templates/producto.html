@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block page_title %}Productos{% endblock %}
-
 {% block title %}Productos — CYS Ltda{% endblock %}
 {% block nav_productos %}active{% endblock %}
 
@@ -12,8 +11,8 @@
   {% if messages %}
     {% for message in messages %}
       <div class="alert alert-dismissible fade show mb-3"
-          style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:var(--radius);"
-          role="alert">
+           style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:var(--radius);"
+           role="alert">
         {{ message }}
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
       </div>
@@ -28,17 +27,47 @@
       70%  { box-shadow: 0 0 0 10px rgba(192,57,43,0); }
       100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
     }
+
+    /* ── Presentaciones modal (copiado de gestion_productos) ── */
+    .pres-row {
+      background: var(--fondo-card2);
+      border: 1px solid var(--azul-borde);
+      border-radius: 10px;
+      padding: .75rem 1rem;
+      margin-bottom: .5rem;
+    }
+    .np-input {
+      background: var(--fondo-card2) !important;
+      color: var(--texto) !important;
+      border: 1px solid var(--azul-borde) !important;
+      border-radius: 10px !important;
+      padding: 10px 14px !important;
+      font-size: .85rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .np-input:focus { border-color: var(--azul-claro) !important; }
+    .np-label {
+      font-size: .65rem; font-weight: 600;
+      color: var(--texto-muted);
+      letter-spacing: .1em; text-transform: uppercase;
+      display: block; margin-bottom: .35rem;
+    }
   </style>
 
+  <!-- ── Encabezado ── -->
   <section class="cys-card mb-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div class="cys-card__title mb-0">Inventario por Categoría</div>
+      <button class="cys-btn cys-btn--primary" onclick="abrirModalCrear()">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo Producto
+      </button>
     </div>
     <div class="row g-3">
       {% for cat in resumen_categorias %}
         <div class="col-md-4">
           <div class="cys-stat-card text-center" style="cursor:pointer;"
-              onclick="abrirCategoria('{{ cat.pk }}', '{{ cat.nombre }}')">
+               onclick="abrirCategoria('{{ cat.pk }}', '{{ cat.nombre }}')">
             <div class="cys-stat-card__label">{{ cat.nombre }}</div>
             <div class="cys-stat-card__val">{{ cat.total }}</div>
             <div style="font-size:.62rem; color:var(--texto-muted); margin-top:.25rem;">productos</div>
@@ -54,14 +83,188 @@
 
 </div>
 
-<!-- MODAL: Detalle Producto -->
+<!-- ══════════════════════════════════════════════
+     MODAL: Crear Nuevo Producto (AJAX)
+     POST → producto:crear_producto
+     Abre automáticamente modal de Presentaciones
+══════════════════════════════════════════════ -->
+<div class="modal fade" id="modalCrearProducto" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+
+      <div class="modal-header border-0"
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+                    color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-plus-circle me-2" style="color:var(--azul-claro);"></i> Nuevo Producto
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <div id="crear-feedback" class="mb-3" style="display:none;"></div>
+
+        <form id="form-nuevo-producto-modal">
+          {% csrf_token %}
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+
+            <!-- Nombre -->
+            <div>
+              <label class="np-label">Nombre <span style="color:var(--rojo);">*</span></label>
+              <input type="text" name="nombre" id="crear-nombre" class="np-input w-100"
+                     placeholder="Ej: Cerveza Club Colombia">
+            </div>
+
+            <!-- Código -->
+            <div>
+              <label class="np-label">Código</label>
+              <input type="text" name="codigo" id="crear-codigo" class="np-input w-100"
+                     placeholder="Ej: CRV-001" maxlength="50">
+            </div>
+
+            <!-- Categoría -->
+            <div>
+              <label class="np-label">Categoría <span style="color:var(--rojo);">*</span></label>
+              <select name="categoria" id="crear-categoria" class="np-input w-100">
+                <option value="">— Seleccionar —</option>
+                {% for cat in categorias %}
+                  <option value="{{ cat.pk }}">{{ cat.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Precio unitario -->
+            <div>
+              <label class="np-label">Precio Unitario (COP)</label>
+              <input type="number" name="precio_unitario" id="crear-precio" class="np-input w-100"
+                     placeholder="Ej: 2500" min="0" step="0.01">
+            </div>
+
+            <!-- Descripción -->
+            <div style="grid-column: 1 / -1;">
+              <label class="np-label">Descripción (opcional)</label>
+              <textarea name="descripcion" id="crear-descripcion" class="np-input w-100"
+                        rows="2" placeholder="Descripción breve…"></textarea>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer border-0 pt-0 px-4 pb-4 gap-2">
+        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+        <button type="button" class="cys-btn cys-btn--outline" id="btn-guardar-presentaciones"
+                onclick="crearProductoYPresentaciones()">
+          <i class="bi bi-layers me-1"></i> Guardar y Definir Presentaciones
+        </button>
+        <button type="button" class="cys-btn cys-btn--primary" id="btn-crear-solo"
+                onclick="enviarCrearProducto()">
+          <i class="bi bi-check-lg me-1"></i> Guardar Producto
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MODAL: Presentaciones
+══════════════════════════════════════════════ -->
+<div class="modal fade" id="modalPresentacionesProducto" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg"
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px; max-height:90vh; overflow-y:auto;">
+
+      <div class="modal-header border-0 sticky-top"
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem; z-index:1;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+                    color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+          <i class="bi bi-layers me-2" style="color:var(--azul-claro);"></i>
+          Presentaciones — <span id="pres-nombre-producto"></span>
+        </div>
+        <button type="button" class="btn-close btn-close-white"
+                onclick="cerrarModalPresentaciones()"></button>
+      </div>
+
+      <form id="form-presentaciones-modal" method="POST" action="">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:1rem; line-height:1.6;">
+            Define las presentaciones del producto. La
+            <strong style="color:var(--azul-claro);">Unidad</strong> es siempre la base.
+          </div>
+
+          <!-- Fila base: Unidad -->
+          <div class="pres-row mb-2">
+            <div class="row g-2 align-items-center">
+              <div class="col-md-3">
+                <label class="np-label">Presentación</label>
+                <input type="text" name="nombre[]" value="Unidad"
+                       class="np-input w-100" readonly style="opacity:.6;">
+              </div>
+              <div class="col-md-2">
+                <label class="np-label">Unidades</label>
+                <input type="number" name="unidades_base[]" value="1"
+                       class="np-input w-100" readonly style="opacity:.6;">
+              </div>
+              <div class="col-md-3">
+                <label class="np-label">Cantidad existente</label>
+                <input type="number" name="cantidad[]" id="pres-cantidad-unidad"
+                       class="np-input w-100" placeholder="Ej: 50" min="0" value="0">
+              </div>
+              <div class="col-md-3">
+                <label class="np-label">Precio (COP)</label>
+                <input type="number" name="precio[]" id="pres-precio-unidad"
+                       class="np-input w-100" placeholder="Ej: 2500" min="0" required>
+              </div>
+              <div class="col-md-1 d-flex align-items-end justify-content-center pb-1">
+                <span style="color:var(--azul-claro); font-size:.62rem;">Base</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Presentaciones adicionales -->
+          <div id="contenedor-presentaciones-modal"></div>
+
+          <button type="button"
+                  style="width:100%; border:1px dashed var(--azul-borde); background:transparent;
+                         color:var(--azul-claro); border-radius:10px; padding:.6rem 1rem;
+                         font-size:.8rem; cursor:pointer; margin-top:.5rem; transition:background .2s;"
+                  onmouseover="this.style.background='rgba(77,168,218,.07)'"
+                  onmouseout="this.style.background='transparent'"
+                  onclick="agregarPresentacionModal()">
+            <i class="bi bi-plus-circle me-1"></i> Agregar Presentación
+          </button>
+        </div>
+
+        <div class="modal-footer border-0 px-4 pb-4 gap-2">
+          <button type="button" class="cys-btn cys-btn--outline"
+                  onclick="cerrarModalPresentaciones()">
+            Cancelar
+          </button>
+          <button type="button" class="cys-btn cys-btn--primary"
+                  onclick="guardarPresentacionesModal()">
+            <i class="bi bi-save me-1"></i> Guardar Presentaciones
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MODAL: Detalle Producto
+══════════════════════════════════════════════ -->
 <div class="modal fade" id="modalDetalleProducto" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg"
-        style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
       <div class="modal-header border-0"
-          style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+                    color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
           <i class="bi bi-eye me-2" style="color:var(--azul-claro);"></i> Detalle Producto
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -82,7 +285,7 @@
               <div id="det-categoria" style="font-size:.9rem; color:var(--texto);"></div>
             </div>
             <div class="col-6">
-              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Stock (unidades sueltas)</div>
+              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Stock</div>
               <div id="det-cantidad" style="font-size:.9rem; color:var(--azul-claro); font-weight:700;"></div>
             </div>
           </div>
@@ -103,14 +306,17 @@
   </div>
 </div>
 
-<!-- MODAL: Productos por Categoría -->
+<!-- ══════════════════════════════════════════════
+     MODAL: Productos por Categoría
+══════════════════════════════════════════════ -->
 <div class="modal fade" id="modalProductosCategoria" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg"
-        style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
+         style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
       <div class="modal-header border-0"
-          style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
+           style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
+        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+                    color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
           <i class="bi bi-box-seam me-2" style="color:var(--azul-claro);"></i>
           Productos — <span id="titulo-categoria"></span>
         </div>
@@ -141,7 +347,9 @@
   </div>
 </div>
 
-<!-- MODAL: Confirmar ir a Gestión de Productos -->
+<!-- ══════════════════════════════════════════════
+     MODAL: Confirmar ir a Gestión
+══════════════════════════════════════════════ -->
 <div id="modalConfirmGestion" style="
   display:none; position:fixed; inset:0; z-index:9999;
   background:rgba(0,0,0,.65); backdrop-filter:blur(4px);
@@ -151,7 +359,6 @@
     border-radius:16px; width:100%; max-width:460px;
     box-shadow:0 16px 48px rgba(0,0,0,.7);
     overflow:hidden; font-family:'Inter',sans-serif;">
-
     <div style="padding:1.2rem 1.5rem; display:flex; align-items:center;
                 gap:.75rem; border-bottom:1px solid rgba(77,168,218,.15);">
       <div style="width:36px; height:36px; border-radius:10px; flex-shrink:0;
@@ -172,17 +379,15 @@
         <i class="bi bi-x-lg"></i>
       </button>
     </div>
-
     <div style="padding:1.25rem 1.5rem 1rem;">
       <div style="height:1px; background:rgba(77,168,218,.1); margin-bottom:1.1rem;"></div>
       <p style="color:#cbd5e1; font-size:.95rem; margin:0; line-height:1.65;">
         ¿Deseas ir a <strong style="color:#4DA8DA;">Gestión de Productos</strong> en Inventario?
       </p>
       <p style="color:rgba(226,232,240,.35); font-size:.8rem; margin-top:.45rem;">
-        Allí puedes crear, editar o eliminar productos y categorías.
+        Allí puedes editar o eliminar productos, gestionar categorías y presentaciones.
       </p>
     </div>
-
     <div style="padding:.75rem 1.5rem 1.4rem; display:flex; gap:.75rem;">
       <button onclick="cerrarModalGestion()" style="
         flex:1; padding:.75rem; border-radius:10px; cursor:pointer;
@@ -214,7 +419,11 @@
 {% block extra_js %}
 <script>
 const GESTION_URL = "{% url 'inventario:gestion_productos' %}";
+const CREAR_URL   = "{% url 'producto:crear_producto' %}";
+const PRES_URL    = "{% url 'producto:presentaciones_guardar' 0 %}";
+const CSRF_TOKEN  = "{{ csrf_token }}";
 
+// ── Datos productos ──────────────────────────────────────────────
 const todoProductos = [
   {% for producto in productos %}
   {
@@ -242,6 +451,182 @@ const todoProductos = [
   {% endfor %}
 ];
 
+// ════════════════════════════════════════
+// MODAL CREAR PRODUCTO
+// ════════════════════════════════════════
+function abrirModalCrear() {
+  document.getElementById('crear-nombre').value      = '';
+  document.getElementById('crear-codigo').value      = '';
+  document.getElementById('crear-categoria').value   = '';
+  document.getElementById('crear-precio').value      = '';
+  document.getElementById('crear-descripcion').value = '';
+  ocultarFeedback();
+  new bootstrap.Modal(document.getElementById('modalCrearProducto')).show();
+}
+
+function ocultarFeedback() {
+  const fb = document.getElementById('crear-feedback');
+  fb.style.display = 'none';
+  fb.innerHTML = '';
+}
+
+function mostrarFeedback(tipo, mensaje) {
+  const fb = document.getElementById('crear-feedback');
+  const color = tipo === 'ok'
+    ? 'rgba(39,174,96,.15); border-color:rgba(39,174,96,.4); color:#2ecc71;'
+    : 'rgba(192,57,43,.15); border-color:rgba(192,57,43,.4); color:#e74c3c;';
+  fb.innerHTML = `<div style="padding:.65rem 1rem; border-radius:8px; font-size:.83rem;
+                               border:1px solid; background:${color}">${mensaje}</div>`;
+  fb.style.display = 'block';
+}
+
+// ── Guardar solo ─────────────────────────────────────────────────
+async function enviarCrearProducto() {
+  const nombre    = document.getElementById('crear-nombre').value.trim();
+  const categoria = document.getElementById('crear-categoria').value;
+
+  if (!nombre)    { mostrarFeedback('error', 'El nombre del producto es obligatorio.'); return; }
+  if (!categoria) { mostrarFeedback('error', 'Selecciona una categoría.'); return; }
+
+  const btn = document.getElementById('btn-crear-solo');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando…';
+  ocultarFeedback();
+
+  try {
+    const form = document.getElementById('form-nuevo-producto-modal');
+    const resp = await fetch(CREAR_URL, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    const data = await resp.json();
+
+    if (resp.ok && data.ok) {
+      mostrarFeedback('ok', `✓ Producto <strong>${data.nombre}</strong> creado correctamente.`);
+      setTimeout(() => {
+        bootstrap.Modal.getInstance(document.getElementById('modalCrearProducto')).hide();
+        location.reload();
+      }, 1200);
+    } else {
+      const errores = data.errores
+        ? Object.values(data.errores).flat().join(' ')
+        : (data.error || 'Error al crear el producto.');
+      mostrarFeedback('error', errores);
+    }
+  } catch (e) {
+    mostrarFeedback('error', 'Error de conexión. Inténtalo de nuevo.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Guardar Producto';
+  }
+}
+
+// ── Guardar y abrir presentaciones ──────────────────────────────
+async function crearProductoYPresentaciones() {
+  const nombre    = document.getElementById('crear-nombre').value.trim();
+  const categoria = document.getElementById('crear-categoria').value;
+
+  if (!nombre)    { mostrarFeedback('error', 'El nombre del producto es obligatorio.'); return; }
+  if (!categoria) { mostrarFeedback('error', 'Selecciona una categoría.'); return; }
+
+  const btn = document.getElementById('btn-guardar-presentaciones');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando…';
+  ocultarFeedback();
+
+  try {
+    const form = document.getElementById('form-nuevo-producto-modal');
+    const resp = await fetch(CREAR_URL, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    const data = await resp.json();
+
+    if (resp.ok && data.ok) {
+      bootstrap.Modal.getInstance(document.getElementById('modalCrearProducto')).hide();
+      setTimeout(() => abrirModalPresentaciones(data.pk, data.nombre), 400);
+    } else {
+      const errores = data.errores
+        ? Object.values(data.errores).flat().join(' ')
+        : (data.error || 'Error al crear el producto.');
+      mostrarFeedback('error', errores);
+    }
+  } catch (e) {
+    mostrarFeedback('error', 'Error de conexión. Inténtalo de nuevo.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-layers me-1"></i> Guardar y Definir Presentaciones';
+  }
+}
+
+// ════════════════════════════════════════
+// MODAL PRESENTACIONES
+// ════════════════════════════════════════
+function abrirModalPresentaciones(pk, nombre) {
+  document.getElementById('pres-nombre-producto').textContent = nombre;
+
+  const url = PRES_URL.replace('/0/', '/' + pk + '/') + '?next={{ request.path }}';
+  document.getElementById('form-presentaciones-modal').action = url;
+
+  document.getElementById('contenedor-presentaciones-modal').innerHTML = '';
+  document.getElementById('pres-precio-unidad').value   = '';
+  document.getElementById('pres-cantidad-unidad').value = '0';
+
+  new bootstrap.Modal(document.getElementById('modalPresentacionesProducto')).show();
+}
+
+function cerrarModalPresentaciones() {
+  bootstrap.Modal.getInstance(document.getElementById('modalPresentacionesProducto')).hide();
+  location.reload();
+}
+
+function agregarPresentacionModal(nombre='', unidades='', precio='', cantidad='') {
+  const cont = document.getElementById('contenedor-presentaciones-modal');
+  const div  = document.createElement('div');
+  div.className = 'pres-row';
+  div.innerHTML = `
+    <div class="row g-2 align-items-center">
+      <div class="col-md-3">
+        <label class="np-label">Presentación</label>
+        <input type="text" name="nombre[]" value="${nombre}"
+               class="np-input w-100" placeholder="Ej: Six-pack" required>
+      </div>
+      <div class="col-md-2">
+        <label class="np-label">Unidades</label>
+        <input type="number" name="unidades_base[]" value="${unidades}"
+               class="np-input w-100" placeholder="Ej: 6" min="2" required>
+      </div>
+      <div class="col-md-3">
+        <label class="np-label">Cantidad existente</label>
+        <input type="number" name="cantidad[]" value="${cantidad}"
+               class="np-input w-100" placeholder="Stock actual" min="0">
+      </div>
+      <div class="col-md-3">
+        <label class="np-label">Precio (COP)</label>
+        <input type="number" name="precio[]" value="${precio}"
+               class="np-input w-100" placeholder="Ej: 13000" min="0" required>
+      </div>
+      <div class="col-md-1 d-flex align-items-end pb-1 justify-content-center">
+        <button type="button" onclick="this.closest('.pres-row').remove()"
+                style="background:rgba(192,57,43,.15); border:1px solid rgba(192,57,43,.3);
+                       color:#e87070; width:30px; height:30px; border-radius:6px;
+                       display:flex; align-items:center; justify-content:center; cursor:pointer;">
+          <i class="bi bi-trash" style="font-size:.75rem;"></i>
+        </button>
+      </div>
+    </div>`;
+  cont.appendChild(div);
+}
+
+function guardarPresentacionesModal() {
+  document.getElementById('form-presentaciones-modal').submit();
+}
+
+// ════════════════════════════════════════
+// MODAL CATEGORÍA → LISTA PRODUCTOS
+// ════════════════════════════════════════
 function abrirCategoria(categoriaPk, categoriaNombre) {
   document.getElementById('titulo-categoria').textContent = categoriaNombre;
   const filtrados = todoProductos.filter(p => p.categoria_pk == categoriaPk);
@@ -260,16 +645,17 @@ function abrirCategoria(categoriaPk, categoriaNombre) {
             `<span class="badge me-1"
                    style="background:rgba(77,168,218,.15); color:var(--azul-claro);
                           border:1px solid var(--azul-borde); font-size:.65rem; padding:.3rem .5rem;">
-              ${pr.nombre} (${pr.unidades} uds) — ${pr.cantidad} en stock — $${parseInt(pr.precio||0).toLocaleString('es-CO')}
+              ${pr.nombre} (${pr.unidades} uds) — ${pr.cantidad} stock — $${parseInt(pr.precio||0).toLocaleString('es-CO')}
             </span>`).join('')
-        : <span style="color:var(--texto-muted); font-size:.75rem;">Sin definir</span>;
+        : `<span style="color:var(--texto-muted); font-size:.75rem;">Sin definir</span>`;
 
       return `
         <tr style="background:var(--fondo-card2); ${p.stock_critico ? 'border-left:3px solid var(--rojo);' : ''}">
           <td style="font-size:.85rem; color:var(--texto-muted);">${i+1}</td>
           <td style="font-size:.85rem; font-weight:600; color:var(--texto);">${p.nombre}</td>
           <td>
-            <span style="font-size:.85rem; font-weight:600; color:${p.stock_critico ? 'var(--rojo)' : 'var(--azul-claro)'};">
+            <span style="font-size:.85rem; font-weight:600;
+                         color:${p.stock_critico ? 'var(--rojo)' : 'var(--azul-claro)'};">
               ${p.cantidad} uds
             </span>
           </td>
@@ -277,10 +663,10 @@ function abrirCategoria(categoriaPk, categoriaNombre) {
           <td style="font-size:.85rem; color:var(--texto-muted);">${p.ultima_entrada}</td>
           <td style="display:flex; gap:.4rem; align-items:center;">
             <button class="cys-btn-sm cys-btn-sm--primary" title="Ver detalle"
-                    onclick="cerrarYDetalle(${p.pk},\${p.nombre}\,\${p.codigo}\,\${p.categoria_nombre}\,${p.cantidad},\${p.descripcion}\)">
+                    onclick="cerrarYDetalle(${p.pk},'${p.nombre}','${p.codigo}','${p.categoria_nombre}',${p.cantidad},'${p.descripcion}')">
               <i class="bi bi-eye"></i>
             </button>
-            <button class="cys-btn-sm cys-btn-sm--warning" title="Ir a gestión de productos"
+            <button class="cys-btn-sm cys-btn-sm--warning" title="Ir a gestión"
                     onclick="mostrarModalGestion()">
               <i class="bi bi-arrow-right-circle"></i>
             </button>
@@ -291,6 +677,9 @@ function abrirCategoria(categoriaPk, categoriaNombre) {
   new bootstrap.Modal(document.getElementById('modalProductosCategoria')).show();
 }
 
+// ════════════════════════════════════════
+// MODAL CONFIRMAR GESTIÓN
+// ════════════════════════════════════════
 function mostrarModalGestion() {
   const m = bootstrap.Modal.getInstance(document.getElementById('modalProductosCategoria'));
   if (m) m.hide();
@@ -311,6 +700,9 @@ document.getElementById('modalConfirmGestion').addEventListener('click', functio
   if (e.target === this) cerrarModalGestion();
 });
 
+// ════════════════════════════════════════
+// MODAL DETALLE PRODUCTO
+// ════════════════════════════════════════
 function cerrarYDetalle(pk, nombre, codigo, categoria, cantidad, descripcion) {
   const m = bootstrap.Modal.getInstance(document.getElementById('modalProductosCategoria'));
   if (m) m.hide();
@@ -335,10 +727,12 @@ function abrirDetalle(pk, nombre, codigo, categoria, cantidad, descripcion) {
           ${pr.nombre} <span style="color:var(--texto-muted);">(${pr.unidades} uds)</span>
           — <span style="color:var(--texto-muted);">Stock: ${pr.cantidad}</span>
         </span>
-        <span style="color:var(--azul-claro); font-weight:600;">$${parseInt(pr.precio||0).toLocaleString('es-CO')}</span>
+        <span style="color:var(--azul-claro); font-weight:600;">
+          $${parseInt(pr.precio||0).toLocaleString('es-CO')}
+        </span>
       </div>`).join('');
   } else {
-    contPres.innerHTML = <span style="color:var(--texto-muted); font-size:.8rem;">Sin presentaciones definidas.</span>;
+    contPres.innerHTML = `<span style="color:var(--texto-muted); font-size:.8rem;">Sin presentaciones definidas.</span>`;
   }
 
   new bootstrap.Modal(document.getElementById('modalDetalleProducto')).show();

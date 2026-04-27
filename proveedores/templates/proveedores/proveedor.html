@@ -19,11 +19,8 @@
   {% endfor %}
 {% endif %}
 
-<<<<<<< Updated upstream
-=======
 <link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
->>>>>>> Stashed changes
 <div class="container-fluid p-0">
 
   <!-- ── MÉTRICAS ─────────────────────────────────────────── -->
@@ -355,73 +352,6 @@
     </div>
   </div>
 </div>
-<<<<<<< Updated upstream
-
-
-<!-- ════════════════════════════════════════════════
-     MODAL: SANCIONAR
-═══════════════════════════════════════════════════ -->
-<div class="modal fade" id="sancionModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered" style="max-width:460px;">
-    <div class="modal-content border-0 shadow-lg"
-         style="background:#0f1a2e; border:1px solid rgba(248,113,113,.3) !important; border-radius:14px;">
-      <div class="modal-header border-0" style="padding:1.4rem 1.6rem 1rem;">
-        <div style="display:flex; align-items:center; gap:.75rem;">
-          <div style="width:36px; height:36px; border-radius:10px;
-                      background:rgba(248,113,113,.12); border:1px solid rgba(248,113,113,.3);
-                      display:flex; align-items:center; justify-content:center;
-                      color:#f87171; font-size:1rem; flex-shrink:0;">
-            <i class="bi bi-shield-exclamation"></i>
-          </div>
-          <span style="font-family:'Rajdhani',sans-serif; font-weight:700;
-                       font-size:1rem; letter-spacing:.1em; text-transform:uppercase; color:#e2e8f0;">
-            Sancionar Proveedor
-          </span>
-        </div>
-        <button type="button" class="btn-close btn-close-white"
-                data-bs-dismiss="modal" style="margin-left:auto;"></button>
-      </div>
-      <div class="modal-body px-4 pt-0 pb-3">
-        <div style="height:1px; background:rgba(226,232,240,.07); margin-bottom:1rem;"></div>
-        <p style="color:#cbd5e1; font-size:.9rem; margin:0 0 1rem; line-height:1.6;">
-          Vas a sancionar a <strong id="nombreSancion" style="color:#f87171;"></strong>.
-          Opcionalmente indica el motivo:
-        </p>
-        <textarea id="motivoSancion" rows="3"
-                  placeholder="Ej: Incumplimiento en entregas, precios incorrectos..."
-                  style="width:100%; background:#0b1220; border:1px solid rgba(248,113,113,.25);
-                         color:#e2e8f0; border-radius:9px; padding:10px 14px; font-size:.83rem;
-                         outline:none; resize:vertical; font-family:inherit; box-sizing:border-box;
-                         transition:border-color .2s;"
-                  onfocus="this.style.borderColor='#f87171'"
-                  onblur="this.style.borderColor='rgba(248,113,113,.25)'"></textarea>
-        <p style="color:rgba(226,232,240,.3); font-size:.78rem; margin-top:.5rem;">
-          El proveedor quedará marcado como sancionado y aparecerá en el contador.
-        </p>
-      </div>
-      <div class="modal-footer border-0 px-4 pb-4 pt-2 d-flex gap-3">
-        <button type="button" class="pv-del-cancel" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" onclick="confirmarSancion()"
-                style="flex:1; padding:.75rem; border-radius:10px; cursor:pointer;
-                       background:linear-gradient(135deg,#b91c1c,#ef4444); border:none;
-                       color:#fff; font-family:'Rajdhani',sans-serif; font-weight:700;
-                       font-size:.9rem; letter-spacing:.08em; text-transform:uppercase;
-                       display:flex; align-items:center; justify-content:center; gap:.5rem;
-                       box-shadow:0 4px 14px rgba(239,68,68,.35);"
-                onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-          <i class="bi bi-shield-fill-exclamation"></i> Confirmar sanción
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ════════════════════════════════════════════════
-     MODAL: NUEVO PROVEEDOR
-═══════════════════════════════════════════════════ -->
-=======
->>>>>>> Stashed changes
 <div class="modal fade" id="nuevoModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg"

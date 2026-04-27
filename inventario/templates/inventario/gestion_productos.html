@@ -83,7 +83,7 @@
 
   .gp-tabs {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr); /* era 5, ahora 4 */
     gap: .5rem;
     margin-bottom: 1.5rem;
   }
@@ -304,7 +304,6 @@
     border-top:1px solid rgba(77,168,218,.1);
   }
 
-  /* Filas de detalle */
   .gp-det-row { display:flex; flex-direction:column; gap:.15rem; }
   .gp-det-label {
     font-size:.62rem; font-weight:700; color:var(--gp-muted);
@@ -362,13 +361,12 @@
     <button class="gp-tab" onclick="showTab('categorias', this)">
       <i class="bi bi-tags"></i> Categorías
     </button>
-    <button class="gp-tab" onclick="showTab('nuevo', this)">
-      <i class="bi bi-plus-circle"></i> Nuevo Producto
-    </button>
+    <!-- Tab Nuevo Producto eliminado -->
     <button class="gp-tab" onclick="showTab('lotes', this)">
       <i class="bi bi-upc-scan"></i> Registrar Lote
     </button>
   </div>
+
 
   <!-- ════════════════════════════════════════
        TAB 1: CATÁLOGO
@@ -729,80 +727,44 @@
   <!-- /TAB CATEGORÍAS -->
 
 
+  <!-- TAB 4: NUEVO PRODUCTO — ELIMINADO (se gestiona desde Productos) -->
+
+
   <!-- ════════════════════════════════════════
-       TAB 4: NUEVO PRODUCTO
+       TAB 5: REGISTRAR LOTE
   ═════════════════════════════════════════ -->
-  <div id="tab-nuevo" class="gp-section">
+  <div id="tab-lotes" class="gp-section">
     <div class="gp-card">
-      <div class="gp-card__title"><i class="bi bi-plus-circle"></i> Registrar Nuevo Producto</div>
-      <form id="form-nuevo-producto" method="POST" action="{% url 'inventario:gestion_productos' %}">
+      <div class="gp-card__title">
+        <i class="bi bi-upc-scan"></i> Registrar Lote
+      </div>
+      <form method="POST" action="{% url 'inventario:registrar_lote' %}">
         {% csrf_token %}
-        <input type="hidden" name="accion" value="crear_producto">
         <div class="gp-form-grid">
-          {% for field in form %}
-          <div {% if forloop.last %}class="gp-full"{% endif %}>
-            <label class="gp-label">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-              <div style="color:var(--gp-danger); font-size:.75rem; margin-top:.3rem;">
-                {{ field.errors|join:", " }}
-              </div>
-            {% endif %}
+          <div>
+            <label class="gp-label">Número de Lote</label>
+            <input type="text" name="numero_lote" class="gp-input"
+                   placeholder="Ej: LOT-2025-001" required>
           </div>
-          {% endfor %}
-          <div class="gp-full d-flex gap-3">
-            <button type="button" class="gp-btn gp-btn--outline" style="flex:1;"
-                    id="btnDefinirPresentaciones"
-                    onclick="guardarYDefinirPresentaciones()">
-              <i class="bi bi-layers me-1"></i> Guardar y Definir Presentaciones
-            </button>
-            <button type="submit" class="gp-btn gp-btn--primary" style="flex:1;">
-              <i class="bi bi-save"></i> Guardar Producto
+          <div>
+            <label class="gp-label">Producto</label>
+            <select name="producto" class="gp-input" required>
+              <option value="">— Selecciona un producto —</option>
+              {% for p in productos %}
+                <option value="{{ p.pk }}">{{ p.nombre }} ({{ p.codigo }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="gp-full">
+            <button type="submit" class="gp-btn gp-btn--primary w-100">
+              <i class="bi bi-save"></i> Guardar Lote
             </button>
           </div>
         </div>
       </form>
     </div>
   </div>
-  <!-- TAB 5: REGISTRAR LOTE -->
-<div id="tab-lotes" class="gp-section">
-  <div class="gp-card">
-    <div class="gp-card__title">
-      <i class="bi bi-upc-scan"></i> Registrar Lote
-    </div>
-    <form method="POST" action="{% url 'inventario:registrar_lote' %}">
-      {% csrf_token %}
-      <div class="gp-form-grid">
-
-        <!-- SCRUM-96: Ingresar número de lote -->
-        <div>
-          <label class="gp-label">Número de Lote</label>
-          <input type="text" name="numero_lote" class="gp-input"
-                 placeholder="Ej: LOT-2025-001" required>
-        </div>
-
-        <!-- SCRUM-99: Asociar al producto -->
-        <div>
-          <label class="gp-label">Producto</label>
-          <select name="producto" class="gp-input" required>
-            <option value="">— Selecciona un producto —</option>
-            {% for p in productos %}
-              <option value="{{ p.pk }}">{{ p.nombre }} ({{ p.codigo }})</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <!-- SCRUM-102: Botón guardar -->
-        <div class="gp-full">
-          <button type="submit" class="gp-btn gp-btn--primary w-100">
-            <i class="bi bi-save"></i> Guardar Lote
-          </button>
-        </div>
-
-      </div>
-    </form>
-  </div>
-</div>
+  <!-- /TAB LOTES -->
 
 </div><!-- /container-fluid -->
 
@@ -850,7 +812,8 @@
           <span class="gp-det-label">Descripción</span>
           <span id="gp-det-descripcion" style="font-size:.85rem; color:var(--gp-muted); line-height:1.55;"></span>
         </div>
-         <div class="gp-det-row">
+
+        <div class="gp-det-row">
           <span class="gp-det-label"><i class="bi bi-upc-scan me-1"></i>Lotes registrados</span>
           <div id="gp-det-lotes" style="margin-top:.35rem;"></div>
         </div>
@@ -1063,7 +1026,9 @@
      JAVASCRIPT
 ═════════════════════════════════════════ -->
 <script>
-// REEMPLAZA el array todoProductosGP por este:
+// ── URL del endpoint de creación (app producto) ──────────────────
+const URL_CREAR_PRODUCTO = "{% url 'producto:crear_producto' %}";
+
 const todoProductosGP = [
   {% for p in productos %}
   {
@@ -1182,7 +1147,7 @@ function abrirDetalleProducto(pk, nombre, codigo, categoria, precio, stock, unid
 
   document.getElementById('gp-det-descripcion').textContent = descripcion || 'Sin descripción.';
 
-  // ── Lotes ──
+  // Lotes
   const producto = todoProductosGP.find(p => p.pk == pk);
   const lotesEl  = document.getElementById('gp-det-lotes');
   if (producto && producto.lotes.length > 0) {
@@ -1307,44 +1272,6 @@ function guardarPresentaciones() {
   document.getElementById('form-presentaciones').submit();
 }
 
-// ── GUARDAR Y DEFINIR PRESENTACIONES (nuevo) ──────
-function guardarYDefinirPresentaciones() {
-  const form   = document.getElementById('form-nuevo-producto');
-  const nombre = form.querySelector('[name="nombre"]').value.trim();
-  const codigo = form.querySelector('[name="codigo"]').value.trim();
-
-  if (!nombre || !codigo) {
-    alert('Completa al menos Nombre y Código antes de continuar.');
-    return;
-  }
-
-  const btn = document.getElementById('btnDefinirPresentaciones');
-  btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> Guardando...';
-  btn.disabled  = true;
-
-  fetch("{% url 'inventario:gestion_productos' %}", {
-    method:  'POST',
-    body:    new FormData(form),
-    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-  })
-  .then(res => { if (!res.ok) throw new Error(); return res.json(); })
-  .then(data => {
-    if (data.ok) {
-      form.reset();
-      setTimeout(() => abrirPresentaciones(data.pk, data.nombre), 200);
-    } else {
-      alert(data.error || 'Error al guardar el producto.');
-    }
-    btn.innerHTML = '<i class="bi bi-layers me-1"></i> Guardar y Definir Presentaciones';
-    btn.disabled  = false;
-  })
-  .catch(() => {
-    alert('Error de conexión. Intenta de nuevo.');
-    btn.innerHTML = '<i class="bi bi-layers me-1"></i> Guardar y Definir Presentaciones';
-    btn.disabled  = false;
-  });
-}
-
 // ── MODAL: EDITAR CATEGORÍA ───────────────────────
 function abrirEditarCategoria(pk, nombre, codigo, descripcion, padrePk) {
   document.getElementById('ec-nombre').value      = nombre;
@@ -1357,11 +1284,6 @@ function abrirEditarCategoria(pk, nombre, codigo, descripcion, padrePk) {
 
   document.getElementById('modalEditarCategoria').classList.add('open');
 }
-
-// ── Auto-abrir tab nuevo si hay errores ───────────
-{% if form.errors %}
-  document.querySelector('.gp-tab:nth-child(4)').click();
-{% endif %}
 </script>
 
 {% endblock %}

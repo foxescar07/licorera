@@ -7,7 +7,6 @@ from django.db.models import Prefetch
 
 from producto.models import Producto, AgendaInventario, Categoria, Inventario, PresentacionProducto
 
-from .models import ConteoProducto, SesionConteo, ResultadoInventario
 from .models import ConteoProducto, SesionConteo, ResultadoInventario, Lote
 
 
@@ -16,7 +15,7 @@ from .models import ConteoProducto, SesionConteo, ResultadoInventario, Lote
 # ===============================
 def inventario_home(request):
     agendas = AgendaInventario.objects.filter(estado__in=['pendiente', 'en_proceso']).order_by('fecha_programada')
-    sesion = SesionConteo.objects.order_by('-fecha_inicio').first()
+    sesion  = SesionConteo.objects.order_by('-fecha_inicio').first()
 
     categoria_id = request.GET.get('categoria')
     if categoria_id:
@@ -157,9 +156,11 @@ def guardar_codigo_barras(request, pk):
 
 # ══════════════════════════════════════════════════════
 # GESTIÓN DE PRODUCTOS
+# La creación de productos se delega a producto:crear_producto.
+# Esta vista solo renderiza la página y provee el contexto.
 # ══════════════════════════════════════════════════════
 def gestion_productos(request):
-    productos_qs = Producto.objects.select_related('categoria').prefetch_related('presentaciones').all()
+    productos_qs = Producto.objects.select_related('categoria').prefetch_related('presentaciones', 'lotes').all()
 
     categorias = Categoria.objects.filter(padre__isnull=True).prefetch_related(
         Prefetch(
@@ -182,21 +183,6 @@ def gestion_productos(request):
 
     from producto.forms import ProductoRegistroForm
     form = ProductoRegistroForm()
-
-    if request.method == 'POST' and request.POST.get('accion') == 'crear_producto':
-        form = ProductoRegistroForm(request.POST)
-        if form.is_valid():
-            p = form.save(commit=False)
-            p.cantidad_disponible = 0
-            p.save()
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'ok': True, 'pk': p.pk, 'nombre': p.nombre})
-            messages.success(request, f'✅ Producto "{p.nombre}" registrado.')
-            return redirect('inventario:gestion_productos')
-        else:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'ok': False, 'error': 'Revisa los campos del formulario.'})
-            messages.error(request, '⚠️ Revisa los campos del formulario.')
 
     return render(request, 'inventario/gestion_productos.html', {
         'productos':      productos_qs,
@@ -359,12 +345,14 @@ def gestion_categoria_eliminar(request, pk):
     return redirect('inventario:gestion_productos')
 
 
+# ══════════════════════════════════════════════════════
+# LOTES
+# ══════════════════════════════════════════════════════
 def registrar_lote(request):
     if request.method == 'POST':
         numero_lote = request.POST.get('numero_lote', '').strip()
         producto_id = request.POST.get('producto')
 
-        # Validaciones
         if not numero_lote:
             messages.error(request, '⚠️ El número de lote es obligatorio.')
             return redirect('inventario:gestion_productos')
@@ -379,14 +367,12 @@ def registrar_lote(request):
 
         producto = get_object_or_404(Producto, pk=producto_id)
 
-        # SCRUM-102: Guarda el registro
         Lote.objects.create(
             numero_lote=numero_lote,
             producto=producto,
             registrado_por=request.user if request.user.is_authenticated else None
         )
 
-        # SCRUM-104: redirige a confirmación
         messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}".')
         return redirect('inventario:gestion_productos')
 
