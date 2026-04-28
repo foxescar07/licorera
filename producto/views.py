@@ -42,25 +42,11 @@ def producto_lista(request):
     return render(request, "producto.html", context)
 
 
-# ===============================
-# CREAR PRODUCTO
-# Endpoint centralizado — lo usan:
-#   · inventario/gestion_productos.html (form + fetch AJAX)
-#   · producto_registro.html (si se mantiene)
-# ===============================
 def crear_producto(request):
-    """
-    POST único para registrar un producto nuevo.
-    Acepta AJAX (X-Requested-With: XMLHttpRequest) → devuelve JSON.
-    Acepta POST normal                              → redirect con mensaje.
-
-    El parámetro ?next=<url> define a dónde redirigir tras éxito (POST normal).
-    Si no se indica, redirige a inventario:gestion_productos.
-    """
     if request.method != 'POST':
         return redirect('inventario:gestion_productos')
 
-    form    = ProductoRegistroForm(request.POST)
+    form = ProductoRegistroForm(request.POST)
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     next_url = request.POST.get('next') or request.GET.get('next') or 'inventario:gestion_productos'
 
@@ -116,18 +102,27 @@ def presentaciones_guardar(request, pk):
 
         try:
             with transaction.atomic():
-                producto.presentaciones.all().delete()
+                nuevas = []
+
                 for n, u, p, c in zip(nombres, unidades, precios, cantidades):
                     n = n.strip()
-                    if n and u and p:
-                        PresentacionProducto.objects.create(
-                            producto=producto,
-                            nombre=n,
-                            unidades=int(u),
-                            precio=p,
-                            cantidad=int(c) if c else 0
-                        )
+                    if not (n and u and p):
+                        continue  # fila vacía, ignorar
+
+                    nuevas.append(dict(
+                        nombre=n,
+                        unidades=int(u),
+                        precio=p,
+                        cantidad=int(c) if c else 0,
+                    ))
+
+                producto.presentaciones.all().delete()
+
+                for datos in nuevas:
+                    PresentacionProducto.objects.create(producto=producto, **datos)
+
             messages.success(request, f"✅ Presentaciones de {producto.nombre} guardadas.")
+
         except Exception as e:
             messages.error(request, f"❌ Error al guardar presentaciones: {e}")
 
@@ -141,12 +136,6 @@ def presentaciones_json(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     data     = list(producto.presentaciones.values("id", "nombre", "unidades", "precio", "cantidad"))
     return JsonResponse({"presentaciones": data, "producto": producto.nombre})
-
-
-# ---------------------------------------------------------------
-# producto_ingreso fue ELIMINADO.
-# El ingreso de stock se maneja desde proveedores → registrar_compra
-# ---------------------------------------------------------------
 
 
 # ===============================

@@ -66,11 +66,10 @@ class PresentacionProducto(models.Model):
         verbose_name        = "Presentación de Producto"
         verbose_name_plural = "Presentaciones de Producto"
         ordering            = ["unidades"]
-        unique_together     = ('producto', 'unidades')
+        # ← Se elimina unique_together = ('producto', 'unidades')
 
-    def _str_(self):
+    def __str__(self):
         return f"{self.producto.nombre} — {self.nombre} ({self.unidades} uds)"
-
 
 class Inventario(models.Model):
     TIPO_CHOICES = [

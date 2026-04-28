@@ -27,8 +27,6 @@
       70%  { box-shadow: 0 0 0 10px rgba(192,57,43,0); }
       100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
     }
-
-    /* ── Presentaciones modal (copiado de gestion_productos) ── */
     .pres-row {
       background: var(--fondo-card2);
       border: 1px solid var(--azul-borde);
@@ -85,8 +83,6 @@
 
 <!-- ══════════════════════════════════════════════
      MODAL: Crear Nuevo Producto (AJAX)
-     POST → producto:crear_producto
-     Abre automáticamente modal de Presentaciones
 ══════════════════════════════════════════════ -->
 <div class="modal fade" id="modalCrearProducto" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -109,56 +105,62 @@
           {% csrf_token %}
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 
-            <!-- Nombre -->
             <div>
               <label class="np-label">Nombre <span style="color:var(--rojo);">*</span></label>
               <input type="text" name="nombre" id="crear-nombre" class="np-input w-100"
                      placeholder="Ej: Cerveza Club Colombia">
             </div>
 
-            <!-- Código -->
             <div>
               <label class="np-label">Código</label>
               <input type="text" name="codigo" id="crear-codigo" class="np-input w-100"
                      placeholder="Ej: CRV-001" maxlength="50">
             </div>
 
-            <!-- Categoría -->
             <div>
               <label class="np-label">Categoría <span style="color:var(--rojo);">*</span></label>
               <select name="categoria" id="crear-categoria" class="np-input w-100">
                 <option value="">— Seleccionar —</option>
-                {% for cat in categorias %}
+                {% for cat in resumen_categorias %}
                   <option value="{{ cat.pk }}">{{ cat.nombre }}</option>
                 {% endfor %}
               </select>
             </div>
 
-            <!-- Precio unitario -->
             <div>
               <label class="np-label">Precio Unitario (COP)</label>
               <input type="number" name="precio_unitario" id="crear-precio" class="np-input w-100"
                      placeholder="Ej: 2500" min="0" step="0.01">
             </div>
 
-            <!-- Descripción -->
+            <div>
+              <label class="np-label">Cantidad inicial en stock</label>
+              <input type="number" name="cantidad_disponible" id="crear-cantidad" class="np-input w-100"
+                     placeholder="Ej: 100" min="0" value="0">
+            </div>
+
             <div style="grid-column: 1 / -1;">
               <label class="np-label">Descripción (opcional)</label>
               <textarea name="descripcion" id="crear-descripcion" class="np-input w-100"
                         rows="2" placeholder="Descripción breve…"></textarea>
             </div>
 
+            <!-- Botón definir presentaciones centrado -->
+            <div style="grid-column: 1 / -1; display:flex; justify-content:center; margin-top:.25rem;">
+              <button type="button" class="cys-btn cys-btn--outline" id="btn-guardar-presentaciones"
+                      onclick="crearProductoYPresentaciones()">
+                <i class="bi bi-layers me-1"></i> Definir Presentaciones
+              </button>
+            </div>
+
           </div>
         </form>
       </div>
 
-      <div class="modal-footer border-0 pt-0 px-4 pb-4 gap-2">
+      <!-- Footer: Cancelar izquierda | Guardar Producto derecha -->
+      <div class="modal-footer border-0 pt-0 px-4 pb-4 justify-content-between">
         <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">
           Cancelar
-        </button>
-        <button type="button" class="cys-btn cys-btn--outline" id="btn-guardar-presentaciones"
-                onclick="crearProductoYPresentaciones()">
-          <i class="bi bi-layers me-1"></i> Guardar y Definir Presentaciones
         </button>
         <button type="button" class="cys-btn cys-btn--primary" id="btn-crear-solo"
                 onclick="enviarCrearProducto()">
@@ -192,22 +194,23 @@
         {% csrf_token %}
         <div class="modal-body p-4">
           <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:1rem; line-height:1.6;">
-            Define las presentaciones del producto. La
-            <strong style="color:var(--azul-claro);">Unidad</strong> es siempre la base.
+            Define las presentaciones del producto. La primera fila es la
+            <strong style="color:var(--azul-claro);">presentación base</strong> —
+            puedes editar su nombre, unidades y cantidad libremente.
           </div>
 
-          <!-- Fila base: Unidad -->
+          <!-- Fila base: completamente editable -->
           <div class="pres-row mb-2">
             <div class="row g-2 align-items-center">
               <div class="col-md-3">
                 <label class="np-label">Presentación</label>
-                <input type="text" name="nombre[]" value="Unidad"
-                       class="np-input w-100" readonly style="opacity:.6;">
+                <input type="text" name="nombre[]" id="pres-nombre-unidad" value="Unidad"
+                       class="np-input w-100" placeholder="Ej: Lata, Botella, Caja…">
               </div>
               <div class="col-md-2">
                 <label class="np-label">Unidades</label>
-                <input type="number" name="unidades_base[]" value="1"
-                       class="np-input w-100" readonly style="opacity:.6;">
+                <input type="number" name="unidades_base[]" id="pres-unidades-unidad" value="1"
+                       class="np-input w-100" min="1">
               </div>
               <div class="col-md-3">
                 <label class="np-label">Cantidad existente</label>
@@ -225,7 +228,6 @@
             </div>
           </div>
 
-          <!-- Presentaciones adicionales -->
           <div id="contenedor-presentaciones-modal"></div>
 
           <button type="button"
@@ -239,7 +241,7 @@
           </button>
         </div>
 
-        <div class="modal-footer border-0 px-4 pb-4 gap-2">
+        <div class="modal-footer border-0 px-4 pb-4 justify-content-between">
           <button type="button" class="cys-btn cys-btn--outline"
                   onclick="cerrarModalPresentaciones()">
             Cancelar
@@ -423,7 +425,6 @@ const CREAR_URL   = "{% url 'producto:crear_producto' %}";
 const PRES_URL    = "{% url 'producto:presentaciones_guardar' 0 %}";
 const CSRF_TOKEN  = "{{ csrf_token }}";
 
-// ── Datos productos ──────────────────────────────────────────────
 const todoProductos = [
   {% for producto in productos %}
   {
@@ -459,6 +460,7 @@ function abrirModalCrear() {
   document.getElementById('crear-codigo').value      = '';
   document.getElementById('crear-categoria').value   = '';
   document.getElementById('crear-precio').value      = '';
+  document.getElementById('crear-cantidad').value    = '0';
   document.getElementById('crear-descripcion').value = '';
   ocultarFeedback();
   new bootstrap.Modal(document.getElementById('modalCrearProducto')).show();
@@ -480,7 +482,6 @@ function mostrarFeedback(tipo, mensaje) {
   fb.style.display = 'block';
 }
 
-// ── Guardar solo ─────────────────────────────────────────────────
 async function enviarCrearProducto() {
   const nombre    = document.getElementById('crear-nombre').value.trim();
   const categoria = document.getElementById('crear-categoria').value;
@@ -522,7 +523,6 @@ async function enviarCrearProducto() {
   }
 }
 
-// ── Guardar y abrir presentaciones ──────────────────────────────
 async function crearProductoYPresentaciones() {
   const nombre    = document.getElementById('crear-nombre').value.trim();
   const categoria = document.getElementById('crear-categoria').value;
@@ -557,7 +557,7 @@ async function crearProductoYPresentaciones() {
     mostrarFeedback('error', 'Error de conexión. Inténtalo de nuevo.');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-layers me-1"></i> Guardar y Definir Presentaciones';
+    btn.innerHTML = '<i class="bi bi-layers me-1"></i> Definir Presentaciones';
   }
 }
 
@@ -565,14 +565,15 @@ async function crearProductoYPresentaciones() {
 // MODAL PRESENTACIONES
 // ════════════════════════════════════════
 function abrirModalPresentaciones(pk, nombre) {
-  document.getElementById('pres-nombre-producto').textContent = nombre;
+  document.getElementById('pres-nombre-producto').textContent  = nombre;
+  document.getElementById('pres-nombre-unidad').value          = 'Unidad';
+  document.getElementById('pres-unidades-unidad').value        = '1';
+  document.getElementById('pres-precio-unidad').value          = '';
+  document.getElementById('pres-cantidad-unidad').value        = '0';
 
   const url = PRES_URL.replace('/0/', '/' + pk + '/') + '?next={{ request.path }}';
   document.getElementById('form-presentaciones-modal').action = url;
-
   document.getElementById('contenedor-presentaciones-modal').innerHTML = '';
-  document.getElementById('pres-precio-unidad').value   = '';
-  document.getElementById('pres-cantidad-unidad').value = '0';
 
   new bootstrap.Modal(document.getElementById('modalPresentacionesProducto')).show();
 }
@@ -596,7 +597,7 @@ function agregarPresentacionModal(nombre='', unidades='', precio='', cantidad=''
       <div class="col-md-2">
         <label class="np-label">Unidades</label>
         <input type="number" name="unidades_base[]" value="${unidades}"
-               class="np-input w-100" placeholder="Ej: 6" min="2" required>
+               class="np-input w-100" placeholder="Ej: 6" min="1" required>
       </div>
       <div class="col-md-3">
         <label class="np-label">Cantidad existente</label>
