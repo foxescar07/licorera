@@ -112,3 +112,6 @@ class AgendaInventario(models.Model):
 
     def _str_(self):
         return f"{self.titulo} — {self.fecha_programada:%d/%m/%Y %H:%M}"
+    
+    
+    

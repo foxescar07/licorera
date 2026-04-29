@@ -195,6 +195,23 @@
               </div>
             </div>
 
+          <!-- LOTE -->
+        <div class="mb-4">
+      <label class="field-label">
+    <i class="bi bi-upc-scan me-1"></i> Lote
+    <span style="color:#475569; font-weight:400; text-transform:none; 
+                 font-size:0.72rem; margin-left:4px;">(opcional)</span>
+    </label>
+    <select name="lote_id" id="selectLote" class="input-cyber">
+    <option value="">— Sin lote —</option>
+    {% for lote in lotes %}
+      <option value="{{ lote.pk }}">
+        {{ lote.numero_lote }} — {{ lote.producto.nombre }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+
             <!-- CANTIDAD -->
             <div class="mb-4">
               <label class="field-label" for="inputCantidad"><i class="bi bi-hash me-1"></i> Cantidad</label>
@@ -297,6 +314,30 @@
                   {{ compra.fecha_registro|date:"d/m/Y H:i" }}
                 </td>
 
+             <td style="text-align:center;">
+               <button type="button"
+        onclick="abrirDetalle(
+          '{{ compra.id }}',
+          '{{ compra.producto.nombre|escapejs }}',
+          '{{ compra.producto.categoria.nombre|escapejs }}',
+          {{ compra.cantidad }},
+          {% if compra.precio_unitario %}'{{ compra.precio_unitario }}'{% else %}null{% endif %},
+          {% if compra.precio_unitario %}'{{ compra.total }}'{% else %}null{% endif %},
+          '{{ compra.fecha_registro|date:"d/m/Y H:i" }}',
+          '{{ proveedor.nombre_empresa|escapejs }}',
+          '{{ proveedor.nombre_contacto|escapejs }}',
+          '{{ proveedor.telefono|escapejs }}',
+          '{% if compra.lote %}{{ compra.lote.numero_lote|escapejs }}{% endif %}'
+        )"
+        style="background:rgba(77,168,218,0.08); border:1px solid rgba(77,168,218,0.2);
+               color:#4DA8DA; border-radius:7px; padding:5px 10px;
+               font-size:0.73rem; cursor:pointer; transition:.15s; white-space:nowrap;"
+        onmouseover="this.style.background='rgba(77,168,218,0.18)'"
+        onmouseout="this.style.background='rgba(77,168,218,0.08)'">
+  <i class="bi bi-eye me-1"></i>Ver
+</button>  
+</td>           
+</tr>
                 <td style="text-align:center;">
                   <button type="button"
                           onclick="abrirDetalle(
@@ -396,6 +437,12 @@
           <span id="m-cantidad" class="pill" style="background:rgba(77,168,218,0.1); color:#4DA8DA; border:1px solid rgba(77,168,218,0.2);"></span>
         </div>
         <div>
+      <div class="modal-field-label">Lote</div>
+          <span id="m-lote" class="pill" style="background:rgba(251,191,36,0.1); color:#fbbf24;
+               border:1px solid rgba(251,191,36,0.2); font-size:0.78rem;">
+          </span>
+      </div>
+        <div>
           <div class="modal-field-label">Precio unitario</div>
           <div id="m-precio" style="font-size:0.86rem; font-weight:600; color:#94a3b8;"></div>
         </div>
@@ -467,7 +514,7 @@ function renderizarPrecios() {
 }
 
 // ── Modal detalle ──────────────────────────────────────────────
-function abrirDetalle(id, producto, categoria, cantidad, precio, total, fecha, empresa, contacto, telefono) {
+function abrirDetalle(id, producto, categoria, cantidad, precio, total, fecha, empresa, contacto, telefono, lote) {
   document.getElementById('m-id').textContent        = '#' + String(id).padStart(4, '0');
   document.getElementById('m-producto').textContent  = producto;
   document.getElementById('m-categoria').textContent = categoria;
@@ -478,6 +525,21 @@ function abrirDetalle(id, producto, categoria, cantidad, precio, total, fecha, e
   document.getElementById('m-contacto').textContent  = contacto;
   document.getElementById('m-telefono').textContent  = telefono;
 
+  // ── Lote ──────────────────────────────────────────
+  const loteEl = document.getElementById('m-lote');
+  if (lote) {
+    loteEl.textContent      = lote;
+    loteEl.style.background = 'rgba(251,191,36,0.1)';
+    loteEl.style.color      = '#fbbf24';
+    loteEl.style.border     = '1px solid rgba(251,191,36,0.2)';
+  } else {
+    loteEl.textContent      = 'Sin lote asignado';
+    loteEl.style.background = 'rgba(100,116,139,0.1)';
+    loteEl.style.color      = '#475569';
+    loteEl.style.border     = '1px solid rgba(100,116,139,0.2)';
+  }
+
+  // ── Total ──────────────────────────────────────────
   const totalBox = document.getElementById('m-total-box');
   const totalEl  = document.getElementById('m-total');
   if (total) {
@@ -496,12 +558,13 @@ function abrirDetalle(id, producto, categoria, cantidad, precio, total, fecha, e
   document.body.style.overflow = 'hidden';
 }
 
+  document.getElementById('modalOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
 function cerrarDetalle() {
   document.getElementById('modalOverlay').style.display = 'none';
   document.body.style.overflow = '';
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarDetalle(); });
-
 // ── Datos productos ────────────────────────────────────────────
 const productosCompra = [
   {% for p in productos %}

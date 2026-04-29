@@ -70,7 +70,7 @@
       {% for cat in categorias %}
         {% if cat %}
         <div class="gp-group" data-group>
-          <div class="gp-group-header open" onclick="gpToggle(this)">
+            <div class="gp-group-header" onclick="gpToggle(this)">
             <i class="bi bi-tag-fill" style="color:var(--gp-blue);"></i>
             <span class="gp-group-title">{{ cat.nombre }}</span>
             <span class="gp-group-count">
@@ -78,7 +78,7 @@
             </span>
             <i class="bi bi-chevron-down gp-group-chevron"></i>
           </div>
-          <div class="gp-group-body open">
+          <div class="gp-group-body">
 
             <!-- ── Encabezado columnas ── -->
             <div class="gp-col-header">

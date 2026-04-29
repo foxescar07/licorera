@@ -107,3 +107,12 @@ class Compra(models.Model):
 
     def __str__(self):
         return f"{self.proveedor.nombre_empresa} → {self.producto.nombre} ({self.cantidad} uds)"
+    
+    class Compra(models.Model):
+        proveedor       = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='compras')
+    producto        = models.ForeignKey('producto.Producto', on_delete=models.CASCADE, related_name='compras')
+    lote            = models.ForeignKey( 'inventario.Lote' , on_delete=models.SET_NULL, null=True, blank=True, related_name='compras')  # ← NUEVO
+    cantidad        = models.IntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    fecha_registro  = models.DateTimeField(auto_now_add=True)
+    recibida        = models.BooleanField(default=False)
