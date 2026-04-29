@@ -3,216 +3,8 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
+<link rel="stylesheet" href="{% static 'css/registrar_compra.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
-<style>
-  /* ── Reset & Base ─────────────────────────────────────────── */
-  *, *::before, *::after { box-sizing: border-box; }
-
-  /* ── Tarjeta principal ────────────────────────────────────── */
-  .cyber-card {
-    background: #0f1a2e;
-    border: 1px solid rgba(77,168,218,0.18);
-    border-radius: 14px;
-    overflow: hidden;
-  }
-
-  .cyber-header {
-    background: rgba(77,168,218,0.07);
-    border-bottom: 1px solid rgba(77,168,218,0.15);
-    padding: 14px 20px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: #e2e8f0;
-  }
-
-  /* ── Tabla historial ──────────────────────────────────────── */
-  .table-cyber {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.83rem;
-  }
-  .table-cyber thead tr {
-    border-bottom: 1px solid rgba(77,168,218,0.18);
-  }
-  .table-cyber th {
-    padding: 11px 14px;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: #475569;
-    white-space: nowrap;
-  }
-  .table-cyber td {
-    padding: 11px 14px;
-    color: #cbd5e1;
-    vertical-align: middle;
-    border-bottom: 1px solid rgba(77,168,218,0.06);
-    white-space: nowrap;
-  }
-  .table-cyber tfoot td {
-    border-bottom: none;
-  }
-
-  /* ── Scrollbar personalizada ──────────────────────────────── */
-  .scroll-list {
-    scrollbar-width: thin;
-    scrollbar-color: #1e3a5f #0b1220;
-  }
-  .scroll-list::-webkit-scrollbar { width: 5px; }
-  .scroll-list::-webkit-scrollbar-track { background: #0b1220; }
-  .scroll-list::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 3px; }
-
-  /* ── Input base ───────────────────────────────────────────── */
-  .input-cyber {
-    width: 100%;
-    background: #0b1220;
-    border: 1px solid rgba(77,168,218,0.25);
-    color: #e2e8f0;
-    border-radius: 9px;
-    padding: 10px 14px;
-    font-size: 0.88rem;
-    outline: none;
-    transition: border-color .2s, box-shadow .2s;
-  }
-  .input-cyber:focus {
-    border-color: #4DA8DA;
-    box-shadow: 0 0 0 3px rgba(77,168,218,0.12);
-  }
-  .input-cyber::placeholder { color: #334155; }
-
-  /* ── Label sección ────────────────────────────────────────── */
-  .field-label {
-    display: block;
-    color: #4DA8DA;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  /* ── Botón submit ─────────────────────────────────────────── */
-  .btn-registrar {
-    width: 100%;
-    padding: 13px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #912F40, #b33a4e);
-    color: #fff;
-    font-weight: 700;
-    font-size: 0.83rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: box-shadow .2s, transform .15s;
-    box-shadow: 0 4px 15px rgba(145,47,64,0.35);
-  }
-  .btn-registrar:hover {
-    box-shadow: 0 4px 25px rgba(145,47,64,0.6);
-    transform: translateY(-1px);
-  }
-
-  /* ── Opciones proveedor / producto ────────────────────────── */
-  .opcion-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 13px;
-    border-radius: 8px;
-    cursor: pointer;
-    background: #0b1220;
-    border: 1px solid rgba(77,168,218,0.12);
-    transition: border-color .15s, background .15s;
-  }
-  .opcion-item:hover { border-color: rgba(77,168,218,0.4); }
-  .opcion-item.activo {
-    background: rgba(77,168,218,0.08);
-    border-color: #4DA8DA;
-  }
-
-  /* ── Separador ────────────────────────────────────────────── */
-  .divider { border-top: 1px solid rgba(77,168,218,0.1); margin: 20px 0; }
-
-  /* ── Badge pill genérico ──────────────────────────────────── */
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 11px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-  }
-
-  /* ── Modal ────────────────────────────────────────────────── */
-  #modalOverlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(5,10,20,0.82);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .modal-box {
-    background: #0f1a2e;
-    border: 1px solid rgba(77,168,218,0.25);
-    border-radius: 14px;
-    width: 100%;
-    max-width: 480px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  }
-  .modal-header {
-    background: rgba(77,168,218,0.07);
-    border-bottom: 1px solid rgba(77,168,218,0.15);
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: 14px 14px 0 0;
-  }
-  .modal-body { padding: 22px 24px; }
-  .modal-footer {
-    border-top: 1px solid rgba(77,168,218,0.1);
-    padding: 14px 24px;
-    display: flex;
-    justify-content: flex-end;
-    border-radius: 0 0 14px 14px;
-  }
-  .modal-section-label {
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: #4DA8DA;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .modal-section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: rgba(77,168,218,0.1);
-  }
-  .modal-field-label {
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: #475569;
-    margin-bottom: 3px;
-  }
-</style>
 
 <div class="container-fluid p-0">
 
@@ -519,9 +311,7 @@
                             '{{ proveedor.nombre_contacto|escapejs }}',
                             '{{ proveedor.telefono|escapejs }}'
                           )"
-                          style="background:rgba(77,168,218,0.08); border:1px solid rgba(77,168,218,0.2);
-                                 color:#4DA8DA; border-radius:7px; padding:5px 10px;
-                                 font-size:0.73rem; cursor:pointer; transition:.15s; white-space:nowrap;"
+                          class="btn-ver"
                           onmouseover="this.style.background='rgba(77,168,218,0.18)'"
                           onmouseout="this.style.background='rgba(77,168,218,0.08)'">
                     <i class="bi bi-eye me-1"></i>Ver
@@ -576,10 +366,7 @@
           Detalle de Compra
         </span>
       </div>
-      <button onclick="cerrarDetalle()"
-              style="width:28px; height:28px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);
-                     background:transparent; color:#64748b; cursor:pointer; display:flex;
-                     align-items:center; justify-content:center; transition:.15s;"
+      <button onclick="cerrarDetalle()" class="btn-modal-close"
               onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#e2e8f0'"
               onmouseout="this.style.background='transparent'; this.style.color='#64748b'">
         <i class="bi bi-x-lg" style="font-size:0.78rem;"></i>
@@ -589,7 +376,7 @@
     <!-- Cuerpo -->
     <div class="modal-body">
 
-      <div style="font-size:0.7rem; color:#334155; letter-spacing:.06em; text-transform:uppercase; margin-bottom:16px;">
+      <div class="modal-compra-id">
         ID compra: <span id="m-id" style="color:#4DA8DA; font-weight:700;"></span>
       </div>
 
@@ -619,10 +406,7 @@
       </div>
 
       <!-- Total -->
-      <div id="m-total-box"
-           style="background:rgba(74,222,128,0.06); border:1px solid rgba(74,222,128,0.15);
-                  border-radius:10px; padding:12px 16px;
-                  display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+      <div id="m-total-box" class="modal-total-box">
         <span style="font-size:0.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#4ade80;">
           <i class="bi bi-calculator me-1"></i> Total compra
         </span>
@@ -650,11 +434,7 @@
 
     <!-- Pie -->
     <div class="modal-footer">
-      <button onclick="cerrarDetalle()"
-              style="padding:9px 26px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);
-                     background:rgba(255,255,255,0.04); color:#94a3b8; font-size:0.76rem;
-                     font-weight:700; letter-spacing:1px; text-transform:uppercase;
-                     cursor:pointer; transition:.15s;"
+      <button onclick="cerrarDetalle()" class="btn-modal-cerrar"
               onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#e2e8f0'"
               onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.color='#94a3b8'">
         Cerrar
