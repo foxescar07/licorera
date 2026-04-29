@@ -8,6 +8,7 @@ urlpatterns = [
     path('nueva/',              views.nueva_venta,         name='nueva_venta'),
     path('eliminar/<int:pk>/',  views.eliminar_venta,      name='eliminar_venta'),
     path('stock/<int:pk>/',     views.producto_stock_json, name='producto_stock'),
+    path('dia/',  views.ventas_dia,  name='ventas_dia'),
 
     # Devoluciones
     path('devoluciones/',                                  views.lista_devoluciones,      name='lista_devoluciones'),

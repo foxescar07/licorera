@@ -13,15 +13,16 @@
     #modalRecibo, #modalRecibo * { visibility: visible; }
     #modalRecibo { position: fixed; top: 0; left: 0; width: 100%; }
     #btnImprimir, #btnCerrarRecibo { display: none; }
-}#id_cliente {
+}
+#id_cliente {
     color: var(--texto) !important;
 }
- 
 #id_cliente::placeholder {
     color: var(--texto-muted) !important;
 }
 .metodo-pago-btn { background: var(--fondo-card2); border: 1px solid var(--azul-borde); border-radius: 8px; padding: .4rem .8rem; color: var(--texto-muted); cursor: pointer; font-size: .8rem; transition: all .2s; }
 .metodo-pago-btn.activo { border-color: var(--azul-claro); color: var(--azul-claro); background: rgba(77,168,218,.1); }
+ 
 </style>
 {% endblock %}
  
@@ -293,8 +294,9 @@
  
 {% block extra_js %}
 <script>
-// URL para redirigir al cancelar
-const URL_VENTAS = "{% url 'ventas:nueva_venta' %}";
+// URLs
+const URL_VENTAS     = "{% url 'ventas:nueva_venta' %}";
+const URL_VENTAS_DIA = "{% url 'ventas:ventas_dia' %}";
 {% verbatim %}
 let carrito = [];
 let metodosActivos = new Set();
@@ -410,7 +412,6 @@ function renderCarrito() {
     document.getElementById('carritoVacio').style.display = carrito.length === 0 ? 'block' : 'none';
     document.getElementById('btnRegistrar').disabled = true;
  
-    // Mostrar/ocultar botón CANCELAR VENTA según si hay productos en carrito
     document.getElementById('btnCancelarVenta').style.display = carrito.length > 0 ? 'block' : 'none';
  
     lista.innerHTML = carrito.map((item, i) => `
@@ -491,18 +492,14 @@ function cerrarModalCancelar() {
 }
  
 function confirmarCancelar() {
-    // Vaciar carrito
     carrito = [];
     metodosActivos = new Set();
     totalActual = 0;
-    // Limpiar inputs de pago
     document.getElementById('inputsPago').innerHTML = '';
     document.getElementById('validacionPago').style.display = 'none';
     document.querySelectorAll('.metodo-pago-btn').forEach(btn => btn.classList.remove('activo'));
     document.getElementById('inputDescuento').value = 0;
-    // Cerrar modal
     cerrarModalCancelar();
-    // Redirigir al módulo de ventas
     window.location.href = URL_VENTAS;
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -597,7 +594,6 @@ function verRecibo(ventaId) {
     const urlEliminar  = ventaDiv.dataset.urlEliminar;
     const detalles     = Array.from(ventaDiv.querySelectorAll('.dato-detalle'));
  
-    // Apuntar el form de cancelar al URL correcto de esta venta
     document.getElementById('formCancelarVentaRecibo').action = urlEliminar;
  
     let subtotalBruto = 0;
@@ -709,14 +705,19 @@ document.getElementById('inputDescuento').addEventListener('input', renderCarrit
  
 // ── BOTÓN VER VENTAS DEL DÍA en el navbar ────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-    const navbar = document.querySelector('.cys-navbar__actions') || document.querySelector('.navbar-nav') || document.querySelector('nav');
-    if (!navbar) return;
+    // Buscar el contenedor de acciones del navbar
+    const subnav = document.querySelector('.cys-subnav');
+    const menuBtn = document.getElementById('menuBtn');
+    if (!subnav || !menuBtn) return;
+ 
     const btn = document.createElement('button');
     btn.id = 'btnVerVentasDia';
     btn.innerHTML = '<i class="bi bi-calendar-check me-1"></i> Ver ventas del día';
-    btn.style.cssText = 'background:rgba(77,168,218,.12); border:1px solid var(--azul-claro); color:var(--azul-claro); border-radius:8px; padding:.4rem .9rem; font-size:.8rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:.3rem; white-space:nowrap;';
-    btn.onclick = function() { abrirModalVentasDia(); };
-    navbar.insertBefore(btn, navbar.firstChild);
+    btn.style.cssText = 'background:rgba(77,168,218,.12); border:1px solid var(--azul-claro); color:var(--azul-claro); border-radius:8px; padding:.4rem .9rem; font-size:.8rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:.3rem; white-space:nowrap; margin-left:auto; margin-right:.5rem;';
+    btn.onclick = function() { window.location.href = URL_VENTAS_DIA; };
+ 
+    // ✅ Insertar justo antes del botón MENÚ → queda a su izquierda
+    subnav.insertBefore(btn, menuBtn);
 });
  
 function abrirModalVentasDia() {
