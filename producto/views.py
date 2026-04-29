@@ -42,39 +42,42 @@ def producto_lista(request):
     return render(request, "producto.html", context)
 
 
-# ===============================
-# CREAR PRODUCTO
-# Endpoint centralizado — lo usan:
-#   · inventario/gestion_productos.html (form + fetch AJAX)
-#   · producto_registro.html (si se mantiene)
-# ===============================
 def crear_producto(request):
-    """
-    POST único para registrar un producto nuevo.
-    Acepta AJAX (X-Requested-With: XMLHttpRequest) → devuelve JSON.
-    Acepta POST normal                              → redirect con mensaje.
-
-    El parámetro ?next=<url> define a dónde redirigir tras éxito (POST normal).
-    Si no se indica, redirige a inventario:gestion_productos.
-    """
     if request.method != 'POST':
         return redirect('inventario:gestion_productos')
 
-    form    = ProductoRegistroForm(request.POST)
+    form = ProductoRegistroForm(request.POST)
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     next_url = request.POST.get('next') or request.GET.get('next') or 'inventario:gestion_productos'
 
     if form.is_valid():
         p = form.save(commit=False)
-        p.cantidad_disponible = 0
+
+        # ── Cantidad inicial ──────────────────────────────────────────────
+        try:
+            cantidad = int(request.POST.get('cantidad_disponible', 0) or 0)
+            p.cantidad_disponible = max(0, cantidad)
+        except (ValueError, TypeError):
+            p.cantidad_disponible = 0
+
+        # ── Precio unitario ───────────────────────────────────────────────
+        precio_raw = request.POST.get('precio_unitario', '').strip()
+        if precio_raw:
+            try:
+                p.precio_unitario = max(0, float(precio_raw))
+            except (ValueError, TypeError):
+                pass
+
         p.save()
+
         if is_ajax:
             return JsonResponse({'ok': True, 'pk': p.pk, 'nombre': p.nombre})
         messages.success(request, f'✅ Producto "{p.nombre}" registrado.')
         return redirect(next_url)
     else:
         if is_ajax:
-            return JsonResponse({'ok': False, 'error': 'Revisa los campos del formulario.'})
+            errors = {f: e.get_json_data() for f, e in form.errors.items()}
+            return JsonResponse({'ok': False, 'error': 'Revisa los campos del formulario.', 'errores': errors})
         messages.error(request, '⚠️ Revisa los campos del formulario.')
         return redirect(next_url)
 
@@ -116,18 +119,36 @@ def presentaciones_guardar(request, pk):
 
         try:
             with transaction.atomic():
+                nuevas = []
+                for nombre_v, unidad_v, precio_v, cantidad_v in zip(nombres, unidades, precios, cantidades):
+                    nombre_v = nombre_v.strip()
+                    if not nombre_v:
+                        continue          # fila sin nombre → ignorar
+                    if not unidad_v:
+                        continue
+                    # precio vacío → 0, no saltamos la fila
+                    try:
+                        precio_f = float(precio_v) if precio_v.strip() else 0
+                    except (ValueError, TypeError):
+                        precio_f = 0
+                    try:
+                        cantidad_i = int(cantidad_v) if cantidad_v else 0
+                    except (ValueError, TypeError):
+                        cantidad_i = 0
+
+                    nuevas.append(dict(
+                        nombre=nombre_v,
+                        unidades=int(unidad_v),
+                        precio=precio_f,
+                        cantidad=max(0, cantidad_i),
+                    ))
+
                 producto.presentaciones.all().delete()
-                for n, u, p, c in zip(nombres, unidades, precios, cantidades):
-                    n = n.strip()
-                    if n and u and p:
-                        PresentacionProducto.objects.create(
-                            producto=producto,
-                            nombre=n,
-                            unidades=int(u),
-                            precio=p,
-                            cantidad=int(c) if c else 0
-                        )
+                for datos in nuevas:
+                    PresentacionProducto.objects.create(producto=producto, **datos)
+
             messages.success(request, f"✅ Presentaciones de {producto.nombre} guardadas.")
+
         except Exception as e:
             messages.error(request, f"❌ Error al guardar presentaciones: {e}")
 
@@ -141,12 +162,6 @@ def presentaciones_json(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     data     = list(producto.presentaciones.values("id", "nombre", "unidades", "precio", "cantidad"))
     return JsonResponse({"presentaciones": data, "producto": producto.nombre})
-
-
-# ---------------------------------------------------------------
-# producto_ingreso fue ELIMINADO.
-# El ingreso de stock se maneja desde proveedores → registrar_compra
-# ---------------------------------------------------------------
 
 
 # ===============================
@@ -270,7 +285,6 @@ def producto_salida(request):
 
         if presentacion_id:
             presentacion = get_object_or_404(PresentacionProducto, pk=presentacion_id, producto=producto)
-
             if cantidad > presentacion.cantidad:
                 messages.error(
                     request,
@@ -278,22 +292,17 @@ def producto_salida(request):
                     f"unidades de '{presentacion.nombre}' de {producto.nombre}."
                 )
                 return redirect("producto:producto_lista")
-
             presentacion.cantidad -= cantidad
             presentacion.save()
-
             Inventario.objects.create(
-                producto=producto,
-                tipo='salida',
+                producto=producto, tipo='salida',
                 cantidad=cantidad * presentacion.unidades,
-                motivo=motivo,
-                ubicacion='Salida manual',
+                motivo=motivo, ubicacion='Salida manual',
             )
             messages.success(
                 request,
                 f"✅ Salida registrada: {cantidad} × '{presentacion.nombre}' de {producto.nombre}. Motivo: {motivo}."
             )
-
         else:
             if cantidad > producto.cantidad_disponible:
                 messages.error(
@@ -302,16 +311,11 @@ def producto_salida(request):
                     f"unidades sueltas de {producto.nombre}."
                 )
                 return redirect("producto:producto_lista")
-
             producto.cantidad_disponible -= cantidad
             producto.save()
-
             Inventario.objects.create(
-                producto=producto,
-                tipo='salida',
-                cantidad=cantidad,
-                motivo=motivo,
-                ubicacion='Salida manual',
+                producto=producto, tipo='salida',
+                cantidad=cantidad, motivo=motivo, ubicacion='Salida manual',
             )
             messages.success(
                 request,
