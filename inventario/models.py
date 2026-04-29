@@ -14,7 +14,7 @@ class SesionConteo(models.Model):
         ordering = ['-fecha_inicio']
         verbose_name = 'Sesión de Conteo'
 
-    def __str__(self):
+    def _str_(self):
         return f"Sesión {self.pk} — {self.fecha_inicio:%d/%m/%Y %H:%M}"
 
 
@@ -28,7 +28,7 @@ class ConteoProducto(models.Model):
         unique_together = ('sesion', 'producto')
         verbose_name = 'Conteo de Producto'
 
-    def __str__(self):
+    def _str_(self):
         return f"{self.producto.nombre} → {self.cantidad_contada}"
 
 
@@ -39,7 +39,7 @@ class ResultadoInventario(models.Model):
     cantidad_fisica  = models.IntegerField(default=0)
     diferencia       = models.IntegerField(default=0)
 
-    def __str__(self):
+    def _str_(self):
         return f"Resultado {self.sesion} - {self.producto}"
     
 class Lote(models.Model):
@@ -60,5 +60,5 @@ class Lote(models.Model):
         verbose_name = 'Lote'
         ordering = ['-fecha_registro']
 
-    def __str__(self):
+    def _str_(self):
         return f"{self.numero_lote} — {self.producto.nombre}"

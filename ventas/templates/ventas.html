@@ -127,9 +127,17 @@
           <input type="hidden" name="pago_nequi" id="hiddenNequi" value="0">
           <input type="hidden" name="pago_daviplata" id="hiddenDaviplata" value="0">
           <div id="camposHidden"></div>
-          <button type="submit" class="cys-btn cys-btn--danger w-100 mt-3" id="btnRegistrar" disabled>
-            <i class="bi bi-save me-1"></i> REGISTRAR VENTA
-          </button>
+
+          <!-- BOTONES: REGISTRAR + CANCELAR -->
+          <div class="d-flex gap-2 mt-3">
+            <button type="submit" class="cys-btn cys-btn--danger flex-fill" id="btnRegistrar" disabled>
+              <i class="bi bi-save me-1"></i> REGISTRAR VENTA
+            </button>
+            <button type="button" class="cys-btn flex-fill" id="btnCancelarVenta" onclick="abrirModalCancelar()"
+                    style="display:none; background:var(--fondo-card2); color:#ff4d4d; border:1px solid #ff4d4d; font-weight:700;">
+              <i class="bi bi-x-circle me-1"></i> CANCELAR VENTA
+            </button>
+          </div>
         </form>
       </section>
     </div>
@@ -202,12 +210,40 @@
     </div>
     <button id="btnCerrarRecibo" onclick="cerrarRecibo()" style="background:none; border:none; color:var(--texto-muted); font-size:1.3rem; cursor:pointer;"><i class="bi bi-x-lg"></i></button>
   </div>
- <div id="reciboContenido"></div>
-  <div style="display:flex; gap:.7rem; margin-top:1.5rem;">
-    <button id="btnImprimir" onclick="window.print()" class="cys-btn" style="flex:1; background:var(--azul-claro); color:#000; font-weight:700; border:none; border-radius:10px; padding:.7rem; display:flex; align-items:center; justify-content:center;">
+  <div id="reciboContenido"></div>
+  <div style="display:flex; gap:.7rem; margin-top:1.5rem; flex-wrap:wrap;">
+    <button id="btnImprimir" onclick="window.print()" class="cys-btn" style="flex:1; background:var(--azul-claro); color:#000; font-weight:700; border:none; border-radius:10px; padding:.7rem; display:flex; align-items:center; justify-content:center; min-width:120px;">
       <i class="bi bi-printer me-1"></i> Imprimir
     </button>
-    <button onclick="cerrarRecibo()" style="flex:1; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
+    <!-- BOTÓN CANCELAR VENTA EN COMPROBANTE -->
+    <form id="formCancelarVentaRecibo" method="POST" action="" style="flex:1; min-width:120px;">
+      {% csrf_token %}
+      <button type="submit" id="btnCancelarRecibo"
+              style="width:100%; background:none; border:1px solid #ff4d4d; color:#ff4d4d; border-radius:10px; padding:.7rem; font-weight:700; cursor:pointer; font-size:.9rem; display:flex; align-items:center; justify-content:center; gap:.4rem;"
+              onclick="return confirm('¿Cancelar esta venta? Se eliminará del historial y se restaurará el stock.')">
+        <i class="bi bi-x-circle"></i> Cancelar Venta
+      </button>
+    </form>
+    <button onclick="cerrarRecibo()" style="flex:1; min-width:120px; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR CANCELAR VENTA EN PROCESO -->
+<div id="overlayCancelar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.75); z-index:10000;"></div>
+<div id="modalCancelar" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:10001; width:420px; max-width:95vw; background:var(--fondo-card); border:1px solid #ff4d4d; border-radius:16px; padding:2rem;">
+  <div style="text-align:center; margin-bottom:1.2rem;">
+    <i class="bi bi-exclamation-triangle-fill" style="font-size:2.5rem; color:#ff4d4d;"></i>
+    <div style="font-size:1.1rem; font-weight:800; color:var(--texto); margin-top:.7rem;">¿Cancelar venta en proceso?</div>
+    <div style="font-size:.85rem; color:var(--texto-muted); margin-top:.4rem;">Se eliminarán los siguientes productos del carrito:</div>
+  </div>
+  <div id="cancelarListaProductos" style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.8rem 1rem; margin-bottom:1.2rem; max-height:200px; overflow-y:auto;"></div>
+  <div class="d-flex gap-2">
+    <button onclick="cerrarModalCancelar()" style="flex:1; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">
+      <i class="bi bi-arrow-left me-1"></i> Volver
+    </button>
+    <button onclick="confirmarCancelar()" style="flex:1; background:#ff4d4d; color:#fff; border:none; border-radius:10px; padding:.7rem; cursor:pointer; font-weight:700;">
+      <i class="bi bi-x-circle me-1"></i> Sí, cancelar
+    </button>
   </div>
 </div>
  
@@ -224,7 +260,8 @@
        data-tarjeta="{{ venta.pago_tarjeta }}"
        data-transferencia="{{ venta.pago_transferencia }}"
        data-nequi="{{ venta.pago_nequi }}"
-       data-daviplata="{{ venta.pago_daviplata }}">
+       data-daviplata="{{ venta.pago_daviplata }}"
+       data-url-eliminar="{% url 'ventas:eliminar_venta' venta.pk %}">
     {% for det in venta.detalles.all %}
     <span class="dato-detalle"
           data-nombre="{{ det.producto.nombre }}"
@@ -241,6 +278,9 @@
  
 {% block extra_js %}
 <script>
+// URL para redirigir al cancelar
+const URL_VENTAS = "{% url 'ventas:nueva_venta' %}";
+{% verbatim %}
 let carrito = [];
 let metodosActivos = new Set();
 let totalActual = 0;
@@ -251,23 +291,15 @@ function formatPesos(val) {
     return val.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
  
-// ── NUEVO: formatea el input mientras el usuario escribe ──────────────────────
 function formatearInputPago(input, metodo) {
     const cursor = input.selectionStart;
     const prevLen = input.value.length;
- 
-    // Quitar todo lo que no sea dígito
     const soloNumeros = input.value.replace(/\D/g, '');
     const numero = parseInt(soloNumeros) || 0;
- 
-    // Mostrar con separadores de miles (es-CO usa puntos)
     input.value = numero > 0 ? numero.toLocaleString('es-CO') : '';
- 
-    // Ajustar cursor para que no salte al final al insertar puntos
     const newLen = input.value.length;
     const diff = newLen - prevLen;
     input.setSelectionRange(cursor + diff, cursor + diff);
- 
     actualizarPagos();
 }
  
@@ -292,7 +324,6 @@ function renderInputsPago() {
     metodosActivos.forEach(m => {
         const div = document.createElement('div');
         div.className = 'd-flex align-items-center gap-2';
-        // ── CAMBIO: type="text" + inputmode="numeric" + oninput llama formatearInputPago ──
         div.innerHTML = `
             <i class="bi ${iconos[m]}" style="color:var(--azul-claro); width:16px;"></i>
             <span style="font-size:.8rem; color:var(--texto); min-width:90px;">${nombres[m]}</span>
@@ -309,7 +340,6 @@ function actualizarPagos() {
     let totalPagado = 0;
     ['efectivo','tarjeta','transferencia','nequi','daviplata'].forEach(m => {
         const inp = document.getElementById('input_' + m);
-        // ── CAMBIO: quitar puntos de miles antes de parsear ──
         const val = inp ? (parseFloat(inp.value.replace(/\./g, '').replace(/,/g, '.')) || 0) : 0;
         document.getElementById('hidden' + m.charAt(0).toUpperCase() + m.slice(1)).value = val;
         totalPagado += val;
@@ -364,6 +394,9 @@ function renderCarrito() {
     totalDiv.style.display = displayItems;
     document.getElementById('carritoVacio').style.display = carrito.length === 0 ? 'block' : 'none';
     document.getElementById('btnRegistrar').disabled = true;
+
+    // Mostrar/ocultar botón CANCELAR VENTA según si hay productos en carrito
+    document.getElementById('btnCancelarVenta').style.display = carrito.length > 0 ? 'block' : 'none';
  
     lista.innerHTML = carrito.map((item, i) => `
         <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem .9rem;">
@@ -423,7 +456,42 @@ function actualizarHiddens() {
         <input type="hidden" name="precio[]" value="${item.precio}">
     `).join('');
 }
- 
+
+// ── CANCELAR VENTA EN PROCESO ─────────────────────────────────────────────────
+function abrirModalCancelar() {
+    const lista = document.getElementById('cancelarListaProductos');
+    lista.innerHTML = carrito.map(item => `
+        <div style="display:flex; justify-content:space-between; padding:.4rem 0; border-bottom:1px solid var(--azul-borde); font-size:.85rem;">
+            <span style="color:var(--texto);">${item.nombre}</span>
+            <span style="color:var(--texto-muted);">x${item.cantidad}</span>
+        </div>
+    `).join('');
+    document.getElementById('overlayCancelar').style.display = 'block';
+    document.getElementById('modalCancelar').style.display = 'block';
+}
+
+function cerrarModalCancelar() {
+    document.getElementById('overlayCancelar').style.display = 'none';
+    document.getElementById('modalCancelar').style.display = 'none';
+}
+
+function confirmarCancelar() {
+    // Vaciar carrito
+    carrito = [];
+    metodosActivos = new Set();
+    totalActual = 0;
+    // Limpiar inputs de pago
+    document.getElementById('inputsPago').innerHTML = '';
+    document.getElementById('validacionPago').style.display = 'none';
+    document.querySelectorAll('.metodo-pago-btn').forEach(btn => btn.classList.remove('activo'));
+    document.getElementById('inputDescuento').value = 0;
+    // Cerrar modal
+    cerrarModalCancelar();
+    // Redirigir al módulo de ventas
+    window.location.href = URL_VENTAS;
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 function mostrarPresentaciones(prodId, prodNombre) {
     document.getElementById('presTitulo').textContent = prodNombre;
     const prodDiv = document.querySelector('.dato-producto[data-id="' + prodId + '"]');
@@ -511,7 +579,11 @@ function verRecibo(ventaId) {
     const transferencia= parseFloat(ventaDiv.dataset.transferencia) || 0;
     const nequi        = parseFloat(ventaDiv.dataset.nequi) || 0;
     const daviplata    = parseFloat(ventaDiv.dataset.daviplata) || 0;
+    const urlEliminar  = ventaDiv.dataset.urlEliminar;
     const detalles     = Array.from(ventaDiv.querySelectorAll('.dato-detalle'));
+
+    // Apuntar el form de cancelar al URL correcto de esta venta
+    document.getElementById('formCancelarVentaRecibo').action = urlEliminar;
  
     let subtotalBruto = 0;
     let itemsHTML = detalles.map(d => {
@@ -619,6 +691,6 @@ document.getElementById('buscadorProducto').addEventListener('input', function()
 });
  
 document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
+{% endverbatim %}
 </script>
 {% endblock %}
- 
