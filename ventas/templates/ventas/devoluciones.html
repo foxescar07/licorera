@@ -3,35 +3,17 @@
 
 {% block title %}Devoluciones — CYS Ltda{% endblock %}
 {% block page_title %}Devoluciones{% endblock %}
+{% block nav_devoluciones %}active{% endblock %}
 
 {% block extra_css %}
-<style>
-.cys-warning-banner {
-    background: rgba(255,77,77,.10);
-    border: 1px solid #ff4d4d;
-    border-radius: 10px;
-    padding: 1rem 1.2rem;
-    color: #ff4d4d;
-    font-weight: 600;
-    display: none;
-    margin-bottom: 1rem;
-}
-.metodo-pago-btn { background: var(--fondo-card2); border: 1px solid var(--azul-borde); border-radius: 8px; padding: .4rem .8rem; color: var(--texto-muted); cursor: pointer; font-size: .8rem; transition: all .2s; }
-.step-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--azul-claro); color: #000; font-size: .75rem; font-weight: 800; flex-shrink: 0; }
-.prod-check-row { background: var(--fondo-card2); border: 1px solid var(--azul-borde); border-radius: 10px; padding: .75rem 1rem; margin-bottom: .5rem; transition: border-color .2s; }
-.prod-check-row.seleccionado { border-color: var(--azul-claro); background: rgba(77,168,218,.07); }
-.venta-result-row { background: var(--fondo-card2); border: 1px solid var(--azul-borde); border-radius: 10px; padding: .8rem 1rem; cursor: pointer; margin-bottom: .4rem; transition: border-color .2s; }
-.venta-result-row:hover { border-color: var(--azul-claro); }
-</style>
+<link rel="stylesheet" href="{% static 'css/devoluciones.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid p-0">
   <div class="row g-4">
 
-    <!-- ══════════════════════════════════
-         PANEL IZQUIERDO — FORMULARIO
-    ══════════════════════════════════ -->
+    <!-- PANEL IZQUIERDO — FORMULARIO -->
     <div class="col-lg-7">
       <section class="cys-card" style="min-height:600px;">
         <div class="cys-card__title">Nueva Devolución</div>
@@ -42,16 +24,17 @@
             <span class="step-badge">1</span>
             <span style="font-weight:600; color:var(--texto);">Busca la venta original</span>
           </div>
-          <div style="position:relative;">
-            <i class="bi bi-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--texto-muted);"></i>
-            <input type="text" id="buscadorVenta" placeholder="Nombre del cliente o número de venta..."
-                   style="width:100%; padding:.6rem .9rem .6rem 2.4rem; background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; color:var(--texto); font-size:.9rem;">
+          <div class="cys-venta-search">
+            <i class="bi bi-search cys-venta-search__icon"></i>
+            <input type="text" id="buscadorVenta"
+                   class="cys-venta-search__input"
+                   placeholder="Nombre del cliente o número de venta...">
           </div>
           <div id="resultadosBusqueda" class="mt-2"></div>
         </div>
 
         <!-- RESUMEN VENTA SELECCIONADA -->
-        <div id="ventaSeleccionadaInfo" style="display:none; background:rgba(77,168,218,.07); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem 1.1rem; margin-bottom:1rem;">
+        <div id="ventaSeleccionadaInfo" style="display:none; background:rgba(77,168,218,.07); border:1px solid var(--azul-borde); border-radius:var(--radius); padding:.9rem 1.1rem; margin-bottom:1rem;">
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Venta seleccionada</div>
@@ -63,7 +46,8 @@
               <div id="ventaInfoTotal" style="font-size:1.3rem; font-weight:800; color:var(--azul-claro);"></div>
             </div>
           </div>
-          <button type="button" onclick="limpiarVenta()" style="margin-top:.6rem; background:none; border:none; color:var(--texto-muted); font-size:.8rem; cursor:pointer; padding:0;">
+          <button type="button" onclick="limpiarVenta()"
+                  style="margin-top:.6rem; background:none; border:none; color:var(--texto-muted); font-size:.8rem; cursor:pointer; padding:0;">
             <i class="bi bi-x-circle me-1"></i>Cambiar venta
           </button>
         </div>
@@ -76,15 +60,14 @@
           </div>
           <div class="d-flex gap-2">
             <button type="button" id="btnSiComprobante" onclick="setComprobante(true)"
-                    class="metodo-pago-btn" style="font-size:.9rem; padding:.5rem 1.2rem;">
+                    class="metodo-dev-btn" style="font-size:.9rem; padding:.5rem 1.2rem;">
               <i class="bi bi-check-circle me-1"></i>Sí tiene
             </button>
             <button type="button" id="btnNoComprobante" onclick="setComprobante(false)"
-                    class="metodo-pago-btn" style="font-size:.9rem; padding:.5rem 1.2rem;">
+                    class="metodo-dev-btn" style="font-size:.9rem; padding:.5rem 1.2rem;">
               <i class="bi bi-x-circle me-1"></i>No tiene
             </button>
           </div>
-          <!-- Subtarea 2: advertencia sin comprobante -->
           <div id="warningComprobante" class="cys-warning-banner mt-2">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>
             Advertencia: El cliente no tiene comprobante de compra. No se puede procesar la devolución sin comprobante.
@@ -106,26 +89,26 @@
             <span class="step-badge">4</span>
             <span style="font-weight:600; color:var(--texto);">Opciones de devolución</span>
           </div>
+          <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:var(--radius); padding:1rem 1.1rem;">
 
-          <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:1rem 1.1rem;">
-
-            <!-- Restaurar stock -->
             <div class="mb-3">
-              <label style="font-size:.8rem; color:var(--texto-muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:.5rem;">¿Restaurar stock?</label>
+              <label class="cys-form-label">¿Restaurar stock?</label>
               <div class="d-flex gap-2">
-                <button type="button" id="btnSiStock" onclick="setStock(true)" class="metodo-pago-btn" style="font-size:.85rem; padding:.4rem 1rem;">
+                <button type="button" id="btnSiStock" onclick="setStock(true)"
+                        class="metodo-dev-btn" style="font-size:.85rem; padding:.4rem 1rem;">
                   <i class="bi bi-arrow-up-circle me-1"></i>Sí, restaurar inventario
                 </button>
-                <button type="button" id="btnNoStock" onclick="setStock(false)" class="metodo-pago-btn" style="font-size:.85rem; padding:.4rem 1rem;">
+                <button type="button" id="btnNoStock" onclick="setStock(false)"
+                        class="metodo-dev-btn" style="font-size:.85rem; padding:.4rem 1rem;">
                   <i class="bi bi-slash-circle me-1"></i>No restaurar
                 </button>
               </div>
             </div>
 
-            <!-- Motivo -->
             <div class="mb-3">
-              <label style="font-size:.8rem; color:var(--texto-muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:.5rem;">Motivo</label>
-              <select id="selectMotivo" style="width:100%; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:8px; padding:.5rem .8rem; font-size:.9rem;">
+              <label class="cys-form-label">Motivo</label>
+              <select id="selectMotivo"
+                      style="width:100%; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:8px; padding:.5rem .8rem; font-size:.9rem;">
                 <option value="defectuoso">Producto defectuoso</option>
                 <option value="equivocado">Producto equivocado</option>
                 <option value="insatisfecho">Cliente insatisfecho</option>
@@ -133,9 +116,8 @@
               </select>
             </div>
 
-            <!-- Observaciones -->
             <div>
-              <label style="font-size:.8rem; color:var(--texto-muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:.5rem;">Observaciones (opcional)</label>
+              <label class="cys-form-label">Observaciones (opcional)</label>
               <textarea id="txtObservaciones" rows="2" placeholder="Detalles adicionales..."
                         style="width:100%; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:8px; padding:.5rem .8rem; font-size:.9rem; resize:vertical;"></textarea>
             </div>
@@ -143,7 +125,7 @@
         </div>
 
         <!-- TOTAL A DEVOLVER -->
-        <div id="totalDevolucion" style="display:none; background:rgba(77,255,145,.06); border:1px solid #4dff91; border-radius:10px; padding:1rem 1.2rem; margin-bottom:1rem;">
+        <div id="totalDevolucion" style="display:none; background:rgba(77,255,145,.06); border:1px solid #4dff91; border-radius:var(--radius); padding:1rem 1.2rem; margin-bottom:1rem;">
           <div class="d-flex justify-content-between align-items-center">
             <span style="font-weight:700; color:var(--texto);">TOTAL A DEVOLVER:</span>
             <span id="totalDevolucionMonto" style="font-size:1.5rem; font-weight:800; color:#4dff91;"></span>
@@ -153,10 +135,10 @@
         <!-- BOTÓN REGISTRAR -->
         <form method="POST" action="{% url 'ventas:registrar_devolucion' %}" id="formDevolucion">
           {% csrf_token %}
-          <input type="hidden" name="venta_id"          id="hiddenVentaId"      value="">
-          <input type="hidden" name="tiene_comprobante" id="hiddenComprobante"  value="0">
-          <input type="hidden" name="restaurar_stock"   id="hiddenStock"        value="1">
-          <input type="hidden" name="motivo"            id="hiddenMotivo"       value="otro">
+          <input type="hidden" name="venta_id"          id="hiddenVentaId"       value="">
+          <input type="hidden" name="tiene_comprobante" id="hiddenComprobante"   value="0">
+          <input type="hidden" name="restaurar_stock"   id="hiddenStock"         value="1">
+          <input type="hidden" name="motivo"            id="hiddenMotivo"        value="otro">
           <input type="hidden" name="observaciones"     id="hiddenObservaciones" value="">
           <div id="hiddenProductos"></div>
           <button type="submit" id="btnRegistrarDevolucion" disabled
@@ -168,15 +150,13 @@
       </section>
     </div>
 
-    <!-- ══════════════════════════════════
-         PANEL DERECHO — HISTORIAL
-    ══════════════════════════════════ -->
+    <!-- PANEL DERECHO — HISTORIAL -->
     <div class="col-lg-5">
       <section class="cys-card" style="min-height:600px;">
         <div class="cys-card__title">Historial de Devoluciones</div>
         {% if devoluciones %}
           {% for dev in devoluciones %}
-          <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem 1rem; margin-bottom:.6rem; cursor:pointer;"
+          <div class="venta-result-row mb-2"
                onclick="window.location='{% url 'ventas:comprobante_devolucion' dev.pk %}'">
             <div class="d-flex justify-content-between align-items-start">
               <div>
@@ -217,9 +197,9 @@
 
 {% block extra_js %}
 <script>
-let ventaActual     = null;
-let tieneComprobante = null;
-let restaurarStock   = true;
+let ventaActual            = null;
+let tieneComprobante       = null;
+let restaurarStock         = true;
 let productosSeleccionados = [];
 
 function formatPesos(val) {
@@ -228,7 +208,6 @@ function formatPesos(val) {
     return val.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// ── Búsqueda de ventas ────────────────────────────────────────────
 let buscarTimeout;
 document.getElementById('buscadorVenta').addEventListener('input', function () {
     clearTimeout(buscarTimeout);
@@ -262,22 +241,19 @@ function renderResultados(ventas) {
 
 function seleccionarVenta(id, cliente, fecha, total) {
     ventaActual = { id, cliente, fecha, total };
-    document.getElementById('resultadosBusqueda').innerHTML = '';
-    document.getElementById('buscadorVenta').value = '';
-
-    document.getElementById('ventaInfoNombre').textContent = cliente;
-    document.getElementById('ventaInfoFecha').textContent  = fecha;
-    document.getElementById('ventaInfoTotal').textContent  = '$' + formatPesos(total);
-    document.getElementById('ventaSeleccionadaInfo').style.display = 'block';
-    document.getElementById('seccionComprobante').style.display    = 'block';
-
-    // reset estado
+    document.getElementById('resultadosBusqueda').innerHTML          = '';
+    document.getElementById('buscadorVenta').value                   = '';
+    document.getElementById('ventaInfoNombre').textContent           = cliente;
+    document.getElementById('ventaInfoFecha').textContent            = fecha;
+    document.getElementById('ventaInfoTotal').textContent            = '$' + formatPesos(total);
+    document.getElementById('ventaSeleccionadaInfo').style.display   = 'block';
+    document.getElementById('seccionComprobante').style.display      = 'block';
     tieneComprobante = null;
-    document.getElementById('seccionProductos').style.display  = 'none';
-    document.getElementById('seccionOpciones').style.display   = 'none';
-    document.getElementById('totalDevolucion').style.display   = 'none';
-    document.getElementById('btnRegistrarDevolucion').disabled = true;
-    document.getElementById('warningComprobante').style.display = 'none';
+    document.getElementById('seccionProductos').style.display        = 'none';
+    document.getElementById('seccionOpciones').style.display         = 'none';
+    document.getElementById('totalDevolucion').style.display         = 'none';
+    document.getElementById('btnRegistrarDevolucion').disabled       = true;
+    document.getElementById('warningComprobante').style.display      = 'none';
     document.getElementById('btnSiComprobante').classList.remove('activo');
     document.getElementById('btnNoComprobante').classList.remove('activo');
 }
@@ -285,27 +261,24 @@ function seleccionarVenta(id, cliente, fecha, total) {
 function limpiarVenta() {
     ventaActual      = null;
     tieneComprobante = null;
-    document.getElementById('ventaSeleccionadaInfo').style.display  = 'none';
-    document.getElementById('seccionComprobante').style.display     = 'none';
-    document.getElementById('seccionProductos').style.display       = 'none';
-    document.getElementById('seccionOpciones').style.display        = 'none';
-    document.getElementById('totalDevolucion').style.display        = 'none';
-    document.getElementById('btnRegistrarDevolucion').disabled      = true;
+    document.getElementById('ventaSeleccionadaInfo').style.display = 'none';
+    document.getElementById('seccionComprobante').style.display    = 'none';
+    document.getElementById('seccionProductos').style.display      = 'none';
+    document.getElementById('seccionOpciones').style.display       = 'none';
+    document.getElementById('totalDevolucion').style.display       = 'none';
+    document.getElementById('btnRegistrarDevolucion').disabled     = true;
 }
 
-// ── Comprobante ───────────────────────────────────────────────────
 function setComprobante(tiene) {
     tieneComprobante = tiene;
     document.getElementById('btnSiComprobante').classList.toggle('activo',  tiene);
     document.getElementById('btnNoComprobante').classList.toggle('activo', !tiene);
-
-    // Subtarea 2: mostrar advertencia si no tiene comprobante
     const warning = document.getElementById('warningComprobante');
     if (!tiene) {
         warning.style.display = 'block';
-        document.getElementById('seccionProductos').style.display = 'none';
-        document.getElementById('seccionOpciones').style.display  = 'none';
-        document.getElementById('totalDevolucion').style.display  = 'none';
+        document.getElementById('seccionProductos').style.display  = 'none';
+        document.getElementById('seccionOpciones').style.display   = 'none';
+        document.getElementById('totalDevolucion').style.display   = 'none';
         document.getElementById('btnRegistrarDevolucion').disabled = true;
         return;
     }
@@ -313,7 +286,6 @@ function setComprobante(tiene) {
     cargarProductosVenta();
 }
 
-// ── Cargar productos de la venta seleccionada ────────────────────
 function cargarProductosVenta() {
     fetch(`/ventas/devoluciones/venta/${ventaActual.id}/detalle/`)
         .then(r => r.json())
@@ -347,7 +319,6 @@ function renderProductosDevolver(detalles) {
     `).join('');
     document.getElementById('seccionProductos').style.display = 'block';
     document.getElementById('seccionOpciones').style.display  = 'block';
-    // Stock por defecto: restaurar
     setStock(true);
 }
 
@@ -365,15 +336,11 @@ function toggleProducto(detalleId, prodId, presId, prodNombre, presNombre, preci
 }
 
 function actualizarCantidadDev(detalleId) {
-    const qty = parseInt(document.getElementById('qty_' + detalleId).value) || 1;
-    const chk = document.getElementById('chk_' + detalleId);
+    const qty  = parseInt(document.getElementById('qty_' + detalleId).value) || 1;
     const prod = productosSeleccionados.find(p => p.detalleId === detalleId);
     if (prod) {
         prod.cantidad = qty;
         document.getElementById('sub_' + detalleId).textContent = '$' + formatPesos(prod.precio * qty);
-    } else {
-        // Actualizar subtotal aunque no esté marcado aún
-        const precio = parseFloat(document.getElementById('sub_' + detalleId).dataset.precio || 0);
     }
     actualizarTotalDevolucion();
 }
@@ -391,21 +358,18 @@ function actualizarTotalDevolucion() {
         productosSeleccionados.length === 0 || !tieneComprobante;
 }
 
-// ── Stock ─────────────────────────────────────────────────────────
 function setStock(si) {
     restaurarStock = si;
     document.getElementById('btnSiStock').classList.toggle('activo',  si);
     document.getElementById('btnNoStock').classList.toggle('activo', !si);
 }
 
-// ── Preparar envío ────────────────────────────────────────────────
 function prepararEnvio() {
     document.getElementById('hiddenVentaId').value       = ventaActual.id;
     document.getElementById('hiddenComprobante').value   = tieneComprobante ? '1' : '0';
     document.getElementById('hiddenStock').value         = restaurarStock   ? '1' : '0';
     document.getElementById('hiddenMotivo').value        = document.getElementById('selectMotivo').value;
     document.getElementById('hiddenObservaciones').value = document.getElementById('txtObservaciones').value;
-
     document.getElementById('hiddenProductos').innerHTML = productosSeleccionados.map(p => `
         <input type="hidden" name="producto_id[]"     value="${p.prodId}">
         <input type="hidden" name="presentacion_id[]" value="${p.presId || ''}">
