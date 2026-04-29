@@ -13,4 +13,5 @@ urlpatterns = [
     path('ventas/', include('ventas.urls')),
     path('usuario/', include('usuario.urls')),
     path('categorias-json/', views.categorias_json, name='categorias_json'),
+
 ]
