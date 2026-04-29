@@ -304,6 +304,23 @@
       </div>
     </div>
 
+    <!-- ✅ NUEVO: Análisis de Ventas -->
+    <div class="col-md-4">
+      <div class="cys-card h-100" style="border-top:2px solid #E8834A; cursor:pointer;"
+           data-bs-toggle="modal" data-bs-target="#modalAnalisisVentas">
+        <div style="width:36px; height:36px; border-radius:8px; background:rgba(232,131,74,.15);
+                    display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
+          <i class="bi bi-graph-up-arrow" style="color:#E8834A; font-size:16px;"></i>
+        </div>
+        <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
+                    color:var(--texto); margin-bottom:4px;">Análisis de Ventas</div>
+        <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
+          Gráficos de ventas, top productos y categorías
+        </div>
+        <div style="font-size:.75rem; color:#E8834A; font-weight:600;">Ver reporte →</div>
+      </div>
+    </div>
+
   </div>
 
   <!-- ══════════════════════════════════════════
@@ -1016,6 +1033,7 @@
   </div>
 </div>
 
+<<<<<<< Updated upstream
 <!-- ══════════════════════════════════════════
      SCRUM-237 · MODAL DETALLE DE REPORTE
 ══════════════════════════════════════════ -->
@@ -1031,11 +1049,29 @@
           <div>
             <div class="cys-modal__title" id="detTitulo">Detalle del reporte</div>
             <div class="cys-modal__subtitle" id="detSubtitulo">CYS Ltda</div>
+=======
+<!-- ===== MODAL ANÁLISIS DE VENTAS ✅ NUEVO ===== -->
+<div class="modal fade" id="modalAnalisisVentas" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable" style="max-width:92vw; width:92vw;">
+    <div class="modal-content cys-modal">
+
+      <!-- HEADER -->
+      <div class="modal-header cys-modal__header"
+           style="background:linear-gradient(135deg,#4A1E05,#A0561A);">
+        <div class="d-flex align-items-center gap-3">
+          <div class="cys-modal__icon" style="background:rgba(232,131,74,.25);">
+            <i class="bi bi-graph-up-arrow" style="color:#F0A870;"></i>
+          </div>
+          <div>
+            <div class="cys-modal__title">Análisis de Ventas</div>
+            <div class="cys-modal__subtitle">CYS Ltda · Gráficos interactivos</div>
+>>>>>>> Stashed changes
           </div>
         </div>
         <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
 
+<<<<<<< Updated upstream
       <div class="modal-body p-0">
         <div class="cys-det-grid">
           <div class="cys-det-item">
@@ -1066,6 +1102,131 @@
 
       <div class="modal-footer cys-modal__footer" style="justify-content:flex-end;">
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+=======
+      <!-- META BAR -->
+      <div style="display:flex; gap:20px; padding:10px 20px;
+                  background:rgba(232,131,74,.06);
+                  border-bottom:1px solid var(--azul-borde); flex-wrap:wrap;">
+        <div style="font-size:.72rem; color:var(--texto-muted);">
+          <i class="bi bi-calendar3" style="margin-right:4px;"></i>
+          Generado: <span class="cys-meta-fecha" style="color:#E8834A;"></span>
+        </div>
+        <div style="font-size:.72rem; color:var(--texto-muted);">
+          <i class="bi bi-bar-chart" style="margin-right:4px;"></i>
+          Registros analizados:
+          <span id="av-total-registros" style="color:#E8834A;">—</span>
+        </div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="cys-modal__stats">
+        <div class="cys-stat-mini cys-stat-mini--verde">
+          <div class="cys-stat-mini__val" id="av-stat-total">$0</div>
+          <div class="cys-stat-mini__label">Total ventas</div>
+        </div>
+        <div class="cys-stat-mini">
+          <div class="cys-stat-mini__val" id="av-stat-txns">0</div>
+          <div class="cys-stat-mini__label">Transacciones</div>
+        </div>
+        <div class="cys-stat-mini cys-stat-mini--amarillo">
+          <div class="cys-stat-mini__val" id="av-stat-top">—</div>
+          <div class="cys-stat-mini__label">Producto estrella</div>
+        </div>
+        <div class="cys-stat-mini">
+          <div class="cys-stat-mini__val" id="av-stat-cat">—</div>
+          <div class="cys-stat-mini__label">Categoría líder</div>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="cys-modal__filters" style="flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <span style="font-size:.75rem; color:var(--texto-muted); white-space:nowrap;">Rango:</span>
+          <input type="date" id="avFechaInicio" class="cys-search" style="max-width:155px;"
+                 onchange="renderAnalisis()" title="Fecha inicio">
+          <span style="font-size:.75rem; color:var(--texto-muted);">–</span>
+          <input type="date" id="avFechaFin" class="cys-search" style="max-width:155px;"
+                 onchange="renderAnalisis()" title="Fecha fin">
+          <button onclick="document.getElementById('avFechaInicio').value='';
+                           document.getElementById('avFechaFin').value='';
+                           renderAnalisis();"
+                  style="font-size:.72rem; padding:4px 10px; background:transparent;
+                         border:1px solid var(--azul-borde); border-radius:6px;
+                         color:var(--texto-muted); cursor:pointer;">
+            Limpiar
+          </button>
+        </div>
+        <select id="avCategoria" class="cys-select" onchange="renderAnalisis()">
+          <option value="">Todas las categorías</option>
+        </select>
+      </div>
+
+      <!-- CUERPO — 3 GRÁFICOS -->
+      <div class="modal-body" style="padding:20px; display:flex; flex-direction:column; gap:28px;">
+
+        <!-- Gráfico 1: Ventas por fecha -->
+        <div style="background:rgba(255,255,255,.03); border:1px solid var(--azul-borde);
+                    border-radius:10px; padding:16px;">
+          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px;
+                      text-transform:uppercase; color:#E8834A; margin-bottom:14px;
+                      display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;
+                         background:#E8834A;display:inline-block;"></span>
+            Ventas por fecha
+          </div>
+          <div style="position:relative; height:260px;">
+            <canvas id="avChartFecha"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico 2: Top productos -->
+        <div style="background:rgba(255,255,255,.03); border:1px solid var(--azul-borde);
+                    border-radius:10px; padding:16px;">
+          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px;
+                      text-transform:uppercase; color:#5DCAA5; margin-bottom:14px;
+                      display:flex; align-items:center; gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;
+                         background:#5DCAA5;display:inline-block;"></span>
+            Top 10 productos más vendidos
+            <span style="font-size:.7rem; font-weight:400; color:var(--texto-muted);
+                         text-transform:none; letter-spacing:0; margin-left:auto;">por unidades</span>
+          </div>
+          <div style="position:relative; height:300px;">
+            <canvas id="avChartProductos"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico 3: Ventas por categoría -->
+        <div style="background:rgba(255,255,255,.03); border:1px solid var(--azul-borde);
+                    border-radius:10px; padding:16px;
+                    display:flex; flex-direction:column; align-items:center;">
+          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px;
+                      text-transform:uppercase; color:#7F77DD; margin-bottom:14px;
+                      display:flex; align-items:center; gap:8px; width:100%;">
+            <span style="width:8px;height:8px;border-radius:50%;
+                         background:#7F77DD;display:inline-block;"></span>
+            Ventas por categoría
+            <span style="font-size:.7rem; font-weight:400; color:var(--texto-muted);
+                         text-transform:none; letter-spacing:0; margin-left:auto;">por monto total</span>
+          </div>
+          <div style="position:relative; height:280px; width:100%; max-width:420px;">
+            <canvas id="avChartCategorias"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-footer cys-modal__footer">
+        <div style="font-size:.72rem; color:var(--texto-muted); margin-right:auto;">
+          <i class="bi bi-calendar3" style="margin-right:3px;"></i>
+          Generado: <span class="cys-meta-fecha" style="color:#E8834A;"></span>
+        </div>
+        <button class="cys-btn-export"
+                onclick="exportarPDF('modalAnalisisVentas','analisis_ventas_cys')">
+          ⬇ Exportar PDF
+        </button>
+>>>>>>> Stashed changes
       </div>
 
     </div>
@@ -1500,5 +1661,211 @@ async function exportarPDF(modalId, nombreArchivo, tipoReporte, nombreVista) {
     rgRegistrar(tipoReporte, nombreVista);
   }
 }
+
+/* ══════════════════════════════════════════════
+   ✅ ANÁLISIS DE VENTAS — Chart.js
+══════════════════════════════════════════════ */
+const AV_DATA = JSON.parse('{{ ventas_json|escapejs }}');
+
+const AV_COLORS = [
+  '#E8834A','#5DCAA5','#7F77DD','#4DA8DA',
+  '#E24B4A','#F0C040','#A0D080','#D070B0',
+  '#60C0E0','#F09060'
+];
+
+let avChartFecha      = null;
+let avChartProductos  = null;
+let avChartCategorias = null;
+
+/* Poblar select de categorías */
+(function poblarCategorias() {
+  const cats = [...new Set(AV_DATA.map(d => d.categoria))].sort();
+  const sel  = document.getElementById('avCategoria');
+  cats.forEach(c => {
+    const opt       = document.createElement('option');
+    opt.value       = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  });
+})();
+
+/* Filtrar data según controles del modal */
+function avDatosFiltrados() {
+  const inicio    = document.getElementById('avFechaInicio').value;
+  const fin       = document.getElementById('avFechaFin').value;
+  const categoria = document.getElementById('avCategoria').value;
+  return AV_DATA.filter(d => {
+    if (inicio    && d.fecha < inicio)         return false;
+    if (fin       && d.fecha > fin)            return false;
+    if (categoria && d.categoria !== categoria) return false;
+    return true;
+  });
+}
+
+/* Renderizar / actualizar los 3 gráficos */
+function renderAnalisis() {
+  const data = avDatosFiltrados();
+
+  /* — stat cards — */
+  const totalMonto = data.reduce((s, d) => s + d.subtotal, 0);
+
+  const porProducto = {};
+  data.forEach(d => {
+    porProducto[d.producto] = (porProducto[d.producto] || 0) + d.cantidad;
+  });
+  const topProd = Object.entries(porProducto).sort((a,b) => b[1]-a[1])[0];
+
+  const porCat = {};
+  data.forEach(d => {
+    porCat[d.categoria] = (porCat[d.categoria] || 0) + d.subtotal;
+  });
+  const topCat = Object.entries(porCat).sort((a,b) => b[1]-a[1])[0];
+
+  document.getElementById('av-stat-total').textContent =
+    '$' + totalMonto.toLocaleString('es-CO', {maximumFractionDigits:0});
+  document.getElementById('av-stat-txns').textContent  = data.length;
+  document.getElementById('av-stat-top').textContent   = topProd ? topProd[0] : '—';
+  document.getElementById('av-stat-cat').textContent   = topCat  ? topCat[0]  : '—';
+  document.getElementById('av-total-registros').textContent = data.length;
+
+  /* — Gráfico 1: ventas por fecha (línea) — */
+  const porFecha = {};
+  data.forEach(d => { porFecha[d.fecha] = (porFecha[d.fecha] || 0) + d.subtotal; });
+  const fechas = Object.keys(porFecha).sort();
+  const montos = fechas.map(f => porFecha[f]);
+
+  if (avChartFecha) avChartFecha.destroy();
+  avChartFecha = new Chart(
+    document.getElementById('avChartFecha').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: fechas,
+      datasets: [{
+        label: 'Ventas ($)',
+        data:  montos,
+        borderColor:          '#E8834A',
+        backgroundColor:      'rgba(232,131,74,.12)',
+        pointBackgroundColor: '#E8834A',
+        pointRadius: 4,
+        tension: 0.35,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' $' + ctx.parsed.y.toLocaleString('es-CO', {maximumFractionDigits:0})
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color:'#8FA3B1', font:{size:10}, maxRotation:45 },
+          grid:  { color:'rgba(255,255,255,.05)' }
+        },
+        y: {
+          ticks: {
+            color:'#8FA3B1', font:{size:10},
+            callback: v => '$' + v.toLocaleString('es-CO', {maximumFractionDigits:0})
+          },
+          grid: { color:'rgba(255,255,255,.05)' }
+        }
+      }
+    }
+  });
+
+  /* — Gráfico 2: top 10 productos (barras horizontales) — */
+  const top10      = Object.entries(porProducto).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const prodLabels = top10.map(x => x[0]);
+  const prodVals   = top10.map(x => x[1]);
+
+  if (avChartProductos) avChartProductos.destroy();
+  avChartProductos = new Chart(
+    document.getElementById('avChartProductos').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: prodLabels,
+      datasets: [{
+        label: 'Unidades vendidas',
+        data:  prodVals,
+        backgroundColor: prodLabels.map((_,i) => AV_COLORS[i % AV_COLORS.length] + 'CC'),
+        borderColor:     prodLabels.map((_,i) => AV_COLORS[i % AV_COLORS.length]),
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x} unidades` } }
+      },
+      scales: {
+        x: {
+          ticks: { color:'#8FA3B1', font:{size:10} },
+          grid:  { color:'rgba(255,255,255,.05)' }
+        },
+        y: {
+          ticks: { color:'#C8D8E4', font:{size:10} },
+          grid:  { display:false }
+        }
+      }
+    }
+  });
+
+  /* — Gráfico 3: ventas por categoría (dona) — */
+  const catLabels = Object.keys(porCat);
+  const catVals   = catLabels.map(c => porCat[c]);
+
+  if (avChartCategorias) avChartCategorias.destroy();
+  avChartCategorias = new Chart(
+    document.getElementById('avChartCategorias').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: catLabels,
+      datasets: [{
+        data:            catVals,
+        backgroundColor: catLabels.map((_,i) => AV_COLORS[i % AV_COLORS.length] + 'CC'),
+        borderColor:     catLabels.map((_,i) => AV_COLORS[i % AV_COLORS.length]),
+        borderWidth: 2,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color:'#8FA3B1', font:{size:11}, padding:14, boxWidth:12, boxHeight:12 }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const val   = ctx.parsed;
+              const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+              const pct   = ((val/total)*100).toFixed(1);
+              return ` $${val.toLocaleString('es-CO',{maximumFractionDigits:0})} (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+/* Inicializar cuando se abre el modal */
+document.getElementById('modalAnalisisVentas')
+  .addEventListener('shown.bs.modal', () => {
+    rellenarFechaGeneracion();
+    renderAnalisis();
+  });
 </script>
 {% endblock %}
