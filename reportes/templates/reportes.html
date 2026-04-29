@@ -10,6 +10,197 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+<style>
+/* ══════════════════════════════════════════════
+   REPORTES GENERADOS — estilos
+══════════════════════════════════════════════ */
+.cys-rg-section {
+  margin-bottom: 1.5rem;
+}
+
+.cys-rg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cys-rg-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--texto);
+}
+
+.cys-rg-badge {
+  font-size: .72rem;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(77,168,218,.15);
+  color: var(--azul-claro);
+  font-weight: 600;
+  border: 1px solid rgba(77,168,218,.25);
+}
+
+.cys-rg-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.cys-rg-search {
+  flex: 1;
+  min-width: 180px;
+  background: var(--fondo-card, #0D1B2A);
+  border: 1px solid var(--azul-borde);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: .82rem;
+  color: var(--texto);
+  outline: none;
+  transition: border-color .2s;
+}
+.cys-rg-search:focus {
+  border-color: var(--azul-claro);
+}
+.cys-rg-search::placeholder {
+  color: var(--texto-muted);
+}
+
+.cys-rg-select {
+  background: var(--fondo-card, #0D1B2A);
+  border: 1px solid var(--azul-borde);
+  border-radius: 8px;
+  padding: 7px 32px 7px 12px;
+  font-size: .82rem;
+  color: var(--texto);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234da8da' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  min-width: 160px;
+  transition: border-color .2s;
+}
+.cys-rg-select:focus {
+  border-color: var(--azul-claro);
+}
+
+/* Lista de reportes */
+.cys-rg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cys-rg-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  border-radius: 10px;
+  background: rgba(77,168,218,.03);
+  border: 1px solid var(--azul-borde);
+  cursor: pointer;
+  transition: background .18s, border-color .18s, transform .15s;
+  text-decoration: none;
+}
+.cys-rg-item:hover {
+  background: rgba(77,168,218,.08);
+  border-color: rgba(77,168,218,.4);
+  transform: translateX(2px);
+}
+
+.cys-rg-item__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+.cys-rg-item__icon--inv     { background: rgba(77,168,218,.15);  color: var(--azul-claro); }
+.cys-rg-item__icon--prov    { background: rgba(29,158,117,.15);  color: #5DCAA5; }
+.cys-rg-item__icon--diario  { background: rgba(127,119,221,.15); color: #AFA9EC; }
+
+.cys-rg-item__name {
+  flex: 1;
+  font-weight: 600;
+  font-size: .88rem;
+  color: var(--texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cys-rg-item__date {
+  font-size: .75rem;
+  color: var(--texto-muted);
+  white-space: nowrap;
+}
+
+.cys-rg-item__chip {
+  font-size: .68rem;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.cys-rg-item__chip--inv    { background: rgba(77,168,218,.18);  color: var(--azul-claro); }
+.cys-rg-item__chip--prov   { background: rgba(29,158,117,.18);  color: #5DCAA5; }
+.cys-rg-item__chip--diario { background: rgba(127,119,221,.18); color: #AFA9EC; }
+
+/* estado vacío */
+.cys-rg-empty {
+  text-align: center;
+  padding: 28px 0;
+  color: var(--texto-muted);
+  font-size: .82rem;
+}
+.cys-rg-empty i {
+  font-size: 2rem;
+  color: var(--azul-borde);
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* ══ MODAL DETALLE REPORTE ══ */
+#modalDetalleReporte .modal-content.cys-modal {
+  border: 1px solid var(--azul-borde);
+}
+.cys-det-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 16px 20px;
+}
+.cys-det-item {
+  background: rgba(77,168,218,.05);
+  border: 1px solid var(--azul-borde);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+.cys-det-item__label {
+  font-size: .68rem;
+  color: var(--texto-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 3px;
+}
+.cys-det-item__val {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--azul-claro);
+}
+</style>
 {% endblock %}
  
 {% block content %}
@@ -114,6 +305,37 @@
     </div>
 
   </div>
+
+  <!-- ══════════════════════════════════════════
+       SCRUM-235 · REPORTES GENERADOS
+  ══════════════════════════════════════════ -->
+  <section class="cys-card cys-rg-section mb-4">
+    <div class="cys-rg-header">
+      <div class="cys-rg-title">Reportes generados</div>
+      <span class="cys-rg-badge" id="rgBadgeCount">0 reportes</span>
+    </div>
+
+    <!-- SCRUM-239 · controles de búsqueda y filtro -->
+    <div class="cys-rg-controls">
+      <input type="text" id="rgSearch" class="cys-rg-search"
+             placeholder="Buscar reporte…" oninput="filtrarReportesGenerados()">
+      <select id="rgTipo" class="cys-rg-select" onchange="filtrarReportesGenerados()">
+        <option value="">Todos los tipos</option>
+        <option value="inventario">Inventario</option>
+        <option value="proveedores">Proveedores</option>
+        <option value="diario">Diario</option>
+      </select>
+    </div>
+
+    <!-- Lista dinámica -->
+    <div class="cys-rg-list" id="rgList"></div>
+
+    <div class="cys-rg-empty" id="rgEmpty" style="display:none;">
+      <i class="bi bi-file-earmark-bar-graph"></i>
+      No hay reportes generados aún.<br>
+      <span style="font-size:.75rem;">Exporta un reporte para verlo aquí.</span>
+    </div>
+  </section>
  
   <!-- FILTROS HISTORIAL DE VENTAS -->
   <section class="cys-card mb-4">
@@ -445,7 +667,7 @@
           <span><i class="bi bi-calendar3" style="margin-right:3px;"></i>Generado: <span class="cys-meta-fecha" style="color:var(--azul-claro);"></span></span>
           <span><i class="bi bi-funnel" style="margin-right:3px;"></i>Filtros: <span id="inv-footer-filtros" style="color:var(--azul-claro);">Ninguno</span></span>
         </div>
-        <button class="cys-btn-export" onclick="exportarPDF('modalInventario', 'inventario_cys')">⬇ Exportar PDF</button>
+        <button class="cys-btn-export" onclick="exportarPDF('modalInventario', 'inventario_cys', 'inventario', 'Inventario completo')">⬇ Exportar PDF</button>
       </div>
  
     </div>
@@ -546,7 +768,7 @@
         <div style="font-size:.72rem; color:var(--texto-muted); margin-right:auto;">
           <span><i class="bi bi-calendar3" style="margin-right:3px;"></i>Generado: <span class="cys-meta-fecha" style="color:#5DCAA5;"></span></span>
         </div>
-        <button class="cys-btn-export" onclick="exportarPDF('modalProveedores', 'proveedores_cys')">⬇ Exportar PDF</button>
+        <button class="cys-btn-export" onclick="exportarPDF('modalProveedores', 'proveedores_cys', 'proveedores', 'Listado proveedores')">⬇ Exportar PDF</button>
       </div>
  
     </div>
@@ -787,9 +1009,65 @@
           <span><i class="bi bi-calendar3" style="margin-right:3px;"></i>Generado: <span class="cys-meta-fecha" style="color:#AFA9EC;"></span></span>
           <span><i class="bi bi-funnel" style="margin-right:3px;"></i>Filtros: <span id="rd-footer-filtros" style="color:#AFA9EC;">Ninguno</span></span>
         </div>
-        <button class="cys-btn-export" onclick="exportarPDF('modalResumenDiario', 'resumen_diario_cys')">⬇ Exportar PDF</button>
+        <button class="cys-btn-export" onclick="exportarPDF('modalResumenDiario', 'resumen_diario_cys', 'diario', 'Resumen diario')">⬇ Exportar PDF</button>
       </div>
  
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCRUM-237 · MODAL DETALLE DE REPORTE
+══════════════════════════════════════════ -->
+<div class="modal fade" id="modalDetalleReporte" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:520px;">
+    <div class="modal-content cys-modal">
+
+      <div class="modal-header cys-modal__header" id="detHeader">
+        <div class="d-flex align-items-center gap-3">
+          <div class="cys-modal__icon" id="detIconWrap">
+            <i class="bi bi-file-earmark-bar-graph" id="detIcon"></i>
+          </div>
+          <div>
+            <div class="cys-modal__title" id="detTitulo">Detalle del reporte</div>
+            <div class="cys-modal__subtitle" id="detSubtitulo">CYS Ltda</div>
+          </div>
+        </div>
+        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+      </div>
+
+      <div class="modal-body p-0">
+        <div class="cys-det-grid">
+          <div class="cys-det-item">
+            <div class="cys-det-item__label">Tipo</div>
+            <div class="cys-det-item__val" id="detTipo">—</div>
+          </div>
+          <div class="cys-det-item">
+            <div class="cys-det-item__label">Nombre del archivo</div>
+            <div class="cys-det-item__val" id="detNombre">—</div>
+          </div>
+          <div class="cys-det-item">
+            <div class="cys-det-item__label">Fecha de generación</div>
+            <div class="cys-det-item__val" id="detFecha">—</div>
+          </div>
+          <div class="cys-det-item">
+            <div class="cys-det-item__label">Hora</div>
+            <div class="cys-det-item__val" id="detHora">—</div>
+          </div>
+        </div>
+        <div style="padding:0 20px 16px;">
+          <div style="font-size:.75rem; color:var(--texto-muted); background:rgba(77,168,218,.05);
+                      border:1px solid var(--azul-borde); border-radius:8px; padding:10px 14px;">
+            <i class="bi bi-info-circle" style="margin-right:6px; color:var(--azul-claro);"></i>
+            El reporte fue exportado como PDF y descargado en tu dispositivo.
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer cys-modal__footer" style="justify-content:flex-end;">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
     </div>
   </div>
 </div>
@@ -985,9 +1263,163 @@ function limpiarFiltrosRD() {
 }
 
 /* ══════════════════════════════════════════════
-   EXPORTAR PDF
+   SCRUM-235 · GESTIÓN DE REPORTES GENERADOS
+   Persiste en localStorage bajo la clave
+   "cys_reportes_generados"
 ══════════════════════════════════════════════ */
-async function exportarPDF(modalId, nombreArchivo) {
+const RG_KEY = 'cys_reportes_generados';
+
+function rgCargar() {
+  try { return JSON.parse(localStorage.getItem(RG_KEY)) || []; }
+  catch { return []; }
+}
+
+function rgGuardar(lista) {
+  localStorage.setItem(RG_KEY, JSON.stringify(lista));
+}
+
+/**
+ * Registra un nuevo reporte en el historial.
+ * @param {string} tipo       - 'inventario' | 'proveedores' | 'diario'
+ * @param {string} nombreVista - Etiqueta legible, ej. "Inventario completo"
+ */
+function rgRegistrar(tipo, nombreVista) {
+  const lista = rgCargar();
+  const ahora = new Date();
+  lista.unshift({
+    id:     Date.now(),
+    tipo,
+    nombre: nombreVista,
+    fecha:  ahora.toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' }),
+    hora:   ahora.toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' }),
+    iso:    ahora.toISOString(),
+  });
+  // Máximo 50 registros
+  if (lista.length > 50) lista.splice(50);
+  rgGuardar(lista);
+  rgRenderizar();
+}
+
+/* Mapa de configuración visual por tipo */
+const RG_CONFIG = {
+  inventario: {
+    iconClass: 'cys-rg-item__icon--inv',
+    chipClass:  'cys-rg-item__chip--inv',
+    icon:       'bi-box-seam',
+    label:      'Inventario',
+  },
+  proveedores: {
+    iconClass: 'cys-rg-item__icon--prov',
+    chipClass:  'cys-rg-item__chip--prov',
+    icon:       'bi-truck',
+    label:      'Proveedores',
+  },
+  diario: {
+    iconClass: 'cys-rg-item__icon--diario',
+    chipClass:  'cys-rg-item__chip--diario',
+    icon:       'bi-calendar-day',
+    label:      'Diario',
+  },
+};
+
+/* SCRUM-235 · renderiza la lista visible */
+function rgRenderizar(listaFiltrada) {
+  const lista = listaFiltrada !== undefined ? listaFiltrada : rgCargar();
+  const todas = rgCargar();
+
+  const listEl  = document.getElementById('rgList');
+  const emptyEl = document.getElementById('rgEmpty');
+  const badge   = document.getElementById('rgBadgeCount');
+
+  // Actualizar badge con total real
+  badge.textContent = `${todas.length} ${todas.length === 1 ? 'reporte' : 'reportes'}`;
+
+  listEl.innerHTML = '';
+
+  if (lista.length === 0) {
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  lista.forEach(rg => {
+    const cfg = RG_CONFIG[rg.tipo] || RG_CONFIG['inventario'];
+    const item = document.createElement('div');
+    item.className = 'cys-rg-item';
+    item.setAttribute('role', 'button');
+    item.setAttribute('tabindex', '0');
+    item.dataset.id = rg.id;
+    item.innerHTML = `
+      <div class="cys-rg-item__icon ${cfg.iconClass}">
+        <i class="bi ${cfg.icon}"></i>
+      </div>
+      <span class="cys-rg-item__name">${rg.nombre}</span>
+      <span class="cys-rg-item__date">${rg.fecha} ${rg.hora}</span>
+      <span class="cys-rg-item__chip ${cfg.chipClass}">${cfg.label}</span>
+    `;
+    /* SCRUM-237 · clic abre modal de detalle */
+    item.addEventListener('click', () => rgMostrarDetalle(rg));
+    item.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') rgMostrarDetalle(rg);
+    });
+    listEl.appendChild(item);
+  });
+}
+
+/* SCRUM-239 · filtra la lista según búsqueda y tipo */
+function filtrarReportesGenerados() {
+  const q    = document.getElementById('rgSearch').value.toLowerCase().trim();
+  const tipo = document.getElementById('rgTipo').value;
+  const todas = rgCargar();
+
+  const filtradas = todas.filter(rg => {
+    const matchQ    = q === '' || rg.nombre.toLowerCase().includes(q) || rg.tipo.includes(q);
+    const matchTipo = tipo === '' || rg.tipo === tipo;
+    return matchQ && matchTipo;
+  });
+
+  rgRenderizar(filtradas);
+}
+
+/* SCRUM-237 · abre modal con detalles del reporte */
+function rgMostrarDetalle(rg) {
+  const cfg = RG_CONFIG[rg.tipo] || RG_CONFIG['inventario'];
+
+  // Header color según tipo
+  const headerColors = {
+    inventario:  'linear-gradient(135deg,#0A1F33,#0D3353)',
+    proveedores: 'linear-gradient(135deg,#085041,#0F6E56)',
+    diario:      'linear-gradient(135deg,#26215C,#534AB7)',
+  };
+  const accentColors = {
+    inventario:  'var(--azul-claro)',
+    proveedores: '#5DCAA5',
+    diario:      '#AFA9EC',
+  };
+
+  document.getElementById('detHeader').style.background      = headerColors[rg.tipo] || headerColors.inventario;
+  document.getElementById('detIconWrap').style.background    = `rgba(77,168,218,.2)`;
+  document.getElementById('detIcon').className               = `bi ${cfg.icon}`;
+  document.getElementById('detIcon').style.color             = accentColors[rg.tipo];
+  document.getElementById('detTitulo').textContent           = rg.nombre;
+  document.getElementById('detSubtitulo').textContent        = `CYS Ltda · ${cfg.label}`;
+  document.getElementById('detTipo').textContent             = cfg.label;
+  document.getElementById('detNombre').textContent           = `${rg.nombre.toLowerCase().replace(/ /g,'_')}_cys.pdf`;
+  document.getElementById('detFecha').textContent            = rg.fecha;
+  document.getElementById('detHora').textContent             = rg.hora;
+  document.getElementById('detTipo').style.color             = accentColors[rg.tipo];
+
+  const modal = new bootstrap.Modal(document.getElementById('modalDetalleReporte'));
+  modal.show();
+}
+
+// Inicializar al cargar la página
+document.addEventListener('DOMContentLoaded', () => rgRenderizar());
+
+/* ══════════════════════════════════════════════
+   EXPORTAR PDF  (actualizado para registrar)
+══════════════════════════════════════════════ */
+async function exportarPDF(modalId, nombreArchivo, tipoReporte, nombreVista) {
   const { jsPDF } = window.jspdf;
   const modalContent = document.querySelector(`#${modalId} .modal-content`);
 
@@ -1062,6 +1494,11 @@ async function exportarPDF(modalId, nombreArchivo) {
   }
 
   pdf.save(`${nombreArchivo}.pdf`);
+
+  /* ── SCRUM-235 · registrar en historial tras exportar ── */
+  if (tipoReporte && nombreVista) {
+    rgRegistrar(tipoReporte, nombreVista);
+  }
 }
 </script>
 {% endblock %}
