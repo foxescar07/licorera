@@ -127,7 +127,7 @@
           <input type="hidden" name="pago_nequi" id="hiddenNequi" value="0">
           <input type="hidden" name="pago_daviplata" id="hiddenDaviplata" value="0">
           <div id="camposHidden"></div>
-
+ 
           <!-- BOTONES: REGISTRAR + CANCELAR -->
           <div class="d-flex gap-2 mt-3">
             <button type="submit" class="cys-btn cys-btn--danger flex-fill" id="btnRegistrar" disabled>
@@ -200,6 +200,21 @@
   </div>
 </div>
  
+<!-- MODAL VENTAS DEL DÍA -->
+<div id="overlayVentasDia" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.7); z-index:9998;" onclick="cerrarVentasDia()"></div>
+<div id="modalVentasDia" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999; width:480px; max-width:95vw; max-height:90vh; overflow-y:auto; background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
+    <div>
+      <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Resumen</div>
+      <div style="font-size:1.1rem; font-weight:800; color:var(--texto);"><i class="bi bi-calendar-check me-2" style="color:var(--azul-claro);"></i>Ventas del día</div>
+    </div>
+    <button onclick="cerrarVentasDia()" style="background:none; border:none; color:var(--texto-muted); font-size:1.3rem; cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div id="ventasDiaContenido"></div>
+  <div id="ventasDiaTotal"></div>
+  <button onclick="cerrarVentasDia()" style="width:100%; margin-top:1rem; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
+</div>
+ 
 <!-- MODAL RECIBO -->
 <div id="overlayRecibo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.7); z-index:9998;" onclick="cerrarRecibo()"></div>
 <div id="modalRecibo" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999; width:440px; max-width:95vw; max-height:90vh; overflow-y:auto; background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;">
@@ -227,7 +242,7 @@
     <button onclick="cerrarRecibo()" style="flex:1; min-width:120px; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
   </div>
 </div>
-
+ 
 <!-- MODAL CONFIRMAR CANCELAR VENTA EN PROCESO -->
 <div id="overlayCancelar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.75); z-index:10000;"></div>
 <div id="modalCancelar" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:10001; width:420px; max-width:95vw; background:var(--fondo-card); border:1px solid #ff4d4d; border-radius:16px; padding:2rem;">
@@ -394,7 +409,7 @@ function renderCarrito() {
     totalDiv.style.display = displayItems;
     document.getElementById('carritoVacio').style.display = carrito.length === 0 ? 'block' : 'none';
     document.getElementById('btnRegistrar').disabled = true;
-
+ 
     // Mostrar/ocultar botón CANCELAR VENTA según si hay productos en carrito
     document.getElementById('btnCancelarVenta').style.display = carrito.length > 0 ? 'block' : 'none';
  
@@ -456,7 +471,7 @@ function actualizarHiddens() {
         <input type="hidden" name="precio[]" value="${item.precio}">
     `).join('');
 }
-
+ 
 // ── CANCELAR VENTA EN PROCESO ─────────────────────────────────────────────────
 function abrirModalCancelar() {
     const lista = document.getElementById('cancelarListaProductos');
@@ -469,12 +484,12 @@ function abrirModalCancelar() {
     document.getElementById('overlayCancelar').style.display = 'block';
     document.getElementById('modalCancelar').style.display = 'block';
 }
-
+ 
 function cerrarModalCancelar() {
     document.getElementById('overlayCancelar').style.display = 'none';
     document.getElementById('modalCancelar').style.display = 'none';
 }
-
+ 
 function confirmarCancelar() {
     // Vaciar carrito
     carrito = [];
@@ -491,7 +506,7 @@ function confirmarCancelar() {
     window.location.href = URL_VENTAS;
 }
 // ─────────────────────────────────────────────────────────────────────────────
-
+ 
 function mostrarPresentaciones(prodId, prodNombre) {
     document.getElementById('presTitulo').textContent = prodNombre;
     const prodDiv = document.querySelector('.dato-producto[data-id="' + prodId + '"]');
@@ -581,7 +596,7 @@ function verRecibo(ventaId) {
     const daviplata    = parseFloat(ventaDiv.dataset.daviplata) || 0;
     const urlEliminar  = ventaDiv.dataset.urlEliminar;
     const detalles     = Array.from(ventaDiv.querySelectorAll('.dato-detalle'));
-
+ 
     // Apuntar el form de cancelar al URL correcto de esta venta
     document.getElementById('formCancelarVentaRecibo').action = urlEliminar;
  
@@ -691,6 +706,70 @@ document.getElementById('buscadorProducto').addEventListener('input', function()
 });
  
 document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
+ 
+// ── BOTÓN VER VENTAS DEL DÍA en el navbar ────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+    const navbar = document.querySelector('.cys-navbar__actions') || document.querySelector('.navbar-nav') || document.querySelector('nav');
+    if (!navbar) return;
+    const btn = document.createElement('button');
+    btn.id = 'btnVerVentasDia';
+    btn.innerHTML = '<i class="bi bi-calendar-check me-1"></i> Ver ventas del día';
+    btn.style.cssText = 'background:rgba(77,168,218,.12); border:1px solid var(--azul-claro); color:var(--azul-claro); border-radius:8px; padding:.4rem .9rem; font-size:.8rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:.3rem; white-space:nowrap;';
+    btn.onclick = function() { abrirModalVentasDia(); };
+    navbar.insertBefore(btn, navbar.firstChild);
+});
+ 
+function abrirModalVentasDia() {
+    const hoy = new Date();
+    const dd = String(hoy.getDate()).padStart(2,'0');
+    const mm = String(hoy.getMonth()+1).padStart(2,'0');
+    const yyyy = hoy.getFullYear();
+    const fechaHoy = dd + '/' + mm + '/' + yyyy;
+ 
+    const ventas = Array.from(document.querySelectorAll('.dato-venta')).filter(v => {
+        return v.dataset.fecha && v.dataset.fecha.startsWith(fechaHoy);
+    });
+ 
+    let totalDia = 0;
+    let filas = '';
+    ventas.forEach((v, i) => {
+        const total = parseFloat(v.dataset.total) || 0;
+        totalDia += total;
+        const detalles = Array.from(v.querySelectorAll('.dato-detalle'));
+        const productos = detalles.map(d => {
+            const pres = d.dataset.presentacion ? ' (' + d.dataset.presentacion + ')' : '';
+            return d.dataset.nombre + pres + ' x' + d.dataset.cantidad;
+        }).join(', ');
+        filas += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:.6rem 0; border-bottom:1px solid var(--azul-borde); gap:.5rem;">' +
+            '<div style="flex:1;">' +
+                '<div style="font-weight:700; font-size:.85rem; color:var(--texto);">' + v.dataset.cliente + '</div>' +
+                '<div style="font-size:.72rem; color:var(--texto-muted); margin-top:.2rem;">' + productos + '</div>' +
+                '<div style="font-size:.7rem; color:var(--texto-muted);">' + v.dataset.fecha + '</div>' +
+            '</div>' +
+            '<span style="font-weight:800; color:var(--azul-claro); white-space:nowrap;">$' + formatPesos(total) + '</span>' +
+        '</div>';
+    });
+ 
+    if (ventas.length === 0) {
+        filas = '<div style="text-align:center; padding:1.5rem 0; color:var(--texto-muted);"><i class="bi bi-receipt" style="font-size:1.5rem; display:block; margin-bottom:.4rem;"></i>No hay ventas hoy</div>';
+    }
+ 
+    document.getElementById('ventasDiaContenido').innerHTML = filas;
+    document.getElementById('ventasDiaTotal').innerHTML = ventas.length > 0
+        ? '<div style="display:flex; justify-content:space-between; align-items:center; padding:.8rem 1rem; background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; margin-top:.8rem;">' +
+            '<span style="font-weight:700; font-size:.9rem;">TOTAL DEL DÍA (' + ventas.length + ' ventas)</span>' +
+            '<span style="font-size:1.3rem; font-weight:800; color:var(--azul-claro);">$' + formatPesos(totalDia) + '</span>' +
+          '</div>'
+        : '';
+ 
+    document.getElementById('overlayVentasDia').style.display = 'block';
+    document.getElementById('modalVentasDia').style.display = 'block';
+}
+ 
+function cerrarVentasDia() {
+    document.getElementById('overlayVentasDia').style.display = 'none';
+    document.getElementById('modalVentasDia').style.display = 'none';
+}
 {% endverbatim %}
 </script>
 {% endblock %}
