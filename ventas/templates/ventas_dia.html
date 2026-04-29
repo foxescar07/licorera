@@ -1,0 +1,442 @@
+{% extends 'base.html' %}
+{% load static %}
+ 
+{% block title %}Ventas del Día — CYS Ltda{% endblock %}
+{% block page_title %}Ventas del Día{% endblock %}
+ 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ventas.css' %}">
+<style>
+/* ── Botón exportar ── */
+.cys-btn-export {
+    background: rgba(77,168,218,.12);
+    border: 1px solid var(--azul-claro);
+    color: var(--azul-claro);
+    border-radius: 8px;
+    padding: .45rem 1rem;
+    font-size: .82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    text-decoration: none;
+    transition: background .2s;
+}
+.cys-btn-export:hover {
+    background: rgba(77,168,218,.25);
+    color: var(--azul-claro);
+}
+ 
+/* ── Tarjetas resumen ── */
+.vd-stat {
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    border-radius: 14px;
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+}
+.vd-stat__label {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--texto-muted);
+    font-weight: 600;
+}
+.vd-stat__val {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--azul-claro);
+    line-height: 1;
+}
+.vd-stat__sub {
+    font-size: .75rem;
+    color: var(--texto-muted);
+}
+ 
+/* ── Tabla ── */
+.vd-table th {
+    font-size: .72rem;
+    text-transform: uppercase;
+    color: var(--azul-claro);
+    font-weight: 600;
+    border-bottom: 1px solid var(--azul-borde);
+    padding: .7rem 1rem;
+    white-space: nowrap;
+}
+.vd-table td {
+    font-size: .85rem;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--azul-borde);
+    vertical-align: middle;
+    color: var(--texto);
+}
+.vd-table tbody tr {
+    cursor: pointer;
+    transition: background .15s;
+}
+.vd-table tbody tr:hover {
+    background: rgba(77,168,218,.05);
+}
+ 
+/* ── Badge método pago ── */
+.vd-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    border-radius: 20px;
+    padding: .15rem .55rem;
+    font-size: .7rem;
+    color: var(--texto-muted);
+    white-space: nowrap;
+}
+ 
+/* ── Modal detalle ── */
+.vd-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.7);
+    z-index: 9998;
+}
+.vd-modal-overlay.open { display: block; }
+.vd-modal-box {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    z-index: 9999;
+    width: 460px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--fondo-card);
+    border: 1px solid var(--azul-borde);
+    border-radius: 16px;
+    padding: 2rem;
+}
+.vd-modal-box.open { display: block; }
+ 
+@media print {
+    .no-print { display: none !important; }
+    .cys-header, .cys-subnav, aside, .cys-main > .no-print { display: none !important; }
+    body { background: #fff !important; color: #000 !important; }
+    .cys-card { border: 1px solid #ccc !important; }
+}
+</style>
+{% endblock %}
+ 
+{% block content %}
+<div class="container-fluid p-0">
+ 
+  <!-- ── ENCABEZADO ── -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 no-print">
+    <div>
+      <div style="font-size:.75rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Resumen</div>
+      <div style="font-size:1.4rem; font-weight:800; color:var(--texto);">
+        <i class="bi bi-calendar-check me-2" style="color:var(--azul-claro);"></i>
+        Ventas del día — {{ hoy|date:"d/m/Y" }}
+      </div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'ventas:ventas_lista' %}" class="cys-btn-export">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
+      <button onclick="exportarCSV()" class="cys-btn-export">
+        <i class="bi bi-filetype-csv"></i> Exportar CSV
+      </button>
+      <button onclick="window.print()" class="cys-btn-export">
+        <i class="bi bi-printer"></i> Imprimir
+      </button>
+    </div>
+  </div>
+ 
+  <!-- ── TARJETAS RESUMEN ── -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="vd-stat">
+        <div class="vd-stat__label"><i class="bi bi-receipt me-1"></i>Ventas</div>
+        <div class="vd-stat__val">{{ ventas.count }}</div>
+        <div class="vd-stat__sub">transacciones hoy</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="vd-stat">
+        <div class="vd-stat__label"><i class="bi bi-cash-stack me-1"></i>Total del día</div>
+        <div class="vd-stat__val" style="font-size:1.3rem;">${{ total_dia|floatformat:0 }}</div>
+        <div class="vd-stat__sub">ingresos acumulados</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="vd-stat">
+        <div class="vd-stat__label"><i class="bi bi-graph-up me-1"></i>Ticket promedio</div>
+        <div class="vd-stat__val" style="font-size:1.3rem;" id="ticketPromedio">—</div>
+        <div class="vd-stat__sub">por venta</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="vd-stat">
+        <div class="vd-stat__label"><i class="bi bi-box-seam me-1"></i>Productos vendidos</div>
+        <div class="vd-stat__val" id="totalProductos">—</div>
+        <div class="vd-stat__sub">unidades totales</div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- ── TABLA VENTAS ── -->
+  <section class="cys-card">
+    <div class="cys-card__title mb-3">Detalle de Ventas</div>
+ 
+    {% if ventas %}
+    <div class="table-responsive">
+      <table class="table table-dark vd-table mb-0" id="tablaVentas">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Hora</th>
+            <th>Cliente</th>
+            <th>Productos</th>
+            <th>Métodos de pago</th>
+            <th>Descuento</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for venta in ventas %}
+          <tr onclick="abrirDetalle({{ venta.pk }})">
+            <td style="color:var(--texto-muted); font-size:.75rem;">{{ forloop.counter }}</td>
+            <td style="color:var(--texto-muted);">{{ venta.fecha|date:"H:i" }}</td>
+            <td style="font-weight:700;">{{ venta.cliente }}</td>
+            <td>
+              <div class="d-flex flex-wrap gap-1">
+                {% for det in venta.detalles.all %}
+                <span class="vd-badge">
+                  {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %} ×{{ det.cantidad }}
+                </span>
+                {% endfor %}
+              </div>
+            </td>
+            <td>
+              <div class="d-flex flex-wrap gap-1">
+                {% if venta.pago_efectivo > 0 %}<span class="vd-badge"><i class="bi bi-cash"></i> Efectivo</span>{% endif %}
+                {% if venta.pago_tarjeta > 0 %}<span class="vd-badge"><i class="bi bi-credit-card"></i> Tarjeta</span>{% endif %}
+                {% if venta.pago_transferencia > 0 %}<span class="vd-badge"><i class="bi bi-bank"></i> Transfer.</span>{% endif %}
+                {% if venta.pago_nequi > 0 %}<span class="vd-badge"><i class="bi bi-phone"></i> Nequi</span>{% endif %}
+                {% if venta.pago_daviplata > 0 %}<span class="vd-badge"><i class="bi bi-phone"></i> Daviplata</span>{% endif %}
+              </div>
+            </td>
+            <td>
+              {% if venta.descuento_porcentaje > 0 %}
+              <span style="color:#ff4d4d; font-size:.8rem; font-weight:700;">-{{ venta.descuento_porcentaje|floatformat:0 }}%</span>
+              {% else %}
+              <span style="color:var(--texto-muted);">—</span>
+              {% endif %}
+            </td>
+            <td style="font-weight:800; color:var(--azul-claro);">${{ venta.total_venta|floatformat:0 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+ 
+    <!-- FILA TOTAL -->
+    <div class="d-flex justify-content-between align-items-center mt-3 px-1" style="border-top:1px solid var(--azul-borde); padding-top:1rem;">
+      <span style="font-weight:700; font-size:.95rem; color:var(--texto-muted);">TOTAL DEL DÍA ({{ ventas.count }} ventas)</span>
+      <span style="font-size:1.5rem; font-weight:800; color:var(--azul-claro);">${{ total_dia|floatformat:0 }}</span>
+    </div>
+ 
+    {% else %}
+    <div style="text-align:center; padding:3rem 0; color:var(--texto-muted);">
+      <i class="bi bi-receipt" style="font-size:2.5rem; display:block; margin-bottom:.7rem;"></i>
+      No hay ventas registradas hoy
+    </div>
+    {% endif %}
+  </section>
+ 
+</div>
+ 
+<!-- ── DATOS PARA JS ── -->
+<div id="datosVentas" style="display:none;">
+  {% for venta in ventas %}
+  <div class="dato-venta"
+       data-id="{{ venta.pk }}"
+       data-cliente="{{ venta.cliente }}"
+       data-fecha="{{ venta.fecha|date:'d/m/Y H:i' }}"
+       data-hora="{{ venta.fecha|date:'H:i' }}"
+       data-descuento="{{ venta.descuento_porcentaje }}"
+       data-total="{{ venta.total_venta }}"
+       data-efectivo="{{ venta.pago_efectivo }}"
+       data-tarjeta="{{ venta.pago_tarjeta }}"
+       data-transferencia="{{ venta.pago_transferencia }}"
+       data-nequi="{{ venta.pago_nequi }}"
+       data-daviplata="{{ venta.pago_daviplata }}">
+    {% for det in venta.detalles.all %}
+    <span class="dato-detalle"
+          data-nombre="{{ det.producto.nombre }}"
+          data-presentacion="{% if det.presentacion %}{{ det.presentacion.nombre }}{% endif %}"
+          data-cantidad="{{ det.cantidad }}"
+          data-precio="{{ det.precio_unitario }}"
+          data-subtotal="{{ det.subtotal }}">
+    </span>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+ 
+<!-- ── MODAL DETALLE VENTA ── -->
+<div id="overlayDetalle" class="vd-modal-overlay" onclick="cerrarDetalle()"></div>
+<div id="modalDetalle" class="vd-modal-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.3rem;">
+    <div>
+      <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Comprobante</div>
+      <div style="font-size:1.1rem; font-weight:800; color:var(--texto);">Detalle de Venta</div>
+    </div>
+    <button onclick="cerrarDetalle()" style="background:none; border:none; color:var(--texto-muted); font-size:1.3rem; cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div id="detalleContenido"></div>
+  <button onclick="cerrarDetalle()" style="width:100%; margin-top:1.2rem; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
+</div>
+ 
+{% endblock %}
+ 
+{% block extra_js %}
+<script>
+function formatPesos(val) {
+    const n = Math.round(parseFloat(val) || 0);
+    return n.toLocaleString('es-CO');
+}
+ 
+// ── Calcular stats ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+    const ventas = Array.from(document.querySelectorAll('.dato-venta'));
+    if (ventas.length === 0) return;
+ 
+    let totalProductos = 0;
+    let totalDia = 0;
+ 
+    ventas.forEach(v => {
+        totalDia += parseFloat(v.dataset.total) || 0;
+        v.querySelectorAll('.dato-detalle').forEach(d => {
+            totalProductos += parseInt(d.dataset.cantidad) || 0;
+        });
+    });
+ 
+    const promedio = ventas.length > 0 ? totalDia / ventas.length : 0;
+    document.getElementById('ticketPromedio').textContent = '$' + formatPesos(promedio);
+    document.getElementById('totalProductos').textContent = totalProductos;
+});
+ 
+// ── Modal detalle ─────────────────────────────────────────────
+function abrirDetalle(ventaId) {
+    const v = document.querySelector('.dato-venta[data-id="' + ventaId + '"]');
+    if (!v) return;
+ 
+    const detalles = Array.from(v.querySelectorAll('.dato-detalle'));
+    let subtotalBruto = 0;
+ 
+    const itemsHTML = detalles.map(d => {
+        const sub = parseFloat(d.dataset.subtotal) || 0;
+        subtotalBruto += sub;
+        const pres = d.dataset.presentacion ? ' (' + d.dataset.presentacion + ')' : '';
+        return `<div style="display:flex; justify-content:space-between; align-items:center; padding:.5rem 0; border-bottom:1px solid var(--azul-borde);">
+            <div>
+                <div style="font-weight:600; color:var(--texto); font-size:.9rem;">${d.dataset.nombre}${pres}</div>
+                <div style="font-size:.75rem; color:var(--texto-muted);">${d.dataset.cantidad} × $${formatPesos(d.dataset.precio)}</div>
+            </div>
+            <span style="font-weight:700; color:var(--azul-claro);">$${formatPesos(sub)}</span>
+        </div>`;
+    }).join('');
+ 
+    const descuento = parseFloat(v.dataset.descuento) || 0;
+    const ahorro    = subtotalBruto * (descuento / 100);
+    const total     = parseFloat(v.dataset.total) || 0;
+ 
+    const pagos = [
+        { label: 'Efectivo',       val: v.dataset.efectivo,       icon: 'bi-cash' },
+        { label: 'Tarjeta',        val: v.dataset.tarjeta,        icon: 'bi-credit-card' },
+        { label: 'Transferencia',  val: v.dataset.transferencia,  icon: 'bi-bank' },
+        { label: 'Nequi',          val: v.dataset.nequi,          icon: 'bi-phone' },
+        { label: 'Daviplata',      val: v.dataset.daviplata,      icon: 'bi-phone' },
+    ].filter(p => parseFloat(p.val) > 0);
+ 
+    const pagosHTML = pagos.map(p => `
+        <div style="display:flex; justify-content:space-between; padding:.3rem 0; font-size:.85rem;">
+            <span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span>
+            <span style="color:var(--texto); font-weight:600;">$${formatPesos(p.val)}</span>
+        </div>`).join('');
+ 
+    document.getElementById('detalleContenido').innerHTML = `
+        <div style="background:var(--fondo-card2); border-radius:10px; padding:1rem; margin-bottom:1rem;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:.3rem;">
+                <span style="font-size:.75rem; color:var(--texto-muted);">CLIENTE</span>
+                <span style="font-weight:700; color:var(--texto);">${v.dataset.cliente}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="font-size:.75rem; color:var(--texto-muted);">HORA</span>
+                <span style="font-size:.85rem; color:var(--texto);">${v.dataset.hora}</span>
+            </div>
+        </div>
+        <div style="margin-bottom:1rem;">
+            <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; margin-bottom:.5rem;">Productos</div>
+            ${itemsHTML}
+        </div>
+        <div style="background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem; margin-bottom:1rem;">
+            ${descuento > 0 ? `
+            <div style="display:flex; justify-content:space-between; margin-bottom:.4rem; font-size:.85rem;">
+                <span style="color:var(--texto-muted);">Subtotal:</span>
+                <span style="text-decoration:line-through; color:var(--texto-muted);">$${formatPesos(subtotalBruto)}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:.4rem; font-size:.85rem;">
+                <span style="color:#ff4d4d;">Descuento (${descuento}%):</span>
+                <span style="color:#ff4d4d;">-$${formatPesos(ahorro)}</span>
+            </div>` : ''}
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--azul-borde); padding-top:.6rem; margin-top:.3rem;">
+                <span style="font-weight:700; font-size:1rem;">TOTAL</span>
+                <span style="font-size:1.5rem; font-weight:800; color:var(--azul-claro);">$${formatPesos(total)}</span>
+            </div>
+        </div>
+        ${pagos.length > 0 ? `
+        <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem;">
+            <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; margin-bottom:.5rem;">Métodos de pago</div>
+            ${pagosHTML}
+        </div>` : ''}
+    `;
+ 
+    document.getElementById('overlayDetalle').classList.add('open');
+    document.getElementById('modalDetalle').classList.add('open');
+}
+ 
+function cerrarDetalle() {
+    document.getElementById('overlayDetalle').classList.remove('open');
+    document.getElementById('modalDetalle').classList.remove('open');
+}
+ 
+// ── Exportar CSV ──────────────────────────────────────────────
+function exportarCSV() {
+    const ventas = Array.from(document.querySelectorAll('.dato-venta'));
+    if (ventas.length === 0) { alert('No hay ventas para exportar.'); return; }
+ 
+    let csv = 'Hora,Cliente,Productos,Descuento (%),Total ($)\n';
+    ventas.forEach(v => {
+        const productos = Array.from(v.querySelectorAll('.dato-detalle')).map(d => {
+            const pres = d.dataset.presentacion ? ' (' + d.dataset.presentacion + ')' : '';
+            return d.dataset.nombre + pres + ' x' + d.dataset.cantidad;
+        }).join(' | ');
+        csv += `${v.dataset.hora},"${v.dataset.cliente}","${productos}",${v.dataset.descuento},${v.dataset.total}\n`;
+    });
+ 
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'ventas_dia_{{ hoy|date:"d-m-Y" }}.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

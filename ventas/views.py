@@ -337,3 +337,21 @@ def comprobante_devolucion(request, pk):
     return render(request, 'ventas/comprobante_devolucion.html', {
         'devolucion': devolucion,
     })
+def ventas_dia(request):
+    """Página de ventas del día con resumen, detalle y exportación."""
+    from django.utils import timezone
+    import datetime
+ 
+    hoy = timezone.localdate()
+    ventas = Venta.objects.prefetch_related(
+        'detalles__producto',
+        'detalles__presentacion'
+    ).filter(fecha__date=hoy).order_by('-fecha')
+ 
+    total_dia = sum(v.total_venta for v in ventas)
+ 
+    return render(request, 'ventas_dia.html', {
+        'ventas':    ventas,
+        'total_dia': total_dia,
+        'hoy':       hoy,
+    })
