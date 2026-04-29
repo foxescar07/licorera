@@ -250,28 +250,35 @@ def gestion_salida(request):
 # ══════════════════════════════════════════════════════
 def gestion_producto_editar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
-    if request.method == 'POST':
+    if request.method == "POST":
         nombre       = request.POST.get('nombre', '').strip()
         codigo       = request.POST.get('codigo', '').strip()
         descripcion  = request.POST.get('descripcion', '').strip()
-        precio       = request.POST.get('precio_unitario', '').strip()
-        categoria_id = request.POST.get('categoria') or None
+        categoria_pk = request.POST.get('categoria')
+        precio_raw   = request.POST.get('precio_unitario', '').strip()
 
-        if not nombre or not codigo:
-            messages.error(request, '⚠️ Nombre y código son obligatorios.')
-            return redirect('inventario:gestion_productos')
-
-        producto.nombre      = nombre
-        producto.codigo      = codigo
+        if nombre:
+            producto.nombre = nombre
+        if codigo:
+            producto.codigo = codigo
         producto.descripcion = descripcion
-        if precio:
-            producto.precio_unitario = precio
-        if categoria_id:
-            producto.categoria = get_object_or_404(Categoria, pk=categoria_id)
-        producto.save()
-        messages.success(request, f'✅ Producto "{nombre}" actualizado.')
-    return redirect('inventario:gestion_productos')
 
+        if categoria_pk:
+            try:
+                producto.categoria_id = int(categoria_pk)
+            except (ValueError, TypeError):
+                pass
+
+        if precio_raw:
+            try:
+                producto.precio_unitario = max(0, float(precio_raw))
+            except (ValueError, TypeError):
+                pass
+
+        producto.save()
+        messages.success(request, f'✅ Producto "{producto.nombre}" actualizado correctamente.')
+
+    return redirect('inventario:gestion_productos')
 
 def gestion_producto_eliminar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)

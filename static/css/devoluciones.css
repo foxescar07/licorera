@@ -1,0 +1,85 @@
+/* ============================================================
+   DEVOLUCIONES — ADVERTENCIA
+   ============================================================ */
+.cys-warning-banner {
+    background: rgba(255,77,77,.10);
+    border: 1px solid #ff4d4d;
+    border-radius: var(--radius);
+    padding: 1rem 1.2rem;
+    color: #ff4d4d;
+    font-weight: 600;
+    display: none;
+    margin-bottom: 1rem;
+}
+
+/* ============================================================
+   DEVOLUCIONES — PASOS
+   ============================================================ */
+.step-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--azul-claro);
+    color: #000;
+    font-size: .75rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   DEVOLUCIONES — FILAS DE PRODUCTOS
+   ============================================================ */
+.prod-check-row {
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    border-radius: var(--radius);
+    padding: .75rem 1rem;
+    margin-bottom: .5rem;
+    transition: var(--trans);
+}
+
+.prod-check-row.seleccionado {
+    border-color: var(--azul-claro);
+    background: rgba(77,168,218,.07);
+}
+
+/* ============================================================
+   DEVOLUCIONES — RESULTADOS DE BÚSQUEDA
+   ============================================================ */
+.venta-result-row {
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    border-radius: var(--radius);
+    padding: .8rem 1rem;
+    cursor: pointer;
+    margin-bottom: .4rem;
+    transition: var(--trans);
+}
+
+.venta-result-row:hover {
+    border-color: var(--azul-claro);
+    background: rgba(77,168,218,.06);
+}
+
+/* ============================================================
+   DEVOLUCIONES — BOTONES MÉTODO
+   ============================================================ */
+.metodo-dev-btn {
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    border-radius: 8px;
+    padding: .4rem .8rem;
+    color: var(--texto-muted);
+    cursor: pointer;
+    font-size: .8rem;
+    transition: var(--trans);
+}
+
+.metodo-dev-btn.activo {
+    border-color: var(--azul-claro);
+    color: var(--azul-claro);
+    background: rgba(77,168,218,.1);
+}

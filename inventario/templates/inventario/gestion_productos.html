@@ -11,7 +11,6 @@
 
 <div class="container-fluid p-0">
 
-  <!-- ── MENSAJES ── -->
   {% if messages %}
     {% for message in messages %}
       <div class="gp-alert {% if message.tags == 'error' %}gp-alert--err{% elif message.tags == 'warning' %}gp-alert--warn{% else %}gp-alert--ok{% endif %} mb-3">
@@ -21,7 +20,6 @@
     {% endfor %}
   {% endif %}
 
-  <!-- ── HEADER ── -->
   <div style="margin-bottom:1.75rem;">
     <a href="{% url 'inventario:inventario_home' %}" class="gp-back mb-1 d-inline-flex">
       <i class="bi bi-arrow-left-circle"></i> Volver a Inventario
@@ -29,7 +27,6 @@
     <div class="gp-title mt-1"><i class="bi bi-box-seam-fill me-2"></i>Gestión de Productos</div>
   </div>
 
-  <!-- ── TABS NAV ── -->
   <div class="gp-tabs">
     <button class="gp-tab active" onclick="showTab('productos', this)">
       <i class="bi bi-box-seam"></i> Productos
@@ -40,18 +37,13 @@
     <button class="gp-tab" onclick="showTab('categorias', this)">
       <i class="bi bi-tags"></i> Categorías
     </button>
-    <!-- Tab Nuevo Producto eliminado -->
     <button class="gp-tab" onclick="showTab('lotes', this)">
       <i class="bi bi-upc-scan"></i> Registrar Lote
     </button>
   </div>
 
-
-  <!-- ════════════════════════════════════════
-       TAB 1: CATÁLOGO
-  ═════════════════════════════════════════ -->
+  <!-- TAB 1: CATÁLOGO -->
   <div id="tab-productos" class="gp-section active">
-
     <div class="gp-stats-grid">
       <div class="gp-stat-card">
         <div class="gp-stat-card__label"><i class="bi bi-box-seam me-1"></i>Total Productos</div>
@@ -88,147 +80,139 @@
           </div>
           <div class="gp-group-body">
 
+            <!-- ── Encabezado columnas ── -->
             <div class="gp-col-header">
               <span>Nombre</span>
               <span>Código</span>
               <span>Stock</span>
-              <span>Precio</span>
+              <span>Presentaciones / Precio</span>
               <span>Acciones</span>
             </div>
 
-            <!-- Productos directos de la categoría -->
             {% for p in cat.productos.all %}
-            <div class="gp-fila"
-                 data-nombre="{{ p.nombre|lower }}"
-                 data-codigo="{{ p.codigo|lower }}">
+            <div class="gp-fila" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
 
+              <!-- Nombre -->
               <div>
                 <span class="gp-fila__name">{{ p.nombre }}</span>
                 {% if p.stock_critico %}
-                  <span class="gp-crit-tag">
-                    <i class="bi bi-exclamation-triangle-fill"></i> Crítico
-                  </span>
+                  <span class="gp-crit-tag"><i class="bi bi-exclamation-triangle-fill"></i> Crítico</span>
                 {% endif %}
               </div>
 
+              <!-- Código -->
               <span class="gp-fila__code">{{ p.codigo }}</span>
 
+              <!-- Stock -->
               <span>
                 <span class="gp-stock-badge {% if p.stock_critico %}low{% else %}ok{% endif %}">
                   {{ p.stock_total }} {{ p.unidad }}
                 </span>
               </span>
 
-              <span class="gp-fila__price">${{ p.precio_unitario|floatformat:0 }}</span>
+              <!-- Presentaciones / Precio -->
+              <div>
+                {% with pres=p.presentaciones.all %}
+                  {% if pres %}
+                    <div style="display:flex; flex-wrap:wrap; gap:.3rem;">
+                      {% for pr in pres %}
+                        <span style="display:inline-flex; align-items:center; gap:.3rem;
+                                     font-size:.68rem; padding:.25rem .5rem; border-radius:6px;
+                                     background:rgba(77,168,218,.09);
+                                     border:1px solid rgba(77,168,218,.22);
+                                     color:var(--gp-blue); white-space:nowrap;">
+                          <span style="color:var(--gp-text); font-weight:500;">{{ pr.nombre }}</span>
+                          <span style="color:var(--gp-muted);">×{{ pr.unidades }}</span>
+                          <span style="font-weight:700;">${{ pr.precio|floatformat:0 }}</span>
+                          <span style="color:var(--gp-muted);">· {{ pr.cantidad }} uds</span>
+                        </span>
+                      {% endfor %}
+                    </div>
+                  {% else %}
+                    <span class="gp-fila__price">${{ p.precio_unitario|floatformat:0 }}</span>
+                  {% endif %}
+                {% endwith %}
+              </div>
 
+              <!-- Acciones -->
               <div class="gp-fila-actions">
                 <button class="gp-btn gp-btn--warning gp-btn--sm"
-                        onclick="abrirEditarProducto(
-                          {{ p.pk }},
-                          '{{ p.nombre|escapejs }}',
-                          '{{ p.codigo|escapejs }}',
-                          '{{ p.descripcion|default:''|escapejs }}',
-                          '{{ p.precio_unitario }}',
-                          {{ p.categoria.pk }}
-                        )">
+                        onclick="abrirEditarProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.descripcion|default:''|escapejs }}','{{ p.precio_unitario }}',{{ p.categoria.pk }})">
                   <i class="bi bi-pencil"></i> Editar
                 </button>
-
                 <button class="gp-btn gp-btn--outline gp-btn--sm"
-                        onclick="abrirDetalleProducto(
-                          {{ p.pk }},
-                          '{{ p.nombre|escapejs }}',
-                          '{{ p.codigo|escapejs }}',
-                          '{{ p.categoria.nombre|escapejs }}',
-                          '{{ p.precio_unitario }}',
-                          '{{ p.stock_total }}',
-                          '{{ p.unidad }}',
-                          '{{ p.descripcion|default:''|escapejs }}'
-                        )">
+                        onclick="abrirDetalleProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.categoria.nombre|escapejs }}','{{ p.precio_unitario }}','{{ p.stock_total }}','{{ p.unidad }}','{{ p.descripcion|default:''|escapejs }}')">
                   <i class="bi bi-eye"></i>
                 </button>
-
                 <form method="POST" action="{% url 'inventario:gestion_producto_eliminar' p.pk %}"
-                      onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»? Esta acción no se puede deshacer.')"
-                      style="margin:0;">
+                      onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»? Esta acción no se puede deshacer.')" style="margin:0;">
                   {% csrf_token %}
-                  <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm">
-                    <i class="bi bi-trash"></i>
-                  </button>
+                  <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm"><i class="bi bi-trash"></i></button>
                 </form>
               </div>
             </div>
             {% endfor %}
 
-            <!-- Productos de subcategorías -->
+            <!-- Sub-categorías -->
             {% for sub in cat.subcategorias.all %}
               {% for p in sub.productos.all %}
-              <div class="gp-fila"
-                   data-nombre="{{ p.nombre|lower }}"
-                   data-codigo="{{ p.codigo|lower }}">
-
+              <div class="gp-fila" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
                 <div>
                   <span class="gp-fila__name">{{ p.nombre }}</span>
                   <span class="gp-fila__sub"> · {{ sub.nombre }}</span>
                   {% if p.stock_critico %}
-                    <span class="gp-crit-tag">
-                      <i class="bi bi-exclamation-triangle-fill"></i> Crítico
-                    </span>
+                    <span class="gp-crit-tag"><i class="bi bi-exclamation-triangle-fill"></i> Crítico</span>
                   {% endif %}
                 </div>
-
                 <span class="gp-fila__code">{{ p.codigo }}</span>
-
                 <span>
                   <span class="gp-stock-badge {% if p.stock_critico %}low{% else %}ok{% endif %}">
                     {{ p.stock_total }} {{ p.unidad }}
                   </span>
                 </span>
-
-                <span class="gp-fila__price">${{ p.precio_unitario|floatformat:0 }}</span>
-
+                <div>
+                  {% with pres=p.presentaciones.all %}
+                    {% if pres %}
+                      <div style="display:flex; flex-wrap:wrap; gap:.3rem;">
+                        {% for pr in pres %}
+                          <span style="display:inline-flex; align-items:center; gap:.3rem;
+                                       font-size:.68rem; padding:.25rem .5rem; border-radius:6px;
+                                       background:rgba(77,168,218,.09);
+                                       border:1px solid rgba(77,168,218,.22);
+                                       color:var(--gp-blue); white-space:nowrap;">
+                            <span style="color:var(--gp-text); font-weight:500;">{{ pr.nombre }}</span>
+                            <span style="color:var(--gp-muted);">×{{ pr.unidades }}</span>
+                            <span style="font-weight:700;">${{ pr.precio|floatformat:0 }}</span>
+                            <span style="color:var(--gp-muted);">· {{ pr.cantidad }} uds</span>
+                          </span>
+                        {% endfor %}
+                      </div>
+                    {% else %}
+                      <span class="gp-fila__price">${{ p.precio_unitario|floatformat:0 }}</span>
+                    {% endif %}
+                  {% endwith %}
+                </div>
                 <div class="gp-fila-actions">
                   <button class="gp-btn gp-btn--warning gp-btn--sm"
-                          onclick="abrirEditarProducto(
-                            {{ p.pk }},
-                            '{{ p.nombre|escapejs }}',
-                            '{{ p.codigo|escapejs }}',
-                            '{{ p.descripcion|default:''|escapejs }}',
-                            '{{ p.precio_unitario }}',
-                            {{ p.categoria.pk }}
-                          )">
+                          onclick="abrirEditarProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.descripcion|default:''|escapejs }}','{{ p.precio_unitario }}',{{ p.categoria.pk }})">
                     <i class="bi bi-pencil"></i> Editar
                   </button>
-
                   <button class="gp-btn gp-btn--outline gp-btn--sm"
-                          onclick="abrirDetalleProducto(
-                              {{ p.pk }},
-                            '{{ p.nombre|escapejs }}',
-                            '{{ p.codigo|escapejs }}',
-                            '{{ p.categoria.nombre|escapejs }}',
-                            '{{ p.precio_unitario }}',
-                            '{{ p.stock_total }}',
-                            '{{ p.unidad }}',
-                            '{{ p.descripcion|default:''|escapejs }}'
-                          )">
+                          onclick="abrirDetalleProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.categoria.nombre|escapejs }}','{{ p.precio_unitario }}','{{ p.stock_total }}','{{ p.unidad }}','{{ p.descripcion|default:''|escapejs }}')">
                     <i class="bi bi-eye"></i>
                   </button>
-
                   <form method="POST" action="{% url 'inventario:gestion_producto_eliminar' p.pk %}"
-                        onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»?')"
-                        style="margin:0;">
+                        onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»?')" style="margin:0;">
                     {% csrf_token %}
-                    <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm">
-                      <i class="bi bi-trash"></i>
-                    </button>
+                    <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm"><i class="bi bi-trash"></i></button>
                   </form>
                 </div>
               </div>
               {% endfor %}
             {% endfor %}
 
-          </div><!-- /gp-group-body -->
-        </div><!-- /gp-group -->
+          </div>
+        </div>
         {% endif %}
       {% empty %}
         <div style="text-align:center; padding:3rem; color:var(--gp-muted); font-size:.85rem;">
@@ -237,14 +221,9 @@
         </div>
       {% endfor %}
     </div>
-
   </div>
-  <!-- /TAB CATÁLOGO -->
 
-
-  <!-- ════════════════════════════════════════
-       TAB 2: REGISTRAR SALIDA
-  ═════════════════════════════════════════ -->
+  <!-- TAB 2: REGISTRAR SALIDA -->
   <div id="tab-salida" class="gp-section">
     <div class="gp-card">
       <div class="gp-card__title"><i class="bi bi-box-arrow-up"></i> Registrar Salida</div>
@@ -288,12 +267,8 @@
       { {% for p in productos %}"{{ p.pk }}": [{% for pr in p.presentaciones.all %}{"id":"{{ pr.pk }}","nombre":"{{ pr.nombre }}","cantidad":{{ pr.cantidad }},"unidades":{{ pr.unidades }}}{% if not forloop.last %},{% endif %}{% endfor %}]{% if not forloop.last %},{% endif %}{% endfor %} }
     </script>
   </div>
-  <!-- /TAB SALIDA -->
 
-
-  <!-- ════════════════════════════════════════
-       TAB 3: CATEGORÍAS
-  ═════════════════════════════════════════ -->
+  <!-- TAB 3: CATEGORÍAS -->
   <div id="tab-categorias" class="gp-section">
     <div class="row g-4">
       <div class="col-lg-4">
@@ -328,7 +303,6 @@
           </form>
         </div>
       </div>
-
       <div class="col-lg-8">
         <div class="gp-card">
           <div class="gp-card__title"><i class="bi bi-diagram-3"></i> Árbol de Categorías</div>
@@ -339,25 +313,15 @@
                 <i class="bi bi-tag-fill" style="color:var(--gp-blue);"></i>
                 <span style="font-weight:600;">{{ cat.nombre }}</span>
                 <span class="gp-badge ms-1">{{ cat.codigo }}</span>
-                <span style="margin-left:auto; font-size:.75rem; color:var(--gp-muted);">
-                  {{ cat.productos.count }} productos
-                </span>
+                <span style="margin-left:auto; font-size:.75rem; color:var(--gp-muted);">{{ cat.productos.count }} productos</span>
                 <button class="gp-btn gp-btn--warning gp-btn--sm"
-                        onclick="abrirEditarCategoria(
-                          {{ cat.pk }},
-                          '{{ cat.nombre|escapejs }}',
-                          '{{ cat.codigo|escapejs }}',
-                          '{{ cat.descripcion|default:''|escapejs }}',
-                          ''
-                        )">
+                        onclick="abrirEditarCategoria({{ cat.pk }},'{{ cat.nombre|escapejs }}','{{ cat.codigo|escapejs }}','{{ cat.descripcion|default:''|escapejs }}','')">
                   <i class="bi bi-pencil"></i>
                 </button>
                 <form method="POST" action="{% url 'inventario:gestion_categoria_eliminar' cat.pk %}"
                       onsubmit="return confirm('¿Eliminar «{{ cat.nombre }}»?')" style="margin:0;">
                   {% csrf_token %}
-                  <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm">
-                    <i class="bi bi-trash"></i>
-                  </button>
+                  <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm"><i class="bi bi-trash"></i></button>
                 </form>
               </div>
               {% if cat.subcategorias.all %}
@@ -367,25 +331,15 @@
                   <i class="bi bi-arrow-return-right" style="color:var(--gp-muted);"></i>
                   <span>{{ sub.nombre }}</span>
                   <span class="gp-badge ms-1">{{ sub.codigo }}</span>
-                  <span style="margin-left:.5rem; font-size:.75rem; color:var(--gp-muted);">
-                    {{ sub.productos.count }} prod.
-                  </span>
+                  <span style="margin-left:.5rem; font-size:.75rem; color:var(--gp-muted);">{{ sub.productos.count }} prod.</span>
                   <button class="gp-btn gp-btn--warning gp-btn--sm"
-                          onclick="abrirEditarCategoria(
-                            {{ sub.pk }},
-                            '{{ sub.nombre|escapejs }}',
-                            '{{ sub.codigo|escapejs }}',
-                            '{{ sub.descripcion|default:''|escapejs }}',
-                            '{{ sub.padre.pk|default:'' }}'
-                          )">
+                          onclick="abrirEditarCategoria({{ sub.pk }},'{{ sub.nombre|escapejs }}','{{ sub.codigo|escapejs }}','{{ sub.descripcion|default:''|escapejs }}','{{ sub.padre.pk|default:'' }}')">
                     <i class="bi bi-pencil"></i>
                   </button>
                   <form method="POST" action="{% url 'inventario:gestion_categoria_eliminar' sub.pk %}"
                         onsubmit="return confirm('¿Eliminar subcategoría «{{ sub.nombre }}»?')" style="margin:0;">
                     {% csrf_token %}
-                    <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm">
-                      <i class="bi bi-trash"></i>
-                    </button>
+                    <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm"><i class="bi bi-trash"></i></button>
                   </form>
                 </div>
                 {% endfor %}
@@ -403,27 +357,17 @@
       </div>
     </div>
   </div>
-  <!-- /TAB CATEGORÍAS -->
 
-
-  <!-- TAB 4: NUEVO PRODUCTO — ELIMINADO (se gestiona desde Productos) -->
-
-
-  <!-- ════════════════════════════════════════
-       TAB 5: REGISTRAR LOTE
-  ═════════════════════════════════════════ -->
+  <!-- TAB 4: REGISTRAR LOTE -->
   <div id="tab-lotes" class="gp-section">
     <div class="gp-card">
-      <div class="gp-card__title">
-        <i class="bi bi-upc-scan"></i> Registrar Lote
-      </div>
+      <div class="gp-card__title"><i class="bi bi-upc-scan"></i> Registrar Lote</div>
       <form method="POST" action="{% url 'inventario:registrar_lote' %}">
         {% csrf_token %}
         <div class="gp-form-grid">
           <div>
             <label class="gp-label">Número de Lote</label>
-            <input type="text" name="numero_lote" class="gp-input"
-                   placeholder="Ej: LOT-2025-001" required>
+            <input type="text" name="numero_lote" class="gp-input" placeholder="Ej: LOT-2025-001" required>
           </div>
           <div>
             <label class="gp-label">Producto</label>
@@ -443,31 +387,24 @@
       </form>
     </div>
   </div>
-  <!-- /TAB LOTES -->
 
-</div><!-- /container-fluid -->
+</div>
 
 
-<!-- ════════════════════════════════════════
-     MODAL: DETALLE PRODUCTO
-═════════════════════════════════════════ -->
+<!-- MODAL: DETALLE PRODUCTO -->
 <div id="modalDetalleProducto" class="gp-modal-overlay">
   <div class="gp-modal-box">
     <div class="gp-modal-header">
       <div class="gp-modal-header__icon"><i class="bi bi-eye"></i></div>
       <span class="gp-modal-header__title">Detalle del Producto</span>
-      <button class="gp-modal-close" onclick="cerrarModal('modalDetalleProducto')">
-        <i class="bi bi-x-lg"></i>
-      </button>
+      <button class="gp-modal-close" onclick="cerrarModal('modalDetalleProducto')"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="gp-modal-body">
       <div style="display:flex; flex-direction:column; gap:1.1rem;">
-
         <div class="gp-det-row">
           <span class="gp-det-label">Nombre</span>
           <span id="gp-det-nombre" style="font-size:1.05rem; font-weight:700; color:var(--gp-text);"></span>
         </div>
-
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
           <div class="gp-det-row">
             <span class="gp-det-label">Código</span>
@@ -478,7 +415,7 @@
             <span id="gp-det-categoria" class="gp-det-val"></span>
           </div>
           <div class="gp-det-row">
-            <span class="gp-det-label">Precio unitario</span>
+            <span class="gp-det-label">Precio unitario base</span>
             <span id="gp-det-precio" style="color:var(--gp-blue); font-weight:700; font-size:.95rem;"></span>
           </div>
           <div class="gp-det-row">
@@ -486,12 +423,15 @@
             <span id="gp-det-stock" style="font-weight:700; font-size:.95rem;"></span>
           </div>
         </div>
-
+        <!-- Presentaciones en detalle -->
+        <div class="gp-det-row">
+          <span class="gp-det-label"><i class="bi bi-layers me-1"></i>Presentaciones</span>
+          <div id="gp-det-presentaciones" style="margin-top:.35rem;"></div>
+        </div>
         <div class="gp-det-row">
           <span class="gp-det-label">Descripción</span>
           <span id="gp-det-descripcion" style="font-size:.85rem; color:var(--gp-muted); line-height:1.55;"></span>
         </div>
-
         <div class="gp-det-row">
           <span class="gp-det-label"><i class="bi bi-upc-scan me-1"></i>Lotes registrados</span>
           <div id="gp-det-lotes" style="margin-top:.35rem;"></div>
@@ -500,25 +440,19 @@
     </div>
     <div class="gp-modal-footer">
       <button type="button" class="gp-btn gp-btn--outline" style="flex:1;"
-              onclick="cerrarModal('modalDetalleProducto')">
-        Cerrar
-      </button>
+              onclick="cerrarModal('modalDetalleProducto')">Cerrar</button>
     </div>
   </div>
 </div>
 
 
-<!-- ════════════════════════════════════════
-     MODAL: EDITAR PRODUCTO
-═════════════════════════════════════════ -->
+<!-- MODAL: EDITAR PRODUCTO -->
 <div id="modalEditarProducto" class="gp-modal-overlay">
   <div class="gp-modal-box gp-modal-box--lg">
     <div class="gp-modal-header">
       <div class="gp-modal-header__icon"><i class="bi bi-pencil-square"></i></div>
       <span class="gp-modal-header__title">Editar Producto</span>
-      <button class="gp-modal-close" onclick="cerrarModal('modalEditarProducto')">
-        <i class="bi bi-x-lg"></i>
-      </button>
+      <button class="gp-modal-close" onclick="cerrarModal('modalEditarProducto')"><i class="bi bi-x-lg"></i></button>
     </div>
     <form id="formEditarProducto" method="POST" action="">
       {% csrf_token %}
@@ -533,8 +467,8 @@
             <input type="text" name="codigo" id="ep-codigo" class="gp-input" required>
           </div>
           <div>
-            <label class="gp-label">Precio Unitario</label>
-            <input type="number" name="precio_unitario" id="ep-precio" class="gp-input" step="0.01">
+            <label class="gp-label">Precio Unitario (COP)</label>
+            <input type="number" name="precio_unitario" id="ep-precio" class="gp-input" step="0.01" min="0" placeholder="Ej: 2500">
           </div>
           <div>
             <label class="gp-label">Categoría</label>
@@ -552,23 +486,18 @@
 
         <div style="margin-top:1.25rem;">
           <div style="font-family:'Rajdhani',sans-serif; font-size:.82rem; font-weight:700;
-                      color:var(--gp-blue); letter-spacing:.08em; text-transform:uppercase;
-                      margin-bottom:.6rem;">
+                      color:var(--gp-blue); letter-spacing:.08em; text-transform:uppercase; margin-bottom:.6rem;">
             <i class="bi bi-layers me-1"></i> Presentaciones actuales
           </div>
-          <div id="ep-presentaciones"
-               style="color:var(--gp-muted); font-size:.8rem; margin-bottom:.75rem;">—</div>
-          <button type="button" class="gp-btn gp-btn--outline gp-btn--sm"
-                  id="btnEditarPresentaciones">
+          <div id="ep-presentaciones" style="color:var(--gp-muted); font-size:.8rem; margin-bottom:.75rem;">—</div>
+          <button type="button" class="gp-btn gp-btn--outline gp-btn--sm" id="btnEditarPresentaciones">
             <i class="bi bi-layers me-1"></i> Editar Presentaciones
           </button>
         </div>
       </div>
       <div class="gp-modal-footer">
         <button type="button" class="gp-btn gp-btn--danger" style="flex:1;"
-                onclick="cerrarModal('modalEditarProducto')">
-          Cancelar
-        </button>
+                onclick="cerrarModal('modalEditarProducto')">Cancelar</button>
         <button type="submit" class="gp-btn gp-btn--primary" style="flex:1;">
           <i class="bi bi-save"></i> Guardar cambios
         </button>
@@ -578,9 +507,7 @@
 </div>
 
 
-<!-- ════════════════════════════════════════
-     MODAL: PRESENTACIONES
-═════════════════════════════════════════ -->
+<!-- MODAL: PRESENTACIONES -->
 <div id="modalPresentaciones" class="gp-modal-overlay">
   <div class="gp-modal-box gp-modal-box--lg">
     <div class="gp-modal-header">
@@ -588,45 +515,49 @@
       <span class="gp-modal-header__title">
         Presentaciones — <span id="pres-producto-nombre">Producto</span>
       </span>
-      <button class="gp-modal-close" onclick="cerrarModal('modalPresentaciones')">
-        <i class="bi bi-x-lg"></i>
-      </button>
+      <button class="gp-modal-close" onclick="cerrarModal('modalPresentaciones')"><i class="bi bi-x-lg"></i></button>
     </div>
     <form id="form-presentaciones" method="POST" action="">
       {% csrf_token %}
       <div class="gp-modal-body">
         <div style="font-size:.78rem; color:var(--gp-muted); margin-bottom:1rem; line-height:1.6;">
-          Define las presentaciones del producto. La
-          <strong style="color:var(--gp-blue);">Unidad</strong> es siempre la base.
+          Define las presentaciones del producto. La primera fila es la
+          <strong style="color:var(--gp-blue);">presentación base</strong> —
+          puedes editar su nombre, unidades y cantidad libremente.
         </div>
-        <div class="pres-row mb-2">
+
+        <!-- Fila base: completamente editable -->
+        <div class="pres-row mb-2"
+             style="background:rgba(77,168,218,.04); border:1px solid rgba(77,168,218,.2); border-radius:10px; padding:.75rem 1rem;">
           <div class="row g-2 align-items-center">
             <div class="col-md-3">
-              <label class="gp-label">Presentación</label>
-              <input type="text" name="nombre[]" value="Unidad"
-                     class="gp-input" readonly style="opacity:.6;">
+              <label class="gp-label">Nombre presentación</label>
+              <input type="text" name="nombre[]" id="pres-nombre-base"
+                     class="gp-input" placeholder="Ej: Unidad, Lata, Botella…" value="Unidad">
             </div>
             <div class="col-md-2">
               <label class="gp-label">Unidades</label>
-              <input type="number" name="unidades_base[]" value="1"
-                     class="gp-input" readonly style="opacity:.6;">
+              <input type="number" name="unidades_base[]" id="pres-unidades-base"
+                     class="gp-input" min="1" value="1">
             </div>
             <div class="col-md-3">
-              <label class="gp-label">Cantidad existente</label>
+              <label class="gp-label">Cantidad en stock</label>
               <input type="number" name="cantidad[]" id="cantidad-unidad"
                      class="gp-input" placeholder="Ej: 50" min="0" value="0">
             </div>
             <div class="col-md-3">
               <label class="gp-label">Precio (COP)</label>
               <input type="number" name="precio[]" id="precio-unidad"
-                     class="gp-input" placeholder="Ej: 2500" min="0" required>
+                     class="gp-input" placeholder="Ej: 2500" min="0">
             </div>
             <div class="col-md-1 d-flex align-items-end justify-content-center pb-1">
-              <span style="color:var(--gp-blue); font-size:.62rem;">Base</span>
+              <span style="color:var(--gp-blue); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em;">Base</span>
             </div>
           </div>
         </div>
+
         <div id="contenedor-presentaciones"></div>
+
         <button type="button" class="gp-btn gp-btn--outline w-100 mt-2"
                 style="border-style:dashed; font-size:.8rem;"
                 onclick="agregarPresentacion()">
@@ -635,9 +566,7 @@
       </div>
       <div class="gp-modal-footer">
         <button type="button" class="gp-btn gp-btn--danger" style="flex:1;"
-                onclick="cerrarModal('modalPresentaciones')">
-          Cancelar
-        </button>
+                onclick="cerrarModal('modalPresentaciones')">Cancelar</button>
         <button type="button" class="gp-btn gp-btn--primary" style="flex:1;"
                 onclick="guardarPresentaciones()">
           <i class="bi bi-save me-1"></i> Guardar Presentaciones
@@ -648,17 +577,13 @@
 </div>
 
 
-<!-- ════════════════════════════════════════
-     MODAL: EDITAR CATEGORÍA
-═════════════════════════════════════════ -->
+<!-- MODAL: EDITAR CATEGORÍA -->
 <div id="modalEditarCategoria" class="gp-modal-overlay">
   <div class="gp-modal-box">
     <div class="gp-modal-header">
       <div class="gp-modal-header__icon"><i class="bi bi-tag"></i></div>
       <span class="gp-modal-header__title">Editar Categoría</span>
-      <button class="gp-modal-close" onclick="cerrarModal('modalEditarCategoria')">
-        <i class="bi bi-x-lg"></i>
-      </button>
+      <button class="gp-modal-close" onclick="cerrarModal('modalEditarCategoria')"><i class="bi bi-x-lg"></i></button>
     </div>
     <form id="formEditarCategoria" method="POST" action="">
       {% csrf_token %}
@@ -689,9 +614,7 @@
       </div>
       <div class="gp-modal-footer">
         <button type="button" class="gp-btn gp-btn--danger" style="flex:1;"
-                onclick="cerrarModal('modalEditarCategoria')">
-          Cancelar
-        </button>
+                onclick="cerrarModal('modalEditarCategoria')">Cancelar</button>
         <button type="submit" class="gp-btn gp-btn--primary" style="flex:1;">
           <i class="bi bi-save"></i> Guardar cambios
         </button>
@@ -701,11 +624,7 @@
 </div>
 
 
-<!-- ════════════════════════════════════════
-     JAVASCRIPT
-═════════════════════════════════════════ -->
 <script>
-// ── URL del endpoint de creación (app producto) ──────────────────
 const URL_CREAR_PRODUCTO = "{% url 'producto:crear_producto' %}";
 
 const todoProductosGP = [
@@ -736,7 +655,7 @@ const todoProductosGP = [
   {% endfor %}
 ];
 
-// ── TABS ──────────────────────────────────────────
+// ── TABS ──────────────────────────────────────────────────────────────────────
 function showTab(name, btn) {
   document.querySelectorAll('.gp-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.gp-tab').forEach(t => t.classList.remove('active'));
@@ -744,13 +663,13 @@ function showTab(name, btn) {
   btn.classList.add('active');
 }
 
-// ── GRUPOS ────────────────────────────────────────
+// ── GRUPOS ────────────────────────────────────────────────────────────────────
 function gpToggle(header) {
   header.classList.toggle('open');
   header.nextElementSibling.classList.toggle('open');
 }
 
-// ── BUSCADOR ──────────────────────────────────────
+// ── BUSCADOR ──────────────────────────────────────────────────────────────────
 document.getElementById('cat-buscador').addEventListener('input', function () {
   gpBuscar(this.value);
 });
@@ -761,9 +680,7 @@ function gpBuscar(q) {
     const filas = grupo.querySelectorAll('.gp-fila');
     let alguna = false;
     filas.forEach(fila => {
-      const match = !term
-        || fila.dataset.nombre.includes(term)
-        || fila.dataset.codigo.includes(term);
+      const match = !term || fila.dataset.nombre.includes(term) || fila.dataset.codigo.includes(term);
       fila.classList.toggle('hidden', !match);
       if (match) alguna = true;
     });
@@ -775,7 +692,7 @@ function gpBuscar(q) {
   });
 }
 
-// ── PRESENTACIONES SALIDA ─────────────────────────
+// ── SALIDA: cargar presentaciones ─────────────────────────────────────────────
 const presData = JSON.parse(document.getElementById('presData').textContent);
 
 function cargarPresentaciones(sel) {
@@ -796,7 +713,7 @@ function cargarPresentaciones(sel) {
   wrap.style.display = 'block';
 }
 
-// ── MODALES — helpers ─────────────────────────────
+// ── MODALES ───────────────────────────────────────────────────────────────────
 function cerrarModal(id) {
   document.getElementById(id).classList.remove('open');
 }
@@ -809,16 +726,15 @@ document.querySelectorAll('.gp-modal-overlay').forEach(overlay => {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape')
-    document.querySelectorAll('.gp-modal-overlay.open')
-            .forEach(m => m.classList.remove('open'));
+    document.querySelectorAll('.gp-modal-overlay.open').forEach(m => m.classList.remove('open'));
 });
 
-// ── MODAL: VER DETALLE PRODUCTO ───────────────────
+// ── DETALLE PRODUCTO ──────────────────────────────────────────────────────────
 function abrirDetalleProducto(pk, nombre, codigo, categoria, precio, stock, unidad, descripcion) {
   document.getElementById('gp-det-nombre').textContent    = nombre;
   document.getElementById('gp-det-codigo').textContent    = codigo;
   document.getElementById('gp-det-categoria').textContent = categoria;
-  document.getElementById('gp-det-precio').textContent    = '$' + parseInt(precio).toLocaleString('es-CO');
+  document.getElementById('gp-det-precio').textContent    = '$' + parseInt(precio||0).toLocaleString('es-CO');
 
   const stockEl = document.getElementById('gp-det-stock');
   stockEl.textContent = stock + ' ' + unidad;
@@ -826,9 +742,30 @@ function abrirDetalleProducto(pk, nombre, codigo, categoria, precio, stock, unid
 
   document.getElementById('gp-det-descripcion').textContent = descripcion || 'Sin descripción.';
 
+  const producto  = todoProductosGP.find(p => p.pk == pk);
+
+  // Presentaciones en detalle
+  const presEl = document.getElementById('gp-det-presentaciones');
+  if (producto && producto.presentaciones.length > 0) {
+    presEl.innerHTML = producto.presentaciones.map(pr => `
+      <div style="display:flex; justify-content:space-between; align-items:center;
+                  padding:.35rem .6rem; border-radius:7px; margin-bottom:.3rem;
+                  background:rgba(77,168,218,.06); border:1px solid rgba(77,168,218,.12);">
+        <span style="font-size:.82rem; color:var(--gp-text);">
+          <strong>${pr.nombre}</strong>
+          <span style="color:var(--gp-muted); margin-left:.4rem;">× ${pr.unidades} uds</span>
+          <span style="color:var(--gp-muted); margin-left:.4rem;">· Stock: ${pr.cantidad}</span>
+        </span>
+        <span style="font-family:monospace; color:var(--gp-blue); font-size:.85rem; font-weight:700;">
+          $${parseInt(pr.precio||0).toLocaleString('es-CO')}
+        </span>
+      </div>`).join('');
+  } else {
+    presEl.innerHTML = '<span style="font-size:.78rem; color:var(--gp-muted);">Sin presentaciones — precio base: $' + parseInt(precio||0).toLocaleString('es-CO') + '</span>';
+  }
+
   // Lotes
-  const producto = todoProductosGP.find(p => p.pk == pk);
-  const lotesEl  = document.getElementById('gp-det-lotes');
+  const lotesEl = document.getElementById('gp-det-lotes');
   if (producto && producto.lotes.length > 0) {
     lotesEl.innerHTML = producto.lotes.map(l => `
       <div style="display:flex; justify-content:space-between; align-items:center;
@@ -847,7 +784,7 @@ function abrirDetalleProducto(pk, nombre, codigo, categoria, precio, stock, unid
   document.getElementById('modalDetalleProducto').classList.add('open');
 }
 
-// ── MODAL: EDITAR PRODUCTO ────────────────────────
+// ── EDITAR PRODUCTO ───────────────────────────────────────────────────────────
 function abrirEditarProducto(pk, nombre, codigo, descripcion, precio, categoriaPk) {
   document.getElementById('ep-nombre').value      = nombre;
   document.getElementById('ep-codigo').value      = codigo;
@@ -865,14 +802,14 @@ function abrirEditarProducto(pk, nombre, codigo, descripcion, precio, categoriaP
       <div style="display:flex; justify-content:space-between; padding:.35rem 0;
                   border-bottom:1px solid rgba(77,168,218,.1); font-size:.8rem;">
         <span style="color:var(--gp-text);">
-          ${pr.nombre} (${pr.unidades} uds) — Stock: ${pr.cantidad}
+          <strong>${pr.nombre}</strong> (${pr.unidades} uds) — Stock: ${pr.cantidad}
         </span>
-        <span style="color:var(--gp-blue); font-weight:600;">
+        <span style="color:var(--gp-blue); font-weight:700;">
           $${parseInt(pr.precio || 0).toLocaleString('es-CO')}
         </span>
       </div>`).join('');
   } else {
-    contPres.innerHTML = '<span style="font-size:.78rem;">Sin presentaciones definidas.</span>';
+    contPres.innerHTML = '<span style="font-size:.78rem; color:var(--gp-muted);">Sin presentaciones definidas.</span>';
   }
 
   document.getElementById('btnEditarPresentaciones').onclick = () => {
@@ -883,27 +820,33 @@ function abrirEditarProducto(pk, nombre, codigo, descripcion, precio, categoriaP
   document.getElementById('modalEditarProducto').classList.add('open');
 }
 
-// ── MODAL: PRESENTACIONES ─────────────────────────
+// ── PRESENTACIONES ────────────────────────────────────────────────────────────
 function abrirPresentaciones(pk, nombre) {
   document.getElementById('pres-producto-nombre').textContent = nombre;
   document.getElementById('form-presentaciones').action =
     "{% url 'producto:presentaciones_guardar' 0 %}?next={% url 'inventario:gestion_productos' %}"
     .replace('/0/', '/' + pk + '/');
 
+  // Limpiar y resetear
   document.getElementById('contenedor-presentaciones').innerHTML = '';
-  document.getElementById('precio-unidad').value   = '';
-  document.getElementById('cantidad-unidad').value = '0';
+  document.getElementById('pres-nombre-base').value    = 'Unidad';
+  document.getElementById('pres-unidades-base').value  = '1';
+  document.getElementById('precio-unidad').value        = '';
+  document.getElementById('cantidad-unidad').value      = '0';
 
   const producto = todoProductosGP.find(p => p.pk == pk);
-  if (producto) {
-    const unidad = producto.presentaciones.find(pr => pr.unidades === 1);
-    if (unidad) {
-      document.getElementById('precio-unidad').value   = unidad.precio;
-      document.getElementById('cantidad-unidad').value = unidad.cantidad || 0;
-    }
-    producto.presentaciones
-      .filter(pr => pr.unidades > 1)
-      .forEach(pr => agregarPresentacion(pr.nombre, pr.unidades, pr.precio, pr.cantidad));
+  if (producto && producto.presentaciones.length > 0) {
+    // Primera presentación = base
+    const base = producto.presentaciones[0];
+    document.getElementById('pres-nombre-base').value   = base.nombre;
+    document.getElementById('pres-unidades-base').value = base.unidades;
+    document.getElementById('precio-unidad').value       = base.precio;
+    document.getElementById('cantidad-unidad').value     = base.cantidad || 0;
+
+    // Las demás → filas adicionales
+    producto.presentaciones.slice(1).forEach(pr =>
+      agregarPresentacion(pr.nombre, pr.unidades, pr.precio, pr.cantidad)
+    );
   }
 
   document.getElementById('modalPresentaciones').classList.add('open');
@@ -913,27 +856,28 @@ function agregarPresentacion(nombre = '', unidades = '', precio = '', cantidad =
   const cont = document.getElementById('contenedor-presentaciones');
   const div  = document.createElement('div');
   div.className = 'pres-row';
+  div.style.cssText = 'border:1px solid rgba(77,168,218,.15); border-radius:10px; padding:.75rem 1rem; margin-bottom:.5rem;';
   div.innerHTML = `
     <div class="row g-2 align-items-center">
       <div class="col-md-3">
-        <label class="gp-label">Presentación</label>
+        <label class="gp-label">Nombre presentación</label>
         <input type="text" name="nombre[]" value="${nombre}"
                class="gp-input" placeholder="Ej: Six-pack" required>
       </div>
       <div class="col-md-2">
         <label class="gp-label">Unidades</label>
         <input type="number" name="unidades_base[]" value="${unidades}"
-               class="gp-input" placeholder="Ej: 6" min="2" required>
+               class="gp-input" placeholder="Ej: 6" min="1" required>
       </div>
       <div class="col-md-3">
-        <label class="gp-label">Cantidad existente</label>
-        <input type="number" name="cantidad[]" value="${cantidad}"
+        <label class="gp-label">Cantidad en stock</label>
+        <input type="number" name="cantidad[]" value="${cantidad || 0}"
                class="gp-input" placeholder="Stock actual" min="0">
       </div>
       <div class="col-md-3">
         <label class="gp-label">Precio (COP)</label>
         <input type="number" name="precio[]" value="${precio}"
-               class="gp-input" placeholder="Ej: 13000" min="0" required>
+               class="gp-input" placeholder="Ej: 13000" min="0">
       </div>
       <div class="col-md-1 d-flex align-items-end pb-1 justify-content-center">
         <button type="button" onclick="this.closest('.pres-row').remove()"
@@ -951,7 +895,7 @@ function guardarPresentaciones() {
   document.getElementById('form-presentaciones').submit();
 }
 
-// ── MODAL: EDITAR CATEGORÍA ───────────────────────
+// ── EDITAR CATEGORÍA ──────────────────────────────────────────────────────────
 function abrirEditarCategoria(pk, nombre, codigo, descripcion, padrePk) {
   document.getElementById('ec-nombre').value      = nombre;
   document.getElementById('ec-codigo').value      = codigo;
