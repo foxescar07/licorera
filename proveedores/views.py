@@ -8,6 +8,7 @@ from django.db.models import Sum
 from datetime import timedelta
 
 from producto.models import Producto, Inventario, Categoria
+from inventario.models import Lote
 from .models import Proveedor, Compra
 from .forms import ProveedorForm
 
@@ -173,11 +174,19 @@ def registrar_compra(request):
                     messages.error(request, "La cantidad debe ser mayor a cero.")
                     return redirect('registrar_compra')
 
+                
+                lote_id = request.POST.get('lote_id')
+                lote_instancia = None
+                if lote_id:
+                    lote_instancia = Lote.objects.filter(pk=lote_id).first()
+
                 Compra.objects.create(
                     proveedor       = proveedor_obj,
                     producto        = producto_instancia,
+                    lote            = lote_instancia,
                     cantidad        = cantidad_int,
                     precio_unitario = precio if precio else None,
+                    
                 )
 
                 producto_instancia.cantidad_disponible += cantidad_int
@@ -228,7 +237,7 @@ def registrar_compra(request):
         .order_by('-total_und')
         .first()
     )
-
+    lotes = Lote.objects.select_related('producto').all()
     return render(request, 'proveedores/compra.html', {
         'proveedor':         proveedor_obj,
         'todos_proveedores': todos_proveedores,
@@ -241,4 +250,5 @@ def registrar_compra(request):
         'count_mes':         count_mes,
         'total_mes':         total_mes,
         'producto_top':      producto_top,
+        'lotes':             lotes, 
     })
