@@ -827,23 +827,24 @@ function abrirPresentaciones(pk, nombre) {
     "{% url 'producto:presentaciones_guardar' 0 %}?next={% url 'inventario:gestion_productos' %}"
     .replace('/0/', '/' + pk + '/');
 
-  // Limpiar y resetear
+  // Limpiar filas adicionales (no la base)
   document.getElementById('contenedor-presentaciones').innerHTML = '';
-  document.getElementById('pres-nombre-base').value    = 'Unidad';
-  document.getElementById('pres-unidades-base').value  = '1';
-  document.getElementById('precio-unidad').value        = '';
-  document.getElementById('cantidad-unidad').value      = '0';
+
+  // Valores por defecto para la fila base
+  document.getElementById('pres-nombre-base').value   = 'Unidad';
+  document.getElementById('pres-unidades-base').value = '1';
+  document.getElementById('precio-unidad').value       = '';
+  document.getElementById('cantidad-unidad').value     = '0';
 
   const producto = todoProductosGP.find(p => p.pk == pk);
   if (producto && producto.presentaciones.length > 0) {
-    // Primera presentación = base
     const base = producto.presentaciones[0];
-    document.getElementById('pres-nombre-base').value   = base.nombre;
-    document.getElementById('pres-unidades-base').value = base.unidades;
-    document.getElementById('precio-unidad').value       = base.precio;
-    document.getElementById('cantidad-unidad').value     = base.cantidad || 0;
+    document.getElementById('pres-nombre-base').value   = base.nombre   || 'Unidad';
+    document.getElementById('pres-unidades-base').value = base.unidades != null ? base.unidades : 1;
+    // ← aquí estaba el bug: base.precio podía ser "0" (falsy) y no se asignaba
+    document.getElementById('precio-unidad').value      = base.precio   != null ? base.precio   : '';
+    document.getElementById('cantidad-unidad').value    = base.cantidad != null ? base.cantidad  : 0;
 
-    // Las demás → filas adicionales
     producto.presentaciones.slice(1).forEach(pr =>
       agregarPresentacion(pr.nombre, pr.unidades, pr.precio, pr.cantidad)
     );
@@ -851,6 +852,7 @@ function abrirPresentaciones(pk, nombre) {
 
   document.getElementById('modalPresentaciones').classList.add('open');
 }
+
 
 function agregarPresentacion(nombre = '', unidades = '', precio = '', cantidad = '') {
   const cont = document.getElementById('contenedor-presentaciones');

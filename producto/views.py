@@ -117,16 +117,22 @@ def presentaciones_guardar(request, pk):
         precios    = request.POST.getlist("precio[]")
         cantidades = request.POST.getlist("cantidad[]")
 
+        # ← FIX: si no llegaron filas, no borrar nada
+        if not nombres:
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            return redirect("producto:producto_lista")
+
         try:
             with transaction.atomic():
                 nuevas = []
                 for nombre_v, unidad_v, precio_v, cantidad_v in zip(nombres, unidades, precios, cantidades):
                     nombre_v = nombre_v.strip()
                     if not nombre_v:
-                        continue          # fila sin nombre → ignorar
+                        continue
                     if not unidad_v:
                         continue
-                    # precio vacío → 0, no saltamos la fila
                     try:
                         precio_f = float(precio_v) if precio_v.strip() else 0
                     except (ValueError, TypeError):
@@ -143,9 +149,11 @@ def presentaciones_guardar(request, pk):
                         cantidad=max(0, cantidad_i),
                     ))
 
-                producto.presentaciones.all().delete()
-                for datos in nuevas:
-                    PresentacionProducto.objects.create(producto=producto, **datos)
+                # Solo borra y recrea si realmente llegaron filas válidas
+                if nuevas:
+                    producto.presentaciones.all().delete()
+                    for datos in nuevas:
+                        PresentacionProducto.objects.create(producto=producto, **datos)
 
             messages.success(request, f"✅ Presentaciones de {producto.nombre} guardadas.")
 
