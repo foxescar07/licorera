@@ -202,6 +202,8 @@ def gestion_salida(request):
         presentacion_id = request.POST.get('presentacion')
         cantidad_raw    = request.POST.get('cantidad', '')
         motivo          = request.POST.get('motivo', '').strip()
+        lote_id         = request.POST.get('lote_id') or None
+        
 
         try:
             cantidad = int(cantidad_raw)
@@ -214,6 +216,15 @@ def gestion_salida(request):
         if not motivo:
             messages.error(request, '⚠️ Debes indicar el motivo de la salida.')
             return redirect('inventario:gestion_productos')
+        
+          # ── SCRUM-259: bloquear salida si el lote está vencido ──
+        if lote_id:
+            from django.utils import timezone
+            lote = get_object_or_404(Lote, pk=lote_id)
+            if lote.fecha_vencimiento and lote.fecha_vencimiento < timezone.now().date():
+                messages.error(request, f'🚫 El lote "{lote.numero_lote}" está vencido desde el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}. No se puede registrar la salida.')
+                return redirect('inventario:gestion_productos')
+        # ── fin validación ──
 
         producto = get_object_or_404(Producto, pk=producto_id)
 
@@ -359,6 +370,7 @@ def registrar_lote(request):
     if request.method == 'POST':
         numero_lote = request.POST.get('numero_lote', '').strip()
         producto_id = request.POST.get('producto')
+        fecha_vencimiento = request.POST.get('fecha_vencimiento') or None 
 
         if not numero_lote:
             messages.error(request, '⚠️ El número de lote es obligatorio.')
@@ -377,9 +389,16 @@ def registrar_lote(request):
         Lote.objects.create(
             numero_lote=numero_lote,
             producto=producto,
+            fecha_vencimiento=fecha_vencimiento,
             registrado_por=request.user if request.user.is_authenticated else None
         )
 
+        # Mensaje con fecha de vencimiento si fue ingresada (SCRUM-260)
+        if fecha_vencimiento:
+            messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}" — vence el {Lote.fecha_vencimiento.strftime("%d/%m/%Y")}.')
+        else:
+            messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}" (sin fecha de vencimiento).')
+        
         messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}".')
         return redirect('inventario:gestion_productos')
 
