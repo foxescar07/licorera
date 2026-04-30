@@ -247,6 +247,22 @@
               <option value="">— Unidades sueltas —</option>
             </select>
           </div>
+          <!-- Lote (SCRUM-259) -->   
+            <div class="gp-full">
+          <label class="gp-label">
+          Lote <span style="color:var(--gp-muted); font-weight:400; font-size:.75rem;">(opcional)</span>
+          </label>
+          <select name="lote_id" class="gp-input">
+            <option value="">— Sin lote específico —</option>
+          {% for lote in lotes %}
+          <option value="{{ lote.pk }}">
+          {{ lote.numero_lote }} — {{ lote.producto.nombre }}
+         {% if lote.fecha_vencimiento %}· vence {{ lote.fecha_vencimiento|date:"d/m/Y" }}{% endif %}
+      </option>
+    {% endfor %}
+         </select>
+      </div>
+
           <div>
             <label class="gp-label">Cantidad</label>
             <input type="number" name="cantidad" class="gp-input" min="1" placeholder="Ej: 5" required>
@@ -378,6 +394,14 @@
               {% endfor %}
             </select>
           </div>
+          <!-- fecha de vencimiento -->
+        <div>
+    <label class="gp-label">
+        Fecha de Vencimiento
+    <span style="color:var(--gp-muted); font-weight:400; font-size:.75rem;">(opcional)</span>
+    </label>
+      <input type="date" name="fecha_vencimiento" class="gp-input">
+      </div>
           <div class="gp-full">
             <button type="submit" class="gp-btn gp-btn--primary w-100">
               <i class="bi bi-save"></i> Guardar Lote
@@ -643,14 +667,15 @@ const todoProductosGP = [
       }{% if not forloop.last %},{% endif %}
       {% endfor %}
     ],
-    lotes: [
-      {% for l in p.lotes.all %}
-      {
-        numero: "{{ l.numero_lote|escapejs }}",
-        fecha: "{{ l.fecha_registro|date:'d/m/Y' }}"
-      }{% if not forloop.last %},{% endif %}
-      {% endfor %}
-    ]
+   lotes: [
+  {% for l in p.lotes.all %}
+  {
+    numero: "{{ l.numero_lote|escapejs }}",
+    fecha: "{{ l.fecha_registro|date:'d/m/Y' }}", 
+    vencimiento: "{{ l.fecha_vencimiento|date:'Y-m-d'|default:'' }}"
+  }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+],
   }{% if not forloop.last %},{% endif %}
   {% endfor %}
 ];
@@ -767,18 +792,48 @@ function abrirDetalleProducto(pk, nombre, codigo, categoria, precio, stock, unid
   // Lotes
   const lotesEl = document.getElementById('gp-det-lotes');
   if (producto && producto.lotes.length > 0) {
-    lotesEl.innerHTML = producto.lotes.map(l => `
+  lotesEl.innerHTML = producto.lotes.map(l => {
+    let alertaHtml = '';
+    let borderColor = 'rgba(77,168,218,.12)';
+
+    if (l.vencimiento) {
+      const hoy  = new Date();
+      const venc = new Date(l.vencimiento);
+      const dias = Math.floor((venc - hoy) / 86400000);
+
+      if (dias < 0) {
+        borderColor = 'rgba(248,113,113,.3)';
+        alertaHtml  = `<span style="font-size:.68rem; font-weight:700; padding:2px 8px;
+                        border-radius:20px; background:rgba(248,113,113,.12);
+                        color:#f87171; border:1px solid rgba(248,113,113,.3);">
+                        <i class="bi bi-x-circle-fill me-1"></i>Vencido</span>`;
+      } else if (dias <= 30) {
+        borderColor = 'rgba(251,191,36,.3)';
+        alertaHtml  = `<span style="font-size:.68rem; font-weight:700; padding:2px 8px;
+                        border-radius:20px; background:rgba(251,191,36,.12);
+                        color:#fbbf24; border:1px solid rgba(251,191,36,.3);">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>Vence en ${dias}d</span>`;
+      }
+    }
+
+    const fechaVencDisplay = l.vencimiento
+      ? new Date(l.vencimiento).toLocaleDateString('es-CO', {day:'2-digit', month:'2-digit', year:'numeric'})
+      : '<span style="color:var(--gp-muted);">Sin vencimiento</span>';
+
+    return `
       <div style="display:flex; justify-content:space-between; align-items:center;
-                  padding:.3rem .6rem; border-radius:7px;
-                  background:rgba(77,168,218,.06); border:1px solid rgba(77,168,218,.12);
-                  margin-bottom:.3rem;">
+                  padding:.35rem .6rem; border-radius:7px;
+                  background:rgba(77,168,218,.06); border:1px solid ${borderColor};
+                  margin-bottom:.3rem; gap:.5rem; flex-wrap:wrap;">
         <span style="font-family:monospace; color:var(--gp-blue); font-size:.82rem; font-weight:600;">
           <i class="bi bi-upc-scan me-1"></i>${l.numero}
         </span>
-        <span style="font-size:.7rem; color:var(--gp-muted);">${l.fecha}</span>
-      </div>`).join('');
-  } else {
-    lotesEl.innerHTML = '<span style="font-size:.78rem; color:var(--gp-muted);">Sin lotes registrados.</span>';
+        <span style="font-size:.7rem; color:var(--gp-muted);">Vence: ${fechaVencDisplay}</span>
+        ${alertaHtml}
+      </div>`;
+  }).join('');
+} else {
+    lotesEl.innerHTML = '<span style="font-size:.78rem; color:var(--gp-muted);">No hay lotes registrados para este producto.</span>';
   }
 
   document.getElementById('modalDetalleProducto').classList.add('open');
