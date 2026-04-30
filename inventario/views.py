@@ -251,32 +251,63 @@ def gestion_salida(request):
 def gestion_producto_editar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == "POST":
+        cambios = []
+
         nombre       = request.POST.get('nombre', '').strip()
         codigo       = request.POST.get('codigo', '').strip()
         descripcion  = request.POST.get('descripcion', '').strip()
         categoria_pk = request.POST.get('categoria')
         precio_raw   = request.POST.get('precio_unitario', '').strip()
+        cantidad_raw = request.POST.get('cantidad_disponible', '').strip()
 
-        if nombre:
+        if nombre and nombre != producto.nombre:
+            cambios.append(f"nombre: <strong>{producto.nombre}</strong> → <strong>{nombre}</strong>")
             producto.nombre = nombre
-        if codigo:
+
+        if codigo and codigo != producto.codigo:
+            cambios.append(f"código: <strong>{producto.codigo}</strong> → <strong>{codigo}</strong>")
             producto.codigo = codigo
-        producto.descripcion = descripcion
+
+        if descripcion != (producto.descripcion or ''):
+            producto.descripcion = descripcion
 
         if categoria_pk:
             try:
-                producto.categoria_id = int(categoria_pk)
+                nueva_cat_id = int(categoria_pk)
+                if nueva_cat_id != producto.categoria_id:
+                    from producto.models import Categoria
+                    cat = Categoria.objects.filter(pk=nueva_cat_id).first()
+                    if cat:
+                        cambios.append(f"categoría → <strong>{cat.nombre}</strong>")
+                    producto.categoria_id = nueva_cat_id
             except (ValueError, TypeError):
                 pass
 
         if precio_raw:
             try:
-                producto.precio_unitario = max(0, float(precio_raw))
+                nuevo_precio = max(0, float(precio_raw))
+                if nuevo_precio != float(producto.precio_unitario or 0):
+                    cambios.append(f"precio unitario → <strong>${nuevo_precio:,.0f}</strong>")
+                    producto.precio_unitario = nuevo_precio
+            except (ValueError, TypeError):
+                pass
+
+        if cantidad_raw:
+            try:
+                nueva_cantidad = max(0, int(cantidad_raw))
+                if nueva_cantidad != int(producto.cantidad_disponible or 0):
+                    cambios.append(f"stock disponible → <strong>{nueva_cantidad} uds</strong>")
+                    producto.cantidad_disponible = nueva_cantidad
             except (ValueError, TypeError):
                 pass
 
         producto.save()
-        messages.success(request, f'✅ Producto "{producto.nombre}" actualizado correctamente.')
+
+        if cambios:
+            detalle = ", ".join(cambios)
+            messages.success(request, f'✅ <strong>{producto.nombre}</strong> actualizado — {detalle}.')
+        else:
+            messages.info(request, f'ℹ️ No se detectaron cambios en <strong>{producto.nombre}</strong>.')
 
     return redirect('inventario:gestion_productos')
 
