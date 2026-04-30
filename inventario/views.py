@@ -287,6 +287,58 @@ def gestion_producto_editar(request, pk):
                 pass
 
         producto.save()
+
+        # ✅ Actualizar presentaciones existentes (nombre, precio, cantidad)
+        for key, valor in request.POST.items():
+            if key.startswith('pres_nombre_'):
+                pres_id = key.replace('pres_nombre_', '')
+                try:
+                    pres = PresentacionProducto.objects.get(pk=int(pres_id), producto=producto)
+
+                    nuevo_nombre   = valor.strip()
+                    nuevo_precio   = request.POST.get(f'pres_precio_{pres_id}', '').strip()
+                    nueva_cantidad = request.POST.get(f'pres_cantidad_{pres_id}', '').strip()
+
+                    if nuevo_nombre:
+                        pres.nombre = nuevo_nombre
+                    if nuevo_precio:
+                        try:
+                            pres.precio = max(0, float(nuevo_precio))
+                        except (ValueError, TypeError):
+                            pass
+                    if nueva_cantidad:
+                        try:
+                            pres.cantidad = max(0, int(nueva_cantidad))
+                        except (ValueError, TypeError):
+                            pass
+                    pres.save()
+                except PresentacionProducto.DoesNotExist:
+                    pass
+
+        # ✅ Crear nuevas presentaciones agregadas desde el modal
+        nuevos_nombres    = request.POST.getlist('nueva_pres_nombre[]')
+        nuevos_precios    = request.POST.getlist('nueva_pres_precio[]')
+        nuevas_cantidades = request.POST.getlist('nueva_pres_cantidad[]')
+
+        for i, nombre_pres in enumerate(nuevos_nombres):
+            nombre_pres = nombre_pres.strip()
+            if not nombre_pres:
+                continue
+            try:
+                precio_pres   = max(0, float(nuevos_precios[i]))   if i < len(nuevos_precios)    else 0
+                cantidad_pres = max(0, int(nuevas_cantidades[i]))   if i < len(nuevas_cantidades) else 0
+            except (ValueError, TypeError):
+                precio_pres   = 0
+                cantidad_pres = 0
+
+            PresentacionProducto.objects.create(
+                producto=producto,
+                nombre=nombre_pres,
+                precio=precio_pres,
+                cantidad=cantidad_pres,
+                unidades=1,  # valor por defecto para nuevas presentaciones
+            )
+
         messages.success(request, f'✅ Producto "{producto.nombre}" actualizado correctamente.')
 
     return redirect('inventario:gestion_productos')
