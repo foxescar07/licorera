@@ -335,3 +335,21 @@
   .gp-fila__code::before { content:"Código: "; color:var(--gp-muted); font-size:.68rem; }
   .gp-fila__price::before { content:"Precio: "; color:var(--gp-muted); font-size:.68rem; }
 }
+
+/* FIX: Toggle de categorías */
+.gp-group-body {
+  display: none;
+}
+.gp-group-body.open {
+  display: block;
+}
+.gp-group-header {
+  cursor: pointer;
+  user-select: none;
+}
+.gp-group-header .gp-group-chevron {
+  transition: transform .25s ease;
+}
+.gp-group-header.open .gp-group-chevron {
+  transform: rotate(180deg);
+}

@@ -202,6 +202,8 @@ def gestion_salida(request):
         presentacion_id = request.POST.get('presentacion')
         cantidad_raw    = request.POST.get('cantidad', '')
         motivo          = request.POST.get('motivo', '').strip()
+        lote_id         = request.POST.get('lote_id') or None
+        
 
         try:
             cantidad = int(cantidad_raw)
@@ -214,6 +216,15 @@ def gestion_salida(request):
         if not motivo:
             messages.error(request, '⚠️ Debes indicar el motivo de la salida.')
             return redirect('inventario:gestion_productos')
+        
+          # ── SCRUM-259: bloquear salida si el lote está vencido ──
+        if lote_id:
+            from django.utils import timezone
+            lote = get_object_or_404(Lote, pk=lote_id)
+            if lote.fecha_vencimiento and lote.fecha_vencimiento < timezone.now().date():
+                messages.error(request, f'🚫 El lote "{lote.numero_lote}" está vencido desde el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}. No se puede registrar la salida.')
+                return redirect('inventario:gestion_productos')
+        # ── fin validación ──
 
         producto = get_object_or_404(Producto, pk=producto_id)
 
@@ -251,63 +262,32 @@ def gestion_salida(request):
 def gestion_producto_editar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == "POST":
-        cambios = []
-
         nombre       = request.POST.get('nombre', '').strip()
         codigo       = request.POST.get('codigo', '').strip()
         descripcion  = request.POST.get('descripcion', '').strip()
         categoria_pk = request.POST.get('categoria')
         precio_raw   = request.POST.get('precio_unitario', '').strip()
-        cantidad_raw = request.POST.get('cantidad_disponible', '').strip()
 
-        if nombre and nombre != producto.nombre:
-            cambios.append(f"nombre: <strong>{producto.nombre}</strong> → <strong>{nombre}</strong>")
+        if nombre:
             producto.nombre = nombre
-
-        if codigo and codigo != producto.codigo:
-            cambios.append(f"código: <strong>{producto.codigo}</strong> → <strong>{codigo}</strong>")
+        if codigo:
             producto.codigo = codigo
-
-        if descripcion != (producto.descripcion or ''):
-            producto.descripcion = descripcion
+        producto.descripcion = descripcion
 
         if categoria_pk:
             try:
-                nueva_cat_id = int(categoria_pk)
-                if nueva_cat_id != producto.categoria_id:
-                    from producto.models import Categoria
-                    cat = Categoria.objects.filter(pk=nueva_cat_id).first()
-                    if cat:
-                        cambios.append(f"categoría → <strong>{cat.nombre}</strong>")
-                    producto.categoria_id = nueva_cat_id
+                producto.categoria_id = int(categoria_pk)
             except (ValueError, TypeError):
                 pass
 
         if precio_raw:
             try:
-                nuevo_precio = max(0, float(precio_raw))
-                if nuevo_precio != float(producto.precio_unitario or 0):
-                    cambios.append(f"precio unitario → <strong>${nuevo_precio:,.0f}</strong>")
-                    producto.precio_unitario = nuevo_precio
-            except (ValueError, TypeError):
-                pass
-
-        if cantidad_raw:
-            try:
-                nueva_cantidad = max(0, int(cantidad_raw))
-                if nueva_cantidad != int(producto.cantidad_disponible or 0):
-                    cambios.append(f"stock disponible → <strong>{nueva_cantidad} uds</strong>")
-                    producto.cantidad_disponible = nueva_cantidad
+                producto.precio_unitario = max(0, float(precio_raw))
             except (ValueError, TypeError):
                 pass
 
         producto.save()
-
-        if cambios:
-            detalle = ", ".join(cambios)
-            messages.success(request, f'✅ <strong>{producto.nombre}</strong> actualizado — {detalle}.')
-        else:
-            messages.info(request, f'ℹ️ No se detectaron cambios en <strong>{producto.nombre}</strong>.')
+        messages.success(request, f'✅ Producto "{producto.nombre}" actualizado correctamente.')
 
     return redirect('inventario:gestion_productos')
 
@@ -390,6 +370,7 @@ def registrar_lote(request):
     if request.method == 'POST':
         numero_lote = request.POST.get('numero_lote', '').strip()
         producto_id = request.POST.get('producto')
+        fecha_vencimiento = request.POST.get('fecha_vencimiento') or None 
 
         if not numero_lote:
             messages.error(request, '⚠️ El número de lote es obligatorio.')
@@ -408,9 +389,16 @@ def registrar_lote(request):
         Lote.objects.create(
             numero_lote=numero_lote,
             producto=producto,
+            fecha_vencimiento=fecha_vencimiento,
             registrado_por=request.user if request.user.is_authenticated else None
         )
 
+        # Mensaje con fecha de vencimiento si fue ingresada (SCRUM-260)
+        if fecha_vencimiento:
+            messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}" — vence el {Lote.fecha_vencimiento.strftime("%d/%m/%Y")}.')
+        else:
+            messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}" (sin fecha de vencimiento).')
+        
         messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}".')
         return redirect('inventario:gestion_productos')
 

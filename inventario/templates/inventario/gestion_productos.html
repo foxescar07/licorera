@@ -67,161 +67,182 @@
     </div>
 
     <div id="gp-grupos">
-      {% for cat in categorias %}
-        {% if cat %}
-        <div class="gp-group" data-group>
-            <div class="gp-group-header" onclick="gpToggle(this)">
-            <i class="bi bi-tag-fill" style="color:var(--gp-blue);"></i>
-            <span class="gp-group-title">{{ cat.nombre }}</span>
-            <span class="gp-group-count">
-              {% with total=cat.productos.all|length %}{{ total }} producto{{ total|pluralize:"s" }}{% endwith %}
+  {% for cat in categorias %}
+    {% if cat %}
+    <div class="gp-group" data-group>
+        <div class="gp-group-header" onclick="gpToggle(this)">
+        <i class="bi bi-tag-fill" style="color:var(--gp-blue);"></i>
+        <span class="gp-group-title">{{ cat.nombre }}</span>
+        <span class="gp-group-count">
+          {% with total=cat.productos.all|length %}{{ total }} producto{{ total|pluralize:"s" }}{% endwith %}
+        </span>
+        <i class="bi bi-chevron-down gp-group-chevron"></i>
+      </div>
+      <div class="gp-group-body">
+
+        <div class="gp-col-header">
+          <span>Nombre</span>
+          <span>Código</span>
+          <span>Stock</span>
+          <span>Presentaciones / Precio</span>
+          <span>Acciones</span>
+        </div>
+
+        {% for p in cat.productos.all %}
+        <div class="gp-fila" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
+
+          <div>
+            <span class="gp-fila__name">{{ p.nombre }}</span>
+            {% if p.stock_critico %}
+              <span class="gp-crit-tag"><i class="bi bi-exclamation-triangle-fill"></i> Crítico</span>
+            {% endif %}
+          </div>
+
+          <span class="gp-fila__code">{{ p.codigo }}</span>
+
+          <span>
+            <span class="gp-stock-badge {% if p.stock_critico %}low{% else %}ok{% endif %}">
+              {{ p.stock_total }} {{ p.unidad }}
             </span>
-            <i class="bi bi-chevron-down gp-group-chevron"></i>
-          </div>
-          <div class="gp-group-body">
+          </span>
 
-            <!-- ── Encabezado columnas ── -->
-            <div class="gp-col-header">
-              <span>Nombre</span>
-              <span>Código</span>
-              <span>Stock</span>
-              <span>Presentaciones / Precio</span>
-              <span>Acciones</span>
-            </div>
-
-            {% for p in cat.productos.all %}
-            <div class="gp-fila" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
-
-              <!-- Nombre -->
-              <div>
-                <span class="gp-fila__name">{{ p.nombre }}</span>
-                {% if p.stock_critico %}
-                  <span class="gp-crit-tag"><i class="bi bi-exclamation-triangle-fill"></i> Crítico</span>
-                {% endif %}
-              </div>
-
-              <!-- Código -->
-              <span class="gp-fila__code">{{ p.codigo }}</span>
-
-              <!-- Stock -->
-              <span>
-                <span class="gp-stock-badge {% if p.stock_critico %}low{% else %}ok{% endif %}">
-                  {{ p.stock_total }} {{ p.unidad }}
-                </span>
-              </span>
-
-              <!-- Presentaciones / Precio -->
-              <div>
-                {% with pres=p.presentaciones.all %}
-                  {% if pres %}
-                    <div style="display:flex; flex-wrap:wrap; gap:.3rem;">
-                      {% for pr in pres %}
-                        <span style="display:inline-flex; align-items:center; gap:.3rem;
-                                     font-size:.68rem; padding:.25rem .5rem; border-radius:6px;
-                                     background:rgba(77,168,218,.09);
-                                     border:1px solid rgba(77,168,218,.22);
-                                     color:var(--gp-blue); white-space:nowrap;">
-                          <span style="color:var(--gp-text); font-weight:500;">{{ pr.nombre }}</span>
-                          <span style="color:var(--gp-muted);">×{{ pr.unidades }}</span>
-                          <span style="font-weight:700;">${{ pr.precio|floatformat:0 }}</span>
-                          <span style="color:var(--gp-muted);">· {{ pr.cantidad }} uds</span>
-                        </span>
-                      {% endfor %}
-                    </div>
-                  {% else %}
-                    <span class="gp-fila__price">${{ p.precio_unitario|floatformat:0 }}</span>
-                  {% endif %}
-                {% endwith %}
-              </div>
-
-              <!-- Acciones -->
-              <div class="gp-fila-actions">
-                <button class="gp-btn gp-btn--warning gp-btn--sm"
-                        onclick="abrirEditarProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.descripcion|default:''|escapejs }}','{{ p.precio_unitario }}',{{ p.categoria.pk }})">
-                  <i class="bi bi-pencil"></i> Editar
-                </button>
-                <button class="gp-btn gp-btn--outline gp-btn--sm"
-                        onclick="abrirDetalleProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.categoria.nombre|escapejs }}','{{ p.precio_unitario }}','{{ p.stock_total }}','{{ p.unidad }}','{{ p.descripcion|default:''|escapejs }}')">
-                  <i class="bi bi-eye"></i>
-                </button>
-                <form method="POST" action="{% url 'inventario:gestion_producto_eliminar' p.pk %}"
-                      onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»? Esta acción no se puede deshacer.')" style="margin:0;">
-                  {% csrf_token %}
-                  <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm"><i class="bi bi-trash"></i></button>
-                </form>
-              </div>
-            </div>
-            {% endfor %}
-
-            <!-- Sub-categorías -->
-            {% for sub in cat.subcategorias.all %}
-              {% for p in sub.productos.all %}
-              <div class="gp-fila" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
-                <div>
-                  <span class="gp-fila__name">{{ p.nombre }}</span>
-                  <span class="gp-fila__sub"> · {{ sub.nombre }}</span>
-                  {% if p.stock_critico %}
-                    <span class="gp-crit-tag"><i class="bi bi-exclamation-triangle-fill"></i> Crítico</span>
-                  {% endif %}
+          <!-- ✅ CORREGIDO -->
+          <div>
+            {% with pres=p.presentaciones.all %}
+              
+              {% if pres|length > 1 %}
+                <div style="display:flex; flex-wrap:wrap; gap:.3rem;">
+                  {% for pr in pres %}
+                    <span style="display:inline-flex; align-items:center; gap:.3rem;
+                                 font-size:.68rem; padding:.25rem .5rem; border-radius:6px;
+                                 background:rgba(77,168,218,.09);
+                                 border:1px solid rgba(77,168,218,.22);
+                                 color:var(--gp-blue); white-space:nowrap;">
+                      <span style="color:var(--gp-text); font-weight:500;">{{ pr.nombre }}</span>
+                      <span style="color:var(--gp-muted);">×{{ pr.unidades }}</span>
+                      <span style="font-weight:700;">${{ pr.precio|floatformat:0 }}</span>
+                      <span style="color:var(--gp-muted);">· {{ pr.cantidad }} uds</span>
+                    </span>
+                  {% endfor %}
                 </div>
-                <span class="gp-fila__code">{{ p.codigo }}</span>
-                <span>
-                  <span class="gp-stock-badge {% if p.stock_critico %}low{% else %}ok{% endif %}">
-                    {{ p.stock_total }} {{ p.unidad }}
+
+              {% elif pres|length == 1 %}
+                {% for pr in pres %}
+                  <span class="gp-fila__price">
+                    ${{ pr.precio|floatformat:0 }} · {{ pr.cantidad }} uds
                   </span>
-                </span>
-                <div>
-                  {% with pres=p.presentaciones.all %}
-                    {% if pres %}
-                      <div style="display:flex; flex-wrap:wrap; gap:.3rem;">
-                        {% for pr in pres %}
-                          <span style="display:inline-flex; align-items:center; gap:.3rem;
-                                       font-size:.68rem; padding:.25rem .5rem; border-radius:6px;
-                                       background:rgba(77,168,218,.09);
-                                       border:1px solid rgba(77,168,218,.22);
-                                       color:var(--gp-blue); white-space:nowrap;">
-                            <span style="color:var(--gp-text); font-weight:500;">{{ pr.nombre }}</span>
-                            <span style="color:var(--gp-muted);">×{{ pr.unidades }}</span>
-                            <span style="font-weight:700;">${{ pr.precio|floatformat:0 }}</span>
-                            <span style="color:var(--gp-muted);">· {{ pr.cantidad }} uds</span>
-                          </span>
-                        {% endfor %}
-                      </div>
-                    {% else %}
-                      <span class="gp-fila__price">${{ p.precio_unitario|floatformat:0 }}</span>
-                    {% endif %}
-                  {% endwith %}
-                </div>
-                <div class="gp-fila-actions">
-                  <button class="gp-btn gp-btn--warning gp-btn--sm"
-                          onclick="abrirEditarProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.descripcion|default:''|escapejs }}','{{ p.precio_unitario }}',{{ p.categoria.pk }})">
-                    <i class="bi bi-pencil"></i> Editar
-                  </button>
-                  <button class="gp-btn gp-btn--outline gp-btn--sm"
-                          onclick="abrirDetalleProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.categoria.nombre|escapejs }}','{{ p.precio_unitario }}','{{ p.stock_total }}','{{ p.unidad }}','{{ p.descripcion|default:''|escapejs }}')">
-                    <i class="bi bi-eye"></i>
-                  </button>
-                  <form method="POST" action="{% url 'inventario:gestion_producto_eliminar' p.pk %}"
-                        onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»?')" style="margin:0;">
-                    {% csrf_token %}
-                    <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm"><i class="bi bi-trash"></i></button>
-                  </form>
-                </div>
-              </div>
-              {% endfor %}
-            {% endfor %}
+                {% endfor %}
 
+              {% else %}
+                <span class="gp-fila__price">
+                  ${{ p.precio_unitario|floatformat:0 }}
+                </span>
+              {% endif %}
+
+            {% endwith %}
+          </div>
+
+          <div class="gp-fila-actions">
+            <button class="gp-btn gp-btn--warning gp-btn--sm"
+                    onclick="abrirEditarProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.descripcion|default:''|escapejs }}','{{ p.precio_unitario|default:0 }}',{{ p.categoria.pk }})"
+              <i class="bi bi-pencil"></i> Editar
+            </button>
+            <button class="gp-btn gp-btn--outline gp-btn--sm"
+                    onclick="abrirDetalleProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.categoria.nombre|escapejs }}','{{ p.precio_unitario|default:0 }}','{{ p.stock_total }}','{{ p.unidad }}','{{ p.descripcion|default:''|escapejs }}')">
+              <i class="bi bi-eye"></i>
+            </button>
+            <form method="POST" action="{% url 'inventario:gestion_producto_eliminar' p.pk %}"
+                  onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»? Esta acción no se puede deshacer.')" style="margin:0;">
+              {% csrf_token %}
+              <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm"><i class="bi bi-trash"></i></button>
+            </form>
           </div>
         </div>
-        {% endif %}
-      {% empty %}
-        <div style="text-align:center; padding:3rem; color:var(--gp-muted); font-size:.85rem;">
-          <i class="bi bi-inbox" style="font-size:2.5rem; display:block; margin-bottom:.5rem; color:rgba(77,168,218,.3);"></i>
-          No hay productos registrados aún.
-        </div>
-      {% endfor %}
+        {% endfor %}
+
+        <!-- SUBCATEGORÍAS -->
+        {% for sub in cat.subcategorias.all %}
+          {% for p in sub.productos.all %}
+          <div class="gp-fila" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
+            <div>
+              <span class="gp-fila__name">{{ p.nombre }}</span>
+              <span class="gp-fila__sub"> · {{ sub.nombre }}</span>
+              {% if p.stock_critico %}
+                <span class="gp-crit-tag"><i class="bi bi-exclamation-triangle-fill"></i> Crítico</span>
+              {% endif %}
+            </div>
+            <span class="gp-fila__code">{{ p.codigo }}</span>
+            <span>
+              <span class="gp-stock-badge {% if p.stock_critico %}low{% else %}ok{% endif %}">
+                {{ p.stock_total }} {{ p.unidad }}
+              </span>
+            </span>
+
+            <!-- ✅ TAMBIÉN CORREGIDO AQUÍ -->
+            <div>
+              {% with pres=p.presentaciones.all %}
+
+                {% if pres|length > 1 %}
+                  <div style="display:flex; flex-wrap:wrap; gap:.3rem;">
+                    {% for pr in pres %}
+                      <span style="display:inline-flex; align-items:center; gap:.3rem;
+                                   font-size:.68rem; padding:.25rem .5rem; border-radius:6px;
+                                   background:rgba(77,168,218,.09);
+                                   border:1px solid rgba(77,168,218,.22);
+                                   color:var(--gp-blue); white-space:nowrap;">
+                        <span style="color:var(--gp-text); font-weight:500;">{{ pr.nombre }}</span>
+                        <span style="color:var(--gp-muted);">×{{ pr.unidades }}</span>
+                        <span style="font-weight:700;">${{ pr.precio|floatformat:0 }}</span>
+                        <span style="color:var(--gp-muted);">· {{ pr.cantidad }} uds</span>
+                      </span>
+                    {% endfor %}
+                  </div>
+
+                {% elif pres|length == 1 %}
+                  {% for pr in pres %}
+                    <span class="gp-fila__price">
+                      ${{ pr.precio|floatformat:0 }} · {{ pr.cantidad }} uds
+                    </span>
+                  {% endfor %}
+
+                {% else %}
+                  <span class="gp-fila__price">
+                    ${{ p.precio_unitario|floatformat:0 }}
+                  </span>
+                {% endif %}
+
+              {% endwith %}
+            </div>
+
+            <div class="gp-fila-actions">
+              <button class="gp-btn gp-btn--warning gp-btn--sm"
+                      onclick="abrirEditarProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.descripcion|default:''|escapejs }}','{{ p.precio_unitario }}',{{ p.categoria.pk }})">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+              <button class="gp-btn gp-btn--outline gp-btn--sm"
+                      onclick="abrirDetalleProducto({{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}','{{ p.categoria.nombre|escapejs }}','{{ p.precio_unitario }}','{{ p.stock_total }}','{{ p.unidad }}','{{ p.descripcion|default:''|escapejs }}')">
+                <i class="bi bi-eye"></i>
+              </button>
+              <form method="POST" action="{% url 'inventario:gestion_producto_eliminar' p.pk %}"
+                    onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»?')" style="margin:0;">
+                {% csrf_token %}
+                <button type="submit" class="gp-btn gp-btn--danger gp-btn--sm"><i class="bi bi-trash"></i></button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        {% endfor %}
+
+      </div>
     </div>
-  </div>
+    {% endif %}
+  {% empty %}
+    <div style="text-align:center; padding:3rem; color:var(--gp-muted); font-size:.85rem;">
+      <i class="bi bi-inbox" style="font-size:2.5rem; display:block; margin-bottom:.5rem; color:rgba(77,168,218,.3);"></i>
+      No hay productos registrados aún.
+    </div>
+  {% endfor %}
+</div>
 
   <!-- TAB 2: REGISTRAR SALIDA -->
   <div id="tab-salida" class="gp-section">
@@ -247,6 +268,22 @@
               <option value="">— Unidades sueltas —</option>
             </select>
           </div>
+          <!-- Lote (SCRUM-259) -->   
+            <div class="gp-full">
+          <label class="gp-label">
+          Lote <span style="color:var(--gp-muted); font-weight:400; font-size:.75rem;">(opcional)</span>
+          </label>
+          <select name="lote_id" class="gp-input">
+            <option value="">— Sin lote específico —</option>
+          {% for lote in lotes %}
+          <option value="{{ lote.pk }}">
+          {{ lote.numero_lote }} — {{ lote.producto.nombre }}
+         {% if lote.fecha_vencimiento %}· vence {{ lote.fecha_vencimiento|date:"d/m/Y" }}{% endif %}
+      </option>
+    {% endfor %}
+         </select>
+      </div>
+
           <div>
             <label class="gp-label">Cantidad</label>
             <input type="number" name="cantidad" class="gp-input" min="1" placeholder="Ej: 5" required>
@@ -378,6 +415,14 @@
               {% endfor %}
             </select>
           </div>
+          <!-- fecha de vencimiento -->
+        <div>
+    <label class="gp-label">
+        Fecha de Vencimiento
+    <span style="color:var(--gp-muted); font-weight:400; font-size:.75rem;">(opcional)</span>
+    </label>
+      <input type="date" name="fecha_vencimiento" class="gp-input">
+      </div>
           <div class="gp-full">
             <button type="submit" class="gp-btn gp-btn--primary w-100">
               <i class="bi bi-save"></i> Guardar Lote
@@ -643,14 +688,15 @@ const todoProductosGP = [
       }{% if not forloop.last %},{% endif %}
       {% endfor %}
     ],
-    lotes: [
-      {% for l in p.lotes.all %}
-      {
-        numero: "{{ l.numero_lote|escapejs }}",
-        fecha: "{{ l.fecha_registro|date:'d/m/Y' }}"
-      }{% if not forloop.last %},{% endif %}
-      {% endfor %}
-    ]
+   lotes: [
+  {% for l in p.lotes.all %}
+  {
+    numero: "{{ l.numero_lote|escapejs }}",
+    fecha: "{{ l.fecha_registro|date:'d/m/Y' }}", 
+    vencimiento: "{{ l.fecha_vencimiento|date:'Y-m-d'|default:'' }}"
+  }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+],
   }{% if not forloop.last %},{% endif %}
   {% endfor %}
 ];
@@ -767,18 +813,48 @@ function abrirDetalleProducto(pk, nombre, codigo, categoria, precio, stock, unid
   // Lotes
   const lotesEl = document.getElementById('gp-det-lotes');
   if (producto && producto.lotes.length > 0) {
-    lotesEl.innerHTML = producto.lotes.map(l => `
+  lotesEl.innerHTML = producto.lotes.map(l => {
+    let alertaHtml = '';
+    let borderColor = 'rgba(77,168,218,.12)';
+
+    if (l.vencimiento) {
+      const hoy  = new Date();
+      const venc = new Date(l.vencimiento);
+      const dias = Math.floor((venc - hoy) / 86400000);
+
+      if (dias < 0) {
+        borderColor = 'rgba(248,113,113,.3)';
+        alertaHtml  = `<span style="font-size:.68rem; font-weight:700; padding:2px 8px;
+                        border-radius:20px; background:rgba(248,113,113,.12);
+                        color:#f87171; border:1px solid rgba(248,113,113,.3);">
+                        <i class="bi bi-x-circle-fill me-1"></i>Vencido</span>`;
+      } else if (dias <= 30) {
+        borderColor = 'rgba(251,191,36,.3)';
+        alertaHtml  = `<span style="font-size:.68rem; font-weight:700; padding:2px 8px;
+                        border-radius:20px; background:rgba(251,191,36,.12);
+                        color:#fbbf24; border:1px solid rgba(251,191,36,.3);">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>Vence en ${dias}d</span>`;
+      }
+    }
+
+    const fechaVencDisplay = l.vencimiento
+      ? new Date(l.vencimiento).toLocaleDateString('es-CO', {day:'2-digit', month:'2-digit', year:'numeric'})
+      : '<span style="color:var(--gp-muted);">Sin vencimiento</span>';
+
+    return `
       <div style="display:flex; justify-content:space-between; align-items:center;
-                  padding:.3rem .6rem; border-radius:7px;
-                  background:rgba(77,168,218,.06); border:1px solid rgba(77,168,218,.12);
-                  margin-bottom:.3rem;">
+                  padding:.35rem .6rem; border-radius:7px;
+                  background:rgba(77,168,218,.06); border:1px solid ${borderColor};
+                  margin-bottom:.3rem; gap:.5rem; flex-wrap:wrap;">
         <span style="font-family:monospace; color:var(--gp-blue); font-size:.82rem; font-weight:600;">
           <i class="bi bi-upc-scan me-1"></i>${l.numero}
         </span>
-        <span style="font-size:.7rem; color:var(--gp-muted);">${l.fecha}</span>
-      </div>`).join('');
-  } else {
-    lotesEl.innerHTML = '<span style="font-size:.78rem; color:var(--gp-muted);">Sin lotes registrados.</span>';
+        <span style="font-size:.7rem; color:var(--gp-muted);">Vence: ${fechaVencDisplay}</span>
+        ${alertaHtml}
+      </div>`;
+  }).join('');
+} else {
+    lotesEl.innerHTML = '<span style="font-size:.78rem; color:var(--gp-muted);">No hay lotes registrados para este producto.</span>';
   }
 
   document.getElementById('modalDetalleProducto').classList.add('open');
@@ -789,7 +865,7 @@ function abrirEditarProducto(pk, nombre, codigo, descripcion, precio, categoriaP
   document.getElementById('ep-nombre').value      = nombre;
   document.getElementById('ep-codigo').value      = codigo;
   document.getElementById('ep-descripcion').value = descripcion;
-  document.getElementById('ep-precio').value      = precio;
+  document.getElementById('ep-precio').value = precio && precio !== 'None' ? precio : '';
   document.getElementById('ep-categoria').value   = categoriaPk;
 
   document.getElementById('formEditarProducto').action =
@@ -827,24 +903,23 @@ function abrirPresentaciones(pk, nombre) {
     "{% url 'producto:presentaciones_guardar' 0 %}?next={% url 'inventario:gestion_productos' %}"
     .replace('/0/', '/' + pk + '/');
 
-  // Limpiar filas adicionales (no la base)
+  // Limpiar y resetear
   document.getElementById('contenedor-presentaciones').innerHTML = '';
-
-  // Valores por defecto para la fila base
-  document.getElementById('pres-nombre-base').value   = 'Unidad';
-  document.getElementById('pres-unidades-base').value = '1';
-  document.getElementById('precio-unidad').value       = '';
-  document.getElementById('cantidad-unidad').value     = '0';
+  document.getElementById('pres-nombre-base').value    = 'Unidad';
+  document.getElementById('pres-unidades-base').value  = '1';
+  document.getElementById('precio-unidad').value        = '';
+  document.getElementById('cantidad-unidad').value      = '0';
 
   const producto = todoProductosGP.find(p => p.pk == pk);
   if (producto && producto.presentaciones.length > 0) {
+    // Primera presentación = base
     const base = producto.presentaciones[0];
-    document.getElementById('pres-nombre-base').value   = base.nombre   || 'Unidad';
-    document.getElementById('pres-unidades-base').value = base.unidades != null ? base.unidades : 1;
-    // ← aquí estaba el bug: base.precio podía ser "0" (falsy) y no se asignaba
-    document.getElementById('precio-unidad').value      = base.precio   != null ? base.precio   : '';
-    document.getElementById('cantidad-unidad').value    = base.cantidad != null ? base.cantidad  : 0;
+    document.getElementById('pres-nombre-base').value   = base.nombre;
+    document.getElementById('pres-unidades-base').value = base.unidades;
+    document.getElementById('precio-unidad').value       = base.precio;
+    document.getElementById('cantidad-unidad').value     = base.cantidad || 0;
 
+    // Las demás → filas adicionales
     producto.presentaciones.slice(1).forEach(pr =>
       agregarPresentacion(pr.nombre, pr.unidades, pr.precio, pr.cantidad)
     );
@@ -852,7 +927,6 @@ function abrirPresentaciones(pk, nombre) {
 
   document.getElementById('modalPresentaciones').classList.add('open');
 }
-
 
 function agregarPresentacion(nombre = '', unidades = '', precio = '', cantidad = '') {
   const cont = document.getElementById('contenedor-presentaciones');
