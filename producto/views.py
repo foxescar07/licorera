@@ -117,28 +117,24 @@ def presentaciones_guardar(request, pk):
         precios    = request.POST.getlist("precio[]")
         cantidades = request.POST.getlist("cantidad[]")
 
-        # ← FIX: si no llegaron filas, no borrar nada
-        if not nombres:
+        # Si no llegaron filas (no se abrió el modal), salir sin tocar BD
+        if not any(n.strip() for n in nombres):
             next_url = request.POST.get('next') or request.GET.get('next')
-            if next_url:
-                return redirect(next_url)
-            return redirect("producto:producto_lista")
+            return redirect(next_url or "producto:producto_lista")
 
         try:
             with transaction.atomic():
                 nuevas = []
                 for nombre_v, unidad_v, precio_v, cantidad_v in zip(nombres, unidades, precios, cantidades):
                     nombre_v = nombre_v.strip()
-                    if not nombre_v:
-                        continue
-                    if not unidad_v:
+                    if not nombre_v or not unidad_v:
                         continue
                     try:
-                        precio_f = float(precio_v) if precio_v.strip() else 0
+                        precio_f = float(str(precio_v).strip()) if str(precio_v).strip() else 0.0
                     except (ValueError, TypeError):
-                        precio_f = 0
+                        precio_f = 0.0
                     try:
-                        cantidad_i = int(cantidad_v) if cantidad_v else 0
+                        cantidad_i = int(str(cantidad_v).strip()) if str(cantidad_v).strip() else 0
                     except (ValueError, TypeError):
                         cantidad_i = 0
 
@@ -149,21 +145,18 @@ def presentaciones_guardar(request, pk):
                         cantidad=max(0, cantidad_i),
                     ))
 
-                # Solo borra y recrea si realmente llegaron filas válidas
                 if nuevas:
                     producto.presentaciones.all().delete()
                     for datos in nuevas:
                         PresentacionProducto.objects.create(producto=producto, **datos)
 
-            messages.success(request, f"✅ Presentaciones de {producto.nombre} guardadas.")
+            messages.success(request, f"✅ Presentaciones de <strong>{producto.nombre}</strong> guardadas correctamente.")
 
         except Exception as e:
             messages.error(request, f"❌ Error al guardar presentaciones: {e}")
 
     next_url = request.POST.get('next') or request.GET.get('next')
-    if next_url:
-        return redirect(next_url)
-    return redirect("producto:producto_lista")
+    return redirect(next_url or "producto:producto_lista")
 
 
 def presentaciones_json(request, pk):

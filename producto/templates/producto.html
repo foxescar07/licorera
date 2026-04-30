@@ -8,16 +8,19 @@
 {% block content %}
 <div class="container-fluid p-0">
 
-  {% if messages %}
+ {% if messages %}
+  <div id="gp-messages-container">
     {% for message in messages %}
-      <div class="alert alert-dismissible fade show mb-3"
-           style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:var(--radius);"
-           role="alert">
-        {{ message }}
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+      <div class="gp-alert {% if message.tags == 'error' %}gp-alert--err{% elif message.tags == 'warning' %}gp-alert--warn{% elif message.tags == 'info' %}gp-alert--info{% else %}gp-alert--ok{% endif %} mb-2 gp-alert-dismissible">
+        <i class="bi bi-{% if message.tags == 'error' %}x-circle{% elif message.tags == 'warning' %}exclamation-triangle{% elif message.tags == 'info' %}info-circle{% else %}check-circle{% endif %}-fill me-2"></i>
+        <span>{{ message }}</span>
+        <button type="button" class="gp-alert-close" onclick="this.closest('.gp-alert-dismissible').remove()">
+          <i class="bi bi-x-lg"></i>
+        </button>
       </div>
     {% endfor %}
-  {% endif %}
+  </div>
+ {% endif %}
 
   {% include 'stock_widget.html' %}
 
