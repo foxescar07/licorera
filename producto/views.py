@@ -323,3 +323,55 @@ def producto_salida(request):
             )
 
     return redirect("producto:producto_lista")
+
+# ===============================
+# BÚSQUEDA DE PRODUCTO (cajero)
+# ===============================
+def buscar_producto(request):
+    from django.db.models import Q, Sum
+
+    q = request.GET.get('q', '').strip()
+
+    if not q:
+        return JsonResponse(
+            {'encontrado': False, 'mensaje': 'Ingresa un nombre o código para buscar.'},
+            status=400
+        )
+
+    try:
+        producto = Producto.objects.prefetch_related('presentaciones').filter(
+            Q(nombre__icontains=q) | Q(codigo__iexact=q)
+        ).first()
+
+        if not producto:
+            return JsonResponse(
+                {'encontrado': False, 'mensaje': f'No se encontró ningún producto con "{q}".'},
+                status=404
+            )
+
+        stock_presentaciones = producto.presentaciones.aggregate(
+            total=Sum('cantidad')
+        )['total'] or 0
+
+        return JsonResponse({
+            'encontrado': True,
+            'producto': {
+                'pk':                   producto.pk,
+                'nombre':               producto.nombre,
+                'codigo':               producto.codigo or '—',
+                'categoria':            producto.categoria.nombre if producto.categoria else '—',
+                'cantidad_disponible':  producto.cantidad_disponible,
+                'stock_presentaciones': stock_presentaciones,
+                'stock_total':          producto.cantidad_disponible + stock_presentaciones,
+                'descripcion':          producto.descripcion or '',
+                'presentaciones': list(
+                    producto.presentaciones.values('id', 'nombre', 'unidades', 'precio', 'cantidad')
+                ),
+            }
+        })
+
+    except Exception as e:
+        return JsonResponse(
+            {'encontrado': False, 'mensaje': 'Error al consultar. Inténtalo de nuevo.'},
+            status=500
+        )
