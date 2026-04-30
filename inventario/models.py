@@ -51,11 +51,29 @@ class Lote(models.Model):
         verbose_name="Producto"
     )
     fecha_registro = models.DateTimeField(auto_now_add=True)
+    fecha_vencimiento = models.DateField(null=True, blank=True, verbose_name="Fecha de Vencimiento") 
     registrado_por = models.ForeignKey(
         User, null=True, blank=True,
         on_delete=models.SET_NULL
     )
 
+    @property
+    def dias_para_vencer(self):
+        if not self.fecha_vencimiento:
+            return None
+        from django.utils import timezone
+        return (self.fecha_vencimiento - timezone.now().date()).days
+
+    @property
+    def esta_vencido(self):
+        d = self.dias_para_vencer
+        return d is not None and d < 0
+
+    @property
+    def proximo_a_vencer(self):
+        d = self.dias_para_vencer
+        return d is not None and 0 <= d <= 30
+    
     class Meta:
         verbose_name = 'Lote'
         ordering = ['-fecha_registro']
