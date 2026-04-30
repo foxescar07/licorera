@@ -9,551 +9,6 @@
 <link rel="stylesheet" href="{% static 'css/devoluciones.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-<style>
-/* ═══════════════════════════════════════════════════════════
-   DEVOLUCIONES — sistema CYS · acento rojo
-   ═══════════════════════════════════════════════════════════ */
-:root {
-  --dr:        #C0392B;
-  --dr-light:  #e74c3c;
-  --dr-dark:   #922b21;
-  --dr-glow:   rgba(192,57,43,0.08);
-  --dr-border: rgba(192,57,43,0.22);
-  --dr-hot:    rgba(192,57,43,0.40);
-  --dg:        #27ae60;
-  --dg-light:  #2ecc71;
-  --dg-glow:   rgba(39,174,96,0.10);
-  --dg-border: rgba(39,174,96,0.28);
-}
-
-/* ── Topbar ── */
-.dev-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.dev-topbar__title {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.15rem; font-weight: 700;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--texto);
-  display: flex; align-items: center; gap: 9px;
-}
-.dev-topbar__title i { color: var(--dr); }
-
-.dev-btn-historial {
-  display: flex; align-items: center; gap: 8px;
-  padding: 9px 20px;
-  border-radius: var(--radius);
-  border: 1px solid var(--dr-border);
-  background: var(--dr-glow);
-  color: var(--dr-light);
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 0.82rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-  cursor: pointer; transition: var(--trans);
-}
-.dev-btn-historial:hover { background: rgba(192,57,43,0.16); border-color: var(--dr-light); }
-.dev-btn-historial__badge {
-  background: var(--dr); color: #fff;
-  border-radius: 20px; padding: 1px 8px;
-  font-size: 0.68rem; font-weight: 700; min-width: 20px; text-align: center;
-}
-
-/* ── Card principal ── */
-.dev-card {
-  background: var(--fondo-card);
-  border: 1px solid var(--dr-border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  position: relative;
-  animation: devIn 0.28s ease both;
-  min-height: 520px;
-  display: flex;
-  flex-direction: column;
-}
-@keyframes devIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.dev-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--dr) 35%, var(--dr-light) 65%, transparent);
-  pointer-events: none;
-}
-
-/* ── Stepper horizontal ── */
-.dev-stepper-wrap {
-  padding: 20px 32px 0;
-  border-bottom: 1px solid var(--dr-border);
-  background: rgba(192,57,43,0.03);
-}
-.dev-stepper {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  position: relative;
-  padding-bottom: 18px;
-}
-/* línea conectora */
-.dev-stepper::before {
-  content: '';
-  position: absolute;
-  top: 14px;
-  left: calc(12.5% + 14px);
-  right: calc(12.5% + 14px);
-  height: 1px;
-  background: var(--dr-border);
-  z-index: 0;
-}
-.dev-step-dot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  flex: 1;
-  position: relative;
-  z-index: 1;
-}
-.dev-step-dot__circle {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  border: 1px solid var(--azul-borde);
-  background: var(--fondo-card2);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 0.74rem; font-weight: 700;
-  color: var(--texto-muted);
-  transition: all 0.22s;
-}
-.dev-step-dot.active .dev-step-dot__circle {
-  border-color: var(--dr); background: var(--dr-glow);
-  color: var(--dr); box-shadow: 0 0 10px rgba(192,57,43,0.25);
-}
-.dev-step-dot.done .dev-step-dot__circle {
-  border-color: var(--dg); background: var(--dg-glow);
-  color: var(--dg-light);
-}
-.dev-step-dot__label {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  color: var(--texto-muted);
-  text-align: center;
-  white-space: nowrap;        /* ← sin cortes */
-  line-height: 1.3;
-  transition: color 0.2s;
-}
-.dev-step-dot.active .dev-step-dot__label { color: var(--texto); font-weight: 600; }
-.dev-step-dot.done   .dev-step-dot__label { color: var(--dg-light); }
-
-.dev-step-dot__circle .icon-n { display: inline; }
-.dev-step-dot__circle .icon-c { display: none; }
-.dev-step-dot.done .dev-step-dot__circle .icon-n { display: none; }
-.dev-step-dot.done .dev-step-dot__circle .icon-c { display: inline; }
-
-/* ── Contenido de pasos ── */
-.dev-steps-content {
-  flex: 1;
-  padding: 28px 32px 24px;
-  display: flex;
-  flex-direction: column;
-}
-
-.dev-pane { display: none; flex: 1; flex-direction: column; min-height: 360px; }
-.dev-pane.visible { display: flex; animation: devIn 0.2s ease both; }
-
-/* ── Paso 1 — Buscar venta ── */
-.dev-search { position: relative; }
-.dev-search__icon {
-  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
-  color: var(--dr); font-size: 0.85rem; pointer-events: none;
-}
-.dev-search__input {
-  width: 100%;
-  padding: 0.7rem 1rem 0.7rem 2.4rem;
-  background: var(--fondo-card2);
-  border: 1px solid var(--dr-border);
-  border-radius: var(--radius);
-  color: var(--texto);
-  font-family: 'Inter', sans-serif; font-size: 0.9rem;
-  outline: none; transition: var(--trans);
-}
-.dev-search__input:focus { border-color: var(--dr); box-shadow: 0 0 0 3px var(--dr-glow); }
-.dev-search__input::placeholder { color: var(--texto-muted); }
-
-.dev-result-row {
-  display: flex; align-items: center;
-  justify-content: space-between; gap: 12px;
-  padding: 11px 15px;
-  background: var(--fondo-card2); border: 1px solid var(--azul-borde);
-  border-radius: var(--radius); cursor: pointer; margin-bottom: 6px;
-  transition: var(--trans);
-}
-.dev-result-row:hover { border-color: var(--dr); background: var(--dr-glow); }
-.dev-result-row__nombre { font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--texto); }
-.dev-result-row__fecha  { font-size: 0.74rem; color: var(--texto-muted); margin-top: 2px; }
-.dev-result-row__total  { font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--dr-light); white-space: nowrap; }
-
-.dev-venta-banner {
-  background: var(--dr-glow); border: 1px solid var(--dr-hot);
-  border-radius: var(--radius); padding: 14px 18px;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; flex-wrap: wrap; margin-top: 12px;
-}
-.dev-venta-banner__tag {
-  font-family: 'Rajdhani', sans-serif; font-size: 0.62rem; font-weight: 700;
-  letter-spacing: 0.14em; text-transform: uppercase; color: var(--dr); margin-bottom: 4px;
-}
-.dev-venta-banner__nombre { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--texto); }
-.dev-venta-banner__fecha  { font-size: 0.76rem; color: var(--texto-muted); margin-top: 2px; }
-.dev-venta-banner__total  { font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--dr-light); line-height: 1; white-space: nowrap; }
-.dev-btn-cambiar {
-  background: none; border: none; color: var(--texto-muted);
-  font-family: 'Inter', sans-serif; font-size: 0.76rem;
-  cursor: pointer; padding: 4px 0;
-  display: flex; align-items: center; gap: 5px; margin-top: 8px;
-  transition: color 0.15s;
-}
-.dev-btn-cambiar:hover { color: var(--dr); }
-
-/* ── Paso 2 — Comprobante ── */
-.dev-toggle-group { display: flex; gap: 10px; }
-.dev-toggle-btn {
-  flex: 1; padding: 10px 14px;
-  border-radius: var(--radius); border: 1px solid var(--azul-borde);
-  background: var(--fondo-card2); color: var(--texto-muted);
-  font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.06em;
-  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-  transition: var(--trans);
-}
-.dev-toggle-btn:hover { border-color: var(--dr-border); color: var(--texto); }
-.dev-toggle-btn.activo-si  { background: var(--dg-glow); border-color: var(--dg); color: var(--dg-light); box-shadow: 0 0 10px rgba(39,174,96,0.15); }
-.dev-toggle-btn.activo-no  { background: var(--dr-glow); border-color: var(--dr); color: var(--dr-light); box-shadow: 0 0 10px rgba(192,57,43,0.18); }
-
-/* Variant grande para comprobante */
-.dev-toggle-btn--lg {
-  flex-direction: column;
-  padding: 20px 16px;
-  gap: 10px;
-  min-height: 96px;
-  font-size: 0.95rem;
-  text-align: center;
-  line-height: 1.3;
-}
-
-.dev-warning {
-  display: none;
-  background: rgba(192,57,43,0.07); border: 1px solid rgba(192,57,43,0.28);
-  border-radius: var(--radius); padding: 11px 15px;
-  font-family: 'Inter', sans-serif; font-size: 0.84rem; color: #e07060;
-  align-items: flex-start; gap: 10px; margin-top: 12px;
-}
-.dev-warning i { flex-shrink: 0; margin-top: 2px; }
-
-/* ── Paso 3 — Productos ── */
-.dev-prod-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 10px;
-}
-.dev-prod-row {
-  background: var(--fondo-card2); border: 1px solid var(--azul-borde);
-  border-radius: var(--radius); padding: 14px 16px;
-  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
-  cursor: pointer; user-select: none;
-}
-.dev-prod-row:hover { border-color: var(--dr-border); background: rgba(192,57,43,0.04); }
-.dev-prod-row.seleccionado {
-  border-color: var(--dr); background: var(--dr-glow);
-  box-shadow: 0 0 0 1px rgba(192,57,43,0.20);
-}
-.dev-prod-row__top   { display: flex; align-items: center; gap: 10px; }
-.dev-prod-row__info  { flex: 1; min-width: 0; }
-.dev-prod-row__nombre { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 600; color: var(--texto); }
-.dev-prod-row__precio { font-size: 0.73rem; color: var(--texto-muted); margin-top: 2px; }
-.dev-prod-row__bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--dr-border); }
-.dev-qty-wrap { display: flex; align-items: center; gap: 6px; }
-.dev-qty-label { font-size: 0.72rem; color: var(--texto-muted); }
-.dev-qty {
-  width: 56px; background: var(--fondo-card);
-  border: 1px solid var(--azul-borde); color: var(--texto);
-  border-radius: 6px; padding: 5px 7px; text-align: center;
-  font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; font-weight: 700;
-  outline: none; transition: border-color 0.15s;
-}
-.dev-qty:focus { border-color: var(--dr); }
-.dev-prod-row__sub { font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700; color: var(--dr-light); }
-
-/* hint */
-.dev-hint {
-  display: flex; align-items: center; gap: 9px;
-  padding: 10px 15px; margin-bottom: 14px;
-  background: rgba(192,57,43,0.05); border: 1px solid rgba(192,57,43,0.18);
-  border-radius: var(--radius);
-  font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #e07060;
-}
-
-/* resumen */
-.dev-resumen {
-  display: none; align-items: center; justify-content: space-between;
-  padding: 10px 16px; margin-top: 12px;
-  background: var(--dr-glow); border: 1px solid var(--dr-border);
-  border-radius: var(--radius);
-}
-.dev-resumen__text { font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--texto-muted); }
-.dev-resumen__text i { color: var(--dr); }
-.dev-resumen__total { font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--dr-light); }
-
-/* ── Paso 4 — Opciones ── */
-.dev-opts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-@media (max-width: 620px) { .dev-opts-grid { grid-template-columns: 1fr; } }
-
-.dev-field-label {
-  display: block; font-family: 'Rajdhani', sans-serif;
-  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--texto-muted); margin-bottom: 8px;
-}
-.dev-select {
-  width: 100%; background: var(--fondo-card); border: 1px solid var(--dr-border);
-  color: var(--texto); border-radius: 8px; padding: 9px 12px;
-  font-family: 'Inter', sans-serif; font-size: 0.88rem; outline: none; transition: border-color 0.2s;
-}
-.dev-select:focus { border-color: var(--dr); }
-.dev-select option { background: var(--fondo-card2); }
-.dev-textarea {
-  width: 100%; background: var(--fondo-card); border: 1px solid var(--dr-border);
-  color: var(--texto); border-radius: 8px; padding: 9px 12px;
-  font-family: 'Inter', sans-serif; font-size: 0.88rem;
-  outline: none; resize: vertical; min-height: 80px; transition: border-color 0.2s;
-}
-.dev-textarea:focus { border-color: var(--dr); }
-.dev-textarea::placeholder { color: var(--texto-muted); }
-
-.dev-divider { border: none; border-top: 1px solid var(--dr-border); margin: 20px 0; }
-
-/* ── Navegación entre pasos ── */
-.dev-nav {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-top: auto; padding-top: 20px; gap: 12px;
-}
-.dev-btn-nav {
-  display: flex; align-items: center; gap: 7px;
-  padding: 9px 20px; border-radius: var(--radius);
-  border: 1px solid var(--azul-borde); background: var(--fondo-card2);
-  color: var(--texto-muted);
-  font-family: 'Rajdhani', sans-serif; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-  cursor: pointer; transition: var(--trans);
-}
-.dev-btn-nav:hover:not(:disabled) { border-color: var(--dr-border); color: var(--texto); }
-.dev-btn-nav--primary { background: var(--dr-glow); border-color: var(--dr); color: var(--dr-light); }
-.dev-btn-nav--primary:hover:not(:disabled) { background: rgba(192,57,43,0.16); }
-.dev-btn-nav:disabled { opacity: 0.28; cursor: not-allowed; }
-
-/* ── Footer bar (total + submit) ── */
-.dev-footer-bar {
-  display: none;
-  align-items: center; justify-content: space-between; gap: 20px;
-  padding: 16px 32px;
-  border-top: 1px solid var(--dr-border);
-  background: rgba(192,57,43,0.05);
-  flex-wrap: wrap;
-}
-.dev-total-label { font-family: 'Rajdhani', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dr); }
-.dev-total-sub   { font-family: 'Inter', sans-serif; font-size: 0.67rem; color: var(--texto-muted); margin-top: 2px; }
-.dev-total-monto { font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--dr-light); line-height: 1; }
-.dev-btn-submit {
-  padding: 12px 32px; border: none; border-radius: var(--radius);
-  background: linear-gradient(135deg, #8B1A0A 0%, var(--rojo) 100%);
-  color: #fff; font-family: 'Rajdhani', sans-serif;
-  font-size: 0.9rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
-  cursor: pointer; display: flex; align-items: center; gap: 9px;
-  transition: box-shadow 0.2s, transform 0.15s, opacity 0.2s;
-  box-shadow: 0 4px 18px rgba(192,57,43,0.28); white-space: nowrap;
-}
-.dev-btn-submit:hover:not(:disabled) { box-shadow: 0 6px 24px rgba(192,57,43,0.48); transform: translateY(-1px); }
-.dev-btn-submit:disabled { opacity: 0.28; cursor: not-allowed; transform: none; box-shadow: none; }
-
-/* ══════════ MODAL HISTORIAL (drawer) ══════════ */
-#modalHistorial {
-  display: none; position: fixed; inset: 0;
-  background: rgba(5,8,15,0.75); z-index: 9999;
-  align-items: flex-start; justify-content: flex-end;
-}
-#modalHistorial.open { display: flex; }
-
-.modal-hist-panel {
-  width: 460px; max-width: 100vw; height: 100vh;
-  background: var(--fondo-card); border-left: 1px solid var(--dr-border);
-  display: flex; flex-direction: column;
-  animation: slideIn 0.24s ease both;
-}
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to   { transform: translateX(0); opacity: 1; }
-}
-.modal-hist-head {
-  padding: 16px 22px; flex-shrink: 0;
-  border-bottom: 1px solid var(--dr-border);
-  background: var(--dr-glow);
-  display: flex; align-items: center; justify-content: space-between;
-  position: relative;
-}
-.modal-hist-head::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--dr) 40%, var(--dr-light) 60%, transparent);
-}
-.modal-hist-head__title {
-  font-family: 'Rajdhani', sans-serif; font-size: 0.78rem; font-weight: 700;
-  letter-spacing: 0.15em; text-transform: uppercase; color: var(--dr);
-  display: flex; align-items: center; gap: 8px;
-}
-.modal-hist-close {
-  width: 28px; height: 28px; border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.1); background: transparent;
-  color: var(--texto-muted); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.78rem; transition: var(--trans);
-}
-.modal-hist-close:hover { background: rgba(255,255,255,0.06); color: var(--texto); }
-
-.modal-hist-metrics {
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px; padding: 14px 18px;
-  border-bottom: 1px solid var(--dr-border); flex-shrink: 0;
-}
-.modal-metric {
-  background: var(--fondo-card2); border: 1px solid var(--dr-border);
-  border-radius: var(--radius); padding: 9px 11px; text-align: center;
-}
-.modal-metric__val { font-family: 'Rajdhani', sans-serif; font-size: 1.25rem; font-weight: 700; color: var(--dr-light); line-height: 1; }
-.modal-metric__lbl { font-family: 'Rajdhani', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--texto-muted); margin-top: 3px; }
-
-.modal-hist-list {
-  flex: 1; overflow-y: auto; padding: 14px 18px;
-  scrollbar-width: thin; scrollbar-color: var(--dr-dark) var(--fondo-card);
-}
-.modal-hist-list::-webkit-scrollbar { width: 4px; }
-.modal-hist-list::-webkit-scrollbar-track { background: var(--fondo-card); }
-.modal-hist-list::-webkit-scrollbar-thumb { background: var(--dr-dark); border-radius: 2px; }
-
-.dev-hist-row {
-  background: var(--fondo-card2); border: 1px solid var(--azul-borde);
-  border-radius: var(--radius); padding: 12px 14px; cursor: pointer;
-  transition: var(--trans); margin-bottom: 8px;
-}
-.dev-hist-row:hover { border-color: var(--dr-border); background: var(--dr-glow); transform: translateX(-2px); }
-.dev-hist-num     { font-family: 'Rajdhani', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dr); }
-.dev-hist-cliente { font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--texto); margin-top: 2px; }
-.dev-hist-fecha   { font-family: 'Inter', sans-serif; font-size: 0.71rem; color: var(--texto-muted); margin-top: 1px; }
-.dev-hist-monto   { font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--dg-light); }
-.dev-hist-motivo  { font-size: 0.68rem; color: var(--texto-muted); margin-top: 2px; }
-
-.dev-pill           { font-family: 'Inter', sans-serif; font-size: 0.65rem; border-radius: 20px; padding: 2px 8px; }
-.dev-pill--stock-ok { background: var(--dg-glow); border: 1px solid var(--dg-border); color: var(--dg-light); }
-.dev-pill--stock-no { background: var(--dr-glow); border: 1px solid rgba(192,57,43,0.28); color: var(--dr-light); }
-.dev-pill--prod     { background: var(--fondo-card); border: 1px solid var(--azul-borde); color: var(--texto-muted); }
-.dev-hist-prods     { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--dr-border); }
-
-.dev-empty { text-align: center; padding: 50px 0; color: var(--texto-muted); }
-.dev-empty i    { font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3; }
-.dev-empty span { font-family: 'Inter', sans-serif; font-size: 0.85rem; }
-
-/* alertas */
-.dev-alert {
-  display: flex; align-items: center; gap: 10px;
-  padding: 11px 16px;
-  border-radius: var(--radius);
-  font-family: 'Inter', sans-serif; font-size: 0.85rem;
-  animation: devIn 0.25s ease both;
-}
-.dev-alert--ok  { background: rgba(39,174,96,0.10); border: 1px solid rgba(39,174,96,0.3); color: #2ecc71; }
-.dev-alert--err { background: rgba(192,57,43,0.10); border: 1px solid rgba(192,57,43,0.3); color: #e74c3c; }
-
-/* ── Centrador de contenido en panes ── */
-.pane-center {
-  width: 100%;
-  max-width: 580px;
-  margin: 0 auto;
-  flex: 1;
-}
-.pane-center--vcenter {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-.pane-title {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.15rem; font-weight: 700; letter-spacing: 0.04em;
-  color: var(--texto); margin-bottom: 28px;
-  display: flex; align-items: center; justify-content: center;
-  gap: 8px;
-}
-
-/* ── Botones comprobante ── */
-.comprobante-btns {
-  display: flex; gap: 16px; width: 100%; max-width: 480px;
-}
-.comprobante-btn {
-  flex: 1;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px; padding: 28px 16px;
-  border-radius: var(--radius);
-  border: 1px solid var(--azul-borde);
-  background: var(--fondo-card2);
-  cursor: pointer;
-  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
-}
-.comprobante-btn:hover {
-  border-color: var(--dr-border);
-  background: var(--dr-glow);
-}
-.comprobante-btn.activo-si {
-  border-color: var(--dg); background: var(--dg-glow);
-  box-shadow: 0 0 16px rgba(39,174,96,0.18);
-}
-.comprobante-btn.activo-no {
-  border-color: var(--dr); background: var(--dr-glow);
-  box-shadow: 0 0 16px rgba(192,57,43,0.2);
-}
-.comprobante-btn__icon {
-  font-size: 1.8rem;
-  color: var(--texto-muted);
-  transition: color 0.18s;
-}
-.comprobante-btn.activo-si .comprobante-btn__icon { color: var(--dg-light); }
-.comprobante-btn.activo-no .comprobante-btn__icon { color: var(--dr-light); }
-.comprobante-btn__label {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1rem; font-weight: 700; letter-spacing: 0.06em;
-  color: var(--texto-muted); transition: color 0.18s;
-}
-.comprobante-btn.activo-si .comprobante-btn__label { color: var(--dg-light); }
-.comprobante-btn.activo-no .comprobante-btn__label { color: var(--dr-light); }
-.comprobante-btn__sub {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.74rem; color: var(--texto-muted); text-align: center;
-}
-
-/* badge */
-.dev-badge {
-  font-family: 'Rajdhani', sans-serif; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em;
-  background: var(--dr-glow); border: 1px solid var(--dr-border);
-  border-radius: 20px; padding: 2px 10px; color: var(--dr);
-}
-</style>
-
-<!-- ══════════════ LAYOUT ══════════════ -->
-
 {% if messages %}
 {% for message in messages %}
 <div class="dev-alert dev-alert--{% if message.tags == 'success' %}ok{% else %}err{% endif %} mb-3" id="devAlertMsg">
@@ -580,7 +35,6 @@
 
 <div class="dev-card">
 
-  <!-- ── Stepper ── -->
   <div class="dev-stepper-wrap">
     <div class="dev-stepper">
       <div class="dev-step-dot active" id="dot1">
@@ -602,10 +56,9 @@
     </div>
   </div>
 
-  <!-- ── Panes ── -->
   <div class="dev-steps-content">
 
-    <!-- PANE 1: BUSCAR VENTA -->
+    <!-- PANE 1 -->
     <div class="dev-pane visible" id="pane1">
       <div class="pane-center">
         <div class="dev-search mb-3">
@@ -637,7 +90,7 @@
       </div>
     </div>
 
-    <!-- PANE 2: COMPROBANTE -->
+    <!-- PANE 2 -->
     <div class="dev-pane" id="pane2">
       <div class="pane-center pane-center--vcenter">
         <p class="pane-title">
@@ -671,20 +124,40 @@
       </div>
     </div>
 
-    <!-- PANE 3: PRODUCTOS -->
+    <!-- PANE 3 -->
     <div class="dev-pane" id="pane3">
-      <div class="pane-center">
+      <div class="pane3-layout">
+        <div class="pane3-header">
+          <div class="pane3-header__title">
+            <i class="bi bi-bag-check"></i>
+            Selecciona los productos a devolver
+          </div>
+          <div class="pane3-counter" id="pane3Counter">
+            <span class="pane3-counter__dot" id="pane3Dot"></span>
+            <span id="pane3CounterText">Ningún producto seleccionado</span>
+          </div>
+        </div>
         <div class="dev-hint" id="hintSelecciona">
-          <i class="bi bi-hand-index-thumb" style="flex-shrink:0;"></i>
-          <span>Haz clic en un producto para seleccionarlo y ajusta la cantidad.</span>
+          <i class="bi bi-hand-index-thumb" style="flex-shrink:0; font-size:1rem;"></i>
+          <span>Haz clic en una tarjeta para seleccionarla. Ajusta la cantidad con los botones <strong>−</strong> y <strong>+</strong>.</span>
         </div>
         <div id="listaProductosDevolver" class="dev-prod-grid"></div>
         <div class="dev-resumen" id="resumenSeleccion">
-          <span class="dev-resumen__text">
-            <i class="bi bi-check2-square me-1"></i>
-            <span id="resumenCantProd">0</span> producto(s) seleccionado(s)
-          </span>
-          <span class="dev-resumen__total" id="resumenTotal">$0</span>
+          <div class="dev-resumen__left">
+            <div class="dev-resumen__stat">
+              <div class="dev-resumen__stat-val" id="resumenCantProd">0</div>
+              <div class="dev-resumen__stat-lbl">Productos</div>
+            </div>
+            <div class="dev-resumen__divider"></div>
+            <div class="dev-resumen__stat">
+              <div class="dev-resumen__stat-val" id="resumenCantUnidades">0</div>
+              <div class="dev-resumen__stat-lbl">Unidades</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:'Rajdhani',sans-serif; font-size:0.62rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--dr); margin-bottom:4px;">Total a devolver</div>
+            <div class="dev-resumen__total" id="resumenTotal">$0</div>
+          </div>
         </div>
       </div>
       <div class="dev-nav">
@@ -697,7 +170,7 @@
       </div>
     </div>
 
-    <!-- PANE 4: OPCIONES -->
+    <!-- PANE 4 -->
     <div class="dev-pane" id="pane4">
       <div class="pane-center">
         <div class="dev-opts-grid">
@@ -742,9 +215,8 @@
       </div>
     </div>
 
-  </div><!-- /dev-steps-content -->
+  </div>
 
-  <!-- ── Footer bar: total + botón submit ── -->
   <div class="dev-footer-bar" id="footerBar">
     <div>
       <div class="dev-total-label"><i class="bi bi-calculator me-1"></i>Total a devolver</div>
@@ -767,10 +239,10 @@
     </form>
   </div>
 
-</div><!-- /dev-card -->
+</div>
 
 
-<!-- ══════════ MODAL HISTORIAL ══════════ -->
+<!-- MODAL HISTORIAL -->
 <div id="modalHistorial" onclick="if(event.target===this) cerrarHistorial()">
   <div class="modal-hist-panel">
     <div class="modal-hist-head">
@@ -804,8 +276,7 @@
     <div class="modal-hist-list">
       {% if devoluciones %}
         {% for dev in devoluciones %}
-        <div class="dev-hist-row"
-             onclick="window.location='{% url 'ventas:comprobante_devolucion' dev.pk %}'">
+        <div class="dev-hist-row">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
             <div>
               <div class="dev-hist-num">{{ dev.numero }}</div>
@@ -845,21 +316,18 @@
 
 
 <script>
-/* ── Estado ── */
 let ventaActual            = null;
 let tieneComprobante       = null;
 let restaurarStock         = true;
 let productosSeleccionados = [];
 let pasoActual             = 1;
 
-/* ── Formato ── */
 function formatPesos(val) {
   const esEntero = Math.abs(val - Math.round(val)) < 0.001;
   if (esEntero) return Math.round(val).toLocaleString('es-CO');
   return val.toLocaleString('es-CO', { minimumFractionDigits:2, maximumFractionDigits:2 });
 }
 
-/* ── Stepper dots ── */
 function actualizarDots(n) {
   for (let i = 1; i <= 4; i++) {
     const d = document.getElementById('dot' + i);
@@ -869,7 +337,6 @@ function actualizarDots(n) {
   }
 }
 
-/* ── Cambio de pane ── */
 function irPaso(n) {
   document.getElementById('pane' + pasoActual).classList.remove('visible');
   pasoActual = n;
@@ -877,12 +344,12 @@ function irPaso(n) {
   actualizarDots(n);
 
   if (n === 3) {
-    // Resetear y cargar productos frescos
     productosSeleccionados = [];
     document.getElementById('btnNext3').disabled = true;
-    document.getElementById('footerBar').style.display   = 'none';
+    document.getElementById('footerBar').style.display        = 'none';
     document.getElementById('resumenSeleccion').style.display = 'none';
     document.getElementById('hintSelecciona').style.display   = 'flex';
+    actualizarContadorPaso3();
     cargarProductosVenta();
     return;
   }
@@ -897,8 +364,7 @@ function irPaso(n) {
   document.getElementById('footerBar').style.display = 'none';
 }
 
-/* ── Modal historial ── */
-function abrirHistorial()  {
+function abrirHistorial() {
   document.getElementById('modalHistorial').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -908,7 +374,6 @@ function cerrarHistorial() {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarHistorial(); });
 
-/* ── Buscar venta ── */
 let buscarTimeout;
 document.getElementById('buscadorVenta').addEventListener('input', function () {
   clearTimeout(buscarTimeout);
@@ -955,17 +420,14 @@ function limpiarVenta() {
   document.getElementById('btnNext1').disabled = true;
 }
 
-/* ── Comprobante ── */
 function setComprobante(tiene) {
   tieneComprobante = tiene;
-  // botones de tipo comprobante-btn
   const btnSi = document.getElementById('btnSiComprobante');
   const btnNo = document.getElementById('btnNoComprobante');
   btnSi.classList.remove('activo-si', 'activo-no');
   btnNo.classList.remove('activo-si', 'activo-no');
-  if (tiene)  btnSi.classList.add('activo-si');
-  else        btnNo.classList.add('activo-no');
-
+  if (tiene) btnSi.classList.add('activo-si');
+  else       btnNo.classList.add('activo-no');
   const warning = document.getElementById('warningComprobante');
   if (!tiene) {
     warning.style.display = 'flex';
@@ -976,48 +438,75 @@ function setComprobante(tiene) {
   document.getElementById('btnNext2').disabled = false;
 }
 
-/* ── Cargar y renderizar productos ── */
 function cargarProductosVenta() {
   const lista = document.getElementById('listaProductosDevolver');
-  lista.innerHTML = '<p style="color:var(--texto-muted); font-size:.82rem; padding:.5rem 0;">Cargando...</p>';
+  lista.innerHTML = `
+    <div style="grid-column:1/-1; display:flex; align-items:center; gap:10px;
+                color:var(--texto-muted); font-size:.82rem; padding:1rem 0;">
+      <i class="bi bi-hourglass-split" style="color:var(--dr);"></i> Cargando productos...
+    </div>`;
   fetch(`/ventas/devoluciones/venta/${ventaActual.id}/detalle/`)
     .then(r => r.json())
     .then(data => renderProductosDevolver(data.detalles))
     .catch(() => {
-      lista.innerHTML = '<p style="color:#e07060; font-size:.82rem;">Error al cargar los productos.</p>';
+      lista.innerHTML = '<p style="color:#e07060; font-size:.82rem; grid-column:1/-1;">Error al cargar los productos.</p>';
     });
 }
 
 function renderProductosDevolver(detalles) {
   const lista = document.getElementById('listaProductosDevolver');
   if (!detalles || detalles.length === 0) {
-    lista.innerHTML = '<p style="color:var(--texto-muted); font-size:.84rem; text-align:center; padding:2rem 0;"><i class="bi bi-inbox" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:.3;"></i>No hay productos en esta venta.</p>';
+    lista.innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; padding:3rem 0; color:var(--texto-muted);">
+        <i class="bi bi-inbox" style="font-size:2.5rem; display:block; margin-bottom:12px; opacity:.25;"></i>
+        <span style="font-family:'Inter',sans-serif; font-size:.85rem;">No hay productos en esta venta.</span>
+      </div>`;
     return;
   }
   lista.innerHTML = detalles.map(d => `
     <div class="dev-prod-row" id="row_${d.detalle_id}"
          onclick="clickFila(${d.detalle_id},${d.producto_id},${d.presentacion_id||'null'},'${d.producto}','${d.presentacion||''}',${d.precio},${d.cantidad})">
-      <div class="dev-prod-row__top">
-        <input type="checkbox" id="chk_${d.detalle_id}"
+      <div class="dev-prod-row__head">
+        <input type="checkbox" id="chk_${d.detalle_id}" class="dev-prod-check"
                onclick="event.stopPropagation()"
-               onchange="toggleProducto(${d.detalle_id},${d.producto_id},${d.presentacion_id||'null'},'${d.producto}','${d.presentacion||''}',${d.precio},${d.cantidad})"
-               style="width:16px; height:16px; accent-color:var(--dr); cursor:pointer; flex-shrink:0;">
+               onchange="toggleProducto(${d.detalle_id},${d.producto_id},${d.presentacion_id||'null'},'${d.producto}','${d.presentacion||''}',${d.precio},${d.cantidad})">
         <div class="dev-prod-row__info">
-          <div class="dev-prod-row__nombre">${d.producto}${d.presentacion ? ' — ' + d.presentacion : ''}</div>
-          <div class="dev-prod-row__precio">$${formatPesos(d.precio)} c/u &nbsp;·&nbsp; disponibles: ${d.cantidad}</div>
+          <div class="dev-prod-row__nombre">
+            ${d.producto}${d.presentacion ? ' <span style="opacity:.6;font-weight:400;">— ' + d.presentacion + '</span>' : ''}
+          </div>
+          <div class="dev-prod-row__precio">
+            <span class="dev-prod-row__precio-unit">$${formatPesos(d.precio)}</span>
+            <span>por unidad</span>
+            <span class="dev-prod-stock-badge"><i class="bi bi-boxes" style="margin-right:3px;"></i>${d.cantidad} disp.</span>
+          </div>
         </div>
       </div>
-      <div class="dev-prod-row__bottom">
+      <div class="dev-prod-row__foot">
         <div class="dev-qty-wrap" onclick="event.stopPropagation()">
-          <span class="dev-qty-label">Cantidad:</span>
-          <input type="number" id="qty_${d.detalle_id}" value="1" min="1" max="${d.cantidad}"
-                 onchange="actualizarCantidadDev(${d.detalle_id})" class="dev-qty">
-          <span class="dev-qty-label">/ ${d.cantidad}</span>
+          <span class="dev-qty-label">Cant.:</span>
+          <div class="dev-qty-controls">
+            <button class="dev-qty-btn" onclick="cambiarQty(${d.detalle_id},-1,${d.cantidad})">−</button>
+            <input type="number" id="qty_${d.detalle_id}" value="1" min="1" max="${d.cantidad}"
+                   onchange="actualizarCantidadDev(${d.detalle_id})" class="dev-qty">
+            <button class="dev-qty-btn" onclick="cambiarQty(${d.detalle_id},+1,${d.cantidad})">+</button>
+          </div>
+          <span class="dev-qty-max">/ ${d.cantidad}</span>
         </div>
-        <span id="sub_${d.detalle_id}" class="dev-prod-row__sub">$${formatPesos(d.precio)}</span>
+        <div style="text-align:right;">
+          <div id="sub_${d.detalle_id}" class="dev-prod-row__sub">$${formatPesos(d.precio)}</div>
+          <div class="dev-prod-row__sub-label">subtotal</div>
+        </div>
       </div>
     </div>
   `).join('');
+}
+
+function cambiarQty(detalleId, delta, maxCant) {
+  const qtyEl = document.getElementById('qty_' + detalleId);
+  let v = parseInt(qtyEl.value) || 1;
+  v = Math.min(maxCant, Math.max(1, v + delta));
+  qtyEl.value = v;
+  actualizarCantidadDev(detalleId);
 }
 
 function clickFila(detalleId, prodId, presId, prodNombre, presNombre, precio, maxCant) {
@@ -1034,19 +523,14 @@ function toggleProducto(detalleId, prodId, presId, prodNombre, presNombre, preci
 function sincronizarProducto(detalleId, prodId, presId, prodNombre, presNombre, precio, maxCant, checked) {
   const row = document.getElementById('row_' + detalleId);
   row.classList.toggle('seleccionado', checked);
-
-  // eliminar siempre primero para evitar duplicados
   productosSeleccionados = productosSeleccionados.filter(p => p.detalleId !== detalleId);
-
   if (checked) {
     const qtyEl = document.getElementById('qty_' + detalleId);
     const qty   = qtyEl ? (parseInt(qtyEl.value) || 1) : 1;
     productosSeleccionados.push({ detalleId, prodId, presId, prodNombre, presNombre, precio, cantidad: qty });
-    // actualizar subtotal visual
     const subEl = document.getElementById('sub_' + detalleId);
     if (subEl) subEl.textContent = '$' + formatPesos(precio * qty);
   }
-
   actualizarTotalDevolucion();
 }
 
@@ -1062,35 +546,45 @@ function actualizarCantidadDev(detalleId) {
   actualizarTotalDevolucion();
 }
 
-function actualizarTotalDevolucion() {
-  const total    = productosSeleccionados.reduce((s, p) => s + p.precio * p.cantidad, 0);
-  const hayProds = productosSeleccionados.length > 0;
+function actualizarContadorPaso3() {
+  const n   = productosSeleccionados.length;
+  const dot = document.getElementById('pane3Dot');
+  const txt = document.getElementById('pane3CounterText');
+  if (dot) dot.classList.toggle('activo', n > 0);
+  if (txt) txt.textContent = n === 0
+    ? 'Ningún producto seleccionado'
+    : `${n} producto${n > 1 ? 's' : ''} seleccionado${n > 1 ? 's' : ''}`;
+}
 
-  // footer bar
+function actualizarTotalDevolucion() {
+  const total      = productosSeleccionados.reduce((s, p) => s + p.precio * p.cantidad, 0);
+  const totalUnits = productosSeleccionados.reduce((s, p) => s + p.cantidad, 0);
+  const hayProds   = productosSeleccionados.length > 0;
+
   const montoEl = document.getElementById('totalDevolucionMonto');
   if (montoEl) montoEl.textContent = '$' + formatPesos(total);
+
   const footer = document.getElementById('footerBar');
   if (footer) footer.style.display = hayProds ? 'flex' : 'none';
 
-  // botón continuar paso 3
   const btn3 = document.getElementById('btnNext3');
   if (btn3) btn3.disabled = !hayProds;
 
-  // botón submit
   const btnReg = document.getElementById('btnRegistrarDevolucion');
   if (btnReg) btnReg.disabled = !hayProds;
 
-  // resumen
   const resumen = document.getElementById('resumenSeleccion');
   if (resumen) {
     resumen.style.display = hayProds ? 'flex' : 'none';
-    document.getElementById('resumenCantProd').textContent = productosSeleccionados.length;
-    document.getElementById('resumenTotal').textContent    = '$' + formatPesos(total);
+    document.getElementById('resumenCantProd').textContent     = productosSeleccionados.length;
+    document.getElementById('resumenCantUnidades').textContent = totalUnits;
+    document.getElementById('resumenTotal').textContent        = '$' + formatPesos(total);
   }
 
-  // hint
   const hint = document.getElementById('hintSelecciona');
   if (hint) hint.style.display = hayProds ? 'none' : 'flex';
+
+  actualizarContadorPaso3();
 }
 
 function setStock(si) {
@@ -1113,10 +607,8 @@ function prepararEnvio() {
   `).join('');
 }
 
-/* ── Init ── */
 actualizarDots(1);
 
-// Si Django devolvió un mensaje de éxito → abrir historial automáticamente
 (function() {
   const alerta = document.getElementById('devAlertMsg');
   if (alerta && alerta.classList.contains('dev-alert--ok')) {

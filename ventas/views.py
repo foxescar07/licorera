@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
+from django.db import transaction
 from decimal import Decimal, InvalidOperation
-from .models import Venta, DetalleVenta
+from .models import Venta, DetalleVenta, Devolucion, DetalleDevolucion
 from .forms import VentaForm, DetalleVentaForm
 from producto.models import Producto, Inventario, Categoria, PresentacionProducto
 
@@ -101,7 +102,6 @@ def nueva_venta(request):
     monto_descuento = (subtotal_venta * descuento_pct) / Decimal('100')
     total_final     = subtotal_venta - monto_descuento
 
-    # Validar que los pagos cubran el total
     total_pagado = pago_efectivo + pago_tarjeta + pago_transferencia + pago_nequi + pago_daviplata
     if total_pagado < total_final:
         messages.error(request, f"El total pagado (${total_pagado:,.0f}) no cubre el total de la venta (${total_final:,.0f}).".replace(',', '.'))
@@ -179,36 +179,23 @@ def producto_stock_json(request, pk):
         'stock': producto.cantidad_disponible, 'precio': float(producto.precio_unitario),
         'unidad': producto.unidad, 'presentaciones': presentaciones,
     })
-    # ─────────────────────────────────────────────
-# Agrega estas vistas en ventas/views.py
-# ─────────────────────────────────────────────
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from django.http import JsonResponse
-from django.db import transaction
-from .models import Venta, Devolucion, DetalleDevolucion
 
 
 def lista_devoluciones(request):
-    """Página principal de devoluciones con historial."""
-    devoluciones = Devolucion.objects.select_related('venta').prefetch_related('detalles__producto', 'detalles__presentacion')
+    devoluciones = Devolucion.objects.select_related('venta').prefetch_related(
+        'detalles__producto', 'detalles__presentacion'
+    )
     return render(request, 'ventas/devoluciones.html', {
         'devoluciones': devoluciones,
     })
 
 
 def buscar_venta_devolucion(request):
-    """
-    AJAX: busca ventas por cliente o ID para iniciar una devolución.
-    GET ?q=texto
-    """
     q = request.GET.get('q', '').strip()
     if not q:
         return JsonResponse({'ventas': []})
 
     ventas = Venta.objects.filter(cliente__icontains=q).order_by('-fecha')[:10]
-    # También busca por ID si el query es numérico
     if q.isdigit():
         ventas = (Venta.objects.filter(pk=int(q)) | ventas).distinct()
 
@@ -224,42 +211,31 @@ def buscar_venta_devolucion(request):
 
 
 def detalle_venta_devolucion(request, venta_id):
-    """
-    AJAX: devuelve los detalles de una venta para mostrar en el formulario de devolución.
-    GET /ventas/devoluciones/venta/<id>/detalle/
-    """
     venta = get_object_or_404(Venta, pk=venta_id)
     detalles = []
     for d in venta.detalles.select_related('producto', 'presentacion').all():
         detalles.append({
-            'detalle_id':   d.pk,
-            'producto_id':  d.producto.pk,
-            'producto':     d.producto.nombre,
+            'detalle_id':      d.pk,
+            'producto_id':     d.producto.pk,
+            'producto':        d.producto.nombre,
             'presentacion_id': d.presentacion.pk if d.presentacion else None,
-            'presentacion': d.presentacion.nombre if d.presentacion else '',
-            'cantidad':     d.cantidad,
-            'precio':       float(d.precio_unitario),
-            'subtotal':     float(d.subtotal()),
+            'presentacion':    d.presentacion.nombre if d.presentacion else '',
+            'cantidad':        d.cantidad,
+            'precio':          float(d.precio_unitario),
+            'subtotal':        float(d.subtotal()),
         })
     return JsonResponse({
-        'venta_id': venta.pk,
-        'cliente':  venta.cliente,
-        'fecha':    venta.fecha.strftime('%d/%m/%Y %H:%M'),
-        'total':    float(venta.total_venta),
+        'venta_id':  venta.pk,
+        'cliente':   venta.cliente,
+        'fecha':     venta.fecha.strftime('%d/%m/%Y %H:%M'),
+        'total':     float(venta.total_venta),
         'descuento': float(venta.descuento_porcentaje),
-        'detalles': detalles,
+        'detalles':  detalles,
     })
 
 
 @transaction.atomic
 def registrar_devolucion(request):
-    """
-    POST: procesa y guarda la devolución.
-    Subtarea 1 — guarda la devolución
-    Subtarea 2 — advierte si no hay comprobante (validado en frontend y aquí)
-    Subtarea 3 — actualiza inventario si corresponde
-    Subtarea 4 — redirige al comprobante generado
-    """
     if request.method != 'POST':
         return redirect('ventas:lista_devoluciones')
 
@@ -268,22 +244,17 @@ def registrar_devolucion(request):
     restaurar_stock   = request.POST.get('restaurar_stock') == '1'
     motivo            = request.POST.get('motivo', 'otro')
     observaciones     = request.POST.get('observaciones', '')
-
     producto_ids      = request.POST.getlist('producto_id[]')
     presentacion_ids  = request.POST.getlist('presentacion_id[]')
     cantidades        = request.POST.getlist('cantidad[]')
     precios           = request.POST.getlist('precio[]')
 
-    # ── Subtarea 2: validar comprobante ──────────────────────────────
     if not tiene_comprobante:
-        # El frontend ya mostró la advertencia; si el cajero igualmente envió el form
-        # con tiene_comprobante=0, rechazamos a nivel de servidor también.
         messages.warning(request, 'No se puede registrar la devolución sin comprobante de compra.')
         return redirect('ventas:lista_devoluciones')
 
     venta = get_object_or_404(Venta, pk=venta_id)
 
-    # ── Subtarea 1: construir y guardar la devolución ─────────────────
     total_devuelto = sum(
         int(cantidades[i]) * float(precios[i])
         for i in range(len(producto_ids))
@@ -299,7 +270,6 @@ def registrar_devolucion(request):
     )
 
     for i in range(len(producto_ids)):
-        from producto.models import Producto, PresentacionProducto
         producto     = get_object_or_404(Producto, pk=producto_ids[i])
         presentacion = None
         if presentacion_ids[i] and presentacion_ids[i] != 'null':
@@ -316,40 +286,28 @@ def registrar_devolucion(request):
             precio_unitario=precio,
         )
 
-        # ── Subtarea 3: actualizar inventario ─────────────────────────
         if restaurar_stock and presentacion:
             presentacion.cantidad += cantidad
             presentacion.save()
 
-    # ── Subtarea 4: comprobante generado — redirige a la vista ────────
     messages.success(request, f'Devolución {devolucion.numero} registrada correctamente.')
-    return redirect('ventas:comprobante_devolucion', pk=devolucion.pk)
+    return redirect('ventas:lista_devoluciones')
 
 
 def comprobante_devolucion(request, pk):
-    """Muestra el comprobante imprimible de una devolución."""
-    devolucion = get_object_or_404(
-        Devolucion.objects.select_related('venta').prefetch_related(
-            'detalles__producto', 'detalles__presentacion'
-        ),
-        pk=pk
-    )
-    return render(request, 'ventas/comprobante_devolucion.html', {
-        'devolucion': devolucion,
-    })
+    devolucion = get_object_or_404(Devolucion, pk=pk)
+    messages.success(request, f'Devolución {devolucion.numero} registrada correctamente.')
+    return redirect('ventas:lista_devoluciones')
+
+
 def ventas_dia(request):
-    """Página de ventas del día con resumen, detalle y exportación."""
     from django.utils import timezone
-    import datetime
- 
     hoy = timezone.localdate()
     ventas = Venta.objects.prefetch_related(
         'detalles__producto',
         'detalles__presentacion'
     ).filter(fecha__date=hoy).order_by('-fecha')
- 
     total_dia = sum(v.total_venta for v in ventas)
- 
     return render(request, 'ventas_dia.html', {
         'ventas':    ventas,
         'total_dia': total_dia,
