@@ -1,0 +1,179 @@
+{% url 'producto:buscar_producto' as BP_URL %}
+
+<style>
+  .d1-wrap { width: 100%; margin-bottom: 1.5rem; }
+  .d1-bar {
+    display: flex; gap: 0;
+    border-radius: 12px; overflow: hidden;
+    border: 1px solid rgba(77,168,218,.3);
+  }
+  .d1-input {
+    flex: 1; padding: 14px 20px;
+    background: #0a1628; border: none;
+    color: #e2e8f0; font-size: 15px; outline: none;
+  }
+  .d1-input::placeholder { color: #2a4a6a; }
+  .d1-result {
+    margin-top: 10px; padding: 16px 24px;
+    background: #0a1628;
+    border: 1px solid rgba(77,168,218,.2);
+    border-radius: 12px;
+    display: flex; align-items: center; gap: 24px;
+    animation: d1Fade .2s ease;
+    position: relative;
+  }
+  @keyframes d1Fade {
+    from { opacity:0; transform:translateY(5px); }
+    to   { opacity:1; transform:none; }
+  }
+  .d1-name { font-size: 16px; font-weight: 700; color: #e2e8f0; flex: 1; }
+  .d1-sub  { font-size: 12px; color: #4a6080; margin-top: 3px; }
+  .d1-divider { width: 1px; height: 40px; background: rgba(77,168,218,.15); flex-shrink: 0; }
+  .d1-stats { display: flex; gap: 32px; }
+  .d1-stat label {
+    display: block; font-size: 10px;
+    text-transform: uppercase; letter-spacing: .08em;
+    color: #3a5a7a; margin-bottom: 3px;
+  }
+  .d1-stat span { font-size: 22px; font-weight: 700; }
+  .d1-badge {
+    font-size: 11px; font-weight: 700; padding: 4px 14px;
+    border-radius: 20px; white-space: nowrap;
+  }
+  .d1-pres {
+    margin-top: 10px; padding: 12px 24px;
+    background: #071220;
+    border: 1px solid rgba(77,168,218,.12);
+    border-radius: 12px; animation: d1Fade .2s ease;
+  }
+  .d1-pres-title {
+    font-size: 10px; text-transform: uppercase;
+    letter-spacing: .1em; color: #3a5a7a; margin-bottom: 8px;
+  }
+  .d1-pres-row {
+    display: flex; justify-content: space-between;
+    padding: 5px 0; font-size: 12px; color: #7a9ab8;
+    border-bottom: 1px solid rgba(77,168,218,.07);
+  }
+  .d1-pres-row:last-child { border-bottom: none; }
+  .d1-pres-stock { color: #4DA8DA; font-weight: 600; }
+  .d1-alert {
+    margin-top: 10px; padding: 12px 20px;
+    border-radius: 12px; font-size: 13px;
+    display: flex; gap: 10px; align-items: center;
+    animation: d1Fade .2s ease;
+  }
+  .d1-alert-warn  { background: rgba(240,165,0,.08);  border: 1px solid rgba(240,165,0,.3);  color: #f0a500; }
+  .d1-alert-error { background: rgba(192,57,43,.1);   border: 1px solid rgba(192,57,43,.3);  color: #e87070; }
+</style>
+
+<div class="d1-wrap">
+  <div class="d1-bar">
+    <input class="d1-input" id="bp-input"
+           placeholder="Buscar producto por nombre o código…"
+           onkeydown="if(event.key==='Enter') bpBuscar()"
+           oninput="document.getElementById('bp-resultado').innerHTML=''">
+    <button id="bp-btn" class="cys-btn cys-btn--primary" onclick="bpBuscar()">
+      <i class="bi bi-search"></i> Buscar
+    </button>
+  </div>
+  <div id="bp-resultado"></div>
+</div>
+
+<script>
+(function () {
+  const URL_BUSCAR = "{{ BP_URL }}";
+
+  window.bpBuscar = async function () {
+    const q   = document.getElementById('bp-input').value.trim();
+    const out = document.getElementById('bp-resultado');
+    const btn = document.getElementById('bp-btn');
+    if (!q) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Buscando…';
+    out.innerHTML = '';
+
+    try {
+      const resp = await fetch(`${URL_BUSCAR}?q=${encodeURIComponent(q)}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      const data = await resp.json();
+
+      if (!data.encontrado) {
+        const esError = resp.status === 500;
+        out.innerHTML = `
+          <div class="d1-alert ${esError ? 'd1-alert-error' : 'd1-alert-warn'}">
+            <i class="bi bi-${esError ? 'exclamation-octagon' : 'search-x'}" style="font-size:16px;"></i>
+            <span>${data.mensaje}</span>
+          </div>`;
+        return;
+      }
+
+      const p = data.producto;  // ← ESTA LÍNEA ES CLAVE
+
+      const esAgotado  = p.stock_total === 0;
+      const esCritico  = p.stock_total > 0 && p.stock_total <= 10;
+
+      const color       = esAgotado ? '#e74c3c' : esCritico ? '#f0a500' : '#2ecc71';
+      const badgeBg     = esAgotado ? 'rgba(192,57,43,.15)' : esCritico ? 'rgba(240,165,0,.12)' : 'rgba(39,174,96,.12)';
+      const badgeBorder = esAgotado ? 'rgba(192,57,43,.4)'  : esCritico ? 'rgba(240,165,0,.4)'  : 'rgba(39,174,96,.4)';
+      const badgeIcon   = esAgotado ? 'bi-x-circle'         : esCritico ? 'bi-exclamation-triangle' : 'bi-check-circle';
+      const badgeText   = esAgotado ? 'Sin stock'           : esCritico ? 'Stock crítico'           : 'Disponible';
+
+      out.innerHTML = `
+        <div class="d1-result">
+          <button onclick="document.getElementById('bp-resultado').innerHTML='';document.getElementById('bp-input').value='';"
+            style="position:absolute;top:10px;right:10px;background:none;border:none;
+                   color:#3a5a7a;font-size:18px;cursor:pointer;line-height:1;" title="Cerrar">
+            <i class="bi bi-x-lg"></i>
+          </button>
+          <div style="flex:1;">
+            <div class="d1-name">${p.nombre}</div>
+            <div class="d1-sub">${p.categoria} &nbsp;·&nbsp; Cód: ${p.codigo}</div>
+          </div>
+          <div class="d1-divider"></div>
+          <div class="d1-stats">
+            <div class="d1-stat">
+              <label>Stock total</label>
+              <span style="color:${color};">${p.stock_total}</span>
+            </div>
+            <div class="d1-stat">
+              <label>Sueltas</label>
+              <span style="color:#8ab4cc;">${p.cantidad_disponible}</span>
+            </div>
+            <div class="d1-stat">
+              <label>En pres.</label>
+              <span style="color:#8ab4cc;">${p.stock_presentaciones}</span>
+            </div>
+          </div>
+          <div class="d1-divider"></div>
+          <div class="d1-badge" style="background:${badgeBg}; color:${color}; border:1px solid ${badgeBorder};">
+            <i class="bi ${badgeIcon}" style="margin-right:5px;"></i>${badgeText}
+          </div>
+        </div>
+        ${p.presentaciones.length ? `
+        <div class="d1-pres">
+          <div class="d1-pres-title">Presentaciones</div>
+          ${p.presentaciones.map(pr => `
+            <div class="d1-pres-row">
+              <span>${pr.nombre} <span style="color:#2a4a6a;">(${pr.unidades} uds)</span></span>
+              <span class="d1-pres-stock">
+                Stock: ${pr.cantidad} &nbsp;—&nbsp; $${parseInt(pr.precio||0).toLocaleString('es-CO')}
+              </span>
+            </div>`).join('')}
+        </div>` : ''}`;
+
+    } catch (e) {
+      out.innerHTML = `
+        <div class="d1-alert d1-alert-error">
+          <i class="bi bi-exclamation-octagon" style="font-size:16px;"></i>
+          <span>Error de conexión. Verifica tu red e inténtalo de nuevo.</span>
+        </div>`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-search"></i> Buscar';
+    }
+  };
+})();
+</script>
