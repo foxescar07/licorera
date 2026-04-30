@@ -12,194 +12,36 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
 <style>
-/* ══════════════════════════════════════════════
-   REPORTES GENERADOS — estilos
-══════════════════════════════════════════════ */
-.cys-rg-section {
-  margin-bottom: 1.5rem;
-}
-
-.cys-rg-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.cys-rg-title {
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--texto);
-}
-
-.cys-rg-badge {
-  font-size: .72rem;
-  padding: 3px 10px;
-  border-radius: 20px;
-  background: rgba(77,168,218,.15);
-  color: var(--azul-claro);
-  font-weight: 600;
-  border: 1px solid rgba(77,168,218,.25);
-}
-
-.cys-rg-controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-
-.cys-rg-search {
-  flex: 1;
-  min-width: 180px;
-  background: var(--fondo-card, #0D1B2A);
-  border: 1px solid var(--azul-borde);
-  border-radius: 8px;
-  padding: 7px 12px;
-  font-size: .82rem;
-  color: var(--texto);
-  outline: none;
-  transition: border-color .2s;
-}
-.cys-rg-search:focus {
-  border-color: var(--azul-claro);
-}
-.cys-rg-search::placeholder {
-  color: var(--texto-muted);
-}
-
-.cys-rg-select {
-  background: var(--fondo-card, #0D1B2A);
-  border: 1px solid var(--azul-borde);
-  border-radius: 8px;
-  padding: 7px 32px 7px 12px;
-  font-size: .82rem;
-  color: var(--texto);
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234da8da' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  min-width: 160px;
-  transition: border-color .2s;
-}
-.cys-rg-select:focus {
-  border-color: var(--azul-claro);
-}
-
-/* Lista de reportes */
-.cys-rg-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.cys-rg-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 13px 16px;
-  border-radius: 10px;
-  background: rgba(77,168,218,.03);
-  border: 1px solid var(--azul-borde);
-  cursor: pointer;
-  transition: background .18s, border-color .18s, transform .15s;
-  text-decoration: none;
-}
-.cys-rg-item:hover {
-  background: rgba(77,168,218,.08);
-  border-color: rgba(77,168,218,.4);
-  transform: translateX(2px);
-}
-
-.cys-rg-item__icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 16px;
-}
-.cys-rg-item__icon--inv     { background: rgba(77,168,218,.15);  color: var(--azul-claro); }
-.cys-rg-item__icon--prov    { background: rgba(29,158,117,.15);  color: #5DCAA5; }
-.cys-rg-item__icon--diario  { background: rgba(127,119,221,.15); color: #AFA9EC; }
-
-.cys-rg-item__name {
-  flex: 1;
-  font-weight: 600;
-  font-size: .88rem;
-  color: var(--texto);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.cys-rg-item__date {
-  font-size: .75rem;
-  color: var(--texto-muted);
-  white-space: nowrap;
-}
-
-.cys-rg-item__chip {
-  font-size: .68rem;
-  padding: 2px 9px;
-  border-radius: 20px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-.cys-rg-item__chip--inv    { background: rgba(77,168,218,.18);  color: var(--azul-claro); }
-.cys-rg-item__chip--prov   { background: rgba(29,158,117,.18);  color: #5DCAA5; }
-.cys-rg-item__chip--diario { background: rgba(127,119,221,.18); color: #AFA9EC; }
-
-/* estado vacío */
-.cys-rg-empty {
-  text-align: center;
-  padding: 28px 0;
-  color: var(--texto-muted);
-  font-size: .82rem;
-}
-.cys-rg-empty i {
-  font-size: 2rem;
-  color: var(--azul-borde);
-  display: block;
-  margin-bottom: 8px;
-}
-
-/* ══ MODAL DETALLE REPORTE ══ */
-#modalDetalleReporte .modal-content.cys-modal {
-  border: 1px solid var(--azul-borde);
-}
-.cys-det-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 16px 20px;
-}
-.cys-det-item {
-  background: rgba(77,168,218,.05);
-  border: 1px solid var(--azul-borde);
-  border-radius: 8px;
-  padding: 10px 14px;
-}
-.cys-det-item__label {
-  font-size: .68rem;
-  color: var(--texto-muted);
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  margin-bottom: 3px;
-}
-.cys-det-item__val {
-  font-size: .88rem;
-  font-weight: 600;
-  color: var(--azul-claro);
-}
+.cys-rg-section { margin-bottom: 1.5rem; }
+.cys-rg-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+.cys-rg-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1rem; color:var(--texto); }
+.cys-rg-badge { font-size:.72rem; padding:3px 10px; border-radius:20px; background:rgba(77,168,218,.15); color:var(--azul-claro); font-weight:600; border:1px solid rgba(77,168,218,.25); }
+.cys-rg-controls { display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+.cys-rg-search { flex:1; min-width:180px; background:var(--fondo-card,#0D1B2A); border:1px solid var(--azul-borde); border-radius:8px; padding:7px 12px; font-size:.82rem; color:var(--texto); outline:none; transition:border-color .2s; }
+.cys-rg-search:focus { border-color:var(--azul-claro); }
+.cys-rg-search::placeholder { color:var(--texto-muted); }
+.cys-rg-select { background:var(--fondo-card,#0D1B2A); border:1px solid var(--azul-borde); border-radius:8px; padding:7px 32px 7px 12px; font-size:.82rem; color:var(--texto); outline:none; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234da8da' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; min-width:160px; transition:border-color .2s; }
+.cys-rg-select:focus { border-color:var(--azul-claro); }
+.cys-rg-list { display:flex; flex-direction:column; gap:2px; }
+.cys-rg-item { display:flex; align-items:center; gap:14px; padding:13px 16px; border-radius:10px; background:rgba(77,168,218,.03); border:1px solid var(--azul-borde); cursor:pointer; transition:background .18s,border-color .18s,transform .15s; text-decoration:none; }
+.cys-rg-item:hover { background:rgba(77,168,218,.08); border-color:rgba(77,168,218,.4); transform:translateX(2px); }
+.cys-rg-item__icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:16px; }
+.cys-rg-item__icon--inv    { background:rgba(77,168,218,.15);  color:var(--azul-claro); }
+.cys-rg-item__icon--prov   { background:rgba(29,158,117,.15);  color:#5DCAA5; }
+.cys-rg-item__icon--diario { background:rgba(127,119,221,.15); color:#AFA9EC; }
+.cys-rg-item__name { flex:1; font-weight:600; font-size:.88rem; color:var(--texto); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cys-rg-item__date { font-size:.75rem; color:var(--texto-muted); white-space:nowrap; }
+.cys-rg-item__chip { font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; white-space:nowrap; }
+.cys-rg-item__chip--inv    { background:rgba(77,168,218,.18);  color:var(--azul-claro); }
+.cys-rg-item__chip--prov   { background:rgba(29,158,117,.18);  color:#5DCAA5; }
+.cys-rg-item__chip--diario { background:rgba(127,119,221,.18); color:#AFA9EC; }
+.cys-rg-empty { text-align:center; padding:28px 0; color:var(--texto-muted); font-size:.82rem; }
+.cys-rg-empty i { font-size:2rem; color:var(--azul-borde); display:block; margin-bottom:8px; }
+#modalDetalleReporte .modal-content.cys-modal { border:1px solid var(--azul-borde); }
+.cys-det-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:16px 20px; }
+.cys-det-item { background:rgba(77,168,218,.05); border:1px solid var(--azul-borde); border-radius:8px; padding:10px 14px; }
+.cys-det-item__label { font-size:.68rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:3px; }
+.cys-det-item__val { font-size:.88rem; font-weight:600; color:var(--azul-claro); }
 </style>
 {% endblock %}
  
@@ -230,22 +72,18 @@
  
   <!-- TARJETAS DE REPORTES -->
   <div class="row gx-3 gy-3 mb-4">
- 
+
     <!-- Inventario -->
     <div class="col-md-4">
       <div class="cys-card h-100" style="border-top:2px solid var(--azul-claro); cursor:pointer;"
            data-bs-toggle="modal" data-bs-target="#modalInventario">
-        <div style="width:36px; height:36px; border-radius:8px; background:rgba(77,168,218,.15);
-                    display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
-          <i class="bi bi-box-seam" style="color:var(--azul-claro); font-size:16px;"></i>
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(77,168,218,.15);display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+          <i class="bi bi-box-seam" style="color:var(--azul-claro);font-size:16px;"></i>
         </div>
-        <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
-                    color:var(--texto); margin-bottom:4px;">Inventario</div>
-        <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
-          Stock, niveles y productos agotados
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div style="font-size:.75rem; color:var(--azul-claro); font-weight:600;">Ver reporte →</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem;color:var(--texto);margin-bottom:4px;">Inventario</div>
+        <div style="font-size:.78rem;color:var(--texto-muted);margin-bottom:14px;">Stock, niveles y productos agotados</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:.75rem;color:var(--azul-claro);font-weight:600;">Ver reporte →</div>
         </div>
       </div>
     </div>
@@ -254,17 +92,13 @@
     <div class="col-md-4">
       <div class="cys-card h-100" style="border-top:2px solid #1D9E75; cursor:pointer;"
            data-bs-toggle="modal" data-bs-target="#modalProveedores">
-        <div style="width:36px; height:36px; border-radius:8px; background:rgba(29,158,117,.15);
-                    display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
-          <i class="bi bi-truck" style="color:#1D9E75; font-size:16px;"></i>
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(29,158,117,.15);display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+          <i class="bi bi-truck" style="color:#1D9E75;font-size:16px;"></i>
         </div>
-        <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
-                    color:var(--texto); margin-bottom:4px;">Proveedores</div>
-        <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
-          Lista y datos de proveedores activos
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div style="font-size:.75rem; color:#1D9E75; font-weight:600;">Ver reporte →</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem;color:var(--texto);margin-bottom:4px;">Proveedores</div>
+        <div style="font-size:.78rem;color:var(--texto-muted);margin-bottom:14px;">Lista y datos de proveedores activos</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:.75rem;color:#1D9E75;font-weight:600;">Ver reporte →</div>
         </div>
       </div>
     </div>
@@ -272,16 +106,12 @@
     <!-- Productos por proveedor (próximamente) -->
     <div class="col-md-4">
       <div class="cys-card h-100" style="border-top:2px solid #BA7517; cursor:default; opacity:.55;">
-        <div style="width:36px; height:36px; border-radius:8px; background:rgba(186,117,23,.15);
-                    display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
-          <i class="bi bi-list-ul" style="color:#BA7517; font-size:16px;"></i>
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(186,117,23,.15);display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+          <i class="bi bi-list-ul" style="color:#BA7517;font-size:16px;"></i>
         </div>
-        <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
-                    color:var(--texto); margin-bottom:4px;">Productos por proveedor</div>
-        <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
-          Qué productos suministra cada uno
-        </div>
-        <div style="font-size:.75rem; color:#BA7517; font-weight:600;">Próximamente</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem;color:var(--texto);margin-bottom:4px;">Productos por proveedor</div>
+        <div style="font-size:.78rem;color:var(--texto-muted);margin-bottom:14px;">Qué productos suministra cada uno</div>
+        <div style="font-size:.75rem;color:#BA7517;font-weight:600;">Próximamente</div>
       </div>
     </div>
  
@@ -289,50 +119,38 @@
     <div class="col-md-4">
       <div class="cys-card h-100" style="border-top:2px solid #7F77DD; cursor:pointer;"
            data-bs-toggle="modal" data-bs-target="#modalResumenDiario">
-        <div style="width:36px; height:36px; border-radius:8px; background:rgba(127,119,221,.15);
-                    display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
-          <i class="bi bi-calendar-day" style="color:#7F77DD; font-size:16px;"></i>
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(127,119,221,.15);display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+          <i class="bi bi-calendar-day" style="color:#7F77DD;font-size:16px;"></i>
         </div>
-        <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
-                    color:var(--texto); margin-bottom:4px;">Resumen Diario</div>
-        <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
-          Ingresos, egresos y movimientos de hoy
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div style="font-size:.75rem; color:#7F77DD; font-weight:600;">Ver reporte →</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem;color:var(--texto);margin-bottom:4px;">Resumen Diario</div>
+        <div style="font-size:.78rem;color:var(--texto-muted);margin-bottom:14px;">Ingresos, egresos y movimientos de hoy</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:.75rem;color:#7F77DD;font-weight:600;">Ver reporte →</div>
         </div>
       </div>
     </div>
 
-    <!-- ✅ NUEVO: Análisis de Ventas -->
+    <!-- Análisis de Ventas -->
     <div class="col-md-4">
       <div class="cys-card h-100" style="border-top:2px solid #E8834A; cursor:pointer;"
            data-bs-toggle="modal" data-bs-target="#modalAnalisisVentas">
-        <div style="width:36px; height:36px; border-radius:8px; background:rgba(232,131,74,.15);
-                    display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
-          <i class="bi bi-graph-up-arrow" style="color:#E8834A; font-size:16px;"></i>
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(232,131,74,.15);display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+          <i class="bi bi-graph-up-arrow" style="color:#E8834A;font-size:16px;"></i>
         </div>
-        <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:.95rem;
-                    color:var(--texto); margin-bottom:4px;">Análisis de Ventas</div>
-        <div style="font-size:.78rem; color:var(--texto-muted); margin-bottom:14px;">
-          Gráficos de ventas, top productos y categorías
-        </div>
-        <div style="font-size:.75rem; color:#E8834A; font-weight:600;">Ver reporte →</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem;color:var(--texto);margin-bottom:4px;">Análisis de Ventas</div>
+        <div style="font-size:.78rem;color:var(--texto-muted);margin-bottom:14px;">Gráficos de ventas, top productos y categorías</div>
+        <div style="font-size:.75rem;color:#E8834A;font-weight:600;">Ver reporte →</div>
       </div>
     </div>
 
   </div>
 
-  <!-- ══════════════════════════════════════════
-       SCRUM-235 · REPORTES GENERADOS
-  ══════════════════════════════════════════ -->
+  <!-- REPORTES GENERADOS -->
   <section class="cys-card cys-rg-section mb-4">
     <div class="cys-rg-header">
       <div class="cys-rg-title">Reportes generados</div>
       <span class="cys-rg-badge" id="rgBadgeCount">0 reportes</span>
     </div>
-
-    <!-- SCRUM-239 · controles de búsqueda y filtro -->
     <div class="cys-rg-controls">
       <input type="text" id="rgSearch" class="cys-rg-search"
              placeholder="Buscar reporte…" oninput="filtrarReportesGenerados()">
@@ -343,10 +161,7 @@
         <option value="diario">Diario</option>
       </select>
     </div>
-
-    <!-- Lista dinámica -->
     <div class="cys-rg-list" id="rgList"></div>
-
     <div class="cys-rg-empty" id="rgEmpty" style="display:none;">
       <i class="bi bi-file-earmark-bar-graph"></i>
       No hay reportes generados aún.<br>
@@ -359,35 +174,29 @@
     <div class="cys-card__title">Filtrar Ventas</div>
     <form method="GET" class="row gx-3 gy-2 align-items-end">
       <div class="col-md-2">
-        <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Fecha inicio</label>
-        <input type="date" name="fecha_inicio" class="form-control form-control-sm"
-               value="{{ fecha_inicio }}">
+        <label class="form-label" style="font-size:.78rem;color:var(--texto-muted);">Fecha inicio</label>
+        <input type="date" name="fecha_inicio" class="form-control form-control-sm" value="{{ fecha_inicio }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Fecha fin</label>
-        <input type="date" name="fecha_fin" class="form-control form-control-sm"
-               value="{{ fecha_fin }}">
+        <label class="form-label" style="font-size:.78rem;color:var(--texto-muted);">Fecha fin</label>
+        <input type="date" name="fecha_fin" class="form-control form-control-sm" value="{{ fecha_fin }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Categoría</label>
+        <label class="form-label" style="font-size:.78rem;color:var(--texto-muted);">Categoría</label>
         <select name="categoria" class="form-select form-select-sm">
           <option value="">Todas</option>
           {% for cat in categorias %}
-            <option value="{{ cat.id }}" {% if categoria_id == cat.id|stringformat:"s" %}selected{% endif %}>
-              {{ cat.nombre }}
-            </option>
+            <option value="{{ cat.id }}" {% if categoria_id == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.nombre }}</option>
           {% endfor %}
         </select>
       </div>
       <div class="col-md-2">
-        <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Cliente</label>
-        <input type="text" name="cliente" class="form-control form-control-sm"
-               placeholder="Nombre cliente…" value="{{ cliente_q }}">
+        <label class="form-label" style="font-size:.78rem;color:var(--texto-muted);">Cliente</label>
+        <input type="text" name="cliente" class="form-control form-control-sm" placeholder="Nombre cliente…" value="{{ cliente_q }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label" style="font-size:.78rem; color:var(--texto-muted);">Producto</label>
-        <input type="text" name="producto" class="form-control form-control-sm"
-               placeholder="Nombre producto…" value="{{ producto_q }}">
+        <label class="form-label" style="font-size:.78rem;color:var(--texto-muted);">Producto</label>
+        <input type="text" name="producto" class="form-control form-control-sm" placeholder="Nombre producto…" value="{{ producto_q }}">
       </div>
       <div class="col-12 d-flex gap-2 mt-2">
         <button type="submit" class="btn btn-sm btn-primary">Aplicar filtros</button>
@@ -403,36 +212,28 @@
       <table class="cys-inv-table">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Cliente</th>
-            <th>Producto</th>
-            <th>Categoría</th>
-            <th>Cantidad</th>
-            <th>Precio Unit.</th>
-            <th>Total</th>
-            <th>Fecha</th>
+            <th>#</th><th>Cliente</th><th>Producto</th><th>Categoría</th>
+            <th>Cantidad</th><th>Precio Unit.</th><th>Total</th><th>Fecha</th>
           </tr>
         </thead>
         <tbody>
           {% for venta in ventas %}
             {% for det in venta.detalles.all %}
             <tr>
-              <td style="font-size:.85rem; color:var(--azul-claro);">{{ forloop.parentloop.counter }}</td>
-              <td style="font-size:.85rem; font-weight:600; color:var(--azul-claro);">{{ venta.cliente }}</td>
-              <td style="font-size:.85rem; color:var(--azul-claro);">{{ det.producto.nombre }}</td>
+              <td style="font-size:.85rem;color:var(--azul-claro);">{{ forloop.parentloop.counter }}</td>
+              <td style="font-size:.85rem;font-weight:600;color:var(--azul-claro);">{{ venta.cliente }}</td>
+              <td style="font-size:.85rem;color:var(--azul-claro);">{{ det.producto.nombre }}</td>
               <td><span class="cys-tag">{{ det.producto.categoria|default:"—" }}</span></td>
-              <td style="font-size:.85rem; color:var(--azul-claro);">{{ det.cantidad }}</td>
-              <td style="font-size:.85rem; color:var(--azul-claro);">${{ det.precio_unitario|floatformat:0 }}</td>
-              <td style="font-size:.85rem; font-weight:600; color:var(--azul-claro);">
-                ${{ det.subtotal|floatformat:0 }}
-              </td>
-              <td style="font-size:.85rem; color:var(--azul-claro);">{{ venta.fecha|date:"Y-m-d" }}</td>
+              <td style="font-size:.85rem;color:var(--azul-claro);">{{ det.cantidad }}</td>
+              <td style="font-size:.85rem;color:var(--azul-claro);">${{ det.precio_unitario|floatformat:0 }}</td>
+              <td style="font-size:.85rem;font-weight:600;color:var(--azul-claro);">${{ det.subtotal|floatformat:0 }}</td>
+              <td style="font-size:.85rem;color:var(--azul-claro);">{{ venta.fecha|date:"Y-m-d" }}</td>
             </tr>
             {% endfor %}
           {% empty %}
           <tr>
-            <td colspan="8" class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
-              <i class="bi bi-bar-chart d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
+            <td colspan="8" class="text-center py-5" style="color:var(--texto-muted);font-size:.85rem;">
+              <i class="bi bi-bar-chart d-block mb-2" style="font-size:2.5rem;color:var(--azul-borde);"></i>
               No hay ventas registradas aún.
             </td>
           </tr>
@@ -442,13 +243,16 @@
     </div>
   </section>
  
-</div>
- 
-<!-- ===== MODAL INVENTARIO ===== -->
+</div><!-- /container-fluid -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL INVENTARIO
+═══════════════════════════════════════════════════ -->
 <div class="modal fade" id="modalInventario" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable" style="max-width:92vw; width:92vw;">
+  <div class="modal-dialog modal-dialog-scrollable" style="max-width:92vw;width:92vw;">
     <div class="modal-content cys-modal">
- 
+
       <div class="modal-header cys-modal__header">
         <div class="d-flex align-items-center gap-3">
           <div class="cys-modal__icon"><i class="bi bi-box-seam"></i></div>
@@ -460,85 +264,44 @@
         <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
 
-      <div style="display:flex; gap:20px; padding:10px 20px; background:rgba(77,168,218,.06);
-                  border-bottom:1px solid var(--azul-borde); flex-wrap:wrap;">
-        <div style="font-size:.72rem; color:var(--texto-muted);">
-          <i class="bi bi-calendar3" style="margin-right:4px;"></i>
-          Generado: <span class="cys-meta-fecha" style="color:var(--azul-claro);"></span>
-        </div>
-        <div style="font-size:.72rem; color:var(--texto-muted);">
-          <i class="bi bi-funnel" style="margin-right:4px;"></i>
-          Filtros activos: <span id="inv-meta-filtros" style="color:var(--azul-claro);">Ninguno</span>
-        </div>
-        <div style="font-size:.72rem; color:var(--texto-muted);">
-          <i class="bi bi-box-seam" style="margin-right:4px;"></i>
-          Total registrados: <span style="color:var(--azul-claro);">{{ productos|length }}</span>
-        </div>
-      </div>
- 
-      <div class="cys-modal__stats">
-        <div class="cys-stat-mini">
-          <div class="cys-stat-mini__val">{{ total_registrados }}</div>
-          <div class="cys-stat-mini__label">Productos Reg.</div>
-        </div>
-        <div class="cys-stat-mini cys-stat-mini--verde">
-          <div class="cys-stat-mini__val">{{ total_en_stock }}</div>
-          <div class="cys-stat-mini__label">En stock</div>
-        </div>
-        <div class="cys-stat-mini cys-stat-mini--amarillo">
-          <div class="cys-stat-mini__val">{{ total_stock_bajo }}</div>
-          <div class="cys-stat-mini__label">Stock bajo</div>
-        </div>
-        <div class="cys-stat-mini cys-stat-mini--rojo">
-          <div class="cys-stat-mini__val">{{ total_agotados }}</div>
-          <div class="cys-stat-mini__label">Agotados</div>
-        </div>
+      <div style="display:flex;gap:20px;padding:10px 20px;background:rgba(77,168,218,.06);border-bottom:1px solid var(--azul-borde);flex-wrap:wrap;">
+        <div style="font-size:.72rem;color:var(--texto-muted);"><i class="bi bi-calendar3" style="margin-right:4px;"></i>Generado: <span class="cys-meta-fecha" style="color:var(--azul-claro);"></span></div>
+        <div style="font-size:.72rem;color:var(--texto-muted);"><i class="bi bi-funnel" style="margin-right:4px;"></i>Filtros activos: <span id="inv-meta-filtros" style="color:var(--azul-claro);">Ninguno</span></div>
+        <div style="font-size:.72rem;color:var(--texto-muted);"><i class="bi bi-box-seam" style="margin-right:4px;"></i>Total registrados: <span style="color:var(--azul-claro);">{{ productos|length }}</span></div>
       </div>
 
-      <div class="cys-modal__filters" style="flex-wrap:wrap; gap:8px;">
-        <input type="text" id="invSearch" class="cys-search" placeholder="Buscar producto…"
-               onkeyup="filtrarInventario()">
+      <div class="cys-modal__stats">
+        <div class="cys-stat-mini"><div class="cys-stat-mini__val">{{ total_registrados }}</div><div class="cys-stat-mini__label">Productos Reg.</div></div>
+        <div class="cys-stat-mini cys-stat-mini--verde"><div class="cys-stat-mini__val">{{ total_en_stock }}</div><div class="cys-stat-mini__label">En stock</div></div>
+        <div class="cys-stat-mini cys-stat-mini--amarillo"><div class="cys-stat-mini__val">{{ total_stock_bajo }}</div><div class="cys-stat-mini__label">Stock bajo</div></div>
+        <div class="cys-stat-mini cys-stat-mini--rojo"><div class="cys-stat-mini__val">{{ total_agotados }}</div><div class="cys-stat-mini__label">Agotados</div></div>
+      </div>
+
+      <div class="cys-modal__filters" style="flex-wrap:wrap;gap:8px;">
+        <input type="text" id="invSearch" class="cys-search" placeholder="Buscar producto…" onkeyup="filtrarInventario()">
         <select id="invEstado" class="cys-select" onchange="filtrarInventario()">
           <option value="">Todos</option>
           <option value="ok">En stock</option>
           <option value="low">Stock bajo</option>
           <option value="out">Agotado</option>
         </select>
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-          <span style="font-size:.75rem; color:var(--texto-muted); white-space:nowrap;">Entradas/Salidas:</span>
-          <input type="date" id="invFechaInicio" class="cys-search" style="max-width:155px;"
-                 onchange="filtrarMovimientosInventario()" title="Fecha inicio">
-          <span style="font-size:.75rem; color:var(--texto-muted);">–</span>
-          <input type="date" id="invFechaFin" class="cys-search" style="max-width:155px;"
-                 onchange="filtrarMovimientosInventario()" title="Fecha fin">
-          <button onclick="limpiarFiltrosInv()"
-                  style="font-size:.72rem; padding:4px 10px; background:transparent;
-                         border:1px solid var(--azul-borde); border-radius:6px;
-                         color:var(--texto-muted); cursor:pointer; white-space:nowrap;">
-            Limpiar
-          </button>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:.75rem;color:var(--texto-muted);white-space:nowrap;">Entradas/Salidas:</span>
+          <input type="date" id="invFechaInicio" class="cys-search" style="max-width:155px;" onchange="filtrarMovimientosInventario()" title="Fecha inicio">
+          <span style="font-size:.75rem;color:var(--texto-muted);">–</span>
+          <input type="date" id="invFechaFin" class="cys-search" style="max-width:155px;" onchange="filtrarMovimientosInventario()" title="Fecha fin">
+          <button onclick="limpiarFiltrosInv()" style="font-size:.72rem;padding:4px 10px;background:transparent;border:1px solid var(--azul-borde);border-radius:6px;color:var(--texto-muted);cursor:pointer;white-space:nowrap;">Limpiar</button>
         </div>
-        <input type="text" id="invProductoMov" class="cys-search"
-               placeholder="Filtrar entradas/salidas por producto…"
-               style="min-width:240px;" oninput="filtrarMovimientosInventario()">
+        <input type="text" id="invProductoMov" class="cys-search" placeholder="Filtrar entradas/salidas por producto…" style="min-width:240px;" oninput="filtrarMovimientosInventario()">
       </div>
 
-      <div style="padding:6px 20px; border-bottom:1px solid var(--azul-borde);">
-        <span id="inv-contador" style="font-size:.72rem; color:var(--azul-claro);">Mostrando todos los productos</span>
+      <div style="padding:6px 20px;border-bottom:1px solid var(--azul-borde);">
+        <span id="inv-contador" style="font-size:.72rem;color:var(--azul-claro);">Mostrando todos los productos</span>
       </div>
- 
+
       <div class="modal-body p-0">
- 
         <table class="cys-inv-table" id="invTable">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Producto</th>
-              <th>Categoría</th>
-              <th>Cantidad disponible</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
+          <thead><tr><th>#</th><th>Producto</th><th>Categoría</th><th>Cantidad disponible</th><th>Estado</th></tr></thead>
           <tbody>
             {% for p in productos %}
               {% if p.cantidad_disponible == 0 %}
@@ -567,135 +330,97 @@
                 </tr>
               {% endif %}
             {% empty %}
-              <tr>
-                <td colspan="5" class="text-center py-5" style="color:var(--texto-muted);">
-                  No hay productos registrados.
-                </td>
-              </tr>
+              <tr><td colspan="5" class="text-center py-5" style="color:var(--texto-muted);">No hay productos registrados.</td></tr>
             {% endfor %}
           </tbody>
         </table>
 
-        <div id="inv-empty" style="display:none; text-align:center; padding:32px 0;
-             color:var(--texto-muted); font-size:.85rem;">
-          <i class="bi bi-search d-block mb-2" style="font-size:2rem; color:var(--azul-borde);"></i>
-          Sin resultados para los filtros aplicados.
-          <br>
-          <button onclick="document.getElementById('invSearch').value='';
-                           document.getElementById('invEstado').value='';
-                           filtrarInventario();"
-                  style="margin-top:10px; font-size:.75rem; padding:5px 14px; background:transparent;
-                         border:1px solid var(--azul-borde); border-radius:6px;
-                         color:var(--azul-claro); cursor:pointer;">
+        <div id="inv-empty" style="display:none;text-align:center;padding:32px 0;color:var(--texto-muted);font-size:.85rem;">
+          <i class="bi bi-search d-block mb-2" style="font-size:2rem;color:var(--azul-borde);"></i>
+          Sin resultados para los filtros aplicados.<br>
+          <button onclick="document.getElementById('invSearch').value='';document.getElementById('invEstado').value='';filtrarInventario();"
+                  style="margin-top:10px;font-size:.75rem;padding:5px 14px;background:transparent;border:1px solid var(--azul-borde);border-radius:6px;color:var(--azul-claro);cursor:pointer;">
             Limpiar filtros
           </button>
         </div>
- 
-        <div style="padding: 14px 20px 0;">
-          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
-                      color:#5DCAA5; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
-                      display:flex; align-items:center; gap:8px;">
+
+        <div style="padding:14px 20px 0;">
+          <div style="font-size:.75rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#5DCAA5;border-top:1px solid var(--azul-borde);padding-top:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
             <span style="width:8px;height:8px;border-radius:50%;background:#5DCAA5;display:inline-block;"></span>
             Entradas de productos
-            <span id="inv-cont-entradas" style="font-size:.7rem; font-weight:400; color:var(--texto-muted); text-transform:none; letter-spacing:0; margin-left:auto;"></span>
+            <span id="inv-cont-entradas" style="font-size:.7rem;font-weight:400;color:var(--texto-muted);text-transform:none;letter-spacing:0;margin-left:auto;"></span>
           </div>
         </div>
         <table class="cys-inv-table" id="invTablaEntradas">
-          <thead>
-            <tr>
-              <th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th>
-            </tr>
-          </thead>
+          <thead><tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr></thead>
           <tbody>
             {% for e in entradas %}
-            <tr data-fecha="{{ e.fecha_actualizada|date:'Y-m-d' }}"
-                data-producto="{{ e.producto.nombre|lower }}">
+            <tr data-fecha="{{ e.fecha_actualizada|date:'Y-m-d' }}" data-producto="{{ e.producto.nombre|lower }}">
               <td class="text-muted">{{ forloop.counter }}</td>
               <td><strong>{{ e.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--ok">+{{ e.cantidad }}</td>
-              <td style="font-size:.85rem; color:var(--texto-muted);">{{ e.motivo|default:"—" }}</td>
-              <td style="font-size:.85rem; color:var(--azul-claro);">{{ e.fecha_actualizada|date:"d/m/Y h:i A" }}</td>
+              <td style="font-size:.85rem;color:var(--texto-muted);">{{ e.motivo|default:"—" }}</td>
+              <td style="font-size:.85rem;color:var(--azul-claro);">{{ e.fecha_actualizada|date:"d/m/Y h:i A" }}</td>
             </tr>
             {% empty %}
-            <tr class="inv-empty-row">
-              <td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">
-                No hay entradas registradas.
-              </td>
-            </tr>
+            <tr class="inv-empty-row"><td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">No hay entradas registradas.</td></tr>
             {% endfor %}
           </tbody>
         </table>
-        <div id="inv-empty-entradas" style="display:none; text-align:center; padding:20px 0;
-             color:var(--texto-muted); font-size:.82rem;">
+        <div id="inv-empty-entradas" style="display:none;text-align:center;padding:20px 0;color:var(--texto-muted);font-size:.82rem;">
           <i class="bi bi-search" style="margin-right:6px;"></i>Sin entradas para ese filtro.
-          <button onclick="limpiarFiltrosInv()"
-                  style="margin-left:8px; font-size:.72rem; padding:3px 10px; background:transparent;
-                         border:1px solid var(--azul-borde); border-radius:6px;
-                         color:var(--azul-claro); cursor:pointer;">Limpiar</button>
+          <button onclick="limpiarFiltrosInv()" style="margin-left:8px;font-size:.72rem;padding:3px 10px;background:transparent;border:1px solid var(--azul-borde);border-radius:6px;color:var(--azul-claro);cursor:pointer;">Limpiar</button>
         </div>
- 
-        <div style="padding: 14px 20px 0;">
-          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
-                      color:#E24B4A; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
-                      display:flex; align-items:center; gap:8px;">
+
+        <div style="padding:14px 20px 0;">
+          <div style="font-size:.75rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#E24B4A;border-top:1px solid var(--azul-borde);padding-top:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
             <span style="width:8px;height:8px;border-radius:50%;background:#E24B4A;display:inline-block;"></span>
             Salidas de productos
-            <span id="inv-cont-salidas" style="font-size:.7rem; font-weight:400; color:var(--texto-muted); text-transform:none; letter-spacing:0; margin-left:auto;"></span>
+            <span id="inv-cont-salidas" style="font-size:.7rem;font-weight:400;color:var(--texto-muted);text-transform:none;letter-spacing:0;margin-left:auto;"></span>
           </div>
         </div>
         <table class="cys-inv-table" id="invTablaSalidas">
-          <thead>
-            <tr>
-              <th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th>
-            </tr>
-          </thead>
+          <thead><tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr></thead>
           <tbody>
             {% for s in salidas %}
-            <tr data-fecha="{{ s.fecha_actualizada|date:'Y-m-d' }}"
-                data-producto="{{ s.producto.nombre|lower }}">
+            <tr data-fecha="{{ s.fecha_actualizada|date:'Y-m-d' }}" data-producto="{{ s.producto.nombre|lower }}">
               <td class="text-muted">{{ forloop.counter }}</td>
               <td><strong>{{ s.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--out">-{{ s.cantidad }}</td>
-              <td style="font-size:.85rem; color:var(--texto-muted);">{{ s.motivo|default:"—" }}</td>
-              <td style="font-size:.85rem; color:var(--azul-claro);">{{ s.fecha_actualizada|date:"d/m/Y h:i A" }}</td>
+              <td style="font-size:.85rem;color:var(--texto-muted);">{{ s.motivo|default:"—" }}</td>
+              <td style="font-size:.85rem;color:var(--azul-claro);">{{ s.fecha_actualizada|date:"d/m/Y h:i A" }}</td>
             </tr>
             {% empty %}
-            <tr class="inv-empty-row">
-              <td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">
-                No hay salidas registradas.
-              </td>
-            </tr>
+            <tr class="inv-empty-row"><td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">No hay salidas registradas.</td></tr>
             {% endfor %}
           </tbody>
         </table>
-        <div id="inv-empty-salidas" style="display:none; text-align:center; padding:20px 0;
-             color:var(--texto-muted); font-size:.82rem;">
+        <div id="inv-empty-salidas" style="display:none;text-align:center;padding:20px 0;color:var(--texto-muted);font-size:.82rem;">
           <i class="bi bi-search" style="margin-right:6px;"></i>Sin salidas para ese filtro.
-          <button onclick="limpiarFiltrosInv()"
-                  style="margin-left:8px; font-size:.72rem; padding:3px 10px; background:transparent;
-                         border:1px solid var(--azul-borde); border-radius:6px;
-                         color:var(--azul-claro); cursor:pointer;">Limpiar</button>
+          <button onclick="limpiarFiltrosInv()" style="margin-left:8px;font-size:.72rem;padding:3px 10px;background:transparent;border:1px solid var(--azul-borde);border-radius:6px;color:var(--azul-claro);cursor:pointer;">Limpiar</button>
         </div>
- 
-      </div>
- 
+      </div><!-- /modal-body -->
+
       <div class="modal-footer cys-modal__footer">
-        <div style="font-size:.72rem; color:var(--texto-muted); margin-right:auto; display:flex; gap:14px; flex-wrap:wrap;">
+        <div style="font-size:.72rem;color:var(--texto-muted);margin-right:auto;display:flex;gap:14px;flex-wrap:wrap;">
           <span><i class="bi bi-calendar3" style="margin-right:3px;"></i>Generado: <span class="cys-meta-fecha" style="color:var(--azul-claro);"></span></span>
           <span><i class="bi bi-funnel" style="margin-right:3px;"></i>Filtros: <span id="inv-footer-filtros" style="color:var(--azul-claro);">Ninguno</span></span>
         </div>
-        <button class="cys-btn-export" onclick="exportarPDF('modalInventario', 'inventario_cys', 'inventario', 'Inventario completo')">⬇ Exportar PDF</button>
+        <button class="cys-btn-export" onclick="exportarPDF('modalInventario','inventario_cys','inventario','Inventario completo')">⬇ Exportar PDF</button>
       </div>
- 
+
     </div>
   </div>
-</div>
- 
-<!-- ===== MODAL PROVEEDORES ===== -->
+</div><!-- /modalInventario -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL PROVEEDORES
+═══════════════════════════════════════════════════ -->
 <div class="modal fade" id="modalProveedores" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content cys-modal">
- 
+
       <div class="modal-header cys-modal__header" style="background:linear-gradient(135deg,#085041,#0F6E56);">
         <div class="d-flex align-items-center gap-3">
           <div class="cys-modal__icon" style="background:rgba(29,158,117,.25);">
@@ -709,94 +434,69 @@
         <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
 
-      <div style="display:flex; gap:20px; padding:10px 20px; background:rgba(29,158,117,.06);
-                  border-bottom:1px solid var(--azul-borde); flex-wrap:wrap;">
-        <div style="font-size:.72rem; color:var(--texto-muted);">
-          <i class="bi bi-calendar3" style="margin-right:4px;"></i>
-          Generado: <span class="cys-meta-fecha" style="color:#5DCAA5;"></span>
-        </div>
-        <div style="font-size:.72rem; color:var(--texto-muted);">
-          <i class="bi bi-people" style="margin-right:4px;"></i>
-          Total proveedores: <span style="color:#5DCAA5;">{{ proveedores|length }}</span>
-        </div>
+      <div style="display:flex;gap:20px;padding:10px 20px;background:rgba(29,158,117,.06);border-bottom:1px solid var(--azul-borde);flex-wrap:wrap;">
+        <div style="font-size:.72rem;color:var(--texto-muted);"><i class="bi bi-calendar3" style="margin-right:4px;"></i>Generado: <span class="cys-meta-fecha" style="color:#5DCAA5;"></span></div>
+        <div style="font-size:.72rem;color:var(--texto-muted);"><i class="bi bi-people" style="margin-right:4px;"></i>Total proveedores: <span style="color:#5DCAA5;">{{ proveedores|length }}</span></div>
       </div>
- 
+
       <div class="cys-modal__stats">
-        <div class="cys-stat-mini cys-stat-mini--verde">
-          <div class="cys-stat-mini__val">{{ proveedores|length }}</div>
-          <div class="cys-stat-mini__label">Total registrados</div>
-        </div>
+        <div class="cys-stat-mini cys-stat-mini--verde"><div class="cys-stat-mini__val">{{ proveedores|length }}</div><div class="cys-stat-mini__label">Total registrados</div></div>
       </div>
- 
+
       <div class="cys-modal__filters">
         <input type="text" id="provSearch" class="cys-search" placeholder="Buscar proveedor…" onkeyup="filtrarProveedores()">
       </div>
 
-      <div style="padding:6px 20px; border-bottom:1px solid var(--azul-borde);">
-        <span id="prov-contador" style="font-size:.72rem; color:#5DCAA5;">Mostrando todos los proveedores</span>
+      <div style="padding:6px 20px;border-bottom:1px solid var(--azul-borde);">
+        <span id="prov-contador" style="font-size:.72rem;color:#5DCAA5;">Mostrando todos los proveedores</span>
       </div>
- 
+
       <div class="modal-body p-0">
         <table class="cys-inv-table" id="provTable">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Nombre</th>
-              <th>Empresa</th>
-              <th>Teléfono</th>
-              <th>Correo</th>
-            </tr>
-          </thead>
+          <thead><tr><th>#</th><th>Nombre</th><th>Empresa</th><th>Teléfono</th><th>Correo</th></tr></thead>
           <tbody>
             {% for prov in proveedores %}
               <tr>
                 <td class="text-muted">{{ forloop.counter }}</td>
                 <td><strong>{{ prov.nombre_contacto }}</strong></td>
                 <td><span class="cys-tag">{{ prov.nombre_empresa }}</span></td>
-                <td style="font-size:.85rem; color:var(--azul-claro);">{{ prov.telefono }}</td>
-                <td style="font-size:.85rem; color:var(--azul-claro);">{{ prov.email }}</td>
+                <td style="font-size:.85rem;color:var(--azul-claro);">{{ prov.telefono }}</td>
+                <td style="font-size:.85rem;color:var(--azul-claro);">{{ prov.email }}</td>
               </tr>
             {% empty %}
-              <tr>
-                <td colspan="5" class="text-center py-5" style="color:var(--texto-muted);">
-                  <i class="bi bi-truck d-block mb-2" style="font-size:2rem; color:var(--azul-borde);"></i>
-                  No hay proveedores registrados.
-                </td>
-              </tr>
+              <tr><td colspan="5" class="text-center py-5" style="color:var(--texto-muted);"><i class="bi bi-truck d-block mb-2" style="font-size:2rem;color:var(--azul-borde);"></i>No hay proveedores registrados.</td></tr>
             {% endfor %}
           </tbody>
         </table>
-
-        <div id="prov-empty" style="display:none; text-align:center; padding:32px 0;
-             color:var(--texto-muted); font-size:.85rem;">
-          <i class="bi bi-search d-block mb-2" style="font-size:2rem; color:var(--azul-borde);"></i>
-          Sin resultados para la búsqueda.
-          <br>
-          <button onclick="document.getElementById('provSearch').value=''; filtrarProveedores();"
-                  style="margin-top:10px; font-size:.75rem; padding:5px 14px; background:transparent;
-                         border:1px solid var(--azul-borde); border-radius:6px;
-                         color:#5DCAA5; cursor:pointer;">
+        <div id="prov-empty" style="display:none;text-align:center;padding:32px 0;color:var(--texto-muted);font-size:.85rem;">
+          <i class="bi bi-search d-block mb-2" style="font-size:2rem;color:var(--azul-borde);"></i>
+          Sin resultados para la búsqueda.<br>
+          <button onclick="document.getElementById('provSearch').value='';filtrarProveedores();"
+                  style="margin-top:10px;font-size:.75rem;padding:5px 14px;background:transparent;border:1px solid var(--azul-borde);border-radius:6px;color:#5DCAA5;cursor:pointer;">
             Limpiar búsqueda
           </button>
         </div>
       </div>
- 
+
       <div class="modal-footer cys-modal__footer">
-        <div style="font-size:.72rem; color:var(--texto-muted); margin-right:auto;">
+        <div style="font-size:.72rem;color:var(--texto-muted);margin-right:auto;">
           <span><i class="bi bi-calendar3" style="margin-right:3px;"></i>Generado: <span class="cys-meta-fecha" style="color:#5DCAA5;"></span></span>
         </div>
-        <button class="cys-btn-export" onclick="exportarPDF('modalProveedores', 'proveedores_cys', 'proveedores', 'Listado proveedores')">⬇ Exportar PDF</button>
+        <button class="cys-btn-export" onclick="exportarPDF('modalProveedores','proveedores_cys','proveedores','Listado proveedores')">⬇ Exportar PDF</button>
       </div>
- 
+
     </div>
   </div>
-</div>
- 
-<!-- ===== MODAL RESUMEN DIARIO ===== -->
+</div><!-- /modalProveedores -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL RESUMEN DIARIO
+═══════════════════════════════════════════════════ -->
 <div class="modal fade" id="modalResumenDiario" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable" style="max-width:92vw; width:92vw;">
+  <div class="modal-dialog modal-dialog-scrollable" style="max-width:92vw;width:92vw;">
     <div class="modal-content cys-modal">
- 
+
       <div class="modal-header cys-modal__header" style="background:linear-gradient(135deg,#26215C,#534AB7);">
         <div class="d-flex align-items-center gap-3">
           <div class="cys-modal__icon" style="background:rgba(127,119,221,.25);">
@@ -810,233 +510,164 @@
         <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
 
-      <div style="display:flex; gap:20px; padding:10px 20px; background:rgba(127,119,221,.06);
-                  border-bottom:1px solid var(--azul-borde); flex-wrap:wrap;">
-        <div style="font-size:.72rem; color:var(--texto-muted);">
-          <i class="bi bi-calendar3" style="margin-right:4px;"></i>
-          Generado: <span class="cys-meta-fecha" style="color:#AFA9EC;"></span>
-        </div>
-        <div style="font-size:.72rem; color:var(--texto-muted);">
-          <i class="bi bi-funnel" style="margin-right:4px;"></i>
-          Filtros: <span id="rd-meta-filtros" style="color:#AFA9EC;">Ninguno</span>
-        </div>
-        <div style="font-size:.72rem; color:var(--texto-muted);">
-          <i class="bi bi-calendar-event" style="margin-right:4px;"></i>
-          Fecha del informe: <span style="color:#AFA9EC;">{{ hoy|date:"d/m/Y" }}</span>
-        </div>
+      <div style="display:flex;gap:20px;padding:10px 20px;background:rgba(127,119,221,.06);border-bottom:1px solid var(--azul-borde);flex-wrap:wrap;">
+        <div style="font-size:.72rem;color:var(--texto-muted);"><i class="bi bi-calendar3" style="margin-right:4px;"></i>Generado: <span class="cys-meta-fecha" style="color:#AFA9EC;"></span></div>
+        <div style="font-size:.72rem;color:var(--texto-muted);"><i class="bi bi-funnel" style="margin-right:4px;"></i>Filtros: <span id="rd-meta-filtros" style="color:#AFA9EC;">Ninguno</span></div>
+        <div style="font-size:.72rem;color:var(--texto-muted);"><i class="bi bi-calendar-event" style="margin-right:4px;"></i>Fecha del informe: <span style="color:#AFA9EC;">{{ hoy|date:"d/m/Y" }}</span></div>
       </div>
- 
+
       <div class="cys-modal__stats">
-        <div class="cys-stat-mini cys-stat-mini--verde">
-          <div class="cys-stat-mini__val">${{ ingresos_hoy|floatformat:0 }}</div>
-          <div class="cys-stat-mini__label">Ingresos hoy</div>
-        </div>
-        <div class="cys-stat-mini">
-          <div class="cys-stat-mini__val">{{ ventas_hoy|length }}</div>
-          <div class="cys-stat-mini__label">Ventas hoy</div>
-        </div>
-        <div class="cys-stat-mini cys-stat-mini--verde">
-          <div class="cys-stat-mini__val">{{ total_entradas_hoy }}</div>
-          <div class="cys-stat-mini__label">Unidades entrada</div>
-        </div>
-        <div class="cys-stat-mini cys-stat-mini--rojo">
-          <div class="cys-stat-mini__val">{{ total_salidas_hoy }}</div>
-          <div class="cys-stat-mini__label">Unidades salida</div>
-        </div>
+        <div class="cys-stat-mini cys-stat-mini--verde"><div class="cys-stat-mini__val">${{ ingresos_hoy|floatformat:0 }}</div><div class="cys-stat-mini__label">Ingresos hoy</div></div>
+        <div class="cys-stat-mini"><div class="cys-stat-mini__val">{{ ventas_hoy|length }}</div><div class="cys-stat-mini__label">Ventas hoy</div></div>
+        <div class="cys-stat-mini cys-stat-mini--verde"><div class="cys-stat-mini__val">{{ total_entradas_hoy }}</div><div class="cys-stat-mini__label">Unidades entrada</div></div>
+        <div class="cys-stat-mini cys-stat-mini--rojo"><div class="cys-stat-mini__val">{{ total_salidas_hoy }}</div><div class="cys-stat-mini__label">Unidades salida</div></div>
       </div>
 
-      <div class="cys-modal__filters" style="flex-wrap:wrap; gap:8px;">
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-          <span style="font-size:.75rem; color:var(--texto-muted); white-space:nowrap;">Rango de fechas:</span>
-          <input type="date" id="rdFechaInicio" class="cys-search" style="max-width:155px;"
-                 onchange="filtrarResumenDiario()" title="Fecha inicio">
-          <span style="font-size:.75rem; color:var(--texto-muted);">–</span>
-          <input type="date" id="rdFechaFin" class="cys-search" style="max-width:155px;"
-                 onchange="filtrarResumenDiario()" title="Fecha fin">
-          <button onclick="limpiarFiltrosRD()"
-                  style="font-size:.72rem; padding:4px 10px; background:transparent;
-                         border:1px solid var(--azul-borde); border-radius:6px;
-                         color:var(--texto-muted); cursor:pointer; white-space:nowrap;">
-            Limpiar
-          </button>
+      <div class="cys-modal__filters" style="flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:.75rem;color:var(--texto-muted);white-space:nowrap;">Rango de fechas:</span>
+          <input type="date" id="rdFechaInicio" class="cys-search" style="max-width:155px;" onchange="filtrarResumenDiario()" title="Fecha inicio">
+          <span style="font-size:.75rem;color:var(--texto-muted);">–</span>
+          <input type="date" id="rdFechaFin" class="cys-search" style="max-width:155px;" onchange="filtrarResumenDiario()" title="Fecha fin">
+          <button onclick="limpiarFiltrosRD()" style="font-size:.72rem;padding:4px 10px;background:transparent;border:1px solid var(--azul-borde);border-radius:6px;color:var(--texto-muted);cursor:pointer;white-space:nowrap;">Limpiar</button>
         </div>
-        <input type="text" id="rdProducto" class="cys-search"
-               placeholder="Filtrar por producto…"
-               style="min-width:200px;" oninput="filtrarResumenDiario()">
+        <input type="text" id="rdProducto" class="cys-search" placeholder="Filtrar por producto…" style="min-width:200px;" oninput="filtrarResumenDiario()">
       </div>
 
-      <div style="padding:6px 20px; border-bottom:1px solid var(--azul-borde);">
-        <span id="rd-contador" style="font-size:.72rem; color:#AFA9EC;">Mostrando todos los registros</span>
+      <div style="padding:6px 20px;border-bottom:1px solid var(--azul-borde);">
+        <span id="rd-contador" style="font-size:.72rem;color:#AFA9EC;">Mostrando todos los registros</span>
       </div>
- 
+
       <div class="modal-body p-0">
- 
+
         <div style="padding:14px 20px 0;">
-          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
-                      color:#AFA9EC; padding-bottom:10px; display:flex; align-items:center; gap:8px;">
+          <div style="font-size:.75rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#AFA9EC;padding-bottom:10px;display:flex;align-items:center;gap:8px;">
             <span style="width:8px;height:8px;border-radius:50%;background:#7F77DD;display:inline-block;"></span>
             Ventas del día
-            <span id="rd-cont-ventas" style="font-size:.7rem; font-weight:400; color:var(--texto-muted); text-transform:none; letter-spacing:0; margin-left:auto;"></span>
+            <span id="rd-cont-ventas" style="font-size:.7rem;font-weight:400;color:var(--texto-muted);text-transform:none;letter-spacing:0;margin-left:auto;"></span>
           </div>
         </div>
         <table class="cys-inv-table" id="rdTablaVentas">
-          <thead>
-            <tr><th>#</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Total</th><th>Fecha</th><th>Hora</th></tr>
-          </thead>
+          <thead><tr><th>#</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Total</th><th>Fecha</th><th>Hora</th></tr></thead>
           <tbody>
             {% for v in ventas_hoy %}
               {% for det in v.detalles.all %}
-              <tr data-fecha="{{ v.fecha|date:'Y-m-d' }}"
-                  data-producto="{{ det.producto.nombre|lower }}">
+              <tr data-fecha="{{ v.fecha|date:'Y-m-d' }}" data-producto="{{ det.producto.nombre|lower }}">
                 <td class="text-muted">{{ forloop.parentloop.counter }}</td>
                 <td><strong>{{ v.cliente }}</strong></td>
                 <td>{{ det.producto.nombre }}</td>
                 <td>{{ det.cantidad }}</td>
                 <td class="cys-qty cys-qty--ok">${{ det.subtotal|floatformat:0 }}</td>
-                <td style="font-size:.85rem; color:var(--azul-claro);">{{ v.fecha|date:"d/m/Y" }}</td>
-                <td style="font-size:.85rem; color:var(--azul-claro);">{{ v.fecha|date:"h:i A" }}</td>
+                <td style="font-size:.85rem;color:var(--azul-claro);">{{ v.fecha|date:"d/m/Y" }}</td>
+                <td style="font-size:.85rem;color:var(--azul-claro);">{{ v.fecha|date:"h:i A" }}</td>
               </tr>
               {% endfor %}
             {% empty %}
-            <tr class="rd-empty-row">
-              <td colspan="7" class="text-center py-4" style="color:var(--texto-muted);">
-                No hay ventas hoy.
-              </td>
-            </tr>
+            <tr class="rd-empty-row"><td colspan="7" class="text-center py-4" style="color:var(--texto-muted);">No hay ventas hoy.</td></tr>
             {% endfor %}
           </tbody>
         </table>
-        <div id="rd-empty-ventas" style="display:none; text-align:center; padding:20px 0;
-             color:var(--texto-muted); font-size:.82rem;">
+        <div id="rd-empty-ventas" style="display:none;text-align:center;padding:20px 0;color:var(--texto-muted);font-size:.82rem;">
           <i class="bi bi-search" style="margin-right:6px;"></i>Sin ventas para ese filtro.
-          <button onclick="limpiarFiltrosRD()"
-                  style="margin-left:8px; font-size:.72rem; padding:3px 10px; background:transparent;
-                         border:1px solid var(--azul-borde); border-radius:6px;
-                         color:#AFA9EC; cursor:pointer;">Limpiar</button>
+          <button onclick="limpiarFiltrosRD()" style="margin-left:8px;font-size:.72rem;padding:3px 10px;background:transparent;border:1px solid var(--azul-borde);border-radius:6px;color:#AFA9EC;cursor:pointer;">Limpiar</button>
         </div>
- 
+
         <div style="padding:14px 20px 0;">
-          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
-                      color:#5DCAA5; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
-                      display:flex; align-items:center; gap:8px;">
+          <div style="font-size:.75rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#5DCAA5;border-top:1px solid var(--azul-borde);padding-top:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
             <span style="width:8px;height:8px;border-radius:50%;background:#5DCAA5;display:inline-block;"></span>
             Entradas de inventario hoy
-            <span id="rd-cont-entradas" style="font-size:.7rem; font-weight:400; color:var(--texto-muted); text-transform:none; letter-spacing:0; margin-left:auto;"></span>
+            <span id="rd-cont-entradas" style="font-size:.7rem;font-weight:400;color:var(--texto-muted);text-transform:none;letter-spacing:0;margin-left:auto;"></span>
           </div>
         </div>
         <table class="cys-inv-table" id="rdTablaEntradas">
-          <thead>
-            <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr>
-          </thead>
+          <thead><tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr></thead>
           <tbody>
             {% for e in entradas_hoy %}
-            <tr data-fecha="{{ e.fecha_actualizada|date:'Y-m-d' }}"
-                data-producto="{{ e.producto.nombre|lower }}">
+            <tr data-fecha="{{ e.fecha_actualizada|date:'Y-m-d' }}" data-producto="{{ e.producto.nombre|lower }}">
               <td class="text-muted">{{ forloop.counter }}</td>
               <td><strong>{{ e.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--ok">+{{ e.cantidad }}</td>
-              <td style="font-size:.85rem; color:var(--texto-muted);">{{ e.motivo|default:"—" }}</td>
-              <td style="font-size:.85rem; color:var(--azul-claro);">{{ e.fecha_actualizada|date:"d/m/Y" }}</td>
+              <td style="font-size:.85rem;color:var(--texto-muted);">{{ e.motivo|default:"—" }}</td>
+              <td style="font-size:.85rem;color:var(--azul-claro);">{{ e.fecha_actualizada|date:"d/m/Y" }}</td>
             </tr>
             {% empty %}
-            <tr class="rd-empty-row">
-              <td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">No hay entradas hoy.</td>
-            </tr>
+            <tr class="rd-empty-row"><td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">No hay entradas hoy.</td></tr>
             {% endfor %}
           </tbody>
         </table>
-        <div id="rd-empty-entradas" style="display:none; text-align:center; padding:20px 0;
-             color:var(--texto-muted); font-size:.82rem;">
+        <div id="rd-empty-entradas" style="display:none;text-align:center;padding:20px 0;color:var(--texto-muted);font-size:.82rem;">
           <i class="bi bi-search" style="margin-right:6px;"></i>Sin entradas para ese filtro.
-          <button onclick="limpiarFiltrosRD()"
-                  style="margin-left:8px; font-size:.72rem; padding:3px 10px; background:transparent;
-                         border:1px solid var(--azul-borde); border-radius:6px;
-                         color:#5DCAA5; cursor:pointer;">Limpiar</button>
+          <button onclick="limpiarFiltrosRD()" style="margin-left:8px;font-size:.72rem;padding:3px 10px;background:transparent;border:1px solid var(--azul-borde);border-radius:6px;color:#5DCAA5;cursor:pointer;">Limpiar</button>
         </div>
- 
+
         <div style="padding:14px 20px 0;">
-          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
-                      color:#E24B4A; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
-                      display:flex; align-items:center; gap:8px;">
+          <div style="font-size:.75rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#E24B4A;border-top:1px solid var(--azul-borde);padding-top:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
             <span style="width:8px;height:8px;border-radius:50%;background:#E24B4A;display:inline-block;"></span>
             Salidas de inventario hoy
-            <span id="rd-cont-salidas" style="font-size:.7rem; font-weight:400; color:var(--texto-muted); text-transform:none; letter-spacing:0; margin-left:auto;"></span>
+            <span id="rd-cont-salidas" style="font-size:.7rem;font-weight:400;color:var(--texto-muted);text-transform:none;letter-spacing:0;margin-left:auto;"></span>
           </div>
         </div>
         <table class="cys-inv-table" id="rdTablaSalidas">
-          <thead>
-            <tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr>
-          </thead>
+          <thead><tr><th>#</th><th>Producto</th><th>Cantidad</th><th>Motivo</th><th>Fecha</th></tr></thead>
           <tbody>
             {% for s in salidas_hoy %}
-            <tr data-fecha="{{ s.fecha_actualizada|date:'Y-m-d' }}"
-                data-producto="{{ s.producto.nombre|lower }}">
+            <tr data-fecha="{{ s.fecha_actualizada|date:'Y-m-d' }}" data-producto="{{ s.producto.nombre|lower }}">
               <td class="text-muted">{{ forloop.counter }}</td>
               <td><strong>{{ s.producto.nombre }}</strong></td>
               <td class="cys-qty cys-qty--out">-{{ s.cantidad }}</td>
-              <td style="font-size:.85rem; color:var(--texto-muted);">{{ s.motivo|default:"—" }}</td>
-              <td style="font-size:.85rem; color:var(--azul-claro);">{{ s.fecha_actualizada|date:"d/m/Y" }}</td>
+              <td style="font-size:.85rem;color:var(--texto-muted);">{{ s.motivo|default:"—" }}</td>
+              <td style="font-size:.85rem;color:var(--azul-claro);">{{ s.fecha_actualizada|date:"d/m/Y" }}</td>
             </tr>
             {% empty %}
-            <tr class="rd-empty-row">
-              <td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">No hay salidas hoy.</td>
-            </tr>
+            <tr class="rd-empty-row"><td colspan="5" class="text-center py-4" style="color:var(--texto-muted);">No hay salidas hoy.</td></tr>
             {% endfor %}
           </tbody>
         </table>
-        <div id="rd-empty-salidas" style="display:none; text-align:center; padding:20px 0;
-             color:var(--texto-muted); font-size:.82rem;">
+        <div id="rd-empty-salidas" style="display:none;text-align:center;padding:20px 0;color:var(--texto-muted);font-size:.82rem;">
           <i class="bi bi-search" style="margin-right:6px;"></i>Sin salidas para ese filtro.
-          <button onclick="limpiarFiltrosRD()"
-                  style="margin-left:8px; font-size:.72rem; padding:3px 10px; background:transparent;
-                         border:1px solid var(--azul-borde); border-radius:6px;
-                         color:#E24B4A; cursor:pointer;">Limpiar</button>
+          <button onclick="limpiarFiltrosRD()" style="margin-left:8px;font-size:.72rem;padding:3px 10px;background:transparent;border:1px solid var(--azul-borde);border-radius:6px;color:#E24B4A;cursor:pointer;">Limpiar</button>
         </div>
 
         {% if top_productos_hoy %}
         <div style="padding:14px 20px 0;">
-          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
-                      color:#7F77DD; border-top:1px solid var(--azul-borde); padding-top:14px; margin-bottom:10px;
-                      display:flex; align-items:center; gap:8px;">
+          <div style="font-size:.75rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#7F77DD;border-top:1px solid var(--azul-borde);padding-top:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
             <span style="width:8px;height:8px;border-radius:50%;background:#7F77DD;display:inline-block;"></span>
             Top productos del día
           </div>
         </div>
         <table class="cys-inv-table" style="margin-bottom:16px;">
-          <thead>
-            <tr><th>#</th><th>Producto</th><th>Unidades vendidas</th><th>Total generado</th></tr>
-          </thead>
+          <thead><tr><th>#</th><th>Producto</th><th>Unidades vendidas</th><th>Total generado</th></tr></thead>
           <tbody>
             {% for nombre, datos in top_productos_hoy %}
             <tr>
               <td class="text-muted">{{ forloop.counter }}</td>
               <td><strong>{{ nombre }}</strong></td>
-              <td style="font-size:.85rem; color:var(--azul-claro);">{{ datos.cantidad }}</td>
-              <td style="font-size:.85rem; font-weight:600; color:#5DCAA5;">${{ datos.subtotal|floatformat:0 }}</td>
+              <td style="font-size:.85rem;color:var(--azul-claro);">{{ datos.cantidad }}</td>
+              <td style="font-size:.85rem;font-weight:600;color:#5DCAA5;">${{ datos.subtotal|floatformat:0 }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
         {% endif %}
 
-      </div>
- 
+      </div><!-- /modal-body -->
+
       <div class="modal-footer cys-modal__footer">
-        <div style="font-size:.72rem; color:var(--texto-muted); margin-right:auto; display:flex; gap:14px; flex-wrap:wrap;">
+        <div style="font-size:.72rem;color:var(--texto-muted);margin-right:auto;display:flex;gap:14px;flex-wrap:wrap;">
           <span><i class="bi bi-calendar3" style="margin-right:3px;"></i>Generado: <span class="cys-meta-fecha" style="color:#AFA9EC;"></span></span>
           <span><i class="bi bi-funnel" style="margin-right:3px;"></i>Filtros: <span id="rd-footer-filtros" style="color:#AFA9EC;">Ninguno</span></span>
         </div>
-        <button class="cys-btn-export" onclick="exportarPDF('modalResumenDiario', 'resumen_diario_cys', 'diario', 'Resumen diario')">⬇ Exportar PDF</button>
+        <button class="cys-btn-export" onclick="exportarPDF('modalResumenDiario','resumen_diario_cys','diario','Resumen diario')">⬇ Exportar PDF</button>
       </div>
- 
+
     </div>
   </div>
-</div>
+</div><!-- /modalResumenDiario -->
 
-<<<<<<< Updated upstream
-<!-- ══════════════════════════════════════════
-     SCRUM-237 · MODAL DETALLE DE REPORTE
-══════════════════════════════════════════ -->
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL DETALLE REPORTE
+═══════════════════════════════════════════════════ -->
 <div class="modal fade" id="modalDetalleReporte" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" style="max-width:520px;">
     <div class="modal-content cys-modal">
@@ -1049,29 +680,11 @@
           <div>
             <div class="cys-modal__title" id="detTitulo">Detalle del reporte</div>
             <div class="cys-modal__subtitle" id="detSubtitulo">CYS Ltda</div>
-=======
-<!-- ===== MODAL ANÁLISIS DE VENTAS ✅ NUEVO ===== -->
-<div class="modal fade" id="modalAnalisisVentas" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable" style="max-width:92vw; width:92vw;">
-    <div class="modal-content cys-modal">
-
-      <!-- HEADER -->
-      <div class="modal-header cys-modal__header"
-           style="background:linear-gradient(135deg,#4A1E05,#A0561A);">
-        <div class="d-flex align-items-center gap-3">
-          <div class="cys-modal__icon" style="background:rgba(232,131,74,.25);">
-            <i class="bi bi-graph-up-arrow" style="color:#F0A870;"></i>
-          </div>
-          <div>
-            <div class="cys-modal__title">Análisis de Ventas</div>
-            <div class="cys-modal__subtitle">CYS Ltda · Gráficos interactivos</div>
->>>>>>> Stashed changes
           </div>
         </div>
         <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
       </div>
 
-<<<<<<< Updated upstream
       <div class="modal-body p-0">
         <div class="cys-det-grid">
           <div class="cys-det-item">
@@ -1092,9 +705,8 @@
           </div>
         </div>
         <div style="padding:0 20px 16px;">
-          <div style="font-size:.75rem; color:var(--texto-muted); background:rgba(77,168,218,.05);
-                      border:1px solid var(--azul-borde); border-radius:8px; padding:10px 14px;">
-            <i class="bi bi-info-circle" style="margin-right:6px; color:var(--azul-claro);"></i>
+          <div style="font-size:.75rem;color:var(--texto-muted);background:rgba(77,168,218,.05);border:1px solid var(--azul-borde);border-radius:8px;padding:10px 14px;">
+            <i class="bi bi-info-circle" style="margin-right:6px;color:var(--azul-claro);"></i>
             El reporte fue exportado como PDF y descargado en tu dispositivo.
           </div>
         </div>
@@ -1102,57 +714,63 @@
 
       <div class="modal-footer cys-modal__footer" style="justify-content:flex-end;">
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
-=======
+      </div>
+
+    </div>
+  </div>
+</div><!-- /modalDetalleReporte -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL ANÁLISIS DE VENTAS  ✅ CORREGIDO
+═══════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalAnalisisVentas" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable" style="max-width:92vw;width:92vw;">
+    <div class="modal-content cys-modal">
+
+      <!-- HEADER -->
+      <div class="modal-header cys-modal__header" style="background:linear-gradient(135deg,#4A1E05,#A0561A);">
+        <div class="d-flex align-items-center gap-3">
+          <div class="cys-modal__icon" style="background:rgba(232,131,74,.25);">
+            <i class="bi bi-graph-up-arrow" style="color:#F0A870;"></i>
+          </div>
+          <div>
+            <div class="cys-modal__title">Análisis de Ventas</div>
+            <div class="cys-modal__subtitle">CYS Ltda · Gráficos interactivos</div>
+          </div>
+        </div>
+        <button type="button" class="cys-modal__close" data-bs-dismiss="modal">✕</button>
+      </div>
+
       <!-- META BAR -->
-      <div style="display:flex; gap:20px; padding:10px 20px;
-                  background:rgba(232,131,74,.06);
-                  border-bottom:1px solid var(--azul-borde); flex-wrap:wrap;">
-        <div style="font-size:.72rem; color:var(--texto-muted);">
+      <div style="display:flex;gap:20px;padding:10px 20px;background:rgba(232,131,74,.06);border-bottom:1px solid var(--azul-borde);flex-wrap:wrap;">
+        <div style="font-size:.72rem;color:var(--texto-muted);">
           <i class="bi bi-calendar3" style="margin-right:4px;"></i>
           Generado: <span class="cys-meta-fecha" style="color:#E8834A;"></span>
         </div>
-        <div style="font-size:.72rem; color:var(--texto-muted);">
+        <div style="font-size:.72rem;color:var(--texto-muted);">
           <i class="bi bi-bar-chart" style="margin-right:4px;"></i>
-          Registros analizados:
-          <span id="av-total-registros" style="color:#E8834A;">—</span>
+          Registros analizados: <span id="av-total-registros" style="color:#E8834A;">—</span>
         </div>
       </div>
 
       <!-- STAT CARDS -->
       <div class="cys-modal__stats">
-        <div class="cys-stat-mini cys-stat-mini--verde">
-          <div class="cys-stat-mini__val" id="av-stat-total">$0</div>
-          <div class="cys-stat-mini__label">Total ventas</div>
-        </div>
-        <div class="cys-stat-mini">
-          <div class="cys-stat-mini__val" id="av-stat-txns">0</div>
-          <div class="cys-stat-mini__label">Transacciones</div>
-        </div>
-        <div class="cys-stat-mini cys-stat-mini--amarillo">
-          <div class="cys-stat-mini__val" id="av-stat-top">—</div>
-          <div class="cys-stat-mini__label">Producto estrella</div>
-        </div>
-        <div class="cys-stat-mini">
-          <div class="cys-stat-mini__val" id="av-stat-cat">—</div>
-          <div class="cys-stat-mini__label">Categoría líder</div>
-        </div>
+        <div class="cys-stat-mini cys-stat-mini--verde"><div class="cys-stat-mini__val" id="av-stat-total">$0</div><div class="cys-stat-mini__label">Total ventas</div></div>
+        <div class="cys-stat-mini"><div class="cys-stat-mini__val" id="av-stat-txns">0</div><div class="cys-stat-mini__label">Transacciones</div></div>
+        <div class="cys-stat-mini cys-stat-mini--amarillo"><div class="cys-stat-mini__val" id="av-stat-top">—</div><div class="cys-stat-mini__label">Producto estrella</div></div>
+        <div class="cys-stat-mini"><div class="cys-stat-mini__val" id="av-stat-cat">—</div><div class="cys-stat-mini__label">Categoría líder</div></div>
       </div>
 
       <!-- FILTROS -->
-      <div class="cys-modal__filters" style="flex-wrap:wrap; gap:8px;">
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-          <span style="font-size:.75rem; color:var(--texto-muted); white-space:nowrap;">Rango:</span>
-          <input type="date" id="avFechaInicio" class="cys-search" style="max-width:155px;"
-                 onchange="renderAnalisis()" title="Fecha inicio">
-          <span style="font-size:.75rem; color:var(--texto-muted);">–</span>
-          <input type="date" id="avFechaFin" class="cys-search" style="max-width:155px;"
-                 onchange="renderAnalisis()" title="Fecha fin">
-          <button onclick="document.getElementById('avFechaInicio').value='';
-                           document.getElementById('avFechaFin').value='';
-                           renderAnalisis();"
-                  style="font-size:.72rem; padding:4px 10px; background:transparent;
-                         border:1px solid var(--azul-borde); border-radius:6px;
-                         color:var(--texto-muted); cursor:pointer;">
+      <div class="cys-modal__filters" style="flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:.75rem;color:var(--texto-muted);white-space:nowrap;">Rango:</span>
+          <input type="date" id="avFechaInicio" class="cys-search" style="max-width:155px;" onchange="renderAnalisis()" title="Fecha inicio">
+          <span style="font-size:.75rem;color:var(--texto-muted);">–</span>
+          <input type="date" id="avFechaFin" class="cys-search" style="max-width:155px;" onchange="renderAnalisis()" title="Fecha fin">
+          <button onclick="document.getElementById('avFechaInicio').value='';document.getElementById('avFechaFin').value='';renderAnalisis();"
+                  style="font-size:.72rem;padding:4px 10px;background:transparent;border:1px solid var(--azul-borde);border-radius:6px;color:var(--texto-muted);cursor:pointer;">
             Limpiar
           </button>
         </div>
@@ -1162,79 +780,63 @@
       </div>
 
       <!-- CUERPO — 3 GRÁFICOS -->
-      <div class="modal-body" style="padding:20px; display:flex; flex-direction:column; gap:28px;">
+      <div class="modal-body" style="padding:20px;display:flex;flex-direction:column;gap:28px;">
 
         <!-- Gráfico 1: Ventas por fecha -->
-        <div style="background:rgba(255,255,255,.03); border:1px solid var(--azul-borde);
-                    border-radius:10px; padding:16px;">
-          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px;
-                      text-transform:uppercase; color:#E8834A; margin-bottom:14px;
-                      display:flex; align-items:center; gap:8px;">
-            <span style="width:8px;height:8px;border-radius:50%;
-                         background:#E8834A;display:inline-block;"></span>
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--azul-borde);border-radius:10px;padding:16px;">
+          <div style="font-size:.75rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#E8834A;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#E8834A;display:inline-block;"></span>
             Ventas por fecha
           </div>
-          <div style="position:relative; height:260px;">
+          <div style="position:relative;height:260px;">
             <canvas id="avChartFecha"></canvas>
           </div>
         </div>
 
         <!-- Gráfico 2: Top productos -->
-        <div style="background:rgba(255,255,255,.03); border:1px solid var(--azul-borde);
-                    border-radius:10px; padding:16px;">
-          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px;
-                      text-transform:uppercase; color:#5DCAA5; margin-bottom:14px;
-                      display:flex; align-items:center; gap:8px;">
-            <span style="width:8px;height:8px;border-radius:50%;
-                         background:#5DCAA5;display:inline-block;"></span>
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--azul-borde);border-radius:10px;padding:16px;">
+          <div style="font-size:.75rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#5DCAA5;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#5DCAA5;display:inline-block;"></span>
             Top 10 productos más vendidos
-            <span style="font-size:.7rem; font-weight:400; color:var(--texto-muted);
-                         text-transform:none; letter-spacing:0; margin-left:auto;">por unidades</span>
+            <span style="font-size:.7rem;font-weight:400;color:var(--texto-muted);text-transform:none;letter-spacing:0;margin-left:auto;">por unidades</span>
           </div>
-          <div style="position:relative; height:300px;">
+          <div style="position:relative;height:300px;">
             <canvas id="avChartProductos"></canvas>
           </div>
         </div>
 
         <!-- Gráfico 3: Ventas por categoría -->
-        <div style="background:rgba(255,255,255,.03); border:1px solid var(--azul-borde);
-                    border-radius:10px; padding:16px;
-                    display:flex; flex-direction:column; align-items:center;">
-          <div style="font-size:.75rem; font-weight:700; letter-spacing:.6px;
-                      text-transform:uppercase; color:#7F77DD; margin-bottom:14px;
-                      display:flex; align-items:center; gap:8px; width:100%;">
-            <span style="width:8px;height:8px;border-radius:50%;
-                         background:#7F77DD;display:inline-block;"></span>
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--azul-borde);border-radius:10px;padding:16px;display:flex;flex-direction:column;align-items:center;">
+          <div style="font-size:.75rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#7F77DD;margin-bottom:14px;display:flex;align-items:center;gap:8px;width:100%;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#7F77DD;display:inline-block;"></span>
             Ventas por categoría
-            <span style="font-size:.7rem; font-weight:400; color:var(--texto-muted);
-                         text-transform:none; letter-spacing:0; margin-left:auto;">por monto total</span>
+            <span style="font-size:.7rem;font-weight:400;color:var(--texto-muted);text-transform:none;letter-spacing:0;margin-left:auto;">por monto total</span>
           </div>
-          <div style="position:relative; height:280px; width:100%; max-width:420px;">
+          <div style="position:relative;height:280px;width:100%;max-width:420px;">
             <canvas id="avChartCategorias"></canvas>
           </div>
         </div>
 
-      </div>
+      </div><!-- /modal-body -->
 
       <!-- FOOTER -->
       <div class="modal-footer cys-modal__footer">
-        <div style="font-size:.72rem; color:var(--texto-muted); margin-right:auto;">
+        <div style="font-size:.72rem;color:var(--texto-muted);margin-right:auto;">
           <i class="bi bi-calendar3" style="margin-right:3px;"></i>
           Generado: <span class="cys-meta-fecha" style="color:#E8834A;"></span>
         </div>
-        <button class="cys-btn-export"
-                onclick="exportarPDF('modalAnalisisVentas','analisis_ventas_cys')">
+        <button class="cys-btn-export" onclick="exportarPDF('modalAnalisisVentas','analisis_ventas_cys')">
           ⬇ Exportar PDF
         </button>
->>>>>>> Stashed changes
       </div>
 
     </div>
   </div>
-</div>
+</div><!-- /modalAnalisisVentas -->
+
 
 {% endblock %}
- 
+
 {% block extra_js %}
 <script>
 /* ══════════════════════════════════════════════
@@ -1277,29 +879,24 @@ function actualizarContador(tablaId, contadorId, emptyId, selector) {
   const emptyEl = document.getElementById(emptyId);
   if (!tbody) return;
 
-  const filas     = [...tbody.querySelectorAll(selector || 'tr[data-estado], tr[data-fecha]')];
-  const total     = filas.length;
-  const visibles  = filas.filter(r => r.style.display !== 'none').length;
-  const contEl    = document.getElementById(contadorId);
+  const filas    = [...tbody.querySelectorAll(selector || 'tr[data-estado], tr[data-fecha]')];
+  const total    = filas.length;
+  const visibles = filas.filter(r => r.style.display !== 'none').length;
+  const contEl   = document.getElementById(contadorId);
 
   if (contEl) {
-    if (total === 0) {
-      contEl.textContent = '';
-    } else if (visibles === total) {
-      contEl.textContent = `Mostrando ${total} de ${total}`;
-    } else {
-      contEl.textContent = `Mostrando ${visibles} de ${total}`;
-    }
+    if (total === 0) contEl.textContent = '';
+    else if (visibles === total) contEl.textContent = `Mostrando ${total} de ${total}`;
+    else contEl.textContent = `Mostrando ${visibles} de ${total}`;
   }
 
   if (emptyEl) {
-    const hayFilasOriginales = filas.length > 0;
-    emptyEl.style.display = (hayFilasOriginales && visibles === 0) ? 'block' : 'none';
+    emptyEl.style.display = (filas.length > 0 && visibles === 0) ? 'block' : 'none';
   }
 }
 
 /* ══════════════════════════════════════════════
-   INVENTARIO — filtro productos
+   INVENTARIO
 ══════════════════════════════════════════════ */
 function filtrarInventario() {
   const q      = document.getElementById('invSearch').value.toLowerCase();
@@ -1323,9 +920,6 @@ function filtrarInventario() {
   });
 }
 
-/* ══════════════════════════════════════════════
-   INVENTARIO — filtro entradas/salidas
-══════════════════════════════════════════════ */
 function filtrarMovimientosInventario() {
   const inicio   = parseISO(document.getElementById('invFechaInicio').value);
   const fin      = parseISO(document.getElementById('invFechaFin').value);
@@ -1353,10 +947,10 @@ function limpiarFiltrosInv() {
 }
 
 /* ══════════════════════════════════════════════
-   PROVEEDORES — filtro por texto
+   PROVEEDORES
 ══════════════════════════════════════════════ */
 function filtrarProveedores() {
-  const q = document.getElementById('provSearch').value.toLowerCase();
+  const q     = document.getElementById('provSearch').value.toLowerCase();
   const filas = document.querySelectorAll('#provTable tbody tr');
   filas.forEach(fila => {
     fila.style.display = fila.innerText.toLowerCase().includes(q) ? '' : 'none';
@@ -1376,7 +970,7 @@ function filtrarProveedores() {
 }
 
 /* ══════════════════════════════════════════════
-   RESUMEN DIARIO — filtro por fecha + producto
+   RESUMEN DIARIO
 ══════════════════════════════════════════════ */
 function filtrarResumenDiario() {
   const inicio   = parseISO(document.getElementById('rdFechaInicio').value);
@@ -1397,11 +991,11 @@ function filtrarResumenDiario() {
   actualizarContador('rdTablaEntradas', 'rd-cont-entradas', 'rd-empty-entradas', 'tr[data-fecha]');
   actualizarContador('rdTablaSalidas',  'rd-cont-salidas',  'rd-empty-salidas',  'tr[data-fecha]');
 
-  const fI  = document.getElementById('rdFechaInicio').value;
-  const fF  = document.getElementById('rdFechaFin').value;
+  const fI = document.getElementById('rdFechaInicio').value;
+  const fF = document.getElementById('rdFechaFin').value;
   const partes = [];
-  if (fI || fF)    partes.push(`Período: ${fI||'…'} → ${fF||'…'}`);
-  if (producto)    partes.push(`Producto: "${producto}"`);
+  if (fI || fF) partes.push(`Período: ${fI||'…'} → ${fF||'…'}`);
+  if (producto) partes.push(`Producto: "${producto}"`);
   const txt = partes.length ? partes.join(' · ') : 'Ninguno';
 
   const totalV = [...document.querySelectorAll('#rdTablaVentas tbody tr[data-fecha]')].filter(r => r.style.display !== 'none').length;
@@ -1424,9 +1018,7 @@ function limpiarFiltrosRD() {
 }
 
 /* ══════════════════════════════════════════════
-   SCRUM-235 · GESTIÓN DE REPORTES GENERADOS
-   Persiste en localStorage bajo la clave
-   "cys_reportes_generados"
+   REPORTES GENERADOS (localStorage)
 ══════════════════════════════════════════════ */
 const RG_KEY = 'cys_reportes_generados';
 
@@ -1439,11 +1031,6 @@ function rgGuardar(lista) {
   localStorage.setItem(RG_KEY, JSON.stringify(lista));
 }
 
-/**
- * Registra un nuevo reporte en el historial.
- * @param {string} tipo       - 'inventario' | 'proveedores' | 'diario'
- * @param {string} nombreVista - Etiqueta legible, ej. "Inventario completo"
- */
 function rgRegistrar(tipo, nombreVista) {
   const lista = rgCargar();
   const ahora = new Date();
@@ -1455,98 +1042,63 @@ function rgRegistrar(tipo, nombreVista) {
     hora:   ahora.toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' }),
     iso:    ahora.toISOString(),
   });
-  // Máximo 50 registros
   if (lista.length > 50) lista.splice(50);
   rgGuardar(lista);
   rgRenderizar();
 }
 
-/* Mapa de configuración visual por tipo */
 const RG_CONFIG = {
-  inventario: {
-    iconClass: 'cys-rg-item__icon--inv',
-    chipClass:  'cys-rg-item__chip--inv',
-    icon:       'bi-box-seam',
-    label:      'Inventario',
-  },
-  proveedores: {
-    iconClass: 'cys-rg-item__icon--prov',
-    chipClass:  'cys-rg-item__chip--prov',
-    icon:       'bi-truck',
-    label:      'Proveedores',
-  },
-  diario: {
-    iconClass: 'cys-rg-item__icon--diario',
-    chipClass:  'cys-rg-item__chip--diario',
-    icon:       'bi-calendar-day',
-    label:      'Diario',
-  },
+  inventario:  { iconClass:'cys-rg-item__icon--inv',    chipClass:'cys-rg-item__chip--inv',    icon:'bi-box-seam',    label:'Inventario' },
+  proveedores: { iconClass:'cys-rg-item__icon--prov',   chipClass:'cys-rg-item__chip--prov',   icon:'bi-truck',       label:'Proveedores' },
+  diario:      { iconClass:'cys-rg-item__icon--diario', chipClass:'cys-rg-item__chip--diario', icon:'bi-calendar-day',label:'Diario' },
 };
 
-/* SCRUM-235 · renderiza la lista visible */
 function rgRenderizar(listaFiltrada) {
-  const lista = listaFiltrada !== undefined ? listaFiltrada : rgCargar();
-  const todas = rgCargar();
-
+  const lista  = listaFiltrada !== undefined ? listaFiltrada : rgCargar();
+  const todas  = rgCargar();
   const listEl  = document.getElementById('rgList');
   const emptyEl = document.getElementById('rgEmpty');
   const badge   = document.getElementById('rgBadgeCount');
 
-  // Actualizar badge con total real
   badge.textContent = `${todas.length} ${todas.length === 1 ? 'reporte' : 'reportes'}`;
+  listEl.innerHTML  = '';
 
-  listEl.innerHTML = '';
-
-  if (lista.length === 0) {
-    emptyEl.style.display = 'block';
-    return;
-  }
+  if (lista.length === 0) { emptyEl.style.display = 'block'; return; }
   emptyEl.style.display = 'none';
 
   lista.forEach(rg => {
-    const cfg = RG_CONFIG[rg.tipo] || RG_CONFIG['inventario'];
+    const cfg  = RG_CONFIG[rg.tipo] || RG_CONFIG['inventario'];
     const item = document.createElement('div');
     item.className = 'cys-rg-item';
     item.setAttribute('role', 'button');
     item.setAttribute('tabindex', '0');
     item.dataset.id = rg.id;
     item.innerHTML = `
-      <div class="cys-rg-item__icon ${cfg.iconClass}">
-        <i class="bi ${cfg.icon}"></i>
-      </div>
+      <div class="cys-rg-item__icon ${cfg.iconClass}"><i class="bi ${cfg.icon}"></i></div>
       <span class="cys-rg-item__name">${rg.nombre}</span>
       <span class="cys-rg-item__date">${rg.fecha} ${rg.hora}</span>
       <span class="cys-rg-item__chip ${cfg.chipClass}">${cfg.label}</span>
     `;
-    /* SCRUM-237 · clic abre modal de detalle */
-    item.addEventListener('click', () => rgMostrarDetalle(rg));
-    item.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') rgMostrarDetalle(rg);
-    });
+    item.addEventListener('click',   () => rgMostrarDetalle(rg));
+    item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') rgMostrarDetalle(rg); });
     listEl.appendChild(item);
   });
 }
 
-/* SCRUM-239 · filtra la lista según búsqueda y tipo */
 function filtrarReportesGenerados() {
   const q    = document.getElementById('rgSearch').value.toLowerCase().trim();
   const tipo = document.getElementById('rgTipo').value;
   const todas = rgCargar();
-
   const filtradas = todas.filter(rg => {
     const matchQ    = q === '' || rg.nombre.toLowerCase().includes(q) || rg.tipo.includes(q);
     const matchTipo = tipo === '' || rg.tipo === tipo;
     return matchQ && matchTipo;
   });
-
   rgRenderizar(filtradas);
 }
 
-/* SCRUM-237 · abre modal con detalles del reporte */
 function rgMostrarDetalle(rg) {
   const cfg = RG_CONFIG[rg.tipo] || RG_CONFIG['inventario'];
-
-  // Header color según tipo
   const headerColors = {
     inventario:  'linear-gradient(135deg,#0A1F33,#0D3353)',
     proveedores: 'linear-gradient(135deg,#085041,#0F6E56)',
@@ -1558,27 +1110,25 @@ function rgMostrarDetalle(rg) {
     diario:      '#AFA9EC',
   };
 
-  document.getElementById('detHeader').style.background      = headerColors[rg.tipo] || headerColors.inventario;
-  document.getElementById('detIconWrap').style.background    = `rgba(77,168,218,.2)`;
-  document.getElementById('detIcon').className               = `bi ${cfg.icon}`;
-  document.getElementById('detIcon').style.color             = accentColors[rg.tipo];
-  document.getElementById('detTitulo').textContent           = rg.nombre;
-  document.getElementById('detSubtitulo').textContent        = `CYS Ltda · ${cfg.label}`;
-  document.getElementById('detTipo').textContent             = cfg.label;
-  document.getElementById('detNombre').textContent           = `${rg.nombre.toLowerCase().replace(/ /g,'_')}_cys.pdf`;
-  document.getElementById('detFecha').textContent            = rg.fecha;
-  document.getElementById('detHora').textContent             = rg.hora;
-  document.getElementById('detTipo').style.color             = accentColors[rg.tipo];
+  document.getElementById('detHeader').style.background   = headerColors[rg.tipo] || headerColors.inventario;
+  document.getElementById('detIconWrap').style.background = 'rgba(77,168,218,.2)';
+  document.getElementById('detIcon').className            = `bi ${cfg.icon}`;
+  document.getElementById('detIcon').style.color          = accentColors[rg.tipo];
+  document.getElementById('detTitulo').textContent        = rg.nombre;
+  document.getElementById('detSubtitulo').textContent     = `CYS Ltda · ${cfg.label}`;
+  document.getElementById('detTipo').textContent          = cfg.label;
+  document.getElementById('detNombre').textContent        = `${rg.nombre.toLowerCase().replace(/ /g,'_')}_cys.pdf`;
+  document.getElementById('detFecha').textContent         = rg.fecha;
+  document.getElementById('detHora').textContent          = rg.hora;
+  document.getElementById('detTipo').style.color          = accentColors[rg.tipo];
 
-  const modal = new bootstrap.Modal(document.getElementById('modalDetalleReporte'));
-  modal.show();
+  new bootstrap.Modal(document.getElementById('modalDetalleReporte')).show();
 }
 
-// Inicializar al cargar la página
 document.addEventListener('DOMContentLoaded', () => rgRenderizar());
 
 /* ══════════════════════════════════════════════
-   EXPORTAR PDF  (actualizado para registrar)
+   EXPORTAR PDF
 ══════════════════════════════════════════════ */
 async function exportarPDF(modalId, nombreArchivo, tipoReporte, nombreVista) {
   const { jsPDF } = window.jspdf;
@@ -1606,23 +1156,17 @@ async function exportarPDF(modalId, nombreArchivo, tipoReporte, nombreVista) {
   const modalBody = document.querySelector(`#${modalId} .modal-body`);
   const prevBodyMaxHeight = modalBody ? modalBody.style.maxHeight : null;
   const prevBodyOverflow  = modalBody ? modalBody.style.overflowY : null;
-  if (modalBody) {
-    modalBody.style.maxHeight = 'none';
-    modalBody.style.overflowY = 'visible';
-  }
+  if (modalBody) { modalBody.style.maxHeight = 'none'; modalBody.style.overflowY = 'visible'; }
 
   await new Promise(r => setTimeout(r, 300));
 
   const canvas = await html2canvas(modalContent, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: '#0D1B2A',
-    scrollX: 0,
-    scrollY: 0,
+    scale: 2, useCORS: true, backgroundColor: '#0D1B2A',
+    scrollX: 0, scrollY: 0,
     windowWidth:  modalContent.scrollWidth,
     windowHeight: modalContent.scrollHeight,
-    height:       modalContent.scrollHeight,
-    width:        modalContent.scrollWidth,
+    height: modalContent.scrollHeight,
+    width:  modalContent.scrollWidth,
   });
 
   if (footer)  footer.style.display  = '';
@@ -1637,16 +1181,13 @@ async function exportarPDF(modalId, nombreArchivo, tipoReporte, nombreVista) {
   }
 
   const imgData = canvas.toDataURL('image/png');
-  const pdf     = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pdf     = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const pageW   = pdf.internal.pageSize.getWidth();
+  const pageH   = pdf.internal.pageSize.getHeight();
+  const imgW    = pageW;
+  const imgH    = (canvas.height * imgW) / canvas.width;
 
-  const pageW = pdf.internal.pageSize.getWidth();
-  const pageH = pdf.internal.pageSize.getHeight();
-  const imgW  = pageW;
-  const imgH  = (canvas.height * imgW) / canvas.width;
-
-  let posY      = 0;
-  let remaining = imgH;
-
+  let posY = 0, remaining = imgH;
   while (remaining > 0) {
     pdf.addImage(imgData, 'PNG', 0, posY === 0 ? 0 : -posY, imgW, imgH);
     remaining -= pageH;
@@ -1656,14 +1197,11 @@ async function exportarPDF(modalId, nombreArchivo, tipoReporte, nombreVista) {
 
   pdf.save(`${nombreArchivo}.pdf`);
 
-  /* ── SCRUM-235 · registrar en historial tras exportar ── */
-  if (tipoReporte && nombreVista) {
-    rgRegistrar(tipoReporte, nombreVista);
-  }
+  if (tipoReporte && nombreVista) rgRegistrar(tipoReporte, nombreVista);
 }
 
 /* ══════════════════════════════════════════════
-   ✅ ANÁLISIS DE VENTAS — Chart.js
+   ANÁLISIS DE VENTAS — Chart.js
 ══════════════════════════════════════════════ */
 const AV_DATA = JSON.parse('{{ ventas_json|escapejs }}');
 
@@ -1673,52 +1211,43 @@ const AV_COLORS = [
   '#60C0E0','#F09060'
 ];
 
-let avChartFecha      = null;
-let avChartProductos  = null;
+let avChartFecha     = null;
+let avChartProductos = null;
 let avChartCategorias = null;
 
-/* Poblar select de categorías */
 (function poblarCategorias() {
   const cats = [...new Set(AV_DATA.map(d => d.categoria))].sort();
   const sel  = document.getElementById('avCategoria');
   cats.forEach(c => {
-    const opt       = document.createElement('option');
-    opt.value       = c;
-    opt.textContent = c;
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
     sel.appendChild(opt);
   });
 })();
 
-/* Filtrar data según controles del modal */
 function avDatosFiltrados() {
   const inicio    = document.getElementById('avFechaInicio').value;
   const fin       = document.getElementById('avFechaFin').value;
   const categoria = document.getElementById('avCategoria').value;
   return AV_DATA.filter(d => {
-    if (inicio    && d.fecha < inicio)         return false;
-    if (fin       && d.fecha > fin)            return false;
+    if (inicio    && d.fecha < inicio)          return false;
+    if (fin       && d.fecha > fin)             return false;
     if (categoria && d.categoria !== categoria) return false;
     return true;
   });
 }
 
-/* Renderizar / actualizar los 3 gráficos */
 function renderAnalisis() {
   const data = avDatosFiltrados();
 
-  /* — stat cards — */
   const totalMonto = data.reduce((s, d) => s + d.subtotal, 0);
 
   const porProducto = {};
-  data.forEach(d => {
-    porProducto[d.producto] = (porProducto[d.producto] || 0) + d.cantidad;
-  });
+  data.forEach(d => { porProducto[d.producto] = (porProducto[d.producto] || 0) + d.cantidad; });
   const topProd = Object.entries(porProducto).sort((a,b) => b[1]-a[1])[0];
 
   const porCat = {};
-  data.forEach(d => {
-    porCat[d.categoria] = (porCat[d.categoria] || 0) + d.subtotal;
-  });
+  data.forEach(d => { porCat[d.categoria] = (porCat[d.categoria] || 0) + d.subtotal; });
   const topCat = Object.entries(porCat).sort((a,b) => b[1]-a[1])[0];
 
   document.getElementById('av-stat-total').textContent =
@@ -1728,124 +1257,86 @@ function renderAnalisis() {
   document.getElementById('av-stat-cat').textContent   = topCat  ? topCat[0]  : '—';
   document.getElementById('av-total-registros').textContent = data.length;
 
-  /* — Gráfico 1: ventas por fecha (línea) — */
+  /* Gráfico 1: línea por fecha */
   const porFecha = {};
   data.forEach(d => { porFecha[d.fecha] = (porFecha[d.fecha] || 0) + d.subtotal; });
   const fechas = Object.keys(porFecha).sort();
   const montos = fechas.map(f => porFecha[f]);
 
   if (avChartFecha) avChartFecha.destroy();
-  avChartFecha = new Chart(
-    document.getElementById('avChartFecha').getContext('2d'), {
+  avChartFecha = new Chart(document.getElementById('avChartFecha').getContext('2d'), {
     type: 'line',
     data: {
       labels: fechas,
       datasets: [{
-        label: 'Ventas ($)',
-        data:  montos,
-        borderColor:          '#E8834A',
-        backgroundColor:      'rgba(232,131,74,.12)',
-        pointBackgroundColor: '#E8834A',
-        pointRadius: 4,
-        tension: 0.35,
-        fill: true,
+        label: 'Ventas ($)', data: montos,
+        borderColor: '#E8834A', backgroundColor: 'rgba(232,131,74,.12)',
+        pointBackgroundColor: '#E8834A', pointRadius: 4, tension: 0.35, fill: true,
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => ' $' + ctx.parsed.y.toLocaleString('es-CO', {maximumFractionDigits:0})
-          }
-        }
+        tooltip: { callbacks: { label: ctx => ' $' + ctx.parsed.y.toLocaleString('es-CO',{maximumFractionDigits:0}) } }
       },
       scales: {
-        x: {
-          ticks: { color:'#8FA3B1', font:{size:10}, maxRotation:45 },
-          grid:  { color:'rgba(255,255,255,.05)' }
-        },
-        y: {
-          ticks: {
-            color:'#8FA3B1', font:{size:10},
-            callback: v => '$' + v.toLocaleString('es-CO', {maximumFractionDigits:0})
-          },
-          grid: { color:'rgba(255,255,255,.05)' }
-        }
+        x: { ticks: { color:'#8FA3B1', font:{size:10}, maxRotation:45 }, grid: { color:'rgba(255,255,255,.05)' } },
+        y: { ticks: { color:'#8FA3B1', font:{size:10}, callback: v => '$' + v.toLocaleString('es-CO',{maximumFractionDigits:0}) }, grid: { color:'rgba(255,255,255,.05)' } }
       }
     }
   });
 
-  /* — Gráfico 2: top 10 productos (barras horizontales) — */
+  /* Gráfico 2: barras horizontales top 10 */
   const top10      = Object.entries(porProducto).sort((a,b) => b[1]-a[1]).slice(0,10);
   const prodLabels = top10.map(x => x[0]);
   const prodVals   = top10.map(x => x[1]);
 
   if (avChartProductos) avChartProductos.destroy();
-  avChartProductos = new Chart(
-    document.getElementById('avChartProductos').getContext('2d'), {
+  avChartProductos = new Chart(document.getElementById('avChartProductos').getContext('2d'), {
     type: 'bar',
     data: {
       labels: prodLabels,
       datasets: [{
-        label: 'Unidades vendidas',
-        data:  prodVals,
+        label: 'Unidades vendidas', data: prodVals,
         backgroundColor: prodLabels.map((_,i) => AV_COLORS[i % AV_COLORS.length] + 'CC'),
         borderColor:     prodLabels.map((_,i) => AV_COLORS[i % AV_COLORS.length]),
-        borderWidth: 1,
-        borderRadius: 4,
+        borderWidth: 1, borderRadius: 4,
       }]
     },
     options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
         tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x} unidades` } }
       },
       scales: {
-        x: {
-          ticks: { color:'#8FA3B1', font:{size:10} },
-          grid:  { color:'rgba(255,255,255,.05)' }
-        },
-        y: {
-          ticks: { color:'#C8D8E4', font:{size:10} },
-          grid:  { display:false }
-        }
+        x: { ticks: { color:'#8FA3B1', font:{size:10} }, grid: { color:'rgba(255,255,255,.05)' } },
+        y: { ticks: { color:'#C8D8E4', font:{size:10} }, grid: { display:false } }
       }
     }
   });
 
-  /* — Gráfico 3: ventas por categoría (dona) — */
+  /* Gráfico 3: dona por categoría */
   const catLabels = Object.keys(porCat);
   const catVals   = catLabels.map(c => porCat[c]);
 
   if (avChartCategorias) avChartCategorias.destroy();
-  avChartCategorias = new Chart(
-    document.getElementById('avChartCategorias').getContext('2d'), {
+  avChartCategorias = new Chart(document.getElementById('avChartCategorias').getContext('2d'), {
     type: 'doughnut',
     data: {
       labels: catLabels,
       datasets: [{
-        data:            catVals,
+        data: catVals,
         backgroundColor: catLabels.map((_,i) => AV_COLORS[i % AV_COLORS.length] + 'CC'),
         borderColor:     catLabels.map((_,i) => AV_COLORS[i % AV_COLORS.length]),
-        borderWidth: 2,
-        hoverOffset: 8,
+        borderWidth: 2, hoverOffset: 8,
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '62%',
+      responsive: true, maintainAspectRatio: false, cutout: '62%',
       plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color:'#8FA3B1', font:{size:11}, padding:14, boxWidth:12, boxHeight:12 }
-        },
+        legend: { position:'bottom', labels: { color:'#8FA3B1', font:{size:11}, padding:14, boxWidth:12, boxHeight:12 } },
         tooltip: {
           callbacks: {
             label: ctx => {
@@ -1861,7 +1352,7 @@ function renderAnalisis() {
   });
 }
 
-/* Inicializar cuando se abre el modal */
+/* Inicializar al abrir el modal */
 document.getElementById('modalAnalisisVentas')
   .addEventListener('shown.bs.modal', () => {
     rellenarFechaGeneracion();
