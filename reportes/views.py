@@ -36,9 +36,9 @@ def reportes(request):
         ).distinct()
 
     # ── Paginación: 10 ventas por página ──────────────────────────────────
-    paginator    = Paginator(ventas_qs, 10)
-    page_number  = request.GET.get('page', 1)
-    page_obj     = paginator.get_page(page_number)
+    paginator   = Paginator(ventas_qs, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj    = paginator.get_page(page_number)
 
     # Para las tarjetas resumen usamos el queryset completo (sin paginar)
     ventas_todas = ventas_qs
@@ -102,6 +102,10 @@ def reportes(request):
         reverse=True
     )[:5]
 
+    # ── JSON para gráficas ────────────────────────────────────────────────
+    # ✅ CORRECCIÓN: se reemplaza </script> por <\/script> para que el
+    #    bloque <script type="application/json"> no se cierre prematuramente
+    #    si algún nombre de producto/cliente contiene esa cadena.
     ventas_data = []
     for v in ventas_todas:
         for det in v.detalles.all():
@@ -122,11 +126,16 @@ def reportes(request):
                 "descuento":       float(v.descuento_porcentaje),
                 "total_venta":     float(v.total_venta),
             })
-    ventas_json = json.dumps(ventas_data, cls=DjangoJSONEncoder)
+
+    ventas_json = (
+        json.dumps(ventas_data, cls=DjangoJSONEncoder)
+        .replace('</script>', r'<\/script>')   # ✅ evita romper el bloque
+        .replace('<!--',      r'<\!--')         # ✅ evita comentarios HTML
+    )
 
     return render(request, 'reportes.html', {
         # Historial paginado
-        'ventas':             page_obj,          # ahora es page_obj
+        'ventas':             page_obj,
         'page_obj':           page_obj,
         'paginator':          paginator,
 
