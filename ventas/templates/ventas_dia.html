@@ -81,6 +81,24 @@
     background: rgba(77,168,218,.05);
 }
  
+/* ── Separador de día ── */
+.vd-separador-dia td {
+    background: rgba(77,168,218,.08) !important;
+    border-top: 2px solid var(--azul-claro) !important;
+    border-bottom: 2px solid var(--azul-claro) !important;
+    text-align: center;
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--azul-claro);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: .5rem !important;
+    cursor: default !important;
+}
+.vd-separador-dia:hover {
+    background: transparent !important;
+}
+ 
 /* ── Badge método pago ── */
 .vd-badge {
     display: inline-flex;
@@ -92,6 +110,21 @@
     padding: .15rem .55rem;
     font-size: .7rem;
     color: var(--texto-muted);
+    white-space: nowrap;
+}
+ 
+/* ── Badge método caja ── */
+.vd-badge-metodo {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: rgba(77,168,218,.15);
+    border: 1px solid var(--azul-claro);
+    border-radius: 20px;
+    padding: .3rem .8rem;
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--azul-claro);
     white-space: nowrap;
 }
  
@@ -127,6 +160,7 @@
     .cys-header, .cys-subnav, aside, .cys-main > .no-print { display: none !important; }
     body { background: #fff !important; color: #000 !important; }
     .cys-card { border: 1px solid #ccc !important; }
+    .vd-separador-dia { display: none !important; }
 }
 </style>
 {% endblock %}
@@ -172,13 +206,36 @@
         <div class="vd-stat__sub">ingresos acumulados</div>
       </div>
     </div>
+ 
+    <!-- ── TARJETA 3: Método de pago en caja (reemplaza Ticket Promedio) ── -->
     <div class="col-6 col-lg-3">
       <div class="vd-stat">
-        <div class="vd-stat__label"><i class="bi bi-graph-up me-1"></i>Ticket promedio</div>
-        <div class="vd-stat__val" style="font-size:1.3rem;" id="ticketPromedio">—</div>
-        <div class="vd-stat__sub">por venta</div>
+        <div class="vd-stat__label"><i class="bi bi-wallet2 me-1"></i>Método en caja</div>
+        <div class="vd-stat__val" style="font-size:1rem; padding-top:.3rem;" id="metodoCaja">
+          {% if apertura_caja and apertura_caja.metodo_pago %}
+            <span class="vd-badge-metodo">
+              {% if apertura_caja.metodo_pago == 'efectivo' %}<i class="bi bi-cash"></i> Efectivo
+              {% elif apertura_caja.metodo_pago == 'tarjeta' %}<i class="bi bi-credit-card"></i> Tarjeta
+              {% elif apertura_caja.metodo_pago == 'transferencia' %}<i class="bi bi-bank"></i> Transferencia
+              {% elif apertura_caja.metodo_pago == 'nequi' %}<i class="bi bi-phone"></i> Nequi
+              {% elif apertura_caja.metodo_pago == 'daviplata' %}<i class="bi bi-phone"></i> Daviplata
+              {% else %}{{ apertura_caja.metodo_pago }}
+              {% endif %}
+            </span>
+          {% else %}
+            <span style="color:var(--texto-muted); font-size:.85rem;">Sin registro</span>
+          {% endif %}
+        </div>
+        <div class="vd-stat__sub">
+          {% if apertura_caja and apertura_caja.monto_base %}
+            Base: ${{ apertura_caja.monto_base|floatformat:0 }}
+          {% else %}
+            seleccionado al abrir caja
+          {% endif %}
+        </div>
       </div>
     </div>
+ 
     <div class="col-6 col-lg-3">
       <div class="vd-stat">
         <div class="vd-stat__label"><i class="bi bi-box-seam me-1"></i>Productos vendidos</div>
@@ -208,7 +265,16 @@
         </thead>
         <tbody>
           {% for venta in ventas %}
-          <tr onclick="abrirDetalle({{ venta.pk }})">
+ 
+          {# ── Separador visual entre días distintos ── #}
+          {% if not forloop.first %}
+            {% with fecha_actual=venta.fecha|date:"d/m/Y" fecha_anterior=ventas|slice:forloop.counter0 %}
+              {# Usamos el tag custom en JS para comparar, pero también intentamos con el filtro slice #}
+            {% endwith %}
+          {% endif %}
+ 
+          <tr onclick="abrirDetalle({{ venta.pk }})"
+              data-fecha="{{ venta.fecha|date:'d/m/Y' }}">
             <td style="color:var(--texto-muted); font-size:.75rem;">{{ forloop.counter }}</td>
             <td style="color:var(--texto-muted);">{{ venta.fecha|date:"H:i" }}</td>
             <td style="font-weight:700;">{{ venta.cliente }}</td>
@@ -268,6 +334,7 @@
        data-cliente="{{ venta.cliente }}"
        data-fecha="{{ venta.fecha|date:'d/m/Y H:i' }}"
        data-hora="{{ venta.fecha|date:'H:i' }}"
+       data-fecha-dia="{{ venta.fecha|date:'d/m/Y' }}"
        data-descuento="{{ venta.descuento_porcentaje }}"
        data-total="{{ venta.total_venta }}"
        data-efectivo="{{ venta.pago_efectivo }}"
@@ -311,7 +378,7 @@ function formatPesos(val) {
     return n.toLocaleString('es-CO');
 }
  
-// ── Calcular stats ────────────────────────────────────────────
+// ── Calcular stats + Separadores de día ──────────────────────
 document.addEventListener('DOMContentLoaded', function() {
     const ventas = Array.from(document.querySelectorAll('.dato-venta'));
     if (ventas.length === 0) return;
@@ -326,9 +393,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
  
-    const promedio = ventas.length > 0 ? totalDia / ventas.length : 0;
-    document.getElementById('ticketPromedio').textContent = '$' + formatPesos(promedio);
     document.getElementById('totalProductos').textContent = totalProductos;
+ 
+    // ── Insertar separadores visuales entre días distintos ──
+    const filas = Array.from(document.querySelectorAll('#tablaVentas tbody tr'));
+    let fechaAnterior = null;
+ 
+    filas.forEach(fila => {
+        const fechaActual = fila.dataset.fecha;
+        if (!fechaActual) return; // saltar si es una fila sin fecha (separador ya insertado)
+ 
+        if (fechaAnterior !== null && fechaActual !== fechaAnterior) {
+            // Crear fila separadora
+            const sep = document.createElement('tr');
+            sep.className = 'vd-separador-dia no-print';
+            sep.setAttribute('onclick', ''); // sin acción al hacer click
+ 
+            // Convertir "dd/mm/yyyy" a texto legible
+            const partes = fechaActual.split('/');
+            const meses = ['enero','febrero','marzo','abril','mayo','junio',
+                           'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+            const fechaTexto = `${parseInt(partes[0])} de ${meses[parseInt(partes[1])-1]} de ${partes[2]}`;
+ 
+            sep.innerHTML = `<td colspan="7">
+                <i class="bi bi-calendar3 me-2"></i>${fechaTexto}
+            </td>`;
+ 
+            // Insertar ANTES de la fila actual
+            fila.parentNode.insertBefore(sep, fila);
+        }
+ 
+        fechaAnterior = fechaActual;
+    });
 });
  
 // ── Modal detalle ─────────────────────────────────────────────
@@ -421,13 +517,13 @@ function exportarCSV() {
     const ventas = Array.from(document.querySelectorAll('.dato-venta'));
     if (ventas.length === 0) { alert('No hay ventas para exportar.'); return; }
  
-    let csv = 'Hora,Cliente,Productos,Descuento (%),Total ($)\n';
+    let csv = 'Fecha,Hora,Cliente,Productos,Descuento (%),Total ($)\n';
     ventas.forEach(v => {
         const productos = Array.from(v.querySelectorAll('.dato-detalle')).map(d => {
             const pres = d.dataset.presentacion ? ' (' + d.dataset.presentacion + ')' : '';
             return d.dataset.nombre + pres + ' x' + d.dataset.cantidad;
         }).join(' | ');
-        csv += `${v.dataset.hora},"${v.dataset.cliente}","${productos}",${v.dataset.descuento},${v.dataset.total}\n`;
+        csv += `${v.dataset.fechaDia},${v.dataset.hora},"${v.dataset.cliente}","${productos}",${v.dataset.descuento},${v.dataset.total}\n`;
     });
  
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
