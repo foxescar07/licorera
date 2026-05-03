@@ -156,8 +156,6 @@ def guardar_codigo_barras(request, pk):
 
 # ══════════════════════════════════════════════════════
 # GESTIÓN DE PRODUCTOS
-# La creación de productos se delega a producto:crear_producto.
-# Esta vista solo renderiza la página y provee el contexto.
 # ══════════════════════════════════════════════════════
 def gestion_productos(request):
     productos_qs = Producto.objects.select_related('categoria').prefetch_related('presentaciones', 'lotes').all()
@@ -203,7 +201,6 @@ def gestion_salida(request):
         cantidad_raw    = request.POST.get('cantidad', '')
         motivo          = request.POST.get('motivo', '').strip()
         lote_id         = request.POST.get('lote_id') or None
-        
 
         try:
             cantidad = int(cantidad_raw)
@@ -216,10 +213,9 @@ def gestion_salida(request):
         if not motivo:
             messages.error(request, '⚠️ Debes indicar el motivo de la salida.')
             return redirect('inventario:gestion_productos')
-        
-          # ── SCRUM-259: bloquear salida si el lote está vencido ──
+
+        # ── SCRUM-259: bloquear salida si el lote está vencido ──
         if lote_id:
-            from django.utils import timezone
             lote = get_object_or_404(Lote, pk=lote_id)
             if lote.fecha_vencimiento and lote.fecha_vencimiento < timezone.now().date():
                 messages.error(request, f'🚫 El lote "{lote.numero_lote}" está vencido desde el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}. No se puede registrar la salida.')
@@ -262,60 +258,93 @@ def gestion_salida(request):
 def gestion_producto_editar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == "POST":
+        cambios = []
+
         nombre       = request.POST.get('nombre', '').strip()
         codigo       = request.POST.get('codigo', '').strip()
         descripcion  = request.POST.get('descripcion', '').strip()
         categoria_pk = request.POST.get('categoria')
         precio_raw   = request.POST.get('precio_unitario', '').strip()
 
+        # ── Nombre ──
+        if nombre and nombre != producto.nombre:
+            cambios.append(f'📝 Nombre: "{producto.nombre}" → "{nombre}"')
         if nombre:
             producto.nombre = nombre
+
+        # ── Código ──
+        if codigo and codigo != producto.codigo:
+            cambios.append(f'🔖 Código: {producto.codigo} → {codigo}')
         if codigo:
             producto.codigo = codigo
+
+        # ── Descripción ──
+        if descripcion != (producto.descripcion or ''):
+            cambios.append('📄 Descripción actualizada')
         producto.descripcion = descripcion
 
+        # ── Categoría ──
         if categoria_pk:
             try:
-                producto.categoria_id = int(categoria_pk)
-            except (ValueError, TypeError):
+                nueva_cat_id = int(categoria_pk)
+                if nueva_cat_id != producto.categoria_id:
+                    nueva_cat = Categoria.objects.get(pk=nueva_cat_id)
+                    cambios.append(f'🏷️ Categoría: "{producto.categoria.nombre}" → "{nueva_cat.nombre}"')
+                producto.categoria_id = nueva_cat_id
+            except (ValueError, TypeError, Categoria.DoesNotExist):
                 pass
 
+        # ── Precio base ──
         if precio_raw:
             try:
-                producto.precio_unitario = max(0, float(precio_raw))
+                nuevo_precio = max(0, float(precio_raw))
+                if nuevo_precio != float(producto.precio_unitario or 0):
+                    cambios.append(f'💲 Precio base: ${int(producto.precio_unitario or 0):,} → ${int(nuevo_precio):,}')
+                producto.precio_unitario = nuevo_precio
             except (ValueError, TypeError):
                 pass
 
         producto.save()
 
-        # ✅ Actualizar presentaciones existentes (nombre, precio, cantidad)
+        # ── Presentaciones existentes ──
         for key, valor in request.POST.items():
             if key.startswith('pres_nombre_'):
                 pres_id = key.replace('pres_nombre_', '')
                 try:
                     pres = PresentacionProducto.objects.get(pk=int(pres_id), producto=producto)
-
                     nuevo_nombre   = valor.strip()
                     nuevo_precio   = request.POST.get(f'pres_precio_{pres_id}', '').strip()
                     nueva_cantidad = request.POST.get(f'pres_cantidad_{pres_id}', '').strip()
 
-                    if nuevo_nombre:
+                    if nuevo_nombre and nuevo_nombre != pres.nombre:
+                        cambios.append(f'📦 Presentación: "{pres.nombre}" → "{nuevo_nombre}"')
                         pres.nombre = nuevo_nombre
+
                     if nuevo_precio:
                         try:
-                            pres.precio = max(0, float(nuevo_precio))
+                            np = max(0, float(nuevo_precio))
+                            if np != float(pres.precio or 0):
+                                cambios.append(f'💲 Precio "{pres.nombre}": ${int(pres.precio or 0):,} → ${int(np):,}')
+                            pres.precio = np
                         except (ValueError, TypeError):
                             pass
+
                     if nueva_cantidad:
                         try:
-                            pres.cantidad = max(0, int(nueva_cantidad))
+                            nq = max(0, int(nueva_cantidad))
+                            if nq != pres.cantidad:
+                                diff  = nq - pres.cantidad
+                                signo = f'+{diff}' if diff > 0 else str(diff)
+                                cambios.append(f'📊 Stock "{pres.nombre}": {pres.cantidad} → {nq} ({signo} uds)')
+                            pres.cantidad = nq
                         except (ValueError, TypeError):
                             pass
+
                     pres.save()
                 except PresentacionProducto.DoesNotExist:
                     pass
 
-        # ✅ Crear nuevas presentaciones agregadas desde el modal
+        # ── Nuevas presentaciones ──
         nuevos_nombres    = request.POST.getlist('nueva_pres_nombre[]')
         nuevos_precios    = request.POST.getlist('nueva_pres_precio[]')
         nuevas_cantidades = request.POST.getlist('nueva_pres_cantidad[]')
@@ -336,10 +365,17 @@ def gestion_producto_editar(request, pk):
                 nombre=nombre_pres,
                 precio=precio_pres,
                 cantidad=cantidad_pres,
-                unidades=1,  # valor por defecto para nuevas presentaciones
+                unidades=1,
             )
+            cambios.append(f'➕ Nueva presentación: "{nombre_pres}" ${int(precio_pres):,} · {cantidad_pres} uds')
 
-        messages.success(request, f'✅ Producto "{producto.nombre}" actualizado correctamente.')
+        # ── Respuesta AJAX ──
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'ok':     True,
+                'cambios': cambios if cambios else [],
+                'sin_cambios': len(cambios) == 0,
+            })
 
     return redirect('inventario:gestion_productos')
 
@@ -348,9 +384,9 @@ def gestion_producto_eliminar(request, pk):
     if request.method == 'POST':
         nombre = producto.nombre
         producto.delete()
-        messages.success(request, f'✅ Producto "{nombre}" eliminado.')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': True, 'nombre': nombre})
     return redirect('inventario:gestion_productos')
-
 
 # ══════════════════════════════════════════════════════
 # CATEGORÍAS
@@ -420,9 +456,9 @@ def gestion_categoria_eliminar(request, pk):
 # ══════════════════════════════════════════════════════
 def registrar_lote(request):
     if request.method == 'POST':
-        numero_lote = request.POST.get('numero_lote', '').strip()
-        producto_id = request.POST.get('producto')
-        fecha_vencimiento = request.POST.get('fecha_vencimiento') or None 
+        numero_lote       = request.POST.get('numero_lote', '').strip()
+        producto_id       = request.POST.get('producto')
+        fecha_vencimiento = request.POST.get('fecha_vencimiento') or None
 
         if not numero_lote:
             messages.error(request, '⚠️ El número de lote es obligatorio.')
@@ -438,7 +474,7 @@ def registrar_lote(request):
 
         producto = get_object_or_404(Producto, pk=producto_id)
 
-        Lote.objects.create(
+        lote = Lote.objects.create(
             numero_lote=numero_lote,
             producto=producto,
             fecha_vencimiento=fecha_vencimiento,
@@ -447,11 +483,10 @@ def registrar_lote(request):
 
         # Mensaje con fecha de vencimiento si fue ingresada (SCRUM-260)
         if fecha_vencimiento:
-            messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}" — vence el {Lote.fecha_vencimiento.strftime("%d/%m/%Y")}.')
+            messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}" — vence el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}.')
         else:
             messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}" (sin fecha de vencimiento).')
-        
-        messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}".')
+
         return redirect('inventario:gestion_productos')
 
     return redirect('inventario:gestion_productos')
