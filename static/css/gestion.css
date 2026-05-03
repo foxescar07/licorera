@@ -423,3 +423,91 @@
   border-bottom: 1px solid rgba(0,0,0,.1);
 }
 #gp-toast div:last-child { border-bottom: none; }
+
+/* ── MOTIVO CHIPS ────────────────────────────────────────────── */
+.gp-motivo-chip {
+  padding: .3rem .75rem;
+  border: 1px solid rgba(77,168,218,.3);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--gp-muted);
+  font-size: .75rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.gp-motivo-chip:hover {
+  background: rgba(77,168,218,.1);
+  color: var(--gp-blue);
+}
+.gp-motivo-chip.active {
+  background: rgba(77,168,218,.15);
+  color: var(--gp-blue);
+  border-color: rgba(77,168,218,.5);
+}
+
+/* ── SALIDA DROPDOWN ─────────────────────────────────────────── */
+.salida-dd-item {
+  padding: .55rem .9rem;
+  font-size: .8rem;
+  color: var(--gp-text);
+  cursor: pointer;
+  border-bottom: 1px solid rgba(77,168,218,.07);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.salida-dd-item:last-child { border-bottom: none; }
+.salida-dd-item:hover { background: rgba(77,168,218,.08); }
+.salida-dd-item__code {
+  font-size: .68rem;
+  font-family: monospace;
+  color: var(--gp-blue);
+}
+.salida-dd-item__stock {
+  font-size: .68rem;
+  color: var(--gp-muted);
+}
+
+/* ── PRODUCTO SELECCIONADO PILL ──────────────────────────────── */
+.gp-prod-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  background: rgba(77,168,218,.1);
+  border: 1px solid rgba(77,168,218,.3);
+  border-radius: 999px;
+  padding: .25rem .75rem;
+  font-size: .78rem;
+  color: var(--gp-blue);
+}
+.gp-prod-pill button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gp-blue);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  opacity: .7;
+}
+.gp-prod-pill button:hover { opacity: 1; }
+
+/* ── MOTIVO DROPDOWN ─────────────────────────────────────────── */
+.motivo-dd-item {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .55rem .9rem;
+  font-size: .8rem;
+  color: var(--gp-text);
+  cursor: pointer;
+  border-bottom: 1px solid rgba(77,168,218,.07);
+  transition: background .12s;
+  font-family: inherit;
+}
+.motivo-dd-item:last-child { border-bottom: none; }
+.motivo-dd-item:hover { background: rgba(77,168,218,.08); }
+.motivo-dd-item.muted { color: var(--gp-muted); font-style: italic; }
+.motivo-dd-item i { width: 14px; text-align: center; font-size: .8rem; flex-shrink: 0; color: var(--gp-blue); }
+.motivo-dd-divider { height: 1px; background: rgba(77,168,218,.12); margin: .2rem 0; }
