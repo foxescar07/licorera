@@ -101,7 +101,7 @@
         </a>
 
         <!-- VENTAS -->
-          <a href="{% url 'ventas:ventas_lista' %}"
+        <a href="{% url 'ventas:ventas_lista' %}"
            class="cys-sb-link cys-sb-link--parent {% block nav_ventas %}{% endblock %}"
            id="btnVentas" onclick="toggleVentas(event, this)">
           <i class="bi bi-receipt"></i> Ventas
@@ -113,14 +113,6 @@
           </a>
           <a href="{% url 'ventas:lista_devoluciones' %}" class="cys-sb-sublink {% block nav_devoluciones %}{% endblock %}">
             <i class="bi bi-arrow-return-left"></i> Devoluciones
-          </a>
-        </div>
-
-        <!-- DEVOLUCIONES -->
-    
-        <div class="cys-sb-submenu" id="submenuDevoluciones">
-          <a href="{% url 'ventas:lista_devoluciones' %}" class="cys-sb-sublink {% block nav_historial_dev %}{% endblock %}">
-            <i class="bi bi-clock-history"></i> Historial
           </a>
         </div>
 
@@ -156,7 +148,7 @@
         <div class="cys-sb-stat">
           <div>
             <div class="cys-sb-stat-label">Total productos</div>
-            <div class="cys-sb-stat-val">110</div>
+            <div class="cys-sb-stat-val">{{ sb_total_stock }}</div>
             <div class="cys-sb-stat-sub">unidades en stock</div>
           </div>
           <span class="cys-sb-dot bg-success"></span>
@@ -164,15 +156,15 @@
         <div class="cys-sb-stat">
           <div>
             <div class="cys-sb-stat-label">Stock crítico</div>
-            <div class="cys-sb-stat-val">1</div>
-            <div class="cys-sb-stat-sub">producto por reponer</div>
+            <div class="cys-sb-stat-val">{{ sb_stock_criticos }}</div>
+            <div class="cys-sb-stat-sub">producto{{ sb_stock_criticos|pluralize }} por reponer</div>
           </div>
           <span class="cys-sb-dot bg-danger"></span>
         </div>
         <div class="cys-sb-stat">
           <div>
             <div class="cys-sb-stat-label">Categorías</div>
-            <div class="cys-sb-stat-val">4</div>
+            <div class="cys-sb-stat-val">{{ sb_total_cats }}</div>
             <div class="cys-sb-stat-sub">activas</div>
           </div>
           <span class="cys-sb-dot bg-warning"></span>

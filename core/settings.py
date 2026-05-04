@@ -53,7 +53,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'licorera.context_processors.datos_globales',
+                'producto.context_processors.resumen_inventario',
             ],
         },
     },

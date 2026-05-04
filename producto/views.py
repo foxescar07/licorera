@@ -117,22 +117,24 @@ def presentaciones_guardar(request, pk):
         precios    = request.POST.getlist("precio[]")
         cantidades = request.POST.getlist("cantidad[]")
 
+        # Si no llegaron filas (no se abrió el modal), salir sin tocar BD
+        if not any(n.strip() for n in nombres):
+            next_url = request.POST.get('next') or request.GET.get('next')
+            return redirect(next_url or "producto:producto_lista")
+
         try:
             with transaction.atomic():
                 nuevas = []
                 for nombre_v, unidad_v, precio_v, cantidad_v in zip(nombres, unidades, precios, cantidades):
                     nombre_v = nombre_v.strip()
-                    if not nombre_v:
-                        continue          # fila sin nombre → ignorar
-                    if not unidad_v:
+                    if not nombre_v or not unidad_v:
                         continue
-                    # precio vacío → 0, no saltamos la fila
                     try:
-                        precio_f = float(precio_v) if precio_v.strip() else 0
+                        precio_f = float(str(precio_v).strip()) if str(precio_v).strip() else 0.0
                     except (ValueError, TypeError):
-                        precio_f = 0
+                        precio_f = 0.0
                     try:
-                        cantidad_i = int(cantidad_v) if cantidad_v else 0
+                        cantidad_i = int(str(cantidad_v).strip()) if str(cantidad_v).strip() else 0
                     except (ValueError, TypeError):
                         cantidad_i = 0
 
@@ -143,19 +145,18 @@ def presentaciones_guardar(request, pk):
                         cantidad=max(0, cantidad_i),
                     ))
 
-                producto.presentaciones.all().delete()
-                for datos in nuevas:
-                    PresentacionProducto.objects.create(producto=producto, **datos)
+                if nuevas:
+                    producto.presentaciones.all().delete()
+                    for datos in nuevas:
+                        PresentacionProducto.objects.create(producto=producto, **datos)
 
-            messages.success(request, f"✅ Presentaciones de {producto.nombre} guardadas.")
+            messages.success(request, f"✅ Presentaciones de <strong>{producto.nombre}</strong> guardadas correctamente.")
 
         except Exception as e:
             messages.error(request, f"❌ Error al guardar presentaciones: {e}")
 
     next_url = request.POST.get('next') or request.GET.get('next')
-    if next_url:
-        return redirect(next_url)
-    return redirect("producto:producto_lista")
+    return redirect(next_url or "producto:producto_lista")
 
 
 def presentaciones_json(request, pk):
@@ -323,3 +324,55 @@ def producto_salida(request):
             )
 
     return redirect("producto:producto_lista")
+
+# ===============================
+# BÚSQUEDA DE PRODUCTO (cajero)
+# ===============================
+def buscar_producto(request):
+    from django.db.models import Q, Sum
+
+    q = request.GET.get('q', '').strip()
+
+    if not q:
+        return JsonResponse(
+            {'encontrado': False, 'mensaje': 'Ingresa un nombre o código para buscar.'},
+            status=400
+        )
+
+    try:
+        producto = Producto.objects.prefetch_related('presentaciones').filter(
+            Q(nombre__icontains=q) | Q(codigo__iexact=q)
+        ).first()
+
+        if not producto:
+            return JsonResponse(
+                {'encontrado': False, 'mensaje': f'No se encontró ningún producto con "{q}".'},
+                status=404
+            )
+
+        stock_presentaciones = producto.presentaciones.aggregate(
+            total=Sum('cantidad')
+        )['total'] or 0
+
+        return JsonResponse({
+            'encontrado': True,
+            'producto': {
+                'pk':                   producto.pk,
+                'nombre':               producto.nombre,
+                'codigo':               producto.codigo or '—',
+                'categoria':            producto.categoria.nombre if producto.categoria else '—',
+                'cantidad_disponible':  producto.cantidad_disponible,
+                'stock_presentaciones': stock_presentaciones,
+                'stock_total':          producto.cantidad_disponible + stock_presentaciones,
+                'descripcion':          producto.descripcion or '',
+                'presentaciones': list(
+                    producto.presentaciones.values('id', 'nombre', 'unidades', 'precio', 'cantidad')
+                ),
+            }
+        })
+
+    except Exception as e:
+        return JsonResponse(
+            {'encontrado': False, 'mensaje': 'Error al consultar. Inténtalo de nuevo.'},
+            status=500
+        )

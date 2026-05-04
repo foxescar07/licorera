@@ -14,6 +14,9 @@ from .models import ConteoProducto, SesionConteo, ResultadoInventario, Lote
 # INVENTARIO HOME
 # ===============================
 def inventario_home(request):
+    from django.utils import timezone
+    from producto.models import Inventario
+
     agendas = AgendaInventario.objects.filter(estado__in=['pendiente', 'en_proceso']).order_by('fecha_programada')
     sesion  = SesionConteo.objects.order_by('-fecha_inicio').first()
 
@@ -42,6 +45,25 @@ def inventario_home(request):
 
     historial_sesiones = SesionConteo.objects.filter(activa=False).order_by('-fecha_fin')
 
+    # ── Movimientos: día seleccionado por GET o hoy por defecto ──
+    hoy           = timezone.localtime(timezone.now()).date()
+    fecha_filtro  = request.GET.get('fecha_mov')
+    try:
+        from datetime import date
+        fecha_filtro = date.fromisoformat(fecha_filtro) if fecha_filtro else hoy
+    except ValueError:
+        fecha_filtro = hoy
+
+    movimientos = Inventario.objects.filter(
+        fecha_actualizada__date=fecha_filtro
+    ).select_related('producto__categoria').order_by('-fecha_actualizada')
+
+    # ── Días que tienen movimientos (para el selector) ──
+    dias_con_movimientos = (
+        Inventario.objects
+        .dates('fecha_actualizada', 'day', order='DESC')
+    )
+
     if request.method == 'POST':
         AgendaInventario.objects.create(
             titulo=request.POST.get('titulo'),
@@ -52,15 +74,19 @@ def inventario_home(request):
         return redirect('inventario:inventario_home')
 
     return render(request, 'inventario/inventario_home.html', {
-        'agendas':            agendas,
-        'sesion':             sesion,
-        'productos':          productos,
-        'conteos':            conteos,
-        'discrepancias':      discrepancias,
-        'categoria_activa':   categoria_id,
-        'con_codigo':         productos_con_codigo,
-        'sin_codigo':         productos_sin_codigo,
-        'historial_sesiones': historial_sesiones,
+        'agendas':              agendas,
+        'sesion':               sesion,
+        'productos':            productos,
+        'conteos':              conteos,
+        'discrepancias':        discrepancias,
+        'categoria_activa':     categoria_id,
+        'con_codigo':           productos_con_codigo,
+        'sin_codigo':           productos_sin_codigo,
+        'historial_sesiones':   historial_sesiones,
+        'movimientos':          movimientos,
+        'dias_con_movimientos': dias_con_movimientos,
+        'fecha_filtro':         fecha_filtro,
+        'hoy':                  hoy,
     })
 
 
@@ -156,8 +182,6 @@ def guardar_codigo_barras(request, pk):
 
 # ══════════════════════════════════════════════════════
 # GESTIÓN DE PRODUCTOS
-# La creación de productos se delega a producto:crear_producto.
-# Esta vista solo renderiza la página y provee el contexto.
 # ══════════════════════════════════════════════════════
 def gestion_productos(request):
     productos_qs = Producto.objects.select_related('categoria').prefetch_related('presentaciones', 'lotes').all()
@@ -202,6 +226,7 @@ def gestion_salida(request):
         presentacion_id = request.POST.get('presentacion')
         cantidad_raw    = request.POST.get('cantidad', '')
         motivo          = request.POST.get('motivo', '').strip()
+        lote_id         = request.POST.get('lote_id') or None
 
         try:
             cantidad = int(cantidad_raw)
@@ -214,6 +239,14 @@ def gestion_salida(request):
         if not motivo:
             messages.error(request, '⚠️ Debes indicar el motivo de la salida.')
             return redirect('inventario:gestion_productos')
+
+        # ── SCRUM-259: bloquear salida si el lote está vencido ──
+        if lote_id:
+            lote = get_object_or_404(Lote, pk=lote_id)
+            if lote.fecha_vencimiento and lote.fecha_vencimiento < timezone.now().date():
+                messages.error(request, f'🚫 El lote "{lote.numero_lote}" está vencido desde el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}. No se puede registrar la salida.')
+                return redirect('inventario:gestion_productos')
+        # ── fin validación ──
 
         producto = get_object_or_404(Producto, pk=producto_id)
 
@@ -251,41 +284,135 @@ def gestion_salida(request):
 def gestion_producto_editar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == "POST":
+        cambios = []
+
         nombre       = request.POST.get('nombre', '').strip()
         codigo       = request.POST.get('codigo', '').strip()
         descripcion  = request.POST.get('descripcion', '').strip()
         categoria_pk = request.POST.get('categoria')
         precio_raw   = request.POST.get('precio_unitario', '').strip()
 
+        # ── Nombre ──
+        if nombre and nombre != producto.nombre:
+            cambios.append(f'📝 Nombre: "{producto.nombre}" → "{nombre}"')
         if nombre:
             producto.nombre = nombre
+
+        # ── Código ──
+        if codigo and codigo != producto.codigo:
+            cambios.append(f'🔖 Código: {producto.codigo} → {codigo}')
         if codigo:
             producto.codigo = codigo
+
+        # ── Descripción ──
+        if descripcion != (producto.descripcion or ''):
+            cambios.append('📄 Descripción actualizada')
         producto.descripcion = descripcion
 
+        # ── Categoría ──
         if categoria_pk:
             try:
-                producto.categoria_id = int(categoria_pk)
-            except (ValueError, TypeError):
+                nueva_cat_id = int(categoria_pk)
+                if nueva_cat_id != producto.categoria_id:
+                    nueva_cat = Categoria.objects.get(pk=nueva_cat_id)
+                    cambios.append(f'🏷️ Categoría: "{producto.categoria.nombre}" → "{nueva_cat.nombre}"')
+                producto.categoria_id = nueva_cat_id
+            except (ValueError, TypeError, Categoria.DoesNotExist):
                 pass
 
+        # ── Precio base ──
         if precio_raw:
             try:
-                producto.precio_unitario = max(0, float(precio_raw))
+                nuevo_precio = max(0, float(precio_raw))
+                if nuevo_precio != float(producto.precio_unitario or 0):
+                    cambios.append(f'💲 Precio base: ${int(producto.precio_unitario or 0):,} → ${int(nuevo_precio):,}')
+                producto.precio_unitario = nuevo_precio
             except (ValueError, TypeError):
                 pass
 
         producto.save()
-        messages.success(request, f'✅ Producto "{producto.nombre}" actualizado correctamente.')
+
+        # ── Presentaciones existentes ──
+        for key, valor in request.POST.items():
+            if key.startswith('pres_nombre_'):
+                pres_id = key.replace('pres_nombre_', '')
+                try:
+                    pres = PresentacionProducto.objects.get(pk=int(pres_id), producto=producto)
+                    nuevo_nombre   = valor.strip()
+                    nuevo_precio   = request.POST.get(f'pres_precio_{pres_id}', '').strip()
+                    nueva_cantidad = request.POST.get(f'pres_cantidad_{pres_id}', '').strip()
+
+                    if nuevo_nombre and nuevo_nombre != pres.nombre:
+                        cambios.append(f'📦 Presentación: "{pres.nombre}" → "{nuevo_nombre}"')
+                        pres.nombre = nuevo_nombre
+
+                    if nuevo_precio:
+                        try:
+                            np = max(0, float(nuevo_precio))
+                            if np != float(pres.precio or 0):
+                                cambios.append(f'💲 Precio "{pres.nombre}": ${int(pres.precio or 0):,} → ${int(np):,}')
+                            pres.precio = np
+                        except (ValueError, TypeError):
+                            pass
+
+                    if nueva_cantidad:
+                        try:
+                            nq = max(0, int(nueva_cantidad))
+                            if nq != pres.cantidad:
+                                diff  = nq - pres.cantidad
+                                signo = f'+{diff}' if diff > 0 else str(diff)
+                                cambios.append(f'📊 Stock "{pres.nombre}": {pres.cantidad} → {nq} ({signo} uds)')
+                            pres.cantidad = nq
+                        except (ValueError, TypeError):
+                            pass
+
+                    pres.save()
+                except PresentacionProducto.DoesNotExist:
+                    pass
+
+        # ── Nuevas presentaciones ──
+        nuevos_nombres    = request.POST.getlist('nueva_pres_nombre[]')
+        nuevos_precios    = request.POST.getlist('nueva_pres_precio[]')
+        nuevas_cantidades = request.POST.getlist('nueva_pres_cantidad[]')
+
+        for i, nombre_pres in enumerate(nuevos_nombres):
+            nombre_pres = nombre_pres.strip()
+            if not nombre_pres:
+                continue
+            try:
+                precio_pres   = max(0, float(nuevos_precios[i]))   if i < len(nuevos_precios)    else 0
+                cantidad_pres = max(0, int(nuevas_cantidades[i]))   if i < len(nuevas_cantidades) else 0
+            except (ValueError, TypeError):
+                precio_pres   = 0
+                cantidad_pres = 0
+
+            PresentacionProducto.objects.create(
+                producto=producto,
+                nombre=nombre_pres,
+                precio=precio_pres,
+                cantidad=cantidad_pres,
+                unidades=1,
+            )
+            cambios.append(f'➕ Nueva presentación: "{nombre_pres}" ${int(precio_pres):,} · {cantidad_pres} uds')
+
+        # ── Respuesta AJAX ──
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'ok':     True,
+                'cambios': cambios if cambios else [],
+                'sin_cambios': len(cambios) == 0,
+            })
 
     return redirect('inventario:gestion_productos')
+
 
 def gestion_producto_eliminar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
         nombre = producto.nombre
         producto.delete()
-        messages.success(request, f'✅ Producto "{nombre}" eliminado.')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': True, 'nombre': nombre})
     return redirect('inventario:gestion_productos')
 
 
@@ -357,8 +484,9 @@ def gestion_categoria_eliminar(request, pk):
 # ══════════════════════════════════════════════════════
 def registrar_lote(request):
     if request.method == 'POST':
-        numero_lote = request.POST.get('numero_lote', '').strip()
-        producto_id = request.POST.get('producto')
+        numero_lote       = request.POST.get('numero_lote', '').strip()
+        producto_id       = request.POST.get('producto')
+        fecha_vencimiento = request.POST.get('fecha_vencimiento') or None
 
         if not numero_lote:
             messages.error(request, '⚠️ El número de lote es obligatorio.')
@@ -374,13 +502,38 @@ def registrar_lote(request):
 
         producto = get_object_or_404(Producto, pk=producto_id)
 
-        Lote.objects.create(
+        lote = Lote.objects.create(
             numero_lote=numero_lote,
             producto=producto,
+            fecha_vencimiento=fecha_vencimiento,
             registrado_por=request.user if request.user.is_authenticated else None
         )
 
-        messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}".')
+        if fecha_vencimiento:
+            messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}" — vence el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}.')
+        else:
+            messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}" (sin fecha de vencimiento).')
+
         return redirect('inventario:gestion_productos')
 
     return redirect('inventario:gestion_productos')
+
+
+def editar_movimiento(request, pk):
+    from producto.models import Inventario
+    movimiento = get_object_or_404(Inventario, pk=pk)
+    if request.method == 'POST':
+        tipo      = request.POST.get('tipo', movimiento.tipo)
+        cantidad  = request.POST.get('cantidad', movimiento.cantidad)
+        motivo    = request.POST.get('motivo', '').strip()
+        ubicacion = request.POST.get('ubicacion', '').strip()
+        try:
+            movimiento.tipo      = tipo
+            movimiento.cantidad  = max(1, int(cantidad))
+            movimiento.motivo    = motivo
+            movimiento.ubicacion = ubicacion
+            movimiento.save()
+            messages.success(request, f'✅ Movimiento de "{movimiento.producto.nombre}" actualizado.')
+        except (ValueError, TypeError):
+            messages.error(request, '❌ Cantidad inválida.')
+    return redirect('inventario:inventario_home')

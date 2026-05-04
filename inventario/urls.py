@@ -9,6 +9,7 @@ urlpatterns = [
     path('conteo/guardar/', views.guardar_conteo, name='guardar_conteo'),
     path('conteo/', views.conteo_inventario, name='conteo_inventario'),
     path('ajustar/<int:pk>/', views.ajustar_inventario, name='ajustar_inventario'),
+    path('movimiento/<int:pk>/editar/', views.editar_movimiento, name='editar_movimiento'),
     path('finalizar/', views.finalizar_inventario, name='finalizar_inventario'),
 
     path('codigos/<int:pk>/guardar/', views.guardar_codigo_barras, name='guardar_codigo'),

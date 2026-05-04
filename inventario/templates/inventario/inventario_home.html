@@ -15,82 +15,86 @@
   {% if messages %}
     {% for message in messages %}
       <div class="alert alert-dismissible fade show mb-3"
-           style="background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:var(--radius);">
+           style="background:var(--fondo-card);border:1px solid var(--azul-borde);
+                  color:var(--texto);border-radius:var(--radius);">
         {{ message }}
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
       </div>
     {% endfor %}
   {% endif %}
 
-  <!-- TARJETAS ACCESO RÁPIDO -->
+  <!-- ── TARJETAS ACCESO RÁPIDO ── -->
   <div class="row g-3 mb-4">
     <div class="col-md-3 d-flex">
       <div class="inv-quick-card w-100" data-bs-toggle="modal" data-bs-target="#modalAgendar" style="cursor:pointer;">
         <i class="bi bi-calendar-plus"></i>
-        <div>
-          <div class="inv-quick-card__title">Agendar Inventario</div>
-          <div class="inv-quick-card__sub">Programar fecha y hora del conteo</div>
-        </div>
+        <div><div class="inv-quick-card__title">Agendar Inventario</div><div class="inv-quick-card__sub">Programar fecha y hora del conteo</div></div>
       </div>
     </div>
     <div class="col-md-3 d-flex">
       <div class="inv-quick-card w-100" data-bs-toggle="modal" data-bs-target="#modalConteo" style="cursor:pointer;">
         <i class="bi bi-clipboard2-check"></i>
-        <div>
-          <div class="inv-quick-card__title">Iniciar Conteo</div>
-          <div class="inv-quick-card__sub">Ingresar cantidades físicas</div>
-        </div>
+        <div><div class="inv-quick-card__title">Iniciar Conteo</div><div class="inv-quick-card__sub">Ingresar cantidades físicas</div></div>
       </div>
     </div>
     <div class="col-md-3 d-flex">
       <div class="inv-quick-card w-100" data-bs-toggle="modal" data-bs-target="#modalRegistrarCodigos" style="cursor:pointer;">
         <i class="bi bi-upc-scan"></i>
-        <div>
-          <div class="inv-quick-card__title">Registrar Códigos</div>
-          <div class="inv-quick-card__sub">Asignar códigos de barras</div>
-        </div>
+        <div><div class="inv-quick-card__title">Registrar Códigos</div><div class="inv-quick-card__sub">Asignar códigos de barras</div></div>
       </div>
     </div>
     <div class="col-md-3 d-flex">
       <div class="inv-quick-card w-100" data-bs-toggle="modal" data-bs-target="#modalComparar" style="cursor:pointer;">
         <i class="bi bi-arrow-left-right"></i>
-        <div>
-          <div class="inv-quick-card__title">Comparar Inventario</div>
-          <div class="inv-quick-card__sub">Ver discrepancias físico vs sistema</div>
-        </div>
+        <div><div class="inv-quick-card__title">Comparar Inventario</div><div class="inv-quick-card__sub">Ver discrepancias físico vs sistema</div></div>
       </div>
     </div>
   </div>
 
-  <!-- MÓDULO GESTIÓN DE PRODUCTOS -->
+  <!-- ── MÓDULO GESTIÓN DE PRODUCTOS ── -->
   <div class="mb-4">
-    <a href="{% url 'inventario:gestion_productos' %}" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; text-decoration:none; background:linear-gradient(135deg, rgba(77,168,218,.1) 0%, rgba(77,168,218,.03) 100%); border:1px solid rgba(77,168,218,.3); border-radius:14px; padding:1.2rem 1.6rem; transition:border-color .2s, background .2s;"
-      onmouseover="this.style.borderColor='#4DA8DA'; this.style.background='linear-gradient(135deg, rgba(77,168,218,.18) 0%, rgba(77,168,218,.07) 100%)'"
-      onmouseout="this.style.borderColor='rgba(77,168,218,.3)'; this.style.background='linear-gradient(135deg, rgba(77,168,218,.1) 0%, rgba(77,168,218,.03) 100%)'">
+    <a href="{% url 'inventario:gestion_productos' %}"
+       style="display:flex;align-items:center;justify-content:space-between;gap:1rem;
+              flex-wrap:wrap;text-decoration:none;
+              background:linear-gradient(135deg,rgba(77,168,218,.1) 0%,rgba(77,168,218,.03) 100%);
+              border:1px solid rgba(77,168,218,.3);border-radius:14px;
+              padding:1.2rem 1.6rem;transition:border-color .2s,background .2s;"
+       onmouseover="this.style.borderColor='#4DA8DA';this.style.background='linear-gradient(135deg,rgba(77,168,218,.18) 0%,rgba(77,168,218,.07) 100%)'"
+       onmouseout="this.style.borderColor='rgba(77,168,218,.3)';this.style.background='linear-gradient(135deg,rgba(77,168,218,.1) 0%,rgba(77,168,218,.03) 100%)'">
       <div class="d-flex align-items-center gap-3">
-        <div style="width:48px; height:48px; border-radius:12px; flex-shrink:0; background:rgba(77,168,218,.14); border:1px solid rgba(77,168,218,.3); display:flex; align-items:center; justify-content:center; font-size:1.3rem; color:#4DA8DA;">
+        <div style="width:48px;height:48px;border-radius:12px;flex-shrink:0;
+                    background:rgba(77,168,218,.14);border:1px solid rgba(77,168,218,.3);
+                    display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#4DA8DA;">
           <i class="bi bi-box-seam-fill"></i>
         </div>
         <div>
-          <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1rem; letter-spacing:.08em; text-transform:uppercase; color:#e2e8f0;">Gestión de Productos</div>
-          <div style="font-size:.76rem; color:rgba(226,232,240,.45); margin-top:.1rem;">Produtos, salidas, categorías y subcategorías</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;
+                      letter-spacing:.08em;text-transform:uppercase;color:#e2e8f0;">Gestión de Productos</div>
+          <div style="font-size:.76rem;color:rgba(226,232,240,.45);margin-top:.1rem;">
+            Productos, salidas, categorías y subcategorías
+          </div>
         </div>
       </div>
       <div class="d-flex align-items-center gap-3 flex-wrap">
         <div class="d-flex gap-2 flex-wrap">
-          <span style="font-size:.68rem; padding:.22rem .6rem; border-radius:999px; font-weight:600; background:rgba(192,57,43,.1); color:#e87070; border:1px solid rgba(192,57,43,.25);"><i class="bi bi-box-arrow-up me-1"></i>Registrar salida</span>
-          <span style="font-size:.68rem; padding:.22rem .6rem; border-radius:999px; font-weight:600; background:rgba(77,218,140,.1); color:#5edb97; border:1px solid rgba(77,218,140,.25);"><i class="bi bi-tags me-1"></i>Categorías</span>
+          <span style="font-size:.68rem;padding:.22rem .6rem;border-radius:999px;font-weight:600;
+                       background:rgba(192,57,43,.1);color:#e87070;border:1px solid rgba(192,57,43,.25);">
+            <i class="bi bi-box-arrow-up me-1"></i>Registrar salida
+          </span>
+          <span style="font-size:.68rem;padding:.22rem .6rem;border-radius:999px;font-weight:600;
+                       background:rgba(77,218,140,.1);color:#5edb97;border:1px solid rgba(77,218,140,.25);">
+            <i class="bi bi-tags me-1"></i>Categorías
+          </span>
         </div>
-        <i class="bi bi-arrow-right-circle-fill" style="font-size:1.3rem; color:#4DA8DA; opacity:.6; flex-shrink:0;"></i>
+        <i class="bi bi-arrow-right-circle-fill" style="font-size:1.3rem;color:#4DA8DA;opacity:.6;flex-shrink:0;"></i>
       </div>
     </a>
   </div>
 
-  <!-- LISTA DE AGENDAS -->
+  <!-- ── INVENTARIOS PROGRAMADOS ── -->
   <section class="cys-card mb-4">
     <div class="cys-card__title">
-      <i class="bi bi-calendar2-week me-2" style="color:var(--azul-claro);"></i>
-      Inventarios Programados
+      <i class="bi bi-calendar2-week me-2" style="color:var(--azul-claro);"></i>Inventarios Programados
     </div>
     {% for agenda in agendas %}
     <div class="inv-agenda-item">
@@ -105,7 +109,7 @@
       <div class="inv-tracker">
         <div class="inv-tracker__step {% if agenda.estado == 'pendiente' %}inv-tracker__step--active-pendiente{% elif agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}inv-tracker__step--done-pendiente{% endif %}">
           <form method="POST" action="{% url 'inventario:agenda_estado' agenda.pk %}">{% csrf_token %}<input type="hidden" name="estado" value="pendiente">
-            <button type="submit" class="inv-tracker__circle">{% if agenda.estado == 'pendiente' %}⏳{% elif agenda.estado == 'en_proceso' or agenda.estado == 'completado' or agenda.estado == 'cancelado' %}✓{% else %}1{% endif %}</button>
+            <button type="submit" class="inv-tracker__circle">{% if agenda.estado == 'pendiente' %}⏳{% elif agenda.estado != 'pendiente' %}✓{% else %}1{% endif %}</button>
           </form>
           <div class="inv-tracker__label">Pendiente</div>
         </div>
@@ -133,751 +137,883 @@
       </div>
     </div>
     {% empty %}
-    <div class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
-      <i class="bi bi-calendar-x d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
+    <div class="text-center py-5" style="color:var(--texto-muted);font-size:.85rem;">
+      <i class="bi bi-calendar-x d-block mb-2" style="font-size:2.5rem;color:var(--azul-borde);"></i>
       No hay inventarios programados.
     </div>
     {% endfor %}
   </section>
 
-  <!-- TABLA DE PRODUCTOS -->
-  <section class="cys-card mt-4">
-    <div class="cys-card__title">
-      <i class="bi bi-box-seam me-2" style="color:var(--azul-claro);"></i>
-      Historial de Inventario
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- MOVIMIENTOS DEL DÍA                                       -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="cys-card mt-0">
+
+    <!-- Cabecera: título + controles -->
+    <div class="mov-section-header cys-card__title" style="padding-bottom:.1rem;">
+      <span>
+        <i class="bi bi-clock-history me-2" style="color:var(--azul-claro);"></i>
+        Movimientos de Inventario
+        {% if fecha_filtro == hoy %}
+          <span style="font-size:.68rem;font-weight:600;padding:.2rem .55rem;border-radius:20px;
+                       background:rgba(77,168,218,.12);color:var(--azul-claro);
+                       border:1px solid rgba(77,168,218,.25);margin-left:.5rem;">HOY</span>
+        {% endif %}
+      </span>
+      <div class="mov-controls">
+        <!-- Selector de día -->
+        <select class="cys-input form-select"
+                style="font-size:.75rem;padding:.3rem .75rem;width:auto;min-width:175px;"
+                onchange="irAFecha(this.value)">
+          {% for dia in dias_con_movimientos %}
+            <option value="{{ dia|date:'Y-m-d' }}"
+              {% if dia|date:'Y-m-d' == fecha_filtro|date:'Y-m-d' %}selected{% endif %}>
+              {% if dia|date:'Y-m-d' == hoy|date:'Y-m-d' %}Hoy — {{ dia|date:"d/m/Y" }}
+              {% else %}{{ dia|date:"l d/m/Y" }}{% endif %}
+            </option>
+          {% empty %}
+            <option value="">Sin movimientos</option>
+          {% endfor %}
+        </select>
+        <!-- Orden -->
+        <select id="filtro-orden-mov" class="cys-input form-select"
+                style="font-size:.75rem;padding:.3rem .75rem;width:auto;min-width:150px;"
+                onchange="ordenarMovimientos()">
+          <option value="reciente">Más recientes</option>
+          <option value="antiguo">Más antiguos</option>
+          <option value="nombre">Nombre A–Z</option>
+          <option value="entrada">Entradas primero</option>
+          <option value="salida">Salidas primero</option>
+        </select>
+        <!-- Buscador -->
+        <input type="text" id="buscador-movimientos"
+               class="cys-input form-control"
+               placeholder="Buscar producto…"
+               style="font-size:.75rem;padding:.3rem .75rem;width:165px;"
+               oninput="filtrarMovimientos(this.value)">
+      </div>
     </div>
+
+    <!-- Fila meta: contador izquierda · leyenda derecha -->
+    <div class="mov-meta-row">
+      <span class="mov-resumen__chip">
+        <i class="bi bi-list-ul"></i>
+        <strong>{{ movimientos|length }}</strong>
+        movimiento{{ movimientos|length|pluralize:"s" }}
+      </span>
+      <div class="mov-legend">
+        <span><i class="bi bi-arrow-up-short" style="color:#27ae60;font-size:1rem;"></i> Entrada</span>
+        <span><i class="bi bi-arrow-down-short" style="color:var(--rojo);font-size:1rem;"></i> Salida</span>
+      </div>
+    </div>
+
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
+      <table class="table align-middle mb-0"
+             style="border-collapse:separate;border-spacing:0 4px;">
         <thead>
           <tr style="border-bottom:2px solid var(--azul-borde);">
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Nombre del Producto</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Categoría</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Stock</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Precio</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Últ. Entrada</th>
-            <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Acciones</th>
+            <th style="font-size:.68rem;color:var(--gris-claro);font-weight:700;text-transform:uppercase;padding:.5rem .75rem;">#</th>
+            <th style="font-size:.68rem;color:var(--gris-claro);font-weight:700;text-transform:uppercase;">Hora</th>
+            <th style="font-size:.68rem;color:var(--gris-claro);font-weight:700;text-transform:uppercase;">Producto</th>
+            <th style="font-size:.68rem;color:var(--gris-claro);font-weight:700;text-transform:uppercase;">Categoría</th>
+            <th style="font-size:.68rem;color:var(--gris-claro);font-weight:700;text-transform:uppercase;text-align:center;">Stock actual</th>
+            <th style="font-size:.68rem;color:var(--gris-claro);font-weight:700;text-transform:uppercase;text-align:center;">Tipo</th>
+            <th style="font-size:.68rem;color:var(--gris-claro);font-weight:700;text-transform:uppercase;text-align:center;">Cantidad</th>
+            <th style="font-size:.68rem;color:var(--gris-claro);font-weight:700;text-transform:uppercase;">Motivo</th>
+            <th style="font-size:.68rem;color:var(--gris-claro);font-weight:700;text-transform:uppercase;text-align:center;">Acciones</th>
           </tr>
         </thead>
-        <tbody>
-          {% for producto in productos %}
-            <tr style="{% if producto.stock_critico %}border-left:3px solid var(--rojo);{% endif %}">
-              <td style="font-size:.85rem; color:#1e3a5f);">{{ forloop.counter }}</td>
-              <td style="font-size:.85rem; font-weight:600; color:#1e3a5f;">{{ producto.nombre }}</td>
-              <td style="font-size:.85rem; color:#1e3a5f;">{{ producto.categoria.nombre }}</td>
-              <td>
-                {% if producto.stock_critico %}
-                  <span class="badge" style="background:rgba(192,57,43,.2); color:var(--rojo); border:1px solid rgba(192,57,43,.4); font-size:.75rem; padding:.35rem .6rem;">{{ producto.cantidad_disponible }} {{ producto.unidad }}</span>
-                {% else %}
-                  <span style="font-size:.85rem; color:#1e3a5f; font-weight:600;">{{ producto.cantidad_disponible }} {{ producto.unidad }}</span>
+        <tbody id="tbody-movimientos">
+          {% for mov in movimientos %}
+          <tr class="mov-fila {% if mov.tipo == 'entrada' %}mov-row-entrada{% else %}mov-row-salida{% endif %}"
+              data-nombre="{{ mov.producto.nombre|lower }}"
+              data-tipo="{{ mov.tipo }}"
+              data-fecha="{{ mov.fecha_actualizada|date:'U'|default:'0' }}">
+
+            <td style="padding:.6rem .75rem;border-radius:8px 0 0 8px;
+                       border-left:3px solid {% if mov.tipo == 'entrada' %}#27ae60{% else %}var(--rojo){% endif %};
+                       font-size:.75rem;color:var(--texto-muted);">
+              {{ forloop.counter }}
+            </td>
+            <td style="padding:.6rem .75rem;">
+              <div style="font-size:.82rem;font-weight:700;color:var(--texto);">{{ mov.fecha_actualizada|date:"H:i" }}</div>
+              <div style="font-size:.65rem;color:var(--texto-muted);">{{ mov.fecha_actualizada|timesince }} atrás</div>
+            </td>
+            <td style="padding:.6rem .75rem;">
+              <div style="display:flex;align-items:center;gap:.4rem;">
+                {% if mov.producto.stock_critico %}
+                  <i class="bi bi-exclamation-triangle-fill"
+                     style="color:var(--rojo);font-size:.65rem;flex-shrink:0;" title="Stock crítico"></i>
                 {% endif %}
-              </td>
-              <td style="font-size:.85rem; color:#1e3a5f;">${{ producto.precio_unitario|floatformat:0 }}</td>
-              <td style="font-size:.85rem; color:#1e3a5f;">
-                {% with ultimo=producto.movimientos.first %}
-                  {% if ultimo %}{{ ultimo.fecha_actualizada|date:"d/m/Y" }}{% else %}—{% endif %}
-                {% endwith %}
-              </td>
-              <td>
-                <button class="cys-btn-sm cys-btn-sm--warning" onclick="abrirEditar({{ producto.pk }}, '{{ producto.nombre }}', '{{ producto.codigo }}', '{{ producto.categoria.pk }}', '{{ producto.precio_unitario }}', '{{ producto.cantidad_disponible }}', '{{ producto.unidad }}')"><i class="bi bi-pencil"></i></button>
-                <button class="cys-btn-sm cys-btn-sm--primary" onclick="abrirDetalle('{{ producto.nombre }}', '{{ producto.codigo }}', '{{ producto.categoria.nombre }}', '{{ producto.precio_unitario }}', '{{ producto.cantidad_disponible }}', '{{ producto.unidad }}', '{{ producto.descripcion|default:'' }}')"><i class="bi bi-eye"></i></button>
-              </td>
-            </tr>
+                <div>
+                  <div style="font-size:.85rem;font-weight:700;color:var(--texto);">{{ mov.producto.nombre }}</div>
+                  <div style="font-size:.68rem;font-family:monospace;color:var(--azul-claro);margin-top:1px;">
+                    {{ mov.producto.codigo|default:"Sin código" }}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td style="font-size:.78rem;color:var(--texto-muted);padding:.6rem .75rem;">
+              {{ mov.producto.categoria.nombre }}
+            </td>
+            <td style="padding:.6rem .75rem;text-align:center;">
+              {% if mov.producto.stock_critico %}
+                <span class="mov-stock-critico">{{ mov.producto.cantidad_disponible }} {{ mov.producto.unidad }}</span>
+              {% else %}
+                <span class="mov-stock-ok">
+                  {{ mov.producto.cantidad_disponible }}
+                  <span style="font-size:.65rem;font-weight:400;color:var(--texto-muted);">{{ mov.producto.unidad }}</span>
+                </span>
+              {% endif %}
+            </td>
+            <td style="padding:.6rem .75rem;text-align:center;">
+              {% if mov.tipo == 'entrada' %}
+                <span class="mov-badge-entrada"><i class="bi bi-arrow-up-short" style="font-size:.95rem;"></i> Entrada</span>
+              {% else %}
+                <span class="mov-badge-salida"><i class="bi bi-arrow-down-short" style="font-size:.95rem;"></i> Salida</span>
+              {% endif %}
+            </td>
+            <td style="padding:.6rem .75rem;text-align:center;">
+              <span class="{% if mov.tipo == 'entrada' %}mov-cantidad-entrada{% else %}mov-cantidad-salida{% endif %}">
+                {% if mov.tipo == 'entrada' %}+{% else %}−{% endif %}{{ mov.cantidad }}
+              </span>
+            </td>
+            <td style="padding:.6rem .75rem;">
+              <span style="font-size:.78rem;color:var(--texto-muted);">{{ mov.motivo|default:"—" }}</span>
+            </td>
+            <td style="padding:.6rem .75rem;text-align:center;border-radius:0 8px 8px 0;">
+              <div style="display:flex;gap:.4rem;justify-content:center;">
+                <button class="cys-btn-sm cys-btn-sm--warning" title="Editar movimiento"
+                        onclick="abrirEditarMovimiento({{ mov.pk }},'{{ mov.producto.nombre|escapejs }}','{{ mov.tipo }}',{{ mov.cantidad }},'{{ mov.motivo|default:''|escapejs }}','{{ mov.ubicacion|default:''|escapejs }}')">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="cys-btn-sm cys-btn-sm--primary" title="Ver producto"
+                        onclick="abrirDetalle('{{ mov.producto.nombre|escapejs }}','{{ mov.producto.codigo|default:''|escapejs }}','{{ mov.producto.categoria.nombre|escapejs }}','{{ mov.producto.precio_unitario }}','{{ mov.producto.cantidad_disponible }}','{{ mov.producto.unidad }}','{{ mov.producto.descripcion|default:''|escapejs }}')">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
           {% empty %}
-            <tr>
-              <td colspan="7" class="text-center py-5" style="color:var(--texto-muted); font-size:.85rem;">
-                <i class="bi bi-box-seam d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
-                No hay productos registrados.
-              </td>
-            </tr>
+          <tr>
+            <td colspan="9" style="background:transparent !important;padding:0;">
+              <div class="mov-empty">
+                <i class="bi bi-inbox"></i>
+                No hay movimientos registrados para
+                {% if fecha_filtro == hoy %}hoy.{% else %}el {{ fecha_filtro|date:"d/m/Y" }}.{% endif %}
+              </div>
+            </td>
+          </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-  </section>
 
-  {% if sesion and sesion.activa %}
-  <section class="cys-card mt-4">
-    <div class="cys-card__title">
-      <i class="bi bi-flag-fill me-2" style="color:var(--azul-claro);"></i>
-      Cierre de Inventario
+    <div id="mov-sin-resultados"
+         style="display:none;text-align:center;padding:2.5rem 1rem;
+                color:var(--texto-muted);font-size:.82rem;">
+      <i class="bi bi-search d-block mb-2"
+         style="font-size:1.8rem;color:var(--azul-borde);opacity:.6;"></i>
+      No se encontraron movimientos con ese término.
     </div>
-    <form method="POST" action="{% url 'inventario:finalizar_inventario' %}">
-      {% csrf_token %}
-      <div style="background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:var(--radius); display:flex; align-items:center; justify-content:space-between; padding:14px 18px; gap:16px;">
-        <div style="width:34px; height:34px; border-radius:50%; flex-shrink:0; border:2px solid var(--azul-claro); color:var(--azul-claro); display:flex; align-items:center; justify-content:center; font-size:.85rem; font-weight:700;">3</div>
-        <div style="flex:1;">
-          <div style="font-size:.85rem; font-weight:600; color:var(--texto);">Cerrar sesión de inventario</div>
-          <div style="font-size:.72rem; color:var(--texto-muted); margin-top:2px;">Último paso · ajusta stock y registra el cierre</div>
-        </div>
-        <button type="submit" class="cys-btn cys-btn--primary" style="white-space:nowrap; flex-shrink:0;">
-          <i class="bi bi-check-circle me-1"></i> Finalizar
-        </button>
-      </div>
-    </form>
   </section>
-  {% endif %}
 
-</div>
+  <!-- ══════════════════════════════════════════ MODALES ═══════════════════ -->
 
-<!-- MODAL 1 — AGENDAR -->
-<div class="modal fade" id="modalAgendar" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-calendar-plus me-2" style="color:var(--azul-claro);"></i> Agendar Inventario
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <form id="form-agendar" method="POST" action="{% url 'inventario:inventario_home' %}">
-          {% csrf_token %}
-          <div class="d-flex flex-column gap-3">
-            <div>
-              <label class="cys-form-label">Título</label>
-              <input type="text" name="titulo" class="cys-input form-control" placeholder="Ej: Inventario mensual Junio" required>
-            </div>
-            <div>
-              <label class="cys-form-label">Fecha y hora</label>
-              <input type="datetime-local" name="fecha_programada" class="cys-input form-control" required>
-            </div>
-            <div>
-              <label class="cys-form-label">Descripción (opcional)</label>
-              <textarea name="descripcion" class="cys-input form-control" rows="3" placeholder="Notas adicionales..."></textarea>
-            </div>
+  <!-- MODAL AGENDAR -->
+  <div class="modal fade" id="modalAgendar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg"
+           style="background:var(--fondo-card);border:1px solid var(--azul-borde) !important;border-radius:14px;">
+        <div class="modal-header border-0"
+             style="background:var(--azul-oscuro);border-radius:14px 14px 0 0;padding:1.25rem 1.5rem;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;
+                      color:var(--blanco);letter-spacing:.08em;text-transform:uppercase;">
+            <i class="bi bi-calendar-plus me-2" style="color:var(--azul-claro);"></i>Agendar Inventario
           </div>
-        </form>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" form="form-agendar" class="cys-btn cys-btn--primary">
-          <i class="bi bi-calendar-check me-1"></i> Agendar
-        </button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="form-agendar" method="POST" action="{% url 'inventario:inventario_home' %}">
+            {% csrf_token %}
+            <div class="d-flex flex-column gap-3">
+              <div>
+                <label class="cys-form-label">Título</label>
+                <input type="text" name="titulo" class="cys-input form-control"
+                       placeholder="Ej: Inventario mensual Junio" required>
+              </div>
+              <div>
+                <label class="cys-form-label">Fecha y hora</label>
+                <input type="datetime-local" name="fecha_programada" class="cys-input form-control" required>
+              </div>
+              <div>
+                <label class="cys-form-label">Descripción (opcional)</label>
+                <textarea name="descripcion" class="cys-input form-control"
+                          rows="3" placeholder="Notas adicionales..."></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0 px-4 pb-4">
+          <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" form="form-agendar" class="cys-btn cys-btn--primary">
+            <i class="bi bi-calendar-check me-1"></i>Agendar
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- MODAL 2 — CONTEO -->
-<div class="modal fade" id="modalConteo" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-clipboard2-check me-2" style="color:var(--azul-claro);"></i> Conteo de Inventario
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-
-      <div class="modal-body p-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-          <div>
-            {% if sesion %}
-              <div style="font-size:.75rem; color:var(--texto-muted);">Sesión activa desde</div>
-              <div style="font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; color:var(--azul-claro);">{{ sesion.fecha_inicio|date:"d/m/Y H:i" }}</div>
-              {% if sesion.responsable %}
-            <div style="font-size:.75rem; color:var(--texto-muted); margin-top:.4rem;">
-              <i class="bi bi-person-fill me-1" style="color:var(--azul-claro);"></i>
-              Responsable: <strong style="color:var(--texto);">{{ sesion.responsable.get_full_name|default:sesion.responsable.username }}</strong>
-              </div>
-              {% endif %}
-            {% else %}
-              <div style="color:var(--texto-muted); font-size:.85rem;">No hay sesión activa</div>
-            {% endif %}
+  <!-- MODAL CONTEO -->
+  <div class="modal fade" id="modalConteo" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg"
+           style="background:var(--fondo-card);border:1px solid var(--azul-borde) !important;border-radius:14px;">
+        <div class="modal-header border-0"
+             style="background:var(--azul-oscuro);border-radius:14px 14px 0 0;padding:1.25rem 1.5rem;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;
+                      color:var(--blanco);letter-spacing:.08em;text-transform:uppercase;">
+            <i class="bi bi-clipboard2-check me-2" style="color:var(--azul-claro);"></i>Conteo de Inventario
           </div>
-          <form method="POST" action="{% url 'inventario:conteo_inventario' %}">
-            {% csrf_token %}
-            <button type="submit" name="iniciar_sesion" class="cys-btn cys-btn--primary" style="font-size:.78rem; padding:.4rem 1rem;">
-              <i class="bi bi-play-fill me-1"></i>
-              {% if sesion %}Reiniciar Sesión{% else %}Iniciar Sesión{% endif %}
-            </button>
-          </form>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
+        <div class="modal-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              {% if sesion %}
+                <div style="font-size:.75rem;color:var(--texto-muted);">Sesión activa desde</div>
+                <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--azul-claro);">
+                  {{ sesion.fecha_inicio|date:"d/m/Y H:i" }}
+                </div>
+                {% if sesion.responsable %}
+                  <div style="font-size:.75rem;color:var(--texto-muted);margin-top:.4rem;">
+                    <i class="bi bi-person-fill me-1" style="color:var(--azul-claro);"></i>
+                    Responsable: <strong style="color:var(--texto);">{{ sesion.responsable.get_full_name|default:sesion.responsable.username }}</strong>
+                  </div>
+                {% endif %}
+              {% else %}
+                <div style="color:var(--texto-muted);font-size:.85rem;">No hay sesión activa</div>
+              {% endif %}
+            </div>
+            <form method="POST" action="{% url 'inventario:conteo_inventario' %}">
+              {% csrf_token %}
+              <button type="submit" name="iniciar_sesion" class="cys-btn cys-btn--primary"
+                      style="font-size:.78rem;padding:.4rem 1rem;">
+                <i class="bi bi-play-fill me-1"></i>
+                {% if sesion %}Reiniciar Sesión{% else %}Iniciar Sesión{% endif %}
+              </button>
+            </form>
+          </div>
 
-        {% if sesion %}
-          {% if not sesion.activa %}
+          {% if sesion %}
+            {% if not sesion.activa %}
+              <div style="background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.3);
+                          border-radius:10px;padding:14px 16px;display:flex;gap:12px;margin-bottom:1.25rem;">
+                <i class="bi bi-exclamation-triangle-fill"
+                   style="color:var(--rojo);font-size:1.1rem;flex-shrink:0;margin-top:2px;"></i>
+                <div>
+                  <div style="font-size:.85rem;font-weight:600;color:var(--rojo);margin-bottom:3px;">
+                    Sesión finalizada — modificaciones bloqueadas
+                  </div>
+                  <div style="font-size:.78rem;color:var(--texto-muted);line-height:1.5;">
+                    Cerrado el {{ sesion.fecha_fin|date:"d/m/Y" }} a las {{ sesion.fecha_fin|date:"H:i" }} hrs.
+                    Para nuevos conteos, inicia una nueva sesión.
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:.72rem;color:var(--texto-muted);text-transform:uppercase;
+                          letter-spacing:.08em;margin-bottom:.75rem;">
+                <i class="bi bi-clock-history me-1" style="color:var(--azul-claro);"></i>Historial guardado
+              </div>
+              <div class="table-responsive"
+                   style="max-height:260px;overflow-y:auto;border-top:3px solid var(--azul-claro);
+                          border-radius:0 0 10px 10px;">
+                <table class="table align-middle mb-0">
+                  <thead>
+                    <tr style="border-bottom:2px solid var(--azul-borde);">
+                      <th class="text-uppercase" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">#</th>
+                      <th class="text-uppercase" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">Fecha cierre</th>
+                      <th class="text-uppercase" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">Responsable</th>
+                      <th class="text-uppercase text-center" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">Contados</th>
+                      <th class="text-uppercase text-center" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for s in historial_sesiones %}
+                    <tr>
+                      <td style="font-size:.82rem;color:var(--texto-muted);">#{{ s.pk }}</td>
+                      <td style="font-size:.85rem;color:var(--texto);">
+                        {{ s.fecha_fin|date:"d/m/Y" }}
+                        <div style="font-size:.72rem;color:var(--texto-muted);">{{ s.fecha_fin|date:"H:i" }} hrs</div>
+                      </td>
+                      <td style="font-size:.85rem;color:var(--texto);">
+                        {% if s.responsable %}
+                          <i class="bi bi-person-fill me-1" style="color:var(--azul-claro);"></i>
+                          {{ s.responsable.get_full_name|default:s.responsable.username }}
+                        {% else %}<span style="color:var(--texto-muted);">—</span>{% endif %}
+                      </td>
+                      <td class="text-center">
+                        <span style="font-size:.9rem;font-weight:700;color:var(--azul-claro);">{{ s.conteos.count }}</span>
+                      </td>
+                      <td class="text-center">
+                        <span class="inv-badge"
+                              style="background:rgba(39,174,96,.15);color:#27ae60;
+                                     border:1px solid rgba(39,174,96,.3);font-size:.72rem;">
+                          <i class="bi bi-check-circle me-1"></i>Finalizado
+                        </span>
+                      </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="5" class="text-center py-3"
+                          style="color:var(--texto-muted);font-size:.82rem;">No hay inventarios finalizados.</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <div style="padding:5px 12px;font-size:.72rem;color:var(--texto-muted);
+                            text-align:center;border-top:1px solid rgba(77,168,218,.1);">
+                  ↕ Desliza para ver más
+                </div>
+              </div>
+            {% else %}
+              <form id="form-conteo" method="POST" action="{% url 'inventario:guardar_conteo' %}">
+                {% csrf_token %}
+                <input type="hidden" name="sesion_id" value="{{ sesion.pk }}">
+                <select name="producto_id" id="conteo-select-producto" style="display:none;" required>
+                  <option value="">— Seleccionar producto —</option>
+                  {% for p in productos %}
+                    <option value="{{ p.pk }}" data-codigo="{{ p.codigo }}">{{ p.nombre }}</option>
+                  {% endfor %}
+                </select>
+                <div class="row g-3 align-items-end mb-4">
+                  <div class="col-md-7">
+                    <label class="cys-form-label">Producto</label>
+                    <input type="text" id="conteo-display-producto" class="cys-input form-control"
+                           placeholder="🔍 Escanea el producto con el lector..." autocomplete="off">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="cys-form-label">Cantidad física</label>
+                    <input type="number" id="input-cantidad" name="cantidad_contada"
+                           class="cys-input form-control" min="0" placeholder="0" required>
+                  </div>
+                  <div class="col-md-2">
+                    <button type="submit" class="cys-btn cys-btn--primary w-100">
+                      <i class="bi bi-save"></i>
+                    </button>
+                  </div>
+                </div>
+              </form>
+              <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                  <thead>
+                    <tr style="border-bottom:2px solid var(--azul-borde);">
+                      <th class="text-uppercase" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">Producto</th>
+                      <th class="text-uppercase" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">Stock Sistema</th>
+                      <th class="text-uppercase" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">Conteo Físico</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for c in conteos %}
+                    <tr>
+                      <td style="font-size:.85rem;font-weight:600;color:var(--texto);">{{ c.producto.nombre }}</td>
+                      <td style="font-size:.85rem;color:var(--texto);">{{ c.producto.cantidad_disponible }} {{ c.producto.unidad }}</td>
+                      <td style="font-size:.85rem;font-weight:700;color:var(--texto);">{{ c.cantidad_contada }} {{ c.producto.unidad }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="3" class="text-center py-3" style="color:var(--texto-muted);font-size:.82rem;">
+                        Aún no has contado ningún producto.
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="text-center py-3" style="color:var(--texto-muted);font-size:.85rem;">
+              <i class="bi bi-play-circle d-block mb-2" style="font-size:2rem;color:var(--azul-borde);"></i>
+              Primero inicia una sesión de conteo.
+            </div>
+          {% endif %}
+        </div>
+        <div class="modal-footer border-0 pt-0 px-4 pb-4">
+          <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-            <div style="background:rgba(192,57,43,.12); border:1px solid rgba(192,57,43,.3); border-radius:10px; padding:14px 16px; display:flex; gap:12px; margin-bottom:1.25rem;">
-              <i class="bi bi-exclamation-triangle-fill" style="color:var(--rojo); font-size:1.1rem; flex-shrink:0; margin-top:2px;"></i>
-              <div>
-                <div style="font-size:.85rem; font-weight:600; color:var(--rojo); margin-bottom:3px;">Sesión finalizada — modificaciones bloqueadas</div>
-                <div style="font-size:.78rem; color:var(--texto-muted); line-height:1.5;">
-                  Este inventario fue cerrado el {{ sesion.fecha_fin|date:"d/m/Y" }} a las {{ sesion.fecha_fin|date:"H:i" }} hrs.
-                   {% if sesion.responsable %}
-                 Responsable: <strong>{{ sesion.responsable.get_full_name|default:sesion.responsable.username }}</strong>
-                  {% endif %}
-                  Para nuevos conteos, inicia una nueva sesión.
+  <!-- MODAL COMPARAR -->
+  <div class="modal fade" id="modalComparar" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg"
+           style="background:var(--fondo-card);border:1px solid var(--azul-borde) !important;border-radius:14px;">
+        <div class="modal-header border-0"
+             style="background:var(--azul-oscuro);border-radius:14px 14px 0 0;padding:1.25rem 1.5rem;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;
+                      color:var(--blanco);letter-spacing:.08em;text-transform:uppercase;">
+            <i class="bi bi-arrow-left-right me-2" style="color:var(--azul-claro);"></i>Comparar Inventario
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          {% if not sesion %}
+            <div class="mov-empty">
+              <i class="bi bi-clipboard-x"></i>No hay sesión activa. Primero inicia un conteo.
+            </div>
+          {% elif not discrepancias %}
+            <div class="mov-empty">
+              <i class="bi bi-inbox"></i>No hay productos contados en esta sesión.
+            </div>
+          {% else %}
+            <div class="row g-3 mb-4">
+              <div class="col-md-4">
+                <div class="cys-stat-card text-center">
+                  <div class="cys-stat-card__label">Total Comparados</div>
+                  <div class="cys-stat-card__val">{{ discrepancias|length }}</div>
+                  <div style="font-size:.62rem;color:var(--texto-muted);margin-top:.25rem;">productos</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="cys-stat-card text-center">
+                  <div class="cys-stat-card__label">Con Diferencia</div>
+                  <div class="cys-stat-card__val" style="color:var(--rojo);">{{ discrepancias|length }}</div>
+                  <div style="font-size:.62rem;color:var(--texto-muted);margin-top:.25rem;">revisión necesaria</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="cys-stat-card text-center">
+                  <div class="cys-stat-card__label">Sesión Activa</div>
+                  <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;
+                              color:var(--azul-claro);margin-top:.5rem;">{{ sesion.fecha_inicio|date:"d/m/Y" }}</div>
+                  <div style="font-size:.62rem;color:var(--texto-muted);margin-top:.25rem;">{{ sesion.fecha_inicio|date:"H:i" }} hrs</div>
                 </div>
               </div>
             </div>
-
-            <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.75rem;">
-  <i class="bi bi-clock-history me-1" style="color:var(--azul-claro);"></i> Historial de inventarios guardados
-</div>
-<div class="table-responsive" style="max-height:260px; overflow-y:auto; border-top:3px solid var(--azul-claro); border-radius:0 0 10px 10px; background:var(--fondo-card);">
-  <table class="table table-hover align-middle mb-0">
-    <thead>
-      <tr style="border-bottom:2px solid var(--azul-borde);">
-        <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
-        <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Fecha cierre</th>
-        <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Responsable</th>
-        <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Productos contados</th>
-        <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Estado</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for s in historial_sesiones %}
-        <tr>
-          <td style="font-size:.82rem; color:#1e3a5f;">#{{ s.pk }}</td>
-          <td style="font-size:.85rem; color:#1e3a5f;">
-            {{ s.fecha_fin|date:"d/m/Y" }}
-            <div style="font-size:.72rem; color:#1e3a5f;">{{ s.fecha_fin|date:"H:i" }} hrs</div>
-          </td>
-          <td style="font-size:.85rem; color:#1e3a5f;">
-            {% if s.responsable %}
-              <i class="bi bi-person-fill me-1" style="color:var(--azul-claro);"></i>
-              {{ s.responsable.get_full_name|default:s.responsable.username }}
-            {% else %}
-              <span style="color:var(--texto-muted);">—</span>
-            {% endif %}
-          </td>
-          <td class="text-center">
-            <span style="font-size:.9rem; font-weight:700; color:var(--azul-claro);">{{ s.conteos.count }}</span>
-          </td>
-          <td class="text-center">
-            <span class="inv-badge" style="background:rgba(39,174,96,.15); color:#27ae60; border:1px solid rgba(39,174,96,.3); font-size:.72rem;">
-              <i class="bi bi-check-circle me-1"></i>Finalizado
-            </span>
-          </td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="5" class="text-center py-3" style="color:var(--texto-muted); font-size:.82rem;">
-            <i class="bi bi-inbox d-block mb-1" style="font-size:1.5rem; color:var(--azul-borde);"></i>
-            No hay inventarios finalizados aún.
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <div style="padding:5px 12px; font-size:.72rem; color:var(--texto-muted); text-align:center; background:rgba(77,168,218,.04); border-top:1px solid rgba(77,168,218,.1);">
-  ↕ Desliza para ver más registros
-</div>
-</div>
-
-          {% else %}
-
-            <form id="form-conteo" method="POST" action="{% url 'inventario:guardar_conteo' %}">
-              {% csrf_token %}
-              <input type="hidden" name="sesion_id" value="{{ sesion.pk }}">
-              <select name="producto_id" id="conteo-select-producto" style="display:none;" required>
-                <option value="">— Seleccionar producto —</option>
-                {% for p in productos %}
-                  <option value="{{ p.pk }}" data-codigo="{{ p.codigo }}">{{ p.nombre }}</option>
-                {% endfor %}
-              </select>
-              <div class="row g-3 align-items-end mb-4">
-                <div class="col-md-7">
-                  <label class="cys-form-label">Producto</label>
-                  <input type="text" id="conteo-display-producto" class="cys-input form-control"
-                         placeholder="🔍 Escanea el producto con el lector..." autocomplete="off">
-                </div>
-                <div class="col-md-3">
-                  <label class="cys-form-label">Cantidad física</label>
-                  <input type="number" id="input-cantidad" name="cantidad_contada" class="cys-input form-control" min="0" placeholder="0" required>
-                </div>
-                <div class="col-md-2">
-                  <button type="submit" class="cys-btn cys-btn--primary w-100"><i class="bi bi-save"></i></button>
-                </div>
-              </div>
-            </form>
-
             <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
+              <table class="table align-middle mb-0" style="border-collapse:separate;border-spacing:0 5px;">
                 <thead>
                   <tr style="border-bottom:2px solid var(--azul-borde);">
-                    <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Producto</th>
-                    <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Stock Sistema</th>
-                    <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Conteo Físico</th>
+                    <th class="text-uppercase" style="font-size:.68rem;color:var(--gris-claro);font-weight:700;padding:.5rem .75rem;">Producto</th>
+                    <th class="text-uppercase" style="font-size:.68rem;color:var(--gris-claro);font-weight:700;">Categoría</th>
+                    <th class="text-uppercase text-center" style="font-size:.68rem;color:var(--gris-claro);font-weight:700;">Sistema</th>
+                    <th class="text-uppercase text-center" style="font-size:.68rem;color:var(--gris-claro);font-weight:700;">Físico</th>
+                    <th class="text-uppercase text-center" style="font-size:.68rem;color:var(--gris-claro);font-weight:700;">Diferencia</th>
+                    <th class="text-uppercase text-center" style="font-size:.68rem;color:var(--gris-claro);font-weight:700;">Estado</th>
+                    <th class="text-uppercase text-center" style="font-size:.68rem;color:var(--gris-claro);font-weight:700;">Ajustar</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for c in conteos %}
-                    <tr>
-                      <td style="font-size:.85rem; font-weight:600; color:#1e3a5f;">{{ c.producto.nombre }}</td>
-                      <td style="font-size:.85rem; color:#1e3a5f;">{{ c.producto.cantidad_disponible }} {{ c.producto.unidad }}</td>
-                      <td style="font-size:.85rem; font-weight:700; color:#1e3a5f;">{{ c.cantidad_contada }} {{ c.producto.unidad }}</td>
-                    </tr>
-                  {% empty %}
-                    <tr>
-                      <td colspan="3" class="text-center py-3" style="color:var(--texto-muted); font-size:.82rem;">Aún no has contado ningún producto.</td>
-                    </tr>
+                  {% for d in discrepancias %}
+                  <tr style="background:{% if d.estado == 'faltante' %}rgba(192,57,43,.09){% elif d.estado == 'sobrante' %}rgba(243,156,18,.07){% else %}rgba(39,174,96,.06){% endif %};border-radius:8px;">
+                    <td style="padding:.65rem .75rem;border-radius:8px 0 0 8px;
+                               border-left:3px solid {% if d.estado == 'faltante' %}var(--rojo){% elif d.estado == 'sobrante' %}#f39c12{% else %}#27ae60{% endif %};">
+                      <div style="font-size:.85rem;font-weight:700;color:var(--texto);">{{ d.producto.nombre }}</div>
+                      <div style="font-size:.68rem;font-family:monospace;color:var(--azul-claro);">{{ d.producto.codigo }}</div>
+                    </td>
+                    <td style="font-size:.78rem;color:var(--texto-muted);padding:.65rem .75rem;">{{ d.producto.categoria.nombre }}</td>
+                    <td class="text-center" style="padding:.65rem .75rem;">
+                      <div style="font-size:1rem;color:var(--azul-claro);font-weight:700;">{{ d.en_sistema }}</div>
+                      <div style="font-size:.62rem;color:var(--texto-muted);">{{ d.producto.unidad }}</div>
+                    </td>
+                    <td class="text-center" style="padding:.65rem .75rem;">
+                      <div style="font-size:1rem;color:var(--texto);font-weight:700;">{{ d.fisico }}</div>
+                      <div style="font-size:.62rem;color:var(--texto-muted);">{{ d.producto.unidad }}</div>
+                    </td>
+                    <td class="text-center" style="padding:.65rem .75rem;">
+                      {% if d.diferencia == 0 %}<span style="font-size:1rem;color:#27ae60;font-weight:700;">0</span>
+                      {% elif d.diferencia > 0 %}<span style="font-size:1rem;color:#f39c12;font-weight:700;">+{{ d.diferencia }}</span>
+                      {% else %}<span style="font-size:1rem;color:var(--rojo);font-weight:700;">{{ d.diferencia }}</span>{% endif %}
+                    </td>
+                    <td class="text-center" style="padding:.65rem .75rem;">
+                      <span class="inv-badge inv-badge--{{ d.estado }}">
+                        {% if d.estado == 'ok' %}<i class="bi bi-check-circle me-1"></i>OK
+                        {% elif d.estado == 'sobrante' %}<i class="bi bi-arrow-up-circle me-1"></i>Sobrante
+                        {% else %}<i class="bi bi-arrow-down-circle me-1"></i>Faltante{% endif %}
+                      </span>
+                    </td>
+                    <td class="text-center" style="padding:.65rem .75rem;border-radius:0 8px 8px 0;">
+                      {% if d.estado != 'ok' %}
+                        <button type="button" class="cys-btn-sm cys-btn-sm--primary"
+                                data-pk="{{ d.producto.pk }}" data-nombre="{{ d.producto.nombre }}"
+                                data-sistema="{{ d.en_sistema }}" data-fisico="{{ d.fisico }}"
+                                data-unidad="{{ d.producto.unidad }}"
+                                onclick="abrirConfirmarAjuste(this)">
+                          <i class="bi bi-arrow-repeat"></i>
+                        </button>
+                      {% else %}
+                        <span style="font-size:.7rem;color:var(--texto-muted);">—</span>
+                      {% endif %}
+                    </td>
+                  </tr>
                   {% endfor %}
                 </tbody>
               </table>
             </div>
-
           {% endif %}
-
-        {% else %}
-          <div class="text-center py-3" style="color:var(--texto-muted); font-size:.85rem;">
-            <i class="bi bi-play-circle d-block mb-2" style="font-size:2rem; color:var(--azul-borde);"></i>
-            Primero inicia una sesión de conteo.
-          </div>
-        {% endif %}
-
-      </div>
-
-      <div class="modal-footer border-0 pt-0 px-4 pb-4">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+        <div class="modal-footer border-0 pt-0 px-4 pb-4">
+          <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- MODAL 3 — COMPARAR -->
-<div class="modal fade" id="modalComparar" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-arrow-left-right me-2" style="color:var(--azul-claro);"></i> Comparar Inventario
+  <!-- MODAL DETALLE PRODUCTO -->
+  <div class="modal fade" id="modalDetalleProducto" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg"
+           style="background:var(--fondo-card);border:1px solid var(--azul-borde) !important;border-radius:14px;">
+        <div class="modal-header border-0"
+             style="background:var(--azul-oscuro);border-radius:14px 14px 0 0;padding:1.25rem 1.5rem;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;
+                      color:var(--blanco);letter-spacing:.08em;text-transform:uppercase;">
+            <i class="bi bi-eye me-2" style="color:var(--azul-claro);"></i>Detalle Producto
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-body p-4">
+          <div class="d-flex flex-column gap-3">
+            <div>
+              <div style="font-size:.72rem;color:var(--texto-muted);text-transform:uppercase;letter-spacing:.08em;">Nombre</div>
+              <div id="inv-det-nombre" style="font-size:1rem;font-weight:600;color:var(--texto);"></div>
+            </div>
+            <div class="row g-3">
+              <div class="col-6">
+                <div style="font-size:.72rem;color:var(--texto-muted);text-transform:uppercase;letter-spacing:.08em;">Código</div>
+                <div id="inv-det-codigo" style="font-size:.9rem;color:var(--azul-claro);font-weight:600;font-family:monospace;"></div>
+              </div>
+              <div class="col-6">
+                <div style="font-size:.72rem;color:var(--texto-muted);text-transform:uppercase;letter-spacing:.08em;">Categoría</div>
+                <div id="inv-det-categoria" style="font-size:.9rem;color:var(--texto);"></div>
+              </div>
+              <div class="col-6">
+                <div style="font-size:.72rem;color:var(--texto-muted);text-transform:uppercase;letter-spacing:.08em;">Precio</div>
+                <div id="inv-det-precio" style="font-size:.9rem;color:var(--texto);font-weight:600;"></div>
+              </div>
+              <div class="col-6">
+                <div style="font-size:.72rem;color:var(--texto-muted);text-transform:uppercase;letter-spacing:.08em;">Stock</div>
+                <div id="inv-det-cantidad" style="font-size:.9rem;color:var(--azul-claro);font-weight:700;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:.72rem;color:var(--texto-muted);text-transform:uppercase;letter-spacing:.08em;">Descripción</div>
+              <div id="inv-det-descripcion" style="font-size:.85rem;color:var(--texto-muted);"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0 px-4 pb-4">
+          <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
+        </div>
       </div>
-      <div class="modal-body p-4">
-        {% if not sesion %}
-          <div class="text-center py-4" style="color:var(--texto-muted); font-size:.85rem;">
-            <i class="bi bi-clipboard-x d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
-            No hay sesión activa. Primero inicia un conteo.
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMAR AJUSTE -->
+  <div class="modal fade" id="modalConfirmarAjuste" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+      <div class="modal-content border-0 shadow-lg"
+           style="background:var(--fondo-card);border:1px solid var(--azul-borde) !important;border-radius:14px;">
+        <div class="modal-header border-0"
+             style="background:var(--azul-oscuro);border-radius:14px 14px 0 0;padding:1.25rem 1.5rem;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;
+                      color:var(--blanco);letter-spacing:.08em;text-transform:uppercase;">
+            <i class="bi bi-arrow-repeat me-2" style="color:var(--azul-claro);"></i>Confirmar Ajuste
           </div>
-        {% elif not discrepancias %}
-          <div class="text-center py-4" style="color:var(--texto-muted); font-size:.85rem;">
-            <i class="bi bi-inbox d-block mb-2" style="font-size:2.5rem; color:var(--azul-borde);"></i>
-            No hay productos contados en esta sesión.
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="text-center mb-3">
+            <i class="bi bi-exclamation-triangle" style="font-size:2.5rem;color:#f39c12;"></i>
           </div>
-        {% else %}
+          <p style="font-size:.9rem;color:var(--texto);text-align:center;margin:0;">
+            ¿Ajustar stock de <strong id="ajuste-nombre" style="color:var(--azul-claro);"></strong>?
+          </p>
+          <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
+            <div class="text-center">
+              <div style="font-size:.65rem;color:var(--texto-muted);text-transform:uppercase;letter-spacing:.06em;">Sistema</div>
+              <div id="ajuste-sistema" style="font-size:1.4rem;font-weight:700;color:var(--rojo);"></div>
+            </div>
+            <i class="bi bi-arrow-right" style="font-size:1.2rem;color:var(--texto-muted);"></i>
+            <div class="text-center">
+              <div style="font-size:.65rem;color:var(--texto-muted);text-transform:uppercase;letter-spacing:.06em;">Físico</div>
+              <div id="ajuste-fisico" style="font-size:1.4rem;font-weight:700;color:#27ae60;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex gap-2">
+          <button type="button" class="cys-btn cys-btn--outline flex-fill" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1" style="color:var(--rojo);"></i>Cancelar
+          </button>
+          <button type="button" id="btn-confirmar-ajuste" class="cys-btn cys-btn--primary flex-fill">
+            <i class="bi bi-check-circle me-1"></i>Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <form id="form-ajuste-oculto" method="POST" action="" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="nueva_cantidad" id="ajuste-cantidad-input">
+  </form>
+
+  <!-- MODAL REGISTRAR CÓDIGOS -->
+  <div class="modal fade" id="modalRegistrarCodigos" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg"
+           style="background:var(--fondo-card);border:1px solid var(--azul-borde) !important;border-radius:14px;">
+        <div class="modal-header border-0"
+             style="background:var(--azul-oscuro);border-radius:14px 14px 0 0;padding:1.25rem 1.5rem;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;
+                      color:var(--blanco);letter-spacing:.08em;text-transform:uppercase;">
+            <i class="bi bi-upc-scan me-2" style="color:var(--azul-claro);"></i>Registrar Códigos de Barras
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
           <div class="row g-3 mb-4">
             <div class="col-md-4">
               <div class="cys-stat-card text-center">
-                <div class="cys-stat-card__label">Total Comparados</div>
-                <div class="cys-stat-card__val">{{ discrepancias|length }}</div>
-                <div style="font-size:.62rem; color:var(--texto-muted); margin-top:.25rem;">productos</div>
+                <div class="cys-stat-card__label">Total Productos</div>
+                <div class="cys-stat-card__val">{{ productos|length }}</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="cys-stat-card text-center">
-                <div class="cys-stat-card__label">Con Diferencia</div>
-                <div class="cys-stat-card__val" style="color:var(--rojo);">{{ discrepancias|length }}</div>
-                <div style="font-size:.62rem; color:var(--texto-muted); margin-top:.25rem;">revisión necesaria</div>
+                <div class="cys-stat-card__label">Con Código</div>
+                <div class="cys-stat-card__val" style="color:#27ae60;">{{ con_codigo }}</div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="cys-stat-card text-center">
-                <div class="cys-stat-card__label">Sesión Activa</div>
-                <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--azul-claro); margin-top:.5rem;">{{ sesion.fecha_inicio|date:"d/m/Y" }}</div>
-                <div style="font-size:.62rem; color:var(--texto-muted); margin-top:.25rem;">{{ sesion.fecha_inicio|date:"H:i" }} hrs</div>
+                <div class="cys-stat-card__label">Sin Código</div>
+                <div class="cys-stat-card__val" style="color:var(--rojo);">{{ sin_codigo }}</div>
               </div>
             </div>
+          </div>
+          <div class="mb-3">
+            <input type="text" id="buscador-codigos" class="cys-input form-control"
+                   placeholder="Buscar por nombre o código..."
+                   style="color:var(--texto);">
           </div>
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead>
                 <tr style="border-bottom:2px solid var(--azul-borde);">
-                  <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Producto</th>
-                  <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Categoría</th>
-                  <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">En Sistema</th>
-                  <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Físico</th>
-                  <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Diferencia</th>
-                  <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Estado</th>
-                  <th class="text-uppercase text-center" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Ajustar</th>
+                  <th class="text-uppercase" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">#</th>
+                  <th class="text-uppercase" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">Producto</th>
+                  <th class="text-uppercase" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">Categoría</th>
+                  <th class="text-uppercase" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">Estado</th>
+                  <th class="text-uppercase" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">Código actual</th>
+                  <th class="text-uppercase" style="font-size:.72rem;color:var(--gris-claro);font-weight:600;">Acción</th>
                 </tr>
               </thead>
-              <tbody>
-                {% for d in discrepancias %}
-                  <tr style="{% if d.estado == 'faltante' %}border-left:3px solid var(--rojo);{% elif d.estado == 'sobrante' %}border-left:3px solid #f39c12;{% else %}border-left:3px solid #27ae60;{% endif %}">
-                    <td style="font-size:.85rem; font-weight:600; color:var(--texto);">
-                      {{ d.producto.nombre }}
-                      <div style="font-size:.72rem; color:var(--texto-muted); font-weight:400;">{{ d.producto.codigo }}</div>
-                    </td>
-                    <td style="font-size:.85rem; color:var(--texto-muted);">{{ d.producto.categoria.nombre }}</td>
-                    <td class="text-center">
-                      <div style="font-size:.95rem; color:var(--azul-claro); font-weight:700;">{{ d.en_sistema }}</div>
-                      <div style="font-size:.65rem; color:var(--texto-muted);">{{ d.producto.unidad }}</div>
-                    </td>
-                    <td class="text-center">
-                      <div style="font-size:.95rem; color:var(--texto); font-weight:700;">{{ d.fisico }}</div>
-                      <div style="font-size:.65rem; color:var(--texto-muted);">{{ d.producto.unidad }}</div>
-                    </td>
-                    <td class="text-center">
-                      {% if d.diferencia == 0 %}<span style="font-size:1rem; color:#27ae60; font-weight:700;">0</span>
-                      {% elif d.diferencia > 0 %}<span style="font-size:1rem; color:#f39c12; font-weight:700;">+{{ d.diferencia }}</span>
-                      {% else %}<span style="font-size:1rem; color:var(--rojo); font-weight:700;">{{ d.diferencia }}</span>{% endif %}
-                    </td>
-                    <td class="text-center">
-                      {% if d.estado == 'ok' %}<span class="inv-badge inv-badge--ok"><i class="bi bi-check-circle me-1"></i>OK</span>
-                      {% elif d.estado == 'sobrante' %}<span class="inv-badge inv-badge--sobrante"><i class="bi bi-arrow-up-circle me-1"></i>Sobrante</span>
-                      {% else %}<span class="inv-badge inv-badge--faltante"><i class="bi bi-arrow-down-circle me-1"></i>Faltante</span>{% endif %}
-                    </td>
-                    <td class="text-center">
-                      {% if d.estado != 'ok' %}
-                        <button type="button" class="cys-btn-sm cys-btn-sm--primary" title="Ajustar stock"
-                                data-pk="{{ d.producto.pk }}" data-nombre="{{ d.producto.nombre }}"
-                                data-sistema="{{ d.en_sistema }}" data-fisico="{{ d.fisico }}"
-                                data-unidad="{{ d.producto.unidad }}" onclick="abrirConfirmarAjuste(this)">
-                          <i class="bi bi-arrow-repeat"></i>
-                        </button>
-                      {% else %}
-                        <span style="font-size:.7rem; color:var(--texto-muted);">—</span>
-                      {% endif %}
-                    </td>
-                  </tr>
+              <tbody id="tbody-codigos">
+                {% for p in productos %}
+                <tr class="fila-codigo" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
+                  <td style="font-size:.85rem;color:var(--texto-muted);">{{ forloop.counter }}</td>
+                  <td style="font-size:.85rem;font-weight:600;color:var(--texto);">{{ p.nombre }}</td>
+                  <td style="font-size:.85rem;color:var(--texto-muted);">{{ p.categoria.nombre }}</td>
+                  <td>
+                    {% if p.codigo %}
+                      <span class="badge-codigo-{{ p.pk }} inv-badge"
+                            style="background:rgba(39,174,96,.15);color:#27ae60;border:1px solid rgba(39,174,96,.3);font-size:.72rem;">
+                        <i class="bi bi-check-circle me-1"></i>Registrado
+                      </span>
+                    {% else %}
+                      <span class="badge-codigo-{{ p.pk }} inv-badge"
+                            style="background:rgba(192,57,43,.12);color:var(--rojo);border:1px solid rgba(192,57,43,.25);font-size:.72rem;">
+                        <i class="bi bi-x-circle me-1"></i>Sin código
+                      </span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <span id="codigo-actual-{{ p.pk }}"
+                          style="font-size:.82rem;font-family:monospace;
+                                 color:{% if p.codigo %}var(--azul-claro){% else %}var(--texto-muted){% endif %};">
+                      {{ p.codigo|default:"—" }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="cys-btn-sm cys-btn-sm--primary btn-registrar-codigo"
+                            data-pk="{{ p.pk }}" data-nombre="{{ p.nombre }}"
+                            data-codigo="{{ p.codigo|default:'' }}"
+                            style="font-size:.72rem;padding:.35rem .75rem;white-space:nowrap;width:auto;height:auto;">
+                      <i class="bi bi-upc-scan me-1"></i>{% if p.codigo %}Editar{% else %}Registrar{% endif %}
+                    </button>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center py-4" style="color:var(--texto-muted);font-size:.85rem;">
+                    No hay productos registrados.
+                  </td>
+                </tr>
                 {% endfor %}
               </tbody>
             </table>
           </div>
-        {% endif %}
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+        <div class="modal-footer border-0 pt-0 px-4 pb-4">
+          <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- MODAL EDITAR PRODUCTO -->
-<div class="modal fade" id="modalEditarProducto" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-pencil me-2" style="color:var(--azul-claro);"></i> Editar Producto
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <form id="form-editar-inv" method="POST" action="">
-          {% csrf_token %}
-          <div class="row g-3">
-            <div class="col-md-8">
-              <label class="cys-form-label">Nombre</label>
-              <input type="text" name="nombre" id="inv-edit-nombre" class="cys-input form-control" required>
-            </div>
-            <div class="col-md-4">
-              <label class="cys-form-label">Código</label>
-              <input type="text" name="codigo" id="inv-edit-codigo" class="cys-input form-control" required>
-            </div>
-            <div class="col-md-4">
-              <label class="cys-form-label">Precio</label>
-              <input type="number" name="precio_unitario" id="inv-edit-precio" class="cys-input form-control" step="0.01">
-            </div>
-            <div class="col-md-4">
-              <label class="cys-form-label">Cantidad</label>
-              <input type="number" name="cantidad_disponible" id="inv-edit-cantidad" class="cys-input form-control">
-            </div>
-            <div class="col-md-4">
-              <label class="cys-form-label">Unidad</label>
-              <select name="unidad" id="inv-edit-unidad" class="cys-input form-select">
-                <option value="UND">Unidad</option>
-                <option value="CAJA">Caja</option>
-                <option value="PAQ">Paquete</option>
-                <option value="LITRO">Litro</option>
-              </select>
-            </div>
+  <!-- MODAL ESCANEAR CÓDIGO -->
+  <div class="modal fade" id="modalEscanearCodigo" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:440px;">
+      <div class="modal-content border-0 shadow-lg"
+           style="background:var(--fondo-card);border:1px solid var(--azul-borde) !important;border-radius:14px;">
+        <div class="modal-header border-0"
+             style="background:var(--azul-oscuro);border-radius:14px 14px 0 0;padding:1.25rem 1.5rem;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;
+                      color:var(--blanco);letter-spacing:.08em;text-transform:uppercase;">
+            <i class="bi bi-upc-scan me-2" style="color:var(--azul-claro);"></i>Escanear Código
           </div>
-        </form>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" form="form-editar-inv" class="cys-btn cys-btn--warning">
-          <i class="bi bi-save me-1"></i> Guardar Cambios
-        </button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div style="background:var(--fondo);border:1px solid var(--azul-borde);
+                      border-radius:10px;padding:12px 16px;margin-bottom:1.25rem;">
+            <div style="font-size:.7rem;color:var(--texto-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Producto</div>
+            <div id="escanear-nombre" style="font-size:.95rem;font-weight:600;color:var(--texto);"></div>
+          </div>
+          <div style="font-size:.82rem;color:var(--texto-muted);margin-bottom:1rem;line-height:1.6;">
+            <i class="bi bi-info-circle me-1" style="color:var(--azul-claro);"></i>
+            Haz clic en el campo y apunta el escáner al producto. Se guarda con Enter.
+          </div>
+          <label class="cys-form-label">Código de barras</label>
+          <div style="position:relative;">
+            <input type="text" id="escanear-input" class="cys-input form-control"
+                   placeholder="Escanea o escribe el código..." autocomplete="off"
+                   style="font-family:monospace;font-size:.9rem;padding-right:2.5rem;color:var(--texto);">
+            <i class="bi bi-upc"
+               style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
+                      color:var(--texto-muted);pointer-events:none;"></i>
+          </div>
+          <div id="escanear-codigo-actual-wrap" style="margin-top:.75rem;display:none;">
+            <div style="font-size:.72rem;color:var(--texto-muted);">Código actual:</div>
+            <div id="escanear-codigo-actual-val" style="font-family:monospace;font-size:.82rem;color:var(--azul-claro);"></div>
+          </div>
+          <div id="escanear-feedback" style="margin-top:.75rem;font-size:.82rem;min-height:20px;"></div>
+        </div>
+        <div class="modal-footer border-0 pt-0 px-4 pb-4 gap-2">
+          <button type="button" class="cys-btn cys-btn--outline flex-fill" id="btn-volver-lista">
+            <i class="bi bi-arrow-left me-1"></i>Volver
+          </button>
+          <button type="button" id="btn-guardar-codigo" class="cys-btn cys-btn--primary flex-fill">
+            <i class="bi bi-save me-1"></i>Guardar
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- MODAL DETALLE PRODUCTO -->
-<div class="modal fade" id="modalDetalleProducto" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-eye me-2" style="color:var(--azul-claro);"></i> Detalle Producto
+  <!-- MODAL EDITAR MOVIMIENTO -->
+  <div class="modal fade" id="modalEditarMovimiento" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:480px;">
+      <div class="modal-content border-0 shadow-lg"
+           style="background:var(--fondo-card);border:1px solid var(--azul-borde) !important;border-radius:14px;">
+        <div class="modal-header border-0"
+             style="background:var(--azul-oscuro);border-radius:14px 14px 0 0;padding:1.25rem 1.5rem;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;
+                      color:var(--blanco);letter-spacing:.08em;text-transform:uppercase;">
+            <i class="bi bi-pencil me-2" style="color:var(--azul-claro);"></i>Editar Movimiento
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <div class="d-flex flex-column gap-3">
-          <div>
-            <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Nombre</div>
-            <div id="inv-det-nombre" style="font-size:1rem; font-weight:600; color:var(--texto);"></div>
+        <div class="modal-body p-4">
+          <div style="background:var(--fondo);border:1px solid var(--azul-borde);
+                      border-radius:10px;padding:.75rem 1rem;margin-bottom:1.25rem;">
+            <div style="font-size:.68rem;color:var(--texto-muted);text-transform:uppercase;
+                        letter-spacing:.08em;margin-bottom:3px;">Producto</div>
+            <div id="em-producto-nombre" style="font-size:.95rem;font-weight:700;color:var(--texto);"></div>
           </div>
-          <div class="row g-3">
-            <div class="col-6">
-              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Código</div>
-              <div id="inv-det-codigo" style="font-size:.9rem; color:var(--azul-claro); font-weight:600;"></div>
+          <form id="form-editar-movimiento" method="POST" action="">
+            {% csrf_token %}
+            <div class="d-flex flex-column gap-3">
+              <div>
+                <label class="cys-form-label">Tipo</label>
+                <select name="tipo" id="em-tipo" class="cys-input form-select">
+                  <option value="entrada">Entrada</option>
+                  <option value="salida">Salida</option>
+                </select>
+              </div>
+              <div>
+                <label class="cys-form-label">Cantidad</label>
+                <input type="number" name="cantidad" id="em-cantidad"
+                       class="cys-input form-control" min="1" required>
+              </div>
+              <div>
+                <label class="cys-form-label">Motivo</label>
+                <input type="text" name="motivo" id="em-motivo"
+                       class="cys-input form-control" placeholder="Ej: Venta, Merma, Ajuste…">
+              </div>
+              <div>
+                <label class="cys-form-label">
+                  Ubicación <span style="color:var(--texto-muted);font-size:.72rem;">(opcional)</span>
+                </label>
+                <input type="text" name="ubicacion" id="em-ubicacion"
+                       class="cys-input form-control" placeholder="Ej: Bodega principal">
+              </div>
             </div>
-            <div class="col-6">
-              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Categoría</div>
-              <div id="inv-det-categoria" style="font-size:.9rem; color:var(--texto);"></div>
-            </div>
-            <div class="col-6">
-              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Precio</div>
-              <div id="inv-det-precio" style="font-size:.9rem; color:var(--texto); font-weight:600;"></div>
-            </div>
-            <div class="col-6">
-              <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Stock</div>
-              <div id="inv-det-cantidad" style="font-size:.9rem; color:var(--azul-claro); font-weight:700;"></div>
-            </div>
-          </div>
-          <div>
-            <div style="font-size:.72rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em;">Descripción</div>
-            <div id="inv-det-descripcion" style="font-size:.85rem; color:var(--texto-muted);"></div>
-          </div>
+          </form>
         </div>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
+        <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex gap-2">
+          <button type="button" class="cys-btn cys-btn--outline flex-fill" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="cys-btn cys-btn--warning flex-fill"
+                  onclick="document.getElementById('form-editar-movimiento').submit()">
+            <i class="bi bi-save me-1"></i>Guardar cambios
+          </button>
+        </div>
       </div>
     </div>
   </div>
+
 </div>
-
-<!-- MODAL CONFIRMACIÓN AJUSTE -->
-<div class="modal fade" id="modalConfirmarAjuste" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
-    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-arrow-repeat me-2" style="color:var(--azul-claro);"></i> Confirmar Ajuste
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <div class="text-center mb-3">
-          <i class="bi bi-exclamation-triangle" style="font-size:2.5rem; color:#f39c12;"></i>
-        </div>
-        <p style="font-size:.9rem; color:var(--texto); text-align:center; margin:0;">
-          ¿Ajustar stock de <strong id="ajuste-nombre" style="color:var(--azul-claro);"></strong>?
-        </p>
-        <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
-          <div class="text-center">
-            <div style="font-size:.65rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.06em;">Sistema</div>
-            <div id="ajuste-sistema" style="font-size:1.4rem; font-weight:700; color:var(--rojo);"></div>
-          </div>
-          <i class="bi bi-arrow-right" style="font-size:1.2rem; color:var(--texto-muted);"></i>
-          <div class="text-center">
-            <div style="font-size:.65rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.06em;">Físico</div>
-            <div id="ajuste-fisico" style="font-size:1.4rem; font-weight:700; color:#27ae60;"></div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex gap-2">
-        <button type="button" class="cys-btn cys-btn--outline flex-fill" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1" style="color:var(--rojo);"></i> Cancelar
-        </button>
-        <button type="button" id="btn-confirmar-ajuste" class="cys-btn cys-btn--primary flex-fill">
-          <i class="bi bi-check-circle me-1"></i> Confirmar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<form id="form-ajuste-oculto" method="POST" action="" style="display:none;">
-  {% csrf_token %}
-  <input type="hidden" name="nueva_cantidad" id="ajuste-cantidad-input">
-</form>
-
-<!-- MODAL REGISTRAR CÓDIGOS DE BARRAS -->
-<div class="modal fade" id="modalRegistrarCodigos" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-upc-scan me-2" style="color:var(--azul-claro);"></i> Registrar Códigos de Barras
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <div class="row g-3 mb-4">
-          <div class="col-md-4">
-            <div class="cys-stat-card text-center">
-              <div class="cys-stat-card__label">Total Productos</div>
-              <div class="cys-stat-card__val">{{ productos|length }}</div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="cys-stat-card text-center">
-              <div class="cys-stat-card__label">Con Código</div>
-              <div class="cys-stat-card__val" style="color:#27ae60;">{{ con_codigo }}</div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="cys-stat-card text-center">
-              <div class="cys-stat-card__label">Sin Código</div>
-              <div class="cys-stat-card__val" style="color:var(--rojo);">{{ sin_codigo }}</div>
-            </div>
-          </div>
-        </div>
-        <div class="mb-3">
-          <input type="text" id="buscador-codigos" class="cys-input form-control" placeholder="Buscar por nombre o código de barras...">
-        </div>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead>
-              <tr style="border-bottom:2px solid var(--azul-borde);">
-                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">#</th>
-                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Producto</th>
-                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Categoría</th>
-                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Estado</th>
-                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Código actual</th>
-                <th class="text-uppercase" style="font-size:.72rem; color:var(--gris-claro); font-weight:600;">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-codigos">
-              {% for p in productos %}
-              <tr class="fila-codigo" data-nombre="{{ p.nombre|lower }}" data-codigo="{{ p.codigo|lower }}">
-                <td style="font-size:.85rem; color:var(--texto-muted);">{{ forloop.counter }}</td>
-                <td style="font-size:.85rem; font-weight:600; color:var(--texto);">{{ p.nombre }}</td>
-                <td style="font-size:.85rem; color:var(--texto-muted);">{{ p.categoria.nombre }}</td>
-                <td>
-                  {% if p.codigo %}
-                    <span class="badge-codigo-{{ p.pk }} inv-badge" style="background:rgba(39,174,96,.15); color:#27ae60; border:1px solid rgba(39,174,96,.3); font-size:.72rem;">
-                      <i class="bi bi-check-circle me-1"></i>Registrado
-                    </span>
-                  {% else %}
-                    <span class="badge-codigo-{{ p.pk }} inv-badge" style="background:rgba(192,57,43,.12); color:var(--rojo); border:1px solid rgba(192,57,43,.25); font-size:.72rem;">
-                      <i class="bi bi-x-circle me-1"></i>Sin código
-                    </span>
-                  {% endif %}
-                </td>
-                <td>
-                  <span id="codigo-actual-{{ p.pk }}" style="font-size:.82rem; font-family:monospace; color:{% if p.codigo %}var(--azul-claro){% else %}var(--texto-muted){% endif %};">
-                    {{ p.codigo|default:"—" }}
-                  </span>
-                </td>
-                <td>
-                  <button class="cys-btn-sm cys-btn-sm--primary btn-registrar-codigo"
-                          data-pk="{{ p.pk }}" data-nombre="{{ p.nombre }}" data-codigo="{{ p.codigo|default:'' }}"
-                          style="font-size:.72rem; padding:.35rem .75rem; white-space:nowrap; width:auto; height:auto;">
-                    <i class="bi bi-upc-scan me-1"></i>{% if p.codigo %}Editar{% else %}Registrar{% endif %}
-                  </button>
-                </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="6" class="text-center py-4" style="color:var(--texto-muted); font-size:.85rem;">No hay productos registrados.</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4">
-        <button type="button" class="cys-btn cys-btn--outline" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL ESCANEAR CÓDIGO -->
-<div class="modal fade" id="modalEscanearCodigo" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered" style="max-width:440px;">
-    <div class="modal-content border-0 shadow-lg" style="background:var(--fondo-card); border:1px solid var(--azul-borde) !important; border-radius:14px;">
-      <div class="modal-header border-0" style="background:var(--azul-oscuro); border-radius:14px 14px 0 0; padding:1.25rem 1.5rem;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--blanco); letter-spacing:.08em; text-transform:uppercase;">
-          <i class="bi bi-upc-scan me-2" style="color:var(--azul-claro);"></i> Escanear Código
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-4">
-        <div style="background:var(--fondo); border:1px solid var(--azul-borde); border-radius:10px; padding:12px 16px; margin-bottom:1.25rem;">
-          <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:3px;">Producto</div>
-          <div id="escanear-nombre" style="font-size:.95rem; font-weight:600; color:var(--texto);"></div>
-        </div>
-        <div style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1rem; line-height:1.6;">
-          <i class="bi bi-info-circle me-1" style="color:var(--azul-claro);"></i>
-          Haz clic en el campo y apunta el escáner al producto. Se guarda automáticamente con el Enter del escáner.
-        </div>
-        <label class="cys-form-label">Código de barras</label>
-        <div style="position:relative;">
-          <input type="text" id="escanear-input" class="cys-input form-control"
-                 placeholder="Escanea o escribe el código..." autocomplete="off"
-                 style="font-family:monospace; font-size:.9rem; padding-right:2.5rem;">
-          <i class="bi bi-upc" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--texto-muted); pointer-events:none;"></i>
-        </div>
-        <div id="escanear-codigo-actual-wrap" style="margin-top:.75rem; display:none;">
-          <div style="font-size:.72rem; color:var(--texto-muted);">Código actual:</div>
-          <div id="escanear-codigo-actual-val" style="font-family:monospace; font-size:.82rem; color:var(--azul-claro);"></div>
-        </div>
-        <div id="escanear-feedback" style="margin-top:.75rem; font-size:.82rem; min-height:20px;"></div>
-      </div>
-      <div class="modal-footer border-0 pt-0 px-4 pb-4 gap-2">
-        <button type="button" class="cys-btn cys-btn--outline flex-fill" id="btn-volver-lista">
-          <i class="bi bi-arrow-left me-1"></i> Volver
-        </button>
-        <button type="button" id="btn-guardar-codigo" class="cys-btn cys-btn--primary flex-fill">
-          <i class="bi bi-save me-1"></i> Guardar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function abrirEditar(pk, nombre, codigo, categoriaPk, precio, cantidad, unidad) {
-  document.getElementById('inv-edit-nombre').value    = nombre;
-  document.getElementById('inv-edit-codigo').value    = codigo;
-  document.getElementById('inv-edit-precio').value    = precio;
-  document.getElementById('inv-edit-cantidad').value  = cantidad;
-  document.getElementById('inv-edit-unidad').value    = unidad;
-  document.getElementById('form-editar-inv').action   = `/producto/producto/${pk}/editar/`;
-  new bootstrap.Modal(document.getElementById('modalEditarProducto')).show();
-}
-
+// ── DETALLE PRODUCTO ──────────────────────────────────────────────────────────
 function abrirDetalle(nombre, codigo, categoria, precio, cantidad, unidad, descripcion) {
-  document.getElementById('inv-det-nombre').textContent      = nombre;
-  document.getElementById('inv-det-codigo').textContent      = codigo;
-  document.getElementById('inv-det-categoria').textContent   = categoria;
-  document.getElementById('inv-det-precio').textContent      = '$' + parseInt(precio).toLocaleString();
-  document.getElementById('inv-det-cantidad').textContent    = cantidad + ' ' + unidad;
+  document.getElementById('inv-det-nombre').textContent     = nombre;
+  document.getElementById('inv-det-codigo').textContent     = codigo || 'Sin código';
+  document.getElementById('inv-det-categoria').textContent  = categoria;
+  document.getElementById('inv-det-precio').textContent     = '$' + parseInt(precio).toLocaleString('es-CO');
+  document.getElementById('inv-det-cantidad').textContent   = cantidad + ' ' + unidad;
   document.getElementById('inv-det-descripcion').textContent = descripcion || 'Sin descripción';
   new bootstrap.Modal(document.getElementById('modalDetalleProducto')).show();
 }
 
+// ── CONFIRMAR AJUSTE ──────────────────────────────────────────────────────────
 function abrirConfirmarAjuste(btn) {
   btn.blur();
-  const pk      = btn.dataset.pk;
-  const nombre  = btn.dataset.nombre;
-  const sistema = btn.dataset.sistema;
-  const fisico  = btn.dataset.fisico;
-  const unidad  = btn.dataset.unidad;
-  document.getElementById('ajuste-nombre').textContent   = nombre;
-  document.getElementById('ajuste-sistema').textContent  = sistema + ' ' + unidad;
-  document.getElementById('ajuste-fisico').textContent   = fisico + ' ' + unidad;
-  document.getElementById('ajuste-cantidad-input').value = fisico;
-  document.getElementById('form-ajuste-oculto').action   = `/inventario/ajustar/${pk}/`;
-  const modalComparar = bootstrap.Modal.getInstance(document.getElementById('modalComparar'));
-  modalComparar.hide();
-  document.getElementById('modalComparar').addEventListener('hidden.bs.modal', function abrirSiguiente() {
+  document.getElementById('ajuste-nombre').textContent   = btn.dataset.nombre;
+  document.getElementById('ajuste-sistema').textContent  = btn.dataset.sistema + ' ' + btn.dataset.unidad;
+  document.getElementById('ajuste-fisico').textContent   = btn.dataset.fisico  + ' ' + btn.dataset.unidad;
+  document.getElementById('ajuste-cantidad-input').value = btn.dataset.fisico;
+  document.getElementById('form-ajuste-oculto').action   = `/inventario/ajustar/${btn.dataset.pk}/`;
+  const mc = bootstrap.Modal.getInstance(document.getElementById('modalComparar'));
+  mc.hide();
+  document.getElementById('modalComparar').addEventListener('hidden.bs.modal', function sig() {
     new bootstrap.Modal(document.getElementById('modalConfirmarAjuste')).show();
-    document.getElementById('modalComparar').removeEventListener('hidden.bs.modal', abrirSiguiente);
+    document.getElementById('modalComparar').removeEventListener('hidden.bs.modal', sig);
   });
 }
+document.getElementById('btn-confirmar-ajuste').addEventListener('click', () => {
+  document.getElementById('form-ajuste-oculto').submit();
+});
 
-// ── ESCÁNER USB (conteo) ──────────────────────────
+// ── ESCÁNER USB (conteo) ──────────────────────────────────────────────────────
 (function () {
   const displayProd   = document.getElementById('conteo-display-producto');
   const selectProd    = document.getElementById('conteo-select-producto');
   const inputCantidad = document.getElementById('input-cantidad');
-
   if (!displayProd || !selectProd) return;
 
   const codigoMap = {};
@@ -887,12 +1023,9 @@ function abrirConfirmarAjuste(btn) {
   });
 
   document.getElementById('modalConteo').addEventListener('shown.bs.modal', () => {
-    displayProd.value = '';
-    selectProd.value = '';
-    displayProd.focus();
+    displayProd.value = ''; selectProd.value = ''; displayProd.focus();
   });
-
-  displayProd.addEventListener('keydown', function(e) {
+  displayProd.addEventListener('keydown', function (e) {
     if (e.key !== 'Enter') return;
     e.preventDefault();
     const codigo = displayProd.value.trim();
@@ -905,10 +1038,9 @@ function abrirConfirmarAjuste(btn) {
       setTimeout(() => { displayProd.style.borderColor = ''; }, 1500);
       if (inputCantidad) { inputCantidad.value = ''; inputCantidad.focus(); }
     } else {
-      const codigoTecleado = codigo;
-      displayProd.value = '';
+      const t = codigo; displayProd.value = '';
       displayProd.style.borderColor = '#C0392B';
-      displayProd.placeholder = `⚠ Código "${codigoTecleado}" no encontrado`;
+      displayProd.placeholder = `⚠ Código "${t}" no encontrado`;
       setTimeout(() => {
         displayProd.style.borderColor = '';
         displayProd.placeholder = '🔍 Escanea el producto con el lector...';
@@ -916,24 +1048,20 @@ function abrirConfirmarAjuste(btn) {
       }, 2000);
     }
   });
-
   const formConteo = document.getElementById('form-conteo');
-  if (formConteo) {
-    formConteo.addEventListener('submit', function() {
-      setTimeout(() => { displayProd.value = ''; selectProd.value = ''; displayProd.focus(); }, 200);
-    });
-  }
+  if (formConteo) formConteo.addEventListener('submit', () => {
+    setTimeout(() => { displayProd.value = ''; selectProd.value = ''; displayProd.focus(); }, 200);
+  });
 })();
 
-// ── REGISTRAR CÓDIGOS ─────────────────────────────
+// ── REGISTRAR CÓDIGOS ─────────────────────────────────────────────────────────
 const CSRF_INV = '{{ csrf_token }}';
 let pkCodActivo = null;
 
 document.getElementById('buscador-codigos').addEventListener('input', function () {
   const q = this.value.toLowerCase();
-  document.querySelectorAll('.fila-codigo').forEach(fila => {
-    const match = fila.dataset.nombre.includes(q) || fila.dataset.codigo.includes(q);
-    fila.style.display = match ? '' : 'none';
+  document.querySelectorAll('.fila-codigo').forEach(f => {
+    f.style.display = (f.dataset.nombre.includes(q) || f.dataset.codigo.includes(q)) ? '' : 'none';
   });
 });
 
@@ -941,20 +1069,18 @@ document.querySelectorAll('.btn-registrar-codigo').forEach(btn => {
   btn.addEventListener('click', function () {
     pkCodActivo = this.dataset.pk;
     document.getElementById('escanear-nombre').textContent = this.dataset.nombre;
-    document.getElementById('escanear-input').value = '';
+    document.getElementById('escanear-input').value        = '';
     document.getElementById('escanear-feedback').innerHTML = '';
-    const codigoExistente = this.dataset.codigo;
     const wrap = document.getElementById('escanear-codigo-actual-wrap');
-    if (codigoExistente) {
-      document.getElementById('escanear-codigo-actual-val').textContent = codigoExistente;
+    if (this.dataset.codigo) {
+      document.getElementById('escanear-codigo-actual-val').textContent = this.dataset.codigo;
       wrap.style.display = 'block';
-    } else {
-      wrap.style.display = 'none';
-    }
+    } else { wrap.style.display = 'none'; }
+
     bootstrap.Modal.getInstance(document.getElementById('modalRegistrarCodigos')).hide();
-    document.getElementById('modalRegistrarCodigos').addEventListener('hidden.bs.modal', function abrirEscaneo() {
+    document.getElementById('modalRegistrarCodigos').addEventListener('hidden.bs.modal', function aE() {
       new bootstrap.Modal(document.getElementById('modalEscanearCodigo')).show();
-      document.getElementById('modalRegistrarCodigos').removeEventListener('hidden.bs.modal', abrirEscaneo);
+      document.getElementById('modalRegistrarCodigos').removeEventListener('hidden.bs.modal', aE);
     });
     document.getElementById('modalEscanearCodigo').addEventListener('shown.bs.modal', () => {
       document.getElementById('escanear-input').focus();
@@ -964,9 +1090,9 @@ document.querySelectorAll('.btn-registrar-codigo').forEach(btn => {
 
 document.getElementById('btn-volver-lista').addEventListener('click', function () {
   bootstrap.Modal.getInstance(document.getElementById('modalEscanearCodigo')).hide();
-  document.getElementById('modalEscanearCodigo').addEventListener('hidden.bs.modal', function volverLista() {
+  document.getElementById('modalEscanearCodigo').addEventListener('hidden.bs.modal', function vL() {
     new bootstrap.Modal(document.getElementById('modalRegistrarCodigos')).show();
-    document.getElementById('modalEscanearCodigo').removeEventListener('hidden.bs.modal', volverLista);
+    document.getElementById('modalEscanearCodigo').removeEventListener('hidden.bs.modal', vL);
   });
 });
 
@@ -986,22 +1112,23 @@ function guardarCodigoBarras() {
   .then(r => r.json())
   .then(data => {
     if (data.ok) {
-      feedback.innerHTML = '<span style="color:#27ae60;"><i class="bi bi-check-circle me-1"></i>¡Guardado correctamente!</span>';
-      const spanActual = document.getElementById('codigo-actual-' + pkCodActivo);
-      if (spanActual) { spanActual.textContent = data.codigo; spanActual.style.color = 'var(--azul-claro)'; }
+      feedback.innerHTML = '<span style="color:#27ae60;"><i class="bi bi-check-circle me-1"></i>¡Guardado!</span>';
+      const sp = document.getElementById('codigo-actual-' + pkCodActivo);
+      if (sp) { sp.textContent = data.codigo; sp.style.color = 'var(--azul-claro)'; }
       const fila = document.querySelector(`.btn-registrar-codigo[data-pk="${pkCodActivo}"]`)?.closest('tr');
       if (fila) {
         fila.dataset.codigo = data.codigo.toLowerCase();
-        fila.querySelector('.btn-registrar-codigo').dataset.codigo = data.codigo;
-        fila.querySelector('.btn-registrar-codigo').innerHTML = '<i class="bi bi-upc-scan me-1"></i>Editar';
+        const br = fila.querySelector('.btn-registrar-codigo');
+        br.dataset.codigo = data.codigo;
+        br.innerHTML = '<i class="bi bi-upc-scan me-1"></i>Editar';
         const badge = fila.querySelector(`[class*="badge-codigo-"]`);
-        if (badge) badge.outerHTML = `<span class="badge-codigo-${pkCodActivo} inv-badge" style="background:rgba(39,174,96,.15); color:#27ae60; border:1px solid rgba(39,174,96,.3); font-size:.72rem;"><i class="bi bi-check-circle me-1"></i>Registrado</span>`;
+        if (badge) badge.outerHTML = `<span class="badge-codigo-${pkCodActivo} inv-badge" style="background:rgba(39,174,96,.15);color:#27ae60;border:1px solid rgba(39,174,96,.3);font-size:.72rem;"><i class="bi bi-check-circle me-1"></i>Registrado</span>`;
       }
       setTimeout(() => {
         bootstrap.Modal.getInstance(document.getElementById('modalEscanearCodigo')).hide();
-        document.getElementById('modalEscanearCodigo').addEventListener('hidden.bs.modal', function volverAuto() {
+        document.getElementById('modalEscanearCodigo').addEventListener('hidden.bs.modal', function vA() {
           new bootstrap.Modal(document.getElementById('modalRegistrarCodigos')).show();
-          document.getElementById('modalEscanearCodigo').removeEventListener('hidden.bs.modal', volverAuto);
+          document.getElementById('modalEscanearCodigo').removeEventListener('hidden.bs.modal', vA);
         });
       }, 1200);
     } else {
@@ -1012,10 +1139,132 @@ function guardarCodigoBarras() {
     feedback.innerHTML = '<span style="color:var(--rojo);"><i class="bi bi-wifi-off me-1"></i>Error de conexión.</span>';
   });
 }
-
 document.getElementById('btn-guardar-codigo').addEventListener('click', guardarCodigoBarras);
-document.getElementById('escanear-input').addEventListener('keydown', function (e) {
+document.getElementById('escanear-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); guardarCodigoBarras(); }
 });
+
+// ── EDITAR MOVIMIENTO ─────────────────────────────────────────────────────────
+function abrirEditarMovimiento(pk, nombre, tipo, cantidad, motivo, ubicacion) {
+  document.getElementById('em-producto-nombre').textContent = nombre;
+  document.getElementById('em-tipo').value                  = tipo;
+  document.getElementById('em-cantidad').value              = cantidad;
+  document.getElementById('em-motivo').value                = motivo;
+  document.getElementById('em-ubicacion').value             = ubicacion;
+  document.getElementById('form-editar-movimiento').action  =
+    `/inventario/movimiento/${pk}/editar/`;
+  new bootstrap.Modal(document.getElementById('modalEditarMovimiento')).show();
+}
+
+// ── CARGAR MOVIMIENTOS (sin recarga de página) ────────────────────────────────
+function irAFecha(fecha) {
+  if (!fecha) return;
+  cargarMovimientos(fecha);
+}
+
+function cargarMovimientos(fecha) {
+  const url = new URL(window.location.href);
+  if (fecha) url.searchParams.set('fecha_mov', fecha);
+  else url.searchParams.delete('fecha_mov');
+
+  window.history.pushState({ fecha }, '', url.toString());
+
+  const tbody    = document.getElementById('tbody-movimientos');
+  const sinResult = document.getElementById('mov-sin-resultados');
+  const chip     = document.querySelector('.mov-resumen__chip');
+
+  // Spinner de carga
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="9" style="text-align:center;padding:3rem 1rem;background:transparent !important;color:var(--texto-muted);">
+        <i class="bi bi-hourglass-split d-block mb-2"
+           style="font-size:2rem;color:var(--azul-borde);animation:spin 1s linear infinite;"></i>
+        Cargando movimientos…
+      </td>
+    </tr>`;
+  if (sinResult) sinResult.style.display = 'none';
+
+  fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    .then(r => r.text())
+    .then(html => {
+      const parser       = new DOMParser();
+      const doc          = parser.parseFromString(html, 'text/html');
+      const nuevoTbody   = doc.getElementById('tbody-movimientos');
+      const nuevoChip    = doc.querySelector('.mov-resumen__chip');
+      const tituloSpan   = document.querySelector('.mov-section-header > span');
+      const nuevoTitulo  = doc.querySelector('.mov-section-header > span');
+
+      if (nuevoTbody) tbody.innerHTML = nuevoTbody.innerHTML;
+      if (nuevoChip && chip) chip.innerHTML = nuevoChip.innerHTML;
+      if (nuevoTitulo && tituloSpan) tituloSpan.innerHTML = nuevoTitulo.innerHTML;
+
+      if (sinResult) sinResult.style.display = 'none';
+      renumerarFilas();
+    })
+    .catch(() => {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" style="background:transparent !important;">
+            <div class="mov-empty">
+              <i class="bi bi-wifi-off"></i>Error al cargar. Intenta de nuevo.
+            </div>
+          </td>
+        </tr>`;
+    });
+}
+
+// Soporte botón Atrás / Adelante del navegador
+window.addEventListener('popstate', function () {
+  const url    = new URL(window.location.href);
+  const fecha  = url.searchParams.get('fecha_mov') || '';
+  const select = document.querySelector('select[onchange="irAFecha(this.value)"]');
+  if (select && fecha) select.value = fecha;
+  cargarMovimientos(fecha);
+});
+
+// ── FILTRAR MOVIMIENTOS ───────────────────────────────────────────────────────
+function filtrarMovimientos(q) {
+  const term     = q.toLowerCase().trim();
+  const filas    = document.querySelectorAll('.mov-fila');
+  const sinResult = document.getElementById('mov-sin-resultados');
+  let visibles   = 0;
+  filas.forEach(f => {
+    const match = !term || (f.dataset.nombre || '').includes(term);
+    f.style.display = match ? '' : 'none';
+    if (match) visibles++;
+  });
+  if (sinResult) sinResult.style.display = visibles === 0 ? 'block' : 'none';
+  renumerarFilas();
+}
+
+// ── ORDENAR MOVIMIENTOS ───────────────────────────────────────────────────────
+function ordenarMovimientos() {
+  const criterio = document.getElementById('filtro-orden-mov').value;
+  const tbody    = document.getElementById('tbody-movimientos');
+  if (!tbody) return;
+  const filas = [...tbody.querySelectorAll('.mov-fila')];
+  filas.sort((a, b) => {
+    switch (criterio) {
+      case 'reciente': return parseInt(b.dataset.fecha||0) - parseInt(a.dataset.fecha||0);
+      case 'antiguo':  return parseInt(a.dataset.fecha||0) - parseInt(b.dataset.fecha||0);
+      case 'nombre':   return (a.dataset.nombre||'').localeCompare(b.dataset.nombre||'','es');
+      case 'entrada':  return a.dataset.tipo==='entrada' ? -1 : 1;
+      case 'salida':   return a.dataset.tipo==='salida'  ? -1 : 1;
+      default: return 0;
+    }
+  });
+  filas.forEach(f => tbody.appendChild(f));
+  renumerarFilas();
+}
+
+function renumerarFilas() {
+  let n = 1;
+  document.querySelectorAll('.mov-fila').forEach(f => {
+    if (f.style.display !== 'none')
+      f.querySelector('td:first-child').textContent = n++;
+  });
+}
+
+document.getElementById('filtro-orden-mov')?.addEventListener('change', ordenarMovimientos);
 </script>
 {% endblock %}

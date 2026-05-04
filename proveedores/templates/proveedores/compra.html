@@ -334,31 +334,10 @@
                font-size:0.73rem; cursor:pointer; transition:.15s; white-space:nowrap;"
         onmouseover="this.style.background='rgba(77,168,218,0.18)'"
         onmouseout="this.style.background='rgba(77,168,218,0.08)'">
-  <i class="bi bi-eye me-1"></i>Ver
-</button>  
-</td>           
+      <i class="bi bi-eye me-1"></i>Ver
+    </button>  
+    </td>           
 </tr>
-                <td style="text-align:center;">
-                  <button type="button"
-                          onclick="abrirDetalle(
-                            '{{ compra.id }}',
-                            '{{ compra.producto.nombre|escapejs }}',
-                            '{{ compra.producto.categoria.nombre|escapejs }}',
-                            {{ compra.cantidad }},
-                            {% if compra.precio_unitario %}'{{ compra.precio_unitario }}'{% else %}null{% endif %},
-                            {% if compra.precio_unitario %}'{{ compra.total }}'{% else %}null{% endif %},
-                            '{{ compra.fecha_registro|date:"d/m/Y H:i" }}',
-                            '{{ proveedor.nombre_empresa|escapejs }}',
-                            '{{ proveedor.nombre_contacto|escapejs }}',
-                            '{{ proveedor.telefono|escapejs }}'
-                          )"
-                          class="btn-ver"
-                          onmouseover="this.style.background='rgba(77,168,218,0.18)'"
-                          onmouseout="this.style.background='rgba(77,168,218,0.08)'">
-                    <i class="bi bi-eye me-1"></i>Ver
-                  </button>
-                </td>
-              </tr>
               {% empty %}
               <tr>
                 <td colspan="7" style="text-align:center; padding:40px 14px; color:#475569;">
