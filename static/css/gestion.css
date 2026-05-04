@@ -43,7 +43,7 @@
   color:var(--gp-text) !important;
   border:1px solid var(--gp-border) !important;
   border-radius:10px !important;
-  padding:10px 14px !important;
+  padding:13px 30px !important;
   font-size:.85rem; width:100%; outline:none;
   transition:border-color .2s;
 }
@@ -511,3 +511,9 @@
 .motivo-dd-item.muted { color: var(--gp-muted); font-style: italic; }
 .motivo-dd-item i { width: 14px; text-align: center; font-size: .8rem; flex-shrink: 0; color: var(--gp-blue); }
 .motivo-dd-divider { height: 1px; background: rgba(77,168,218,.12); margin: .2rem 0; }
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 1;
+  cursor: pointer;
+}

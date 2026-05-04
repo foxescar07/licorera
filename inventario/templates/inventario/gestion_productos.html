@@ -117,8 +117,7 @@
                       {% for pr in pres %}
                         <span style="display:inline-flex; align-items:center; gap:.3rem;
                                      font-size:.68rem; padding:.25rem .5rem; border-radius:6px;
-                                     background:rgba(77,168,218,.09);
-                                     border:1px solid rgba(77,168,218,.22);
+                                     background:rgba(77,168,218,.09); border:1px solid rgba(77,168,218,.22);
                                      color:var(--gp-blue); white-space:nowrap;">
                           <span style="color:var(--gp-text); font-weight:500;">{{ pr.nombre }}</span>
                           <span style="color:var(--gp-muted);">×{{ pr.unidades }}</span>
@@ -143,13 +142,10 @@
                   </button>
                   <div class="gp-dots-menu">
                     <button class="gp-dots-item" onclick="gpMenuClose(); abrirEditarProducto(
-                        {{ p.pk }},
-                        '{{ p.nombre|escapejs }}',
-                        '{{ p.codigo|escapejs }}',
+                        {{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}',
                         '{{ p.descripcion|default:''|escapejs }}',
                         '{% if p.precio_unitario %}{{ p.precio_unitario|floatformat:0 }}{% endif %}',
-                        {{ p.categoria.pk }},
-                        {{ p.stock_total|default:0 }})">
+                        {{ p.categoria.pk }},{{ p.stock_total|default:0 }})">
                       <i class="bi bi-pencil"></i> Editar
                     </button>
                     <button class="gp-dots-item" onclick="gpMenuClose(); abrirDetalleProducto(
@@ -160,8 +156,7 @@
                     </button>
                     <div class="gp-dots-divider"></div>
                     <button class="gp-dots-item danger" onclick="gpMenuClose(); gpEliminarProducto(
-                        '{% url 'inventario:gestion_producto_eliminar' p.pk %}',
-                        '{{ p.nombre|escapejs }}')">
+                        '{% url 'inventario:gestion_producto_eliminar' p.pk %}','{{ p.nombre|escapejs }}')">
                       <i class="bi bi-trash"></i> Eliminar
                     </button>
                   </div>
@@ -193,8 +188,7 @@
                         {% for pr in pres %}
                           <span style="display:inline-flex; align-items:center; gap:.3rem;
                                        font-size:.68rem; padding:.25rem .5rem; border-radius:6px;
-                                       background:rgba(77,168,218,.09);
-                                       border:1px solid rgba(77,168,218,.22);
+                                       background:rgba(77,168,218,.09); border:1px solid rgba(77,168,218,.22);
                                        color:var(--gp-blue); white-space:nowrap;">
                             <span style="color:var(--gp-text); font-weight:500;">{{ pr.nombre }}</span>
                             <span style="color:var(--gp-muted);">×{{ pr.unidades }}</span>
@@ -219,13 +213,10 @@
                     </button>
                     <div class="gp-dots-menu">
                       <button class="gp-dots-item" onclick="gpMenuClose(); abrirEditarProducto(
-                          {{ p.pk }},
-                          '{{ p.nombre|escapejs }}',
-                          '{{ p.codigo|escapejs }}',
+                          {{ p.pk }},'{{ p.nombre|escapejs }}','{{ p.codigo|escapejs }}',
                           '{{ p.descripcion|default:''|escapejs }}',
                           '{% if p.precio_unitario %}{{ p.precio_unitario|floatformat:0 }}{% endif %}',
-                          {{ p.categoria.pk }},
-                          {{ p.stock_total|default:0 }})">
+                          {{ p.categoria.pk }},{{ p.stock_total|default:0 }})">
                         <i class="bi bi-pencil"></i> Editar
                       </button>
                       <button class="gp-dots-item" onclick="gpMenuClose(); abrirDetalleProducto(
@@ -236,8 +227,7 @@
                       </button>
                       <div class="gp-dots-divider"></div>
                       <button class="gp-dots-item danger" onclick="gpMenuClose(); gpEliminarProducto(
-                          '{% url 'inventario:gestion_producto_eliminar' p.pk %}',
-                          '{{ p.nombre|escapejs }}')">
+                          '{% url 'inventario:gestion_producto_eliminar' p.pk %}','{{ p.nombre|escapejs }}')">
                         <i class="bi bi-trash"></i> Eliminar
                       </button>
                     </div>
@@ -259,110 +249,130 @@
     </div>
   </div>
 
-  <!-- TAB 2: REGISTRAR SALIDA -->
-  <div id="tab-salida" class="gp-section">
-    <div class="gp-card">
-      <div class="gp-card__title"><i class="bi bi-box-arrow-up"></i> Registrar Salida</div>
-      <form method="POST" action="{% url 'inventario:gestion_salida' %}">
-        {% csrf_token %}
-        <div class="gp-form-grid">
+<!-- TAB 2: REGISTRAR SALIDA -->
+<div id="tab-salida" class="gp-section">
+  <div class="gp-card">
+    <div class="gp-card__title"><i class="bi bi-box-arrow-up"></i> Registrar Salida</div>
+    <form method="POST" action="{% url 'inventario:gestion_salida' %}">
+      {% csrf_token %}
+      <div class="gp-form-grid">
 
-          <div class="gp-full">
-            <label class="gp-label">Producto</label>
-            <div style="position:relative;" id="salidaProdWrap">
-              <i class="bi bi-search" style="position:absolute; left:.8rem; top:50%;
-                 transform:translateY(-50%); color:rgba(77,168,218,.45);
-                 pointer-events:none; font-size:.75rem; z-index:1;"></i>
-              <input type="text" id="salidaBuscador" class="gp-input" autocomplete="off"
-                     style="padding-left:2.6rem;"
-                     placeholder="Buscar producto por nombre o código…">
-              <div id="salidaDropdown" style="display:none; position:fixed;
-                   background:#0D1B2E; border:1px solid rgba(77,168,218,.22);
-                   border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,.5);
-                   z-index:99999; overflow-y:auto; max-height:220px; min-width:300px;">
-              </div>
+        <!-- BUSCADOR DE PRODUCTO -->
+        <div class="gp-full">
+          <label class="gp-label">Producto</label>
+          <!-- ✅ FIX: sin overflow:visible, el dropdown absolute funciona dentro -->
+          <div style="position:relative;" id="salidaProdWrap">
+            <i class="bi bi-search" style="position:absolute; left:.75rem; top:50%;
+               transform:translateY(-50%); color:rgba(77,168,218,.45);
+               pointer-events:none; font-size:.7rem; z-index:2;"></i>
+            <input type="text" id="salidaBuscador" class="gp-input" autocomplete="off"
+                   placeholder="Buscar producto por nombre o código…">
+            <!-- ✅ FIX: position:absolute en vez de fixed, top:100% lo ancla al input -->
+            <div id="salidaDropdown" style="display:none; position:absolute;
+                 top:100%; left:0; right:0; margin-top:6px;
+                 background:#0D1B2E; border:1px solid rgba(77,168,218,.22);
+                 border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,.5);
+                 z-index:99999; overflow-y:auto; max-height:220px;">
             </div>
-            <div id="salidaProdPill" style="margin-top:.5rem;"></div>
-            <input type="hidden" name="producto" id="salidaProductoHidden">
           </div>
+          <div id="salidaProdPill" style="margin-top:.5rem;"></div>
+          <input type="hidden" name="producto" id="salidaProductoHidden">
+        </div>
 
-          <div id="salidaPresWrap" style="display:none;" class="gp-full">
-            <label class="gp-label">
-              Presentación <span style="color:var(--gp-muted);font-weight:400;font-size:.75rem;">(opcional)</span>
-            </label>
-            <select name="presentacion" id="salidaPres" class="gp-input">
-              <option value="">— Unidades sueltas —</option>
-            </select>
-          </div>
+        <!-- PRESENTACIÓN -->
+        <div id="salidaPresWrap" style="display:none;" class="gp-full">
+          <label class="gp-label">
+            Seleccione la Presentación <span style="color:var(--gp-muted);font-weight:400;font-size:.75rem;"></span>
+          </label>
+          <select name="presentacion" id="salidaPres" class="gp-input">
+            <option value="">— Escoge la presentación —</option>
+          </select>
+        </div>
 
-          <div>
-            <label class="gp-label">
-              Lote <span style="color:var(--gp-muted);font-weight:400;font-size:.75rem;">(opcional)</span>
-            </label>
-            <select name="lote_id" class="gp-input">
-              <option value="">— Sin lote específico —</option>
-              {% for lote in lotes %}
-                <option value="{{ lote.pk }}">
-                  {{ lote.numero_lote }} — {{ lote.producto.nombre }}
-                  {% if lote.fecha_vencimiento %}· vence {{ lote.fecha_vencimiento|date:"d/m/Y" }}{% endif %}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
+        <!-- LOTE -->
+        <div>
+          <label class="gp-label">
+            Lote <span style="color:var(--gp-muted);font-weight:400;font-size:.75rem;">(opcional)</span>
+          </label>
+          <select name="lote_id" class="gp-input">
+            <option value="">— Sin lote específico —</option>
+            {% for lote in lotes %}
+              <option value="{{ lote.pk }}">
+                {{ lote.numero_lote }} — {{ lote.producto.nombre }}
+                {% if lote.fecha_vencimiento %}· vence {{ lote.fecha_vencimiento|date:"d/m/Y" }}{% endif %}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
 
-          <div>
-            <label class="gp-label">Cantidad</label>
-            <input type="number" name="cantidad" class="gp-input" min="1" placeholder="Ej: 5" required>
-          </div>
+        <!-- CANTIDAD -->
+        <div>
+          <label class="gp-label">Cantidad</label>
+          <input type="number" name="cantidad" class="gp-input" min="1" placeholder="Ej: 5" required>
+        </div>
 
-          <div class="gp-full">
-            <label class="gp-label">Motivo</label>
-            <div style="position:relative;" id="motivoWrap">
+        <!-- MOTIVO -->
+        <div class="gp-full">
+          <label class="gp-label">Motivo</label>
+          <div id="motivoWrap">
+            <div style="position:relative;">
               <input type="text" name="motivo" id="motivoInput" class="gp-input"
                      placeholder="Elige o describe el motivo…"
-                     autocomplete="off"
-                     required
-                     onclick="toggleMotivoDrop()"
-                     oninput="filtrarMotivos(this.value)">
+                     autocomplete="off" required readonly
+                     onclick="toggleMotivoDrop()">
               <i class="bi bi-chevron-down" id="motivoChevron"
                  style="position:absolute; right:.8rem; top:50%; transform:translateY(-50%);
                         color:rgba(77,168,218,.45); pointer-events:none; font-size:.75rem;
                         transition:transform .2s;"></i>
-              <div id="motivoDropdown" style="display:none; position:fixed;
-                   background:#0D1B2E; border:1px solid rgba(77,168,218,.22);
-                   border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,.5);
-                   z-index:99999; overflow:hidden; min-width:200px;">
-                <div id="motivoOpciones">
-                  <div class="motivo-dd-item" onclick="elegirMotivo('Venta')"><i class="bi bi-cart3"></i> Venta</div>
-                  <div class="motivo-dd-item" onclick="elegirMotivo('Merma')"><i class="bi bi-droplet-half"></i> Merma</div>
-                  <div class="motivo-dd-item" onclick="elegirMotivo('Daño')"><i class="bi bi-exclamation-triangle"></i> Daño</div>
-                  <div class="motivo-dd-item" onclick="elegirMotivo('Vencimiento')"><i class="bi bi-calendar-x"></i> Vencimiento</div>
-                  <div class="motivo-dd-item" onclick="elegirMotivo('Consumo interno')"><i class="bi bi-house"></i> Consumo interno</div>
-                  <div class="motivo-dd-item" onclick="elegirMotivo('Devolución')"><i class="bi bi-arrow-return-left"></i> Devolución</div>
-                  <div class="motivo-dd-divider"></div>
-                  <div class="motivo-dd-item muted"
-                       onclick="document.getElementById('motivoDropdown').style.display='none';
-                                document.getElementById('motivoInput').focus();">
-                    <i class="bi bi-pencil"></i> Escribir motivo personalizado
-                  </div>
-                </div>
+            </div>
+            <div id="motivoDropdown" style="display:none; margin-top:4px;
+                 background:#0D1B2E; border:1px solid rgba(77,168,218,.22);
+                 border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,.4);
+                 overflow:hidden;">
+              <div class="motivo-dd-item" onclick="elegirMotivo('Venta')">
+                <i class="bi bi-cart3"></i> Venta
+              </div>
+              <div class="motivo-dd-item" onclick="elegirMotivo('Merma')">
+                <i class="bi bi-droplet-half"></i> Merma
+              </div>
+              <div class="motivo-dd-item" onclick="elegirMotivo('Daño')">
+                <i class="bi bi-exclamation-triangle"></i> Daño
+              </div>
+              <div class="motivo-dd-item" onclick="elegirMotivo('Vencimiento')">
+                <i class="bi bi-calendar-x"></i> Vencimiento
+              </div>
+              <div class="motivo-dd-item" onclick="elegirMotivo('Consumo interno')">
+                <i class="bi bi-house"></i> Consumo interno
+              </div>
+              <div class="motivo-dd-item" onclick="elegirMotivo('Devolución')">
+                <i class="bi bi-arrow-return-left"></i> Devolución
+              </div>
+              <div class="motivo-dd-divider"></div>
+              <div class="motivo-dd-item muted"
+                   onclick="document.getElementById('motivoDropdown').style.display='none';
+                            document.getElementById('motivoChevron').style.transform='translateY(-50%) rotate(0deg)';
+                            document.getElementById('motivoInput').removeAttribute('readonly');
+                            document.getElementById('motivoInput').focus();">
+                <i class="bi bi-pencil"></i> Escribir motivo personalizado
               </div>
             </div>
           </div>
-
-          <div class="gp-full">
-            <button type="submit" class="gp-btn gp-btn--danger w-100">
-              <i class="bi bi-box-arrow-up"></i> Registrar Salida
-            </button>
-          </div>
-
         </div>
-      </form>
-    </div>
 
-    <script id="presData" type="application/json">
-      { {% for p in productos %}"{{ p.pk }}": [{% for pr in p.presentaciones.all %}{"id":"{{ pr.pk }}","nombre":"{{ pr.nombre }}","cantidad":{{ pr.cantidad }},"unidades":{{ pr.unidades }}}{% if not forloop.last %},{% endif %}{% endfor %}]{% if not forloop.last %},{% endif %}{% endfor %} }
-    </script>
+        <!-- BOTÓN SUBMIT -->
+        <div class="gp-full">
+          <button type="submit" class="gp-btn gp-btn--danger w-100">
+            <i class="bi bi-box-arrow-up"></i> Registrar Salida
+          </button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <script id="presData" type="application/json">
+    { {% for p in productos %}"{{ p.pk }}": [{% for pr in p.presentaciones.all %}{"id":"{{ pr.pk }}","nombre":"{{ pr.nombre }}","cantidad":{{ pr.cantidad }},"unidades":{{ pr.unidades }}}{% if not forloop.last %},{% endif %}{% endfor %}]{% if not forloop.last %},{% endif %}{% endfor %} }
+  </script>
   </div>
 
   <!-- TAB 3: CATEGORÍAS -->
@@ -455,41 +465,54 @@
     </div>
   </div>
 
-  <!-- TAB 4: REGISTRAR LOTE -->
+   <!-- TAB 4: REGISTRAR LOTE -->
   <div id="tab-lotes" class="gp-section">
-    <div class="gp-card">
-      <div class="gp-card__title"><i class="bi bi-upc-scan"></i> Registrar Lote</div>
-      <form method="POST" action="{% url 'inventario:registrar_lote' %}">
-        {% csrf_token %}
-        <div class="gp-form-grid">
-          <div>
-            <label class="gp-label">Número de Lote</label>
-            <input type="text" name="numero_lote" class="gp-input" placeholder="Ej: LOT-2025-001" required>
-          </div>
-          <div>
-            <label class="gp-label">Producto</label>
-            <select name="producto" class="gp-input" required>
-              <option value="">— Selecciona un producto —</option>
-              {% for p in productos %}
-                <option value="{{ p.pk }}">{{ p.nombre }} ({{ p.codigo }})</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div>
-            <label class="gp-label">
-              Fecha de Vencimiento
-              <span style="color:var(--gp-muted); font-weight:400; font-size:.75rem;">(opcional)</span>
-            </label>
-            <input type="date" name="fecha_vencimiento" class="gp-input">
-          </div>
-          <div class="gp-full">
-            <button type="submit" class="gp-btn gp-btn--primary w-100">
-              <i class="bi bi-save"></i> Guardar Lote
-            </button>
-          </div>
+  <div class="gp-card">
+    <div class="gp-card__title"><i class="bi bi-upc-scan"></i> Registrar Lote</div>
+    <form method="POST" action="{% url 'inventario:registrar_lote' %}">
+      {% csrf_token %}
+      <div class="gp-form-grid">
+        <div>
+          <label class="gp-label">Número de Lote</label>
+          <input type="text" name="numero_lote" class="gp-input" placeholder="Ej: LOT-2025-001" required>
         </div>
-      </form>
-    </div>
+
+        <div>
+          <label class="gp-label">Producto</label>
+          <div style="position:relative;" id="loteProdWrap">
+            <i class="bi bi-search" style="position:absolute; left:.75rem; top:50%;
+               transform:translateY(-50%); color:rgba(77,168,218,.45);
+               pointer-events:none; font-size:.7rem; z-index:2;"></i>
+            <input type="text" id="loteBuscador" class="gp-input" autocomplete="off"
+                   placeholder="Buscar producto por nombre o código…">
+            <div id="loteDropdown" style="display:none; position:absolute;
+                 top:100%; left:0; right:0; margin-top:6px;
+                 background:#0D1B2E; border:1px solid rgba(77,168,218,.22);
+                 border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,.5);
+                 z-index:99999; overflow-y:auto; max-height:220px;
+                 overscroll-behavior:contain;">
+            </div>
+          </div>
+          <div id="loteProdPill" style="margin-top:.5rem;"></div>
+          <input type="hidden" name="producto" id="loteProductoHidden" required>
+        </div>
+
+        <div>
+          <label class="gp-label">
+            Fecha de Vencimiento
+            <span style="color:var(--gp-muted); font-weight:400; font-size:.75rem;">(opcional)</span>
+          </label>
+          <input type="date" name="fecha_vencimiento" class="gp-input">
+        </div>
+
+        <div class="gp-full">
+          <button type="submit" class="gp-btn gp-btn--primary w-100">
+            <i class="bi bi-save"></i> Guardar Lote
+          </button>
+        </div>
+      </div>
+    </form>
+   </div>
   </div>
 
 </div>
@@ -583,8 +606,7 @@
         </div>
         <div style="margin-top:1.5rem;">
           <div style="font-family:'Rajdhani',sans-serif; font-size:.82rem; font-weight:700;
-                      color:var(--gp-blue); letter-spacing:.08em; text-transform:uppercase;
-                      margin-bottom:.65rem;">
+                      color:var(--gp-blue); letter-spacing:.08em; text-transform:uppercase; margin-bottom:.65rem;">
             <i class="bi bi-layers me-1"></i> Presentaciones
           </div>
           <div id="ep-presentaciones-tabla"></div>
@@ -609,9 +631,7 @@
   <div class="gp-modal-box gp-modal-box--lg">
     <div class="gp-modal-header">
       <div class="gp-modal-header__icon"><i class="bi bi-layers"></i></div>
-      <span class="gp-modal-header__title">
-        Presentaciones — <span id="pres-producto-nombre">Producto</span>
-      </span>
+      <span class="gp-modal-header__title">Presentaciones — <span id="pres-producto-nombre">Producto</span></span>
       <button class="gp-modal-close" onclick="cerrarModal('modalPresentaciones')"><i class="bi bi-x-lg"></i></button>
     </div>
     <form id="form-presentaciones" method="POST" action="">
@@ -653,8 +673,7 @@
         </div>
         <div id="contenedor-presentaciones"></div>
         <button type="button" class="gp-btn gp-btn--outline w-100 mt-2"
-                style="border-style:dashed; font-size:.8rem;"
-                onclick="agregarPresentacion()">
+                style="border-style:dashed; font-size:.8rem;" onclick="agregarPresentacion()">
           <i class="bi bi-plus-circle me-1"></i> Agregar Presentación
         </button>
       </div>
@@ -716,7 +735,6 @@
   </div>
 </div>
 
-
 <script>
 const CSRF_TOKEN = "{{ csrf_token }}";
 
@@ -755,6 +773,7 @@ function showTab(name, btn) {
   document.querySelectorAll('.gp-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   btn.classList.add('active');
+  localStorage.setItem('gp-active-tab', name);
 }
 
 // ── GRUPOS ────────────────────────────────────────────────────────────────────
@@ -782,7 +801,7 @@ function gpBuscar(q) {
   });
 }
 
-// ── BUSCADOR SALIDA ───────────────────────────────────────────────────────────
+// ── PRODUCTOS COMPARTIDO ──────────────────────────────────────────────────────
 const _salidaProductos = [
   {% for p in productos %}
   {
@@ -794,11 +813,10 @@ const _salidaProductos = [
   {% endfor %}
 ];
 
+// ── BUSCADOR SALIDA ───────────────────────────────────────────────────────────
 function _initSalidaBuscador() {
   const buscador = document.getElementById('salidaBuscador');
   const drop     = document.getElementById('salidaDropdown');
-  const pill     = document.getElementById('salidaProdPill');
-  const hidden   = document.getElementById('salidaProductoHidden');
 
   buscador.addEventListener('input', function () {
     const q = this.value.toLowerCase().trim();
@@ -807,39 +825,29 @@ function _initSalidaBuscador() {
     const hits = _salidaProductos.filter(p =>
       p.nombre.toLowerCase().includes(q) || p.codigo.toLowerCase().includes(q)
     );
-
     if (!hits.length) { drop.style.display = 'none'; return; }
-
-    const rect = buscador.getBoundingClientRect();
-    drop.style.top   = (rect.bottom + 6) + 'px';
-    drop.style.left  = rect.left + 'px';
-    drop.style.width = rect.width + 'px';
 
     drop.innerHTML = hits.map(p => `
       <div class="salida-dd-item" onclick="_salidaSeleccionar(${p.pk})">
-        <span>
-          ${p.nombre}
-          <span class="salida-dd-item__code">${p.codigo}</span>
-        </span>
+        <span>${p.nombre} <span class="salida-dd-item__code">${p.codigo}</span></span>
         <span class="salida-dd-item__stock">${p.stock} uds</span>
       </div>`).join('');
-
     drop.style.display = 'block';
   });
 }
 
 document.addEventListener('click', e => {
-  if (!e.target.closest('#salidaProdWrap') && !e.target.closest('#salidaDropdown')) {
+  if (!e.target.closest('#salidaProdWrap')) {
     const d = document.getElementById('salidaDropdown');
     if (d) d.style.display = 'none';
   }
 });
 
 function _salidaSeleccionar(pk) {
-  const prod   = _salidaProductos.find(p => p.pk === pk);
-  const hidden = document.getElementById('salidaProductoHidden');
-  const pill   = document.getElementById('salidaProdPill');
-  const drop   = document.getElementById('salidaDropdown');
+  const prod     = _salidaProductos.find(p => p.pk === pk);
+  const hidden   = document.getElementById('salidaProductoHidden');
+  const pill     = document.getElementById('salidaProdPill');
+  const drop     = document.getElementById('salidaDropdown');
   const buscador = document.getElementById('salidaBuscador');
   if (!prod) return;
 
@@ -856,7 +864,7 @@ function _salidaSeleccionar(pk) {
 
   const wrap = document.getElementById('salidaPresWrap');
   const pres = document.getElementById('salidaPres');
-  pres.innerHTML = '<option value="">— Unidades sueltas —</option>';
+  pres.innerHTML = '<option value="" disabled selected hidden>— Seleccionar —</option>';
 
   const presDataParsed = JSON.parse(document.getElementById('presData').textContent);
   if (presDataParsed[pk] && presDataParsed[pk].length > 0) {
@@ -873,58 +881,97 @@ function _salidaSeleccionar(pk) {
 }
 
 function _salidaLimpiar() {
-  document.getElementById('salidaProductoHidden').value = '';
-  document.getElementById('salidaProdPill').innerHTML   = '';
+  document.getElementById('salidaProductoHidden').value   = '';
+  document.getElementById('salidaProdPill').innerHTML     = '';
   document.getElementById('salidaPresWrap').style.display = 'none';
-  document.getElementById('salidaPres').innerHTML = '<option value="">— Unidades sueltas —</option>';
+  document.getElementById('salidaPres').innerHTML         = '<option value="" disabled selected hidden>— Seleccionar —</option>';
+}
+
+// ── BUSCADOR LOTE ─────────────────────────────────────────────────────────────
+function _initLoteBuscador() {
+  const buscador = document.getElementById('loteBuscador');
+  const drop     = document.getElementById('loteDropdown');
+
+  buscador.addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    if (!q) { drop.style.display = 'none'; return; }
+
+    const hits = _salidaProductos.filter(p =>
+      p.nombre.toLowerCase().includes(q) || p.codigo.toLowerCase().includes(q)
+    );
+    if (!hits.length) { drop.style.display = 'none'; return; }
+
+    drop.innerHTML = hits.map(p => `
+      <div class="salida-dd-item" onclick="_loteSeleccionar(${p.pk})">
+        <span>${p.nombre} <span class="salida-dd-item__code">${p.codigo}</span></span>
+        <span class="salida-dd-item__stock">${p.stock} uds</span>
+      </div>`).join('');
+    drop.style.display = 'block';
+  });
+
+  drop.addEventListener('wheel', function(e) {
+    const atTop    = this.scrollTop === 0;
+    const atBottom = this.scrollTop + this.clientHeight >= this.scrollHeight;
+    if ((atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#loteProdWrap')) {
+    const d = document.getElementById('loteDropdown');
+    if (d) d.style.display = 'none';
+  }
+});
+
+function _loteSeleccionar(pk) {
+  const prod     = _salidaProductos.find(p => p.pk === pk);
+  const hidden   = document.getElementById('loteProductoHidden');
+  const pill     = document.getElementById('loteProdPill');
+  const drop     = document.getElementById('loteDropdown');
+  const buscador = document.getElementById('loteBuscador');
+  if (!prod) return;
+
+  hidden.value       = pk;
+  buscador.value     = '';
+  drop.style.display = 'none';
+
+  pill.innerHTML = `
+    <div class="gp-prod-pill">
+      ${prod.nombre}
+      <span style="opacity:.6; font-size:.68rem;">${prod.codigo} · ${prod.stock} uds</span>
+      <button type="button" onclick="_loteLimpiar()" title="Quitar">×</button>
+    </div>`;
+}
+
+function _loteLimpiar() {
+  document.getElementById('loteProductoHidden').value = '';
+  document.getElementById('loteProdPill').innerHTML   = '';
+  document.getElementById('loteBuscador').value       = '';
 }
 
 // ── MOTIVO DROPDOWN ───────────────────────────────────────────────────────────
 function toggleMotivoDrop() {
   const drop    = document.getElementById('motivoDropdown');
   const chevron = document.getElementById('motivoChevron');
-  const inp     = document.getElementById('motivoInput');
   const abierto = drop.style.display === 'block';
-
-  if (abierto) {
-    drop.style.display = 'none';
-    chevron.style.transform = 'translateY(-50%) rotate(0deg)';
-  } else {
-    const rect = inp.getBoundingClientRect();
-    drop.style.top   = (rect.bottom + 6) + 'px';
-    drop.style.left  = rect.left + 'px';
-    drop.style.width = rect.width + 'px';
-    drop.style.display = 'block';
-    chevron.style.transform = 'translateY(-50%) rotate(180deg)';
-  }
+  drop.style.display = abierto ? 'none' : 'block';
+  chevron.style.transform = abierto
+    ? 'translateY(-50%) rotate(0deg)'
+    : 'translateY(-50%) rotate(180deg)';
 }
 
 function elegirMotivo(val) {
-  document.getElementById('motivoInput').value = val;
+  const inp = document.getElementById('motivoInput');
+  inp.value = val;
+  inp.setAttribute('readonly', true);
   document.getElementById('motivoDropdown').style.display = 'none';
   document.getElementById('motivoChevron').style.transform = 'translateY(-50%) rotate(0deg)';
 }
 
-function filtrarMotivos(q) {
-  const term  = q.toLowerCase().trim();
-  const items = document.querySelectorAll('.motivo-dd-item:not(.muted)');
-  const drop  = document.getElementById('motivoDropdown');
-  const inp   = document.getElementById('motivoInput');
-  const rect  = inp.getBoundingClientRect();
-
-  drop.style.top   = (rect.bottom + 6) + 'px';
-  drop.style.left  = rect.left + 'px';
-  drop.style.width = rect.width + 'px';
-  drop.style.display = 'block';
-  document.getElementById('motivoChevron').style.transform = 'translateY(-50%) rotate(180deg)';
-
-  items.forEach(item => {
-    item.style.display = !term || item.textContent.toLowerCase().includes(term) ? '' : 'none';
-  });
-}
-
 document.addEventListener('click', e => {
-  if (!e.target.closest('#motivoWrap') && !e.target.closest('#motivoDropdown')) {
+  if (!e.target.closest('#motivoWrap')) {
     const drop    = document.getElementById('motivoDropdown');
     const chevron = document.getElementById('motivoChevron');
     if (drop)    drop.style.display = 'none';
@@ -934,7 +981,7 @@ document.addEventListener('click', e => {
 
 // ── MENÚ TRES PUNTOS ──────────────────────────────────────────────────────────
 function gpToggleMenu(btn) {
-  const menu = btn.nextElementSibling;
+  const menu      = btn.nextElementSibling;
   const yaAbierto = menu.classList.contains('open');
   gpMenuClose();
   if (!yaAbierto) {
@@ -1022,7 +1069,7 @@ function gpEliminarProducto(url, nombre) {
       } else {
         location.reload();
       }
-      gpToast(`🗑️ "${nombre}" eliminado permanentemente`, true, 4000);
+      gpToast(`🗑️ "${nombre}" eliminado`, false, 4000);
     } else {
       gpToast('Error al eliminar el producto', true);
     }
@@ -1266,7 +1313,6 @@ function abrirPresentaciones(pk, nombre) {
     document.getElementById('pres-unidades-base').value = base.unidades;
     document.getElementById('precio-unidad').value      = base.precio || '';
     document.getElementById('cantidad-unidad').value    = base.cantidad || 0;
-
     producto.presentaciones.slice(1).forEach(pr =>
       agregarPresentacion(pr.nombre, pr.unidades, pr.precio, pr.cantidad)
     );
@@ -1331,15 +1377,89 @@ function abrirEditarCategoria(pk, nombre, codigo, descripcion, padrePk) {
   document.getElementById('modalEditarCategoria').classList.add('open');
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
+// ── VALIDACIÓN FORMULARIOS ────────────────────────────────────────────────────
+function _validarYResaltar(elementId, mensaje) {
+  const el = document.getElementById(elementId);
+  if (el) {
+    el.style.borderColor = 'var(--gp-danger)';
+    el.style.boxShadow   = '0 0 0 2px rgba(248,113,113,.25)';
+    setTimeout(() => {
+      el.style.borderColor = '';
+      el.style.boxShadow   = '';
+    }, 3000);
+    el.focus();
+  }
+  gpToast(mensaje, true, 4000);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+
+  // — Registrar Salida —
+  const formSalida = document.querySelector('form[action*="gestion_salida"]');
+  if (formSalida) {
+    formSalida.addEventListener('submit', function(e) {
+      const producto = document.getElementById('salidaProductoHidden').value.trim();
+      const cantidad = this.querySelector('input[name="cantidad"]').value.trim();
+      const motivo   = document.getElementById('motivoInput').value.trim();
+
+      if (!producto) {
+        e.preventDefault();
+        _validarYResaltar('salidaBuscador', '⚠️ Debes seleccionar un producto.');
+        return;
+      }
+      if (!cantidad || parseInt(cantidad) < 1) {
+        e.preventDefault();
+        _validarYResaltar(null, '⚠️ Ingresa una cantidad válida (mínimo 1).');
+        gpToast('⚠️ Ingresa una cantidad válida (mínimo 1).', true, 4000);
+        return;
+      }
+      if (!motivo) {
+        e.preventDefault();
+        _validarYResaltar('motivoInput', '⚠️ Debes seleccionar o escribir un motivo.');
+        return;
+      }
+    });
+  }
+
+  // — Registrar Lote —
+  const formLote = document.querySelector('form[action*="registrar_lote"]');
+  if (formLote) {
+    formLote.addEventListener('submit', function(e) {
+      const numeroLote = this.querySelector('input[name="numero_lote"]').value.trim();
+      const producto   = document.getElementById('loteProductoHidden').value.trim();
+
+      if (!numeroLote) {
+        e.preventDefault();
+        _validarYResaltar(null, '⚠️ Ingresa el número de lote.');
+        gpToast('⚠️ Ingresa el número de lote.', true, 4000);
+        this.querySelector('input[name="numero_lote"]').focus();
+        return;
+      }
+      if (!producto) {
+        e.preventDefault();
+        _validarYResaltar('loteBuscador', '⚠️ Debes seleccionar un producto para el lote.');
+        return;
+      }
+    });
+  }
+
+  // ── Restore tab & init buscadores ────────────────────────────────────────
+  const savedTab = localStorage.getItem('gp-active-tab');
+  if (savedTab && document.getElementById('tab-' + savedTab)) {
+    const btn = [...document.querySelectorAll('.gp-tab')]
+      .find(b => b.getAttribute('onclick')?.includes(`'${savedTab}'`));
+    if (btn) showTab(savedTab, btn);
+  }
+
   document.getElementById('cat-buscador').addEventListener('input', function () {
     gpBuscar(this.value);
   });
+
   _initSalidaBuscador();
+  _initLoteBuscador();
 });
 
-// ── EXPONER FUNCIONES GLOBALES (para onclick en HTML) ─────────────────────────
+// ── EXPONER FUNCIONES GLOBALES ────────────────────────────────────────────────
 window.showTab               = showTab;
 window.gpToggle              = gpToggle;
 window.gpBuscar              = gpBuscar;
@@ -1355,9 +1475,10 @@ window.guardarPresentaciones = guardarPresentaciones;
 window.abrirEditarCategoria  = abrirEditarCategoria;
 window.toggleMotivoDrop      = toggleMotivoDrop;
 window.elegirMotivo          = elegirMotivo;
-window.filtrarMotivos        = filtrarMotivos;
 window._salidaSeleccionar    = _salidaSeleccionar;
 window._salidaLimpiar        = _salidaLimpiar;
+window._loteSeleccionar      = _loteSeleccionar;
+window._loteLimpiar          = _loteLimpiar;
 </script>
 
 {% endblock %}
