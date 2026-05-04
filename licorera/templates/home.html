@@ -27,13 +27,13 @@
   <div class="d-flex justify-content-center align-items-center gap-5 my-4 flex-wrap">
 
     {% if request.session.usuario_rol == 'admin' %}
-    <a href="{% url 'proveedores' %}" class="cys-btn cys-btn--primary">
-     <i class="bi bi-box-arrow-in-down"></i> Registrar Entrada
+    <a href="{% url 'registrar_compra' %}" class="cys-btn cys-btn--primary">
+      <i class="bi bi-box-arrow-in-down"></i> Registrar Entrada
     </a>
     {% endif %}
 
     {% if request.session.usuario_rol == 'admin' or request.session.usuario_rol == 'cajero' or request.session.usuario_rol == 'empleado' %}
-    <a href="{% url 'producto:agenda_lista' %}" class="cys-btn cys-btn--danger">
+    <a href="{% url 'ventas:nueva_venta' %}" class="cys-btn cys-btn--danger">
       <i class="bi bi-receipt"></i> Registrar Venta
     </a>
     {% endif %}
@@ -66,7 +66,7 @@
               <div class="cys-stat-card text-center">
                 <div class="cys-stat-card__label">{{ cat.nombre }}</div>
                 <div class="cys-stat-card__val">{{ cat.total }}</div>
-                <div style="font-size:.65rem; color:var(--texto-muted);">unidades</div>
+                <div style="font-size:.65rem; color:var(--texto-muted);">tipos de producto</div>
               </div>
             </div>
             {% endfor %}
@@ -87,9 +87,54 @@
 
   <!-- GRÁFICA -->
   <section class="cys-card mb-4">
-    <div class="cys-card__title">Tendencia Semanal de Ventas</div>
-    <div style="height:320px;">
-      <canvas id="tendenciaChart"></canvas>
+    <div class="cys-card__title">Tendencia — Últimos 7 días</div>
+
+    <!-- Métricas rápidas -->
+    <div class="row gx-3 gy-2 mb-4">
+      <div class="col-4">
+        <div class="cys-stat-card text-center">
+          <div class="cys-stat-card__label">Total hoy</div>
+          <div class="cys-stat-card__val" style="font-size:1.1rem;">
+            ${{ total_hoy|floatformat:0 }}
+          </div>
+          <div style="font-size:.65rem; color:var(--texto-muted);">{{ ventas_hoy_num }} ventas</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="cys-stat-card text-center">
+          <div class="cys-stat-card__label">Promedio diario</div>
+          <div class="cys-stat-card__val" style="font-size:1.1rem;">
+            ${{ prom_diario|floatformat:0 }}
+          </div>
+          <div style="font-size:.65rem; color:var(--texto-muted);">últimos 6 días</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="cys-stat-card text-center">
+          <div class="cys-stat-card__label">Mejor día</div>
+          <div class="cys-stat-card__val" style="font-size:1.1rem;">{{ mejor_dia }}</div>
+          <div style="font-size:.65rem; color:var(--texto-muted);">${{ mejor_dia_val|floatformat:0 }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leyenda -->
+    <div class="d-flex gap-3 mb-2" style="font-size:.75rem; color:var(--gris-claro);">
+      <span>
+        <span style="display:inline-block;width:10px;height:10px;border-radius:2px;
+                     background:#4DA8DA;margin-right:4px;"></span>Total ($)
+      </span>
+      <span>
+        <span style="display:inline-block;width:10px;height:10px;border-radius:2px;
+                     background:#1D9E75;margin-right:4px;"></span>Transacciones
+      </span>
+    </div>
+
+    <div style="height:280px;">
+      <canvas id="tendenciaChart"
+              role="img"
+              aria-label="Ventas de los últimos 7 días en pesos y número de transacciones">
+      </canvas>
     </div>
   </section>
 
@@ -191,37 +236,83 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const labels = {{ labels|safe|default:"[]" }};
-  const data   = {{ data|safe|default:"[]" }};
-  const ctx    = document.getElementById('tendenciaChart');
-
-  if (!labels || labels.length === 0) labels.push('Sin datos');
-  if (!data   || data.length === 0)   data.push(0);
+  const labels    = {{ labels|safe|default:"[]" }};
+  const data      = {{ data|safe|default:"[]" }};
+  const dataCount = {{ data_count|safe|default:"[]" }};
+  const ctx       = document.getElementById('tendenciaChart');
 
   new Chart(ctx, {
-    type: 'line',
+    type: 'bar',
     data: {
-      labels: labels,
-      datasets: [{
-        label: 'Ventas',
-        data: data,
-        borderColor: '#4DA8DA',
-        backgroundColor: 'rgba(77,168,218,.1)',
-        tension: 0.4,
-        fill: true,
-        pointBackgroundColor: '#4DA8DA',
-        pointBorderColor: '#4DA8DA',
-      }]
+      labels,
+      datasets: [
+        {
+          label: 'Total ($)',
+          data,
+          backgroundColor: data.map((_, i) =>
+            i === data.length - 1 ? 'rgba(77,168,218,0.45)' : 'rgba(77,168,218,0.85)'
+          ),
+          borderColor: '#4DA8DA',
+          borderWidth: 1,
+          yAxisID: 'y',
+          order: 2,
+        },
+        {
+          label: 'Transacciones',
+          data: dataCount,
+          type: 'line',
+          borderColor: '#1D9E75',
+          backgroundColor: 'rgba(29,158,117,0.07)',
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: '#1D9E75',
+          pointRadius: 4,
+          yAxisID: 'y2',
+          order: 1,
+        }
+      ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { labels: { color: '#E8EDF2', font: { family: 'Inter' } } }
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              if (ctx.datasetIndex === 0)
+                return ' Total: $' + Math.round(ctx.raw).toLocaleString('es-CO');
+              return ' Transacciones: ' + ctx.raw;
+            }
+          }
+        }
       },
       scales: {
-        x: { ticks: { color: '#ADB5BD' }, grid: { color: 'rgba(77,168,218,.1)' } },
-        y: { ticks: { color: '#ADB5BD' }, grid: { color: 'rgba(77,168,218,.1)' } }
+        x: {
+          ticks: {
+            color: '#ADB5BD',
+            font: { size: 11 },
+            autoSkip: false,
+            maxRotation: 0
+          },
+          grid: { color: 'rgba(77,168,218,.08)' }
+        },
+        y: {
+          position: 'left',
+          ticks: {
+            color: '#ADB5BD',
+            callback: v => '$' + (v >= 1000000
+              ? (v / 1000000).toFixed(1) + 'M'
+              : (v / 1000).toFixed(0) + 'k')
+          },
+          grid: { color: 'rgba(77,168,218,.08)' }
+        },
+        y2: {
+          position: 'right',
+          ticks: { color: '#1D9E75', font: { size: 11 } },
+          grid: { drawOnChartArea: false }
+        }
       }
     }
   });
@@ -251,7 +342,7 @@
           <div class="cys-stat-card text-center">
             <div class="cys-stat-card__label">${cat.nombre}</div>
             <div class="cys-stat-card__val">${cat.total}</div>
-            <div style="font-size:.65rem; color:var(--texto-muted);">unidades</div>
+            <div style="font-size:.65rem; color:var(--texto-muted);">tipos de producto</div>
           </div>
         </div>`).join('');
       inner.innerHTML += `
@@ -276,14 +367,14 @@
   }
 
   function abrirDetalleProducto(nombre, codigo, categoria, precio, stock, unidad, descripcion) {
-  document.getElementById('det-nombre').textContent     = nombre;
-  document.getElementById('det-codigo').textContent     = codigo;
-  document.getElementById('det-categoria').textContent  = categoria;
-  document.getElementById('det-precio').textContent     = '$' + parseInt(precio).toLocaleString('es-CO');
-  document.getElementById('det-stock').textContent      = stock + ' ' + unidad;
-  document.getElementById('det-stock').style.color      = parseInt(stock) <= 5 ? 'var(--gp-danger)' : 'var(--gp-green)';
-  document.getElementById('det-descripcion').textContent = descripcion || 'Sin descripción.';
-  document.getElementById('modalDetalleProducto').classList.add('open');
-}
+    document.getElementById('det-nombre').textContent      = nombre;
+    document.getElementById('det-codigo').textContent      = codigo;
+    document.getElementById('det-categoria').textContent   = categoria;
+    document.getElementById('det-precio').textContent      = '$' + parseInt(precio).toLocaleString('es-CO');
+    document.getElementById('det-stock').textContent       = stock + ' ' + unidad;
+    document.getElementById('det-stock').style.color       = parseInt(stock) <= 5 ? 'var(--gp-danger)' : 'var(--gp-green)';
+    document.getElementById('det-descripcion').textContent = descripcion || 'Sin descripción.';
+    document.getElementById('modalDetalleProducto').classList.add('open');
+  }
 </script>
-{% endblock %}  
+{% endblock %}
