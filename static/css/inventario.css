@@ -247,6 +247,7 @@
 .inv-quick-card__sub {
   font-family: 'Rajdhani', sans-serif;
 }
+
 /* ── TABLA REGISTRAR CÓDIGOS ─────────────────────── */
 #tbody-codigos tr td {
   color: var(--texto) !important;
@@ -265,4 +266,140 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+}
+
+/* Fix: table-hover no rompe tema oscuro */
+#modalComparar .table-hover tbody tr:hover td,
+#modalComparar .table tbody tr td {
+  background: transparent !important;
+  color: var(--texto) !important;
+}
+#modalComparar .table tbody tr {
+  transition: filter .15s;
+}
+#modalComparar .table tbody tr:hover {
+  filter: brightness(1.08);
+}
+
+/* Fix tabla historial */
+#tabla-historial tbody tr:hover {
+  filter: brightness(1.12);
+  cursor: default;
+}
+#tabla-historial tbody tr td {
+  background: transparent !important;
+}
+
+/* ── TABLA COMBINADA MOVIMIENTOS ─────────────────── */
+.mov-row-entrada {
+  background: rgba(39,174,96,.05);
+  border-radius: 8px;
+  transition: filter .15s;
+}
+.mov-row-salida {
+  background: rgba(192,57,43,.05);
+  border-radius: 8px;
+  transition: filter .15s;
+}
+.mov-row-entrada:hover,
+.mov-row-salida:hover { filter: brightness(1.13); }
+.mov-row-entrada td,
+.mov-row-salida td   { background: transparent !important; }
+
+.mov-badge-entrada {
+  display: inline-flex; align-items: center; gap: .25rem;
+  font-size: .68rem; font-weight: 700;
+  padding: .25rem .6rem; border-radius: 20px;
+  background: rgba(39,174,96,.12); color: #27ae60;
+  border: 1px solid rgba(39,174,96,.3);
+}
+.mov-badge-salida {
+  display: inline-flex; align-items: center; gap: .25rem;
+  font-size: .68rem; font-weight: 700;
+  padding: .25rem .6rem; border-radius: 20px;
+  background: rgba(192,57,43,.12); color: var(--rojo);
+  border: 1px solid rgba(192,57,43,.3);
+}
+.mov-stock-critico {
+  font-size: .78rem; font-weight: 700;
+  padding: .25rem .55rem; border-radius: 20px;
+  background: rgba(192,57,43,.15); color: var(--rojo);
+  border: 1px solid rgba(192,57,43,.35);
+}
+.mov-stock-ok {
+  font-size: .88rem; font-weight: 700;
+  color: var(--azul-claro);
+}
+.mov-cantidad-entrada { font-size: .9rem; font-weight: 700; color: #27ae60; }
+.mov-cantidad-salida  { font-size: .9rem; font-weight: 700; color: var(--rojo); }
+
+/* barra superior de la sección */
+.mov-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+.mov-controls {
+  display: flex; align-items: center;
+  gap: .5rem; flex-wrap: wrap;
+}
+
+/* fila de resumen + leyenda */
+.mov-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: .9rem;
+  margin-top: .5rem;
+}
+.mov-resumen__chip {
+  font-size: .72rem; padding: .28rem .7rem;
+  border-radius: 20px;
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: rgba(77,168,218,.08);
+  border: 1px solid rgba(77,168,218,.2);
+  color: var(--azul-claro);
+}
+.mov-legend {
+  display: flex; gap: .85rem;
+  font-size: .7rem; color: var(--texto-muted);
+  align-items: center;
+}
+
+/* estado vacío oscuro */
+.mov-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--texto-muted);
+  font-size: .85rem;
+  background: transparent;
+}
+.mov-empty i {
+  display: block;
+  margin-bottom: .75rem;
+  font-size: 2.5rem;
+  color: var(--azul-borde);
+  opacity: .6;
+}
+
+/* asegura que las td vacías no hereden fondo blanco */
+#tbody-movimientos tr td {
+  background: transparent !important;
+}
+
+/* buscador: texto visible */
+#buscador-movimientos {
+  color: var(--texto) !important;
+  background: var(--fondo-card) !important;
+}
+#buscador-movimientos::placeholder {
+  color: var(--texto-muted) !important;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }

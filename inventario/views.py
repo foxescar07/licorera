@@ -14,6 +14,9 @@ from .models import ConteoProducto, SesionConteo, ResultadoInventario, Lote
 # INVENTARIO HOME
 # ===============================
 def inventario_home(request):
+    from django.utils import timezone
+    from producto.models import Inventario
+
     agendas = AgendaInventario.objects.filter(estado__in=['pendiente', 'en_proceso']).order_by('fecha_programada')
     sesion  = SesionConteo.objects.order_by('-fecha_inicio').first()
 
@@ -42,6 +45,25 @@ def inventario_home(request):
 
     historial_sesiones = SesionConteo.objects.filter(activa=False).order_by('-fecha_fin')
 
+    # ── Movimientos: día seleccionado por GET o hoy por defecto ──
+    hoy           = timezone.localtime(timezone.now()).date()
+    fecha_filtro  = request.GET.get('fecha_mov')
+    try:
+        from datetime import date
+        fecha_filtro = date.fromisoformat(fecha_filtro) if fecha_filtro else hoy
+    except ValueError:
+        fecha_filtro = hoy
+
+    movimientos = Inventario.objects.filter(
+        fecha_actualizada__date=fecha_filtro
+    ).select_related('producto__categoria').order_by('-fecha_actualizada')
+
+    # ── Días que tienen movimientos (para el selector) ──
+    dias_con_movimientos = (
+        Inventario.objects
+        .dates('fecha_actualizada', 'day', order='DESC')
+    )
+
     if request.method == 'POST':
         AgendaInventario.objects.create(
             titulo=request.POST.get('titulo'),
@@ -52,15 +74,19 @@ def inventario_home(request):
         return redirect('inventario:inventario_home')
 
     return render(request, 'inventario/inventario_home.html', {
-        'agendas':            agendas,
-        'sesion':             sesion,
-        'productos':          productos,
-        'conteos':            conteos,
-        'discrepancias':      discrepancias,
-        'categoria_activa':   categoria_id,
-        'con_codigo':         productos_con_codigo,
-        'sin_codigo':         productos_sin_codigo,
-        'historial_sesiones': historial_sesiones,
+        'agendas':              agendas,
+        'sesion':               sesion,
+        'productos':            productos,
+        'conteos':              conteos,
+        'discrepancias':        discrepancias,
+        'categoria_activa':     categoria_id,
+        'con_codigo':           productos_con_codigo,
+        'sin_codigo':           productos_sin_codigo,
+        'historial_sesiones':   historial_sesiones,
+        'movimientos':          movimientos,
+        'dias_con_movimientos': dias_con_movimientos,
+        'fecha_filtro':         fecha_filtro,
+        'hoy':                  hoy,
     })
 
 
@@ -379,6 +405,7 @@ def gestion_producto_editar(request, pk):
 
     return redirect('inventario:gestion_productos')
 
+
 def gestion_producto_eliminar(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
@@ -387,6 +414,7 @@ def gestion_producto_eliminar(request, pk):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'ok': True, 'nombre': nombre})
     return redirect('inventario:gestion_productos')
+
 
 # ══════════════════════════════════════════════════════
 # CATEGORÍAS
@@ -481,7 +509,6 @@ def registrar_lote(request):
             registrado_por=request.user if request.user.is_authenticated else None
         )
 
-        # Mensaje con fecha de vencimiento si fue ingresada (SCRUM-260)
         if fecha_vencimiento:
             messages.success(request, f'✅ Lote "{numero_lote}" registrado para "{producto.nombre}" — vence el {lote.fecha_vencimiento.strftime("%d/%m/%Y")}.')
         else:
@@ -490,3 +517,23 @@ def registrar_lote(request):
         return redirect('inventario:gestion_productos')
 
     return redirect('inventario:gestion_productos')
+
+
+def editar_movimiento(request, pk):
+    from producto.models import Inventario
+    movimiento = get_object_or_404(Inventario, pk=pk)
+    if request.method == 'POST':
+        tipo      = request.POST.get('tipo', movimiento.tipo)
+        cantidad  = request.POST.get('cantidad', movimiento.cantidad)
+        motivo    = request.POST.get('motivo', '').strip()
+        ubicacion = request.POST.get('ubicacion', '').strip()
+        try:
+            movimiento.tipo      = tipo
+            movimiento.cantidad  = max(1, int(cantidad))
+            movimiento.motivo    = motivo
+            movimiento.ubicacion = ubicacion
+            movimiento.save()
+            messages.success(request, f'✅ Movimiento de "{movimiento.producto.nombre}" actualizado.')
+        except (ValueError, TypeError):
+            messages.error(request, '❌ Cantidad inválida.')
+    return redirect('inventario:inventario_home')
