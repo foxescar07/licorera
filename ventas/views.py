@@ -313,3 +313,111 @@ def ventas_dia(request):
         'total_dia': total_dia,
         'hoy':       hoy,
     })
+import json
+from django.utils import timezone
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+ 
+# Asegúrate de importar los modelos nuevos arriba del archivo:
+# from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja
+ 
+ 
+def ventas_dia(request):
+    """Página de ventas del día con resumen, detalle, caja y exportación."""
+    from .models import AperturaCaja, CierreCaja
+ 
+    hoy = timezone.localdate()
+ 
+    ventas = Venta.objects.prefetch_related(
+        'detalles__producto',
+        'detalles__presentacion',
+    ).filter(fecha__date=hoy).order_by('-fecha')
+ 
+    total_dia = sum(v.total_venta for v in ventas)
+ 
+    # Estado de caja del día
+    caja_abierta  = AperturaCaja.objects.filter(fecha=hoy).first()
+    ultimo_cierre = CierreCaja.objects.filter(fecha=hoy).first()
+ 
+    return render(request, 'ventas_dia.html', {
+        'ventas':        ventas,
+        'total_dia':     total_dia,
+        'hoy':           hoy,
+        'caja_abierta':  caja_abierta,
+        'ultimo_cierre': ultimo_cierre,
+    })
+ 
+ 
+@require_POST
+def apertura_caja(request):
+    """POST JSON → crea AperturaCaja para el día de hoy."""
+    from .models import AperturaCaja
+ 
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+ 
+    hoy = timezone.localdate()
+ 
+    # Solo una apertura por día
+    if AperturaCaja.objects.filter(fecha=hoy).exists():
+        return JsonResponse({'ok': False, 'error': 'Ya existe una apertura para hoy.'}, status=400)
+ 
+    monto_base = data.get('monto_base', 0)
+    try:
+        monto_base = float(monto_base)
+        if monto_base <= 0:
+            raise ValueError
+    except (TypeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'Monto base inválido.'}, status=400)
+ 
+    AperturaCaja.objects.create(
+        fecha=hoy,
+        monto_base=monto_base,
+        usuario=data.get('observacion', ''),   # reutilizamos el campo observación como "responsable"
+        denominaciones=data.get('denominaciones', {}),
+    )
+ 
+    return JsonResponse({'ok': True})
+ 
+ 
+@require_POST
+def cierre_caja(request):
+    """POST JSON → crea CierreCaja vinculado a la apertura de hoy."""
+    from .models import AperturaCaja, CierreCaja
+ 
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+ 
+    hoy = timezone.localdate()
+ 
+    # Verificar que haya apertura
+    apertura = AperturaCaja.objects.filter(fecha=hoy).first()
+    if not apertura:
+        return JsonResponse({'ok': False, 'error': 'No hay apertura de caja para hoy.'}, status=400)
+ 
+    # Solo un cierre por día
+    if CierreCaja.objects.filter(fecha=hoy).exists():
+        return JsonResponse({'ok': False, 'error': 'Ya existe un cierre para hoy.'}, status=400)
+ 
+    try:
+        total_contado      = float(data.get('total_contado', 0))
+        monto_base_sig     = float(data.get('monto_base_siguiente', 0))
+        total_retirado     = float(data.get('total_retirado', 0))
+    except (TypeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'Valores numéricos inválidos.'}, status=400)
+ 
+    CierreCaja.objects.create(
+        apertura=apertura,
+        fecha=hoy,
+        total_contado=total_contado,
+        monto_base_siguiente=monto_base_sig,
+        total_retirado=total_retirado,
+        denominaciones=data.get('denominaciones', {}),
+    )
+ 
+    return JsonResponse({'ok': True})
+ 

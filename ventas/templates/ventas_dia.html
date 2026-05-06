@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
  
 {% block title %}Ventas del Día — CYS Ltda{% endblock %}
 {% block page_title %}Ventas del Día{% endblock %}
@@ -171,9 +172,6 @@
       <a href="{% url 'ventas:ventas_lista' %}" class="cys-btn-export">
         <i class="bi bi-arrow-left"></i> Volver
       </a>
-      <button onclick="exportarCSV()" class="cys-btn-export">
-        <i class="bi bi-filetype-csv"></i> Exportar CSV
-      </button>
       <button onclick="window.print()" class="cys-btn-export">
         <i class="bi bi-printer"></i> Imprimir
       </button>
@@ -201,7 +199,7 @@
     <div class="col-6 col-lg-4">
       <div class="vd-stat">
         <div class="vd-stat__label"><i class="bi bi-cash-stack me-1"></i>Total del día</div>
-        <div class="vd-stat__val" style="font-size:1.3rem;">${{ total_dia|floatformat:0 }}</div>
+        <div class="vd-stat__val" style="font-size:1.3rem;">${{ total_dia|floatformat:0|intcomma }}</div>
         <div class="vd-stat__sub">ingresos acumulados</div>
       </div>
     </div>
@@ -233,17 +231,15 @@
         </div>
         <div class="caja-dato">
           <span class="caja-dato__lbl">Monto base</span>
-          <span class="caja-dato__val" style="color:var(--azul-claro);">${{ caja_abierta.monto_base|floatformat:0 }}</span>
+          <span class="caja-dato__val" style="color:var(--azul-claro);">${{ caja_abierta.monto_base|floatformat:0|intcomma }}</span>
         </div>
         <div class="caja-dato">
           <span class="caja-dato__lbl">Ventas del día</span>
-          <span class="caja-dato__val" style="color:#2ed573;">${{ total_dia|floatformat:0 }}</span>
+          <span class="caja-dato__val" style="color:#2ed573;">${{ total_dia|floatformat:0|intcomma }}</span>
         </div>
         <div class="caja-dato">
           <span class="caja-dato__lbl">Total en caja (est.)</span>
-          <span class="caja-dato__val" style="color:var(--azul-claro);">
-            ${% widthratio caja_abierta.monto_base|add:total_dia 1 1 %}
-          </span>
+          <span class="caja-dato__val" style="color:var(--azul-claro);" id="totalEnCaja">—</span>
         </div>
       </div>
  
@@ -258,15 +254,15 @@
         </div>
         <div class="caja-dato">
           <span class="caja-dato__lbl">Total contado</span>
-          <span class="caja-dato__val" style="color:var(--azul-claro);">${{ ultimo_cierre.total_contado|floatformat:0 }}</span>
+          <span class="caja-dato__val" style="color:var(--azul-claro);">${{ ultimo_cierre.total_contado|floatformat:0|intcomma }}</span>
         </div>
         <div class="caja-dato">
           <span class="caja-dato__lbl">Total recogido</span>
-          <span class="caja-dato__val">${{ ultimo_cierre.total_retirado|floatformat:0 }}</span>
+          <span class="caja-dato__val">${{ ultimo_cierre.total_retirado|floatformat:0|intcomma }}</span>
         </div>
         <div class="caja-dato">
           <span class="caja-dato__lbl">Base para mañana</span>
-          <span class="caja-dato__val" style="color:#2ed573;">${{ ultimo_cierre.monto_base_siguiente|floatformat:0 }}</span>
+          <span class="caja-dato__val" style="color:#2ed573;">${{ ultimo_cierre.monto_base_siguiente|floatformat:0|intcomma }}</span>
         </div>
       </div>
  
@@ -327,7 +323,7 @@
               <span style="color:var(--texto-muted);">—</span>
               {% endif %}
             </td>
-            <td style="font-weight:800; color:var(--azul-claro);">${{ venta.total_venta|floatformat:0 }}</td>
+            <td style="font-weight:800; color:var(--azul-claro);">${{ venta.total_venta|floatformat:0|intcomma }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -335,7 +331,7 @@
     </div>
     <div class="d-flex justify-content-between align-items-center mt-3 px-1" style="border-top:1px solid var(--azul-borde); padding-top:1rem;">
       <span style="font-weight:700; font-size:.95rem; color:var(--texto-muted);">TOTAL DEL DÍA ({{ ventas.count }} ventas)</span>
-      <span style="font-size:1.5rem; font-weight:800; color:var(--azul-claro);">${{ total_dia|floatformat:0 }}</span>
+      <span style="font-size:1.5rem; font-weight:800; color:var(--azul-claro);">${{ total_dia|floatformat:0|intcomma }}</span>
     </div>
  
     {% else %}
@@ -535,7 +531,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     const el = document.getElementById('totalProductos');
-    if (el) el.textContent = totalProductos;
+    if (el) el.textContent = totalProductos.toLocaleString('es-CO');
+ 
+    // Total en caja estimado (base + ventas)
+    const totalEnCajaEl = document.getElementById('totalEnCaja');
+    if (totalEnCajaEl) {
+        const total = BASE_APERTURA + TOTAL_DIA;
+        totalEnCajaEl.textContent = '$' + formatPesos(total);
+    }
  
     // Separadores entre días
     const filas = Array.from(document.querySelectorAll('#tablaVentas tbody tr'));
