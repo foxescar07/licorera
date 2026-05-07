@@ -102,3 +102,44 @@ class DetalleDevolucion(models.Model):
     def __str__(self):
         pres = f' ({self.presentacion.nombre})' if self.presentacion else ''
         return f'{self.producto.nombre}{pres} x{self.cantidad}'
+    from django.db import models
+from django.utils import timezone
+ 
+ 
+class AperturaCaja(models.Model):
+    fecha_apertura    = models.DateTimeField(default=timezone.now)
+    fecha             = models.DateField(default=timezone.localdate)
+    monto_base        = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    usuario           = models.CharField(max_length=150, blank=True, default='')
+    observacion       = models.TextField(blank=True, default='')
+    denominaciones    = models.JSONField(default=dict, blank=True)   # {valor: cantidad}
+ 
+    class Meta:
+        ordering = ['-fecha_apertura']
+        verbose_name        = 'Apertura de caja'
+        verbose_name_plural = 'Aperturas de caja'
+ 
+    def __str__(self):
+        return f'Apertura {self.fecha} — ${self.monto_base:,.0f}'
+ 
+ 
+class CierreCaja(models.Model):
+    apertura          = models.OneToOneField(
+                            AperturaCaja, on_delete=models.SET_NULL,
+                            null=True, blank=True, related_name='cierre'
+                        )
+    fecha_cierre      = models.DateTimeField(default=timezone.now)
+    fecha             = models.DateField(default=timezone.localdate)
+    total_contado     = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_retirado    = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    monto_base_siguiente = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    denominaciones    = models.JSONField(default=dict, blank=True)
+ 
+    class Meta:
+        ordering = ['-fecha_cierre']
+        verbose_name        = 'Cierre de caja'
+        verbose_name_plural = 'Cierres de caja'
+ 
+    def __str__(self):
+        return f'Cierre {self.fecha} — contado ${self.total_contado:,.0f}'
+ 
