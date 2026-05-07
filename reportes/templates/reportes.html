@@ -60,6 +60,19 @@
   flex-shrink: 0;
 }
 .cys-rg-item__del:hover { color: #E24B4A; background: rgba(226,75,74,.12); }
+
+/* ── Estado vacío gráficas ── */
+.av-empty-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 200px;
+  color: var(--texto-muted, #8FA3B1);
+  font-size: .82rem;
+  gap: 10px;
+}
 </style>
 {% endblock %}
  
@@ -803,15 +816,14 @@
       <div class="cys-modal__filters" style="flex-wrap:wrap;gap:8px;">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
           <span style="font-size:.75rem;color:var(--texto-muted);white-space:nowrap;">Rango:</span>
-          <input type="date" id="avFechaInicio" class="cys-search" style="max-width:155px;" onchange="renderAnalisis()" title="Fecha inicio">
+          <input type="date" id="avFechaInicio" class="cys-search" style="max-width:155px;" title="Fecha inicio">
           <span style="font-size:.75rem;color:var(--texto-muted);">–</span>
-          <input type="date" id="avFechaFin" class="cys-search" style="max-width:155px;" onchange="renderAnalisis()" title="Fecha fin">
-          <button onclick="document.getElementById('avFechaInicio').value='';document.getElementById('avFechaFin').value='';renderAnalisis();"
-                  style="font-size:.72rem;padding:4px 10px;background:transparent;border:1px solid var(--azul-borde);border-radius:6px;color:var(--texto-muted);cursor:pointer;">
+          <input type="date" id="avFechaFin" class="cys-search" style="max-width:155px;" title="Fecha fin">
+          <button id="avBtnLimpiar" style="font-size:.72rem;padding:4px 10px;background:transparent;border:1px solid var(--azul-borde);border-radius:6px;color:var(--texto-muted);cursor:pointer;">
             Limpiar
           </button>
         </div>
-        <select id="avCategoria" class="cys-select" onchange="renderAnalisis()">
+        <select id="avCategoria" class="cys-select">
           <option value="">Todas las categorías</option>
         </select>
       </div>
@@ -1265,12 +1277,15 @@ async function exportarPDF(modalId, nombreArchivo, tipoReporte, nombreVista) {
 
 /* ══════════════════════════════════════════════
    ANÁLISIS DE VENTAS — Chart.js
-   ✅ CORRECCIÓN: se lee desde <script type="application/json">
-   con |safe en el template para que Django no escape el JSON.
-   Los caracteres peligrosos (</script>, <!--) ya fueron
-   escapados en views.py antes de llegar aquí.
 ══════════════════════════════════════════════ */
-const AV_DATA = JSON.parse(document.getElementById('av-data').textContent);
+const AV_DATA = (function() {
+  try {
+    return JSON.parse(document.getElementById('av-data').textContent) || [];
+  } catch(e) {
+    console.error('Error al parsear ventas_json:', e);
+    return [];
+  }
+})();
 
 const AV_COLORS = [
   '#E8834A','#5DCAA5','#7F77DD','#4DA8DA',
@@ -1282,8 +1297,9 @@ let avChartFecha      = null;
 let avChartProductos  = null;
 let avChartCategorias = null;
 
+/* Poblar select de categorías */
 (function poblarCategorias() {
-  const cats = [...new Set(AV_DATA.map(d => d.categoria))].sort();
+  const cats = [...new Set(AV_DATA.map(d => d.categoria))].filter(Boolean).sort();
   const sel  = document.getElementById('avCategoria');
   cats.forEach(c => {
     const opt = document.createElement('option');
@@ -1304,9 +1320,54 @@ function avDatosFiltrados() {
   });
 }
 
+/* ── Estado vacío en canvas ── */
+function mostrarVacioGrafica(canvasId, mensaje) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  canvas.style.display = 'none';
+  const parent = canvas.parentElement;
+  if (parent.querySelector('.av-empty-msg')) return;
+  const div = document.createElement('div');
+  div.className = 'av-empty-msg';
+  div.innerHTML = `
+    <i class="bi bi-bar-chart" style="font-size:2.2rem;color:rgba(77,168,218,.25);"></i>
+    <span>${mensaje}</span>
+  `;
+  parent.appendChild(div);
+}
+
+function limpiarVaciosGrafica() {
+  document.querySelectorAll('.av-empty-msg').forEach(el => el.remove());
+  ['avChartFecha','avChartProductos','avChartCategorias'].forEach(id => {
+    const c = document.getElementById(id);
+    if (c) c.style.display = '';
+  });
+}
+
+/* ── Render principal ── */
 function renderAnalisis() {
+  limpiarVaciosGrafica();
   const data = avDatosFiltrados();
 
+  /* Si no hay datos, mostrar estados vacíos */
+  if (data.length === 0) {
+    if (avChartFecha)      { avChartFecha.destroy();      avChartFecha = null; }
+    if (avChartProductos)  { avChartProductos.destroy();  avChartProductos = null; }
+    if (avChartCategorias) { avChartCategorias.destroy(); avChartCategorias = null; }
+
+    document.getElementById('av-stat-total').textContent = '$0';
+    document.getElementById('av-stat-txns').textContent  = '0';
+    document.getElementById('av-stat-top').textContent   = '—';
+    document.getElementById('av-stat-cat').textContent   = '—';
+    document.getElementById('av-total-registros').textContent = '0';
+
+    mostrarVacioGrafica('avChartFecha',      'Sin ventas en el período seleccionado');
+    mostrarVacioGrafica('avChartProductos',  'No hay productos vendidos para mostrar');
+    mostrarVacioGrafica('avChartCategorias', 'No hay categorías para mostrar');
+    return;
+  }
+
+  /* ── Estadísticas resumen ── */
   const totalMonto = data.reduce((s, d) => s + d.subtotal, 0);
 
   const porProducto = {};
@@ -1323,7 +1384,7 @@ function renderAnalisis() {
   document.getElementById('av-stat-cat').textContent   = topCat  ? topCat[0]  : '—';
   document.getElementById('av-total-registros').textContent = data.length;
 
-  /* Gráfico 1: línea por fecha */
+  /* ── Gráfico 1: línea por fecha ── */
   const porFecha = {};
   data.forEach(d => { porFecha[d.fecha] = (porFecha[d.fecha] || 0) + d.subtotal; });
   const fechas = Object.keys(porFecha).sort();
@@ -1353,7 +1414,7 @@ function renderAnalisis() {
     }
   });
 
-  /* Gráfico 2: barras horizontales top 10 */
+  /* ── Gráfico 2: barras horizontales top 10 ── */
   const top10      = Object.entries(porProducto).sort((a,b) => b[1]-a[1]).slice(0,10);
   const prodLabels = top10.map(x => x[0]);
   const prodVals   = top10.map(x => x[1]);
@@ -1383,7 +1444,7 @@ function renderAnalisis() {
     }
   });
 
-  /* Gráfico 3: dona por categoría */
+  /* ── Gráfico 3: dona por categoría ── */
   const catLabels = Object.keys(porCat);
   const catVals   = catLabels.map(c => porCat[c]);
 
@@ -1418,10 +1479,28 @@ function renderAnalisis() {
   });
 }
 
+/* ══════════════════════════════════════════════
+   LISTENERS DEL MODAL ANÁLISIS DE VENTAS
+   ✅ FIX PRINCIPAL: setTimeout(80ms) para esperar
+   que Bootstrap termine la animación del modal
+   antes de que Chart.js mida el canvas.
+══════════════════════════════════════════════ */
 document.getElementById('modalAnalisisVentas')
   .addEventListener('shown.bs.modal', () => {
     rellenarFechaGeneracion();
-    renderAnalisis();
+    setTimeout(() => renderAnalisis(), 80);
   });
+
+/* Listeners de filtros usando addEventListener (no inline onchange) */
+document.getElementById('avFechaInicio').addEventListener('change', renderAnalisis);
+document.getElementById('avFechaFin').addEventListener('change',   renderAnalisis);
+document.getElementById('avCategoria').addEventListener('change',   renderAnalisis);
+
+document.getElementById('avBtnLimpiar').addEventListener('click', () => {
+  document.getElementById('avFechaInicio').value = '';
+  document.getElementById('avFechaFin').value    = '';
+  document.getElementById('avCategoria').value   = '';
+  renderAnalisis();
+});
 </script>
 {% endblock %}
