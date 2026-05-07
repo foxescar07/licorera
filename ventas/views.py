@@ -411,3 +411,30 @@ def cierre_caja(request):
     )
  
     return JsonResponse({'ok': True})
+from django.contrib.auth import authenticate
+
+@require_POST
+def verificar_acceso_caja(request):
+    """Verifica que el usuario tenga rol admin o cajero antes de operar la caja."""
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+
+    username = data.get('username', '').strip()
+    password = data.get('password', '')
+
+    user = authenticate(request, username=username, password=password)
+
+    if user is None:
+        return JsonResponse({'ok': False, 'error': 'Usuario o contraseña incorrectos.'})
+
+    # Solo admin o cajero (puedes ajustar los grupos según tu proyecto)
+    grupos = list(user.groups.values_list('name', flat=True))
+    es_admin   = user.is_superuser or user.is_staff or 'Administrador' in grupos
+    es_cajero  = 'Cajero' in grupos
+
+  # Después (temporal para probar)
+if not (es_admin or es_cajero):
+    return JsonResponse({'ok': False, 'error': f'Sin permiso. Grupos: {grupos}, staff: {user.is_staff}, super: {user.is_superuser}'})
+    return JsonResponse({'ok': True, 'nombre': user.get_full_name() or user.username})

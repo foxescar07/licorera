@@ -143,8 +143,34 @@
 }
 .caja-btn-primary:hover { opacity:.85; }
 .caja-btn-primary--danger { background:#ff4d4d; }
+.caja-btn-primary:disabled { opacity:.5; cursor:not-allowed; }
  
 .caja-resultado-fila { display:flex; justify-content:space-between; padding:.35rem 0; font-size:.88rem; }
+ 
+/* ── Auth modal ── */
+.auth-aviso {
+    display: none;
+    background: rgba(255,77,77,.1);
+    border: 1px solid #ff4d4d;
+    border-radius: 8px;
+    padding: .6rem .9rem;
+    font-size: .82rem;
+    color: #ff4d4d;
+    margin-bottom: .8rem;
+}
+.auth-aviso.show { display: block; }
+ 
+.info-base {
+    display: none;
+    background: rgba(46,213,115,.08);
+    border: 1px solid #2ed573;
+    border-radius: 8px;
+    padding: .6rem .9rem;
+    font-size: .82rem;
+    color: #2ed573;
+    margin-bottom: 1rem;
+}
+.info-base.show { display: block; }
  
 @media print {
     .no-print { display:none !important; }
@@ -187,7 +213,7 @@
     </div>
   </div>
  
-  <!-- ── TARJETAS RESUMEN (3) ── -->
+  <!-- ── TARJETAS RESUMEN ── -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-lg-4">
       <div class="vd-stat">
@@ -373,9 +399,48 @@
 </div>
  
 <!-- ══════════════════════════════════════
+     MODAL AUTENTICACIÓN CAJA
+══════════════════════════════════════ -->
+<div id="overlayAuth" class="vd-modal-overlay"></div>
+<div id="modalAuth" class="vd-modal-box" style="width:400px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+      <div style="font-size:.7rem; color:var(--azul-claro); text-transform:uppercase; letter-spacing:1px; font-weight:700;" id="authSubtitulo">Verificación</div>
+      <div style="font-size:1.15rem; font-weight:800; color:var(--texto);" id="authTitulo">Acceso a Caja</div>
+    </div>
+    <button onclick="cerrarModalAuth()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+  </div>
+ 
+  <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;" id="authDescripcion">
+    Solo administradores y cajeros pueden operar la caja.
+  </p>
+ 
+  <div class="caja-input-label">Usuario</div>
+  <input type="text" class="caja-input" id="authUsuario" placeholder="Nombre de usuario" autocomplete="username">
+ 
+  <div class="caja-input-label">Contraseña</div>
+  <div style="position:relative; margin-bottom:.8rem;">
+    <input type="password" class="caja-input" id="authPassword" placeholder="••••••••"
+           autocomplete="current-password" style="margin-bottom:0; padding-right:2.8rem;"
+           onkeydown="if(event.key==='Enter') confirmarAuth()">
+    <button onclick="togglePasswordAuth()" style="position:absolute;right:.7rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--texto-muted);cursor:pointer;font-size:1rem; padding:0;">
+      <i class="bi bi-eye" id="authEyeIcon"></i>
+    </button>
+  </div>
+ 
+  <div class="auth-aviso" id="authError">
+    <i class="bi bi-exclamation-circle me-1"></i><span id="authErrorMsg"></span>
+  </div>
+ 
+  <button class="caja-btn-primary" id="authBoton" onclick="confirmarAuth()">
+    <i class="bi bi-shield-check me-1"></i> Verificar e Ingresar
+  </button>
+</div>
+ 
+<!-- ══════════════════════════════════════
      MODAL APERTURA DE CAJA
 ══════════════════════════════════════ -->
-<div id="overlayApertura" class="vd-modal-overlay" onclick="cerrarModalApertura()"></div>
+<div id="overlayApertura" class="vd-modal-overlay"></div>
 <div id="modalApertura" class="vd-modal-box">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
     <div>
@@ -384,6 +449,13 @@
     </div>
     <button onclick="cerrarModalApertura()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
   </div>
+ 
+  <!-- Aviso base heredada del cierre anterior -->
+  <div class="info-base" id="infoBaseSiguiente">
+    <i class="bi bi-info-circle me-1"></i>
+    <span id="infoBaseSiguienteTexto"></span>
+  </div>
+ 
   <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
     Cuenta el dinero con el que inicias el día e ingresa la cantidad por denominación.
   </p>
@@ -423,7 +495,7 @@
 <!-- ══════════════════════════════════════
      MODAL CIERRE DE CAJA
 ══════════════════════════════════════ -->
-<div id="overlayCierre" class="vd-modal-overlay" onclick="cerrarModalCierre()"></div>
+<div id="overlayCierre" class="vd-modal-overlay"></div>
 <div id="modalCierre" class="vd-modal-box">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
     <div>
@@ -511,19 +583,19 @@
  
 {% block extra_js %}
 <script>
-const TOTAL_DIA     = {{ total_dia|default:0 }};
-const BASE_APERTURA = {{ caja_abierta.monto_base|default:0 }};
-const CSRF_TOKEN    = '{{ csrf_token }}';
+const TOTAL_DIA      = {{ total_dia|default:0 }};
+const BASE_APERTURA  = {{ caja_abierta.monto_base|default:0 }};
+const BASE_SIGUIENTE = {{ ultimo_cierre.monto_base_siguiente|default:0 }};
+const CSRF_TOKEN     = '{{ csrf_token }}';
  
 function formatPesos(val) {
     const n = Math.round(parseFloat(val) || 0);
-    // Formato colombiano: punto como separador de miles
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
  
 // ── Init ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-    // Total en caja estimado (base + ventas)
+    // Total en caja estimado
     const totalEnCajaEl = document.getElementById('totalEnCaja');
     if (totalEnCajaEl) {
         totalEnCajaEl.textContent = '$' + formatPesos(BASE_APERTURA + TOTAL_DIA);
@@ -555,9 +627,108 @@ document.addEventListener('DOMContentLoaded', function() {
     if (baseInp) baseInp.addEventListener('input', calcularTotalCierre);
 });
  
-// ════════════════════════
+// ════════════════════════════════════════
+// MODAL AUTENTICACIÓN
+// ════════════════════════════════════════
+let _accionPendiente = null; // 'apertura' o 'cierre'
+ 
+function abrirModalAuth(accion) {
+    _accionPendiente = accion;
+    const esCierre = accion === 'cierre';
+ 
+    document.getElementById('authSubtitulo').textContent    = esCierre ? 'Cierre de Caja' : 'Apertura de Caja';
+    document.getElementById('authTitulo').textContent       = esCierre ? 'Cerrar Caja' : 'Abrir Caja';
+    document.getElementById('authDescripcion').textContent  = esCierre
+        ? 'Confirma tu identidad para proceder con el cierre de caja.'
+        : 'Confirma tu identidad para proceder con la apertura de caja.';
+ 
+    const boton = document.getElementById('authBoton');
+    boton.className = esCierre ? 'caja-btn-primary caja-btn-primary--danger' : 'caja-btn-primary';
+    boton.disabled  = false;
+    boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
+ 
+    document.getElementById('authUsuario').value  = '';
+    document.getElementById('authPassword').value = '';
+    document.getElementById('authPassword').type  = 'password';
+    document.getElementById('authEyeIcon').className = 'bi bi-eye';
+    document.getElementById('authError').classList.remove('show');
+ 
+    document.getElementById('overlayAuth').classList.add('open');
+    document.getElementById('modalAuth').classList.add('open');
+    setTimeout(() => document.getElementById('authUsuario').focus(), 120);
+}
+ 
+function cerrarModalAuth() {
+    document.getElementById('overlayAuth').classList.remove('open');
+    document.getElementById('modalAuth').classList.remove('open');
+    _accionPendiente = null;
+}
+ 
+function togglePasswordAuth() {
+    const inp  = document.getElementById('authPassword');
+    const icon = document.getElementById('authEyeIcon');
+    if (inp.type === 'password') {
+        inp.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+    } else {
+        inp.type = 'password';
+        icon.className = 'bi bi-eye';
+    }
+}
+ 
+function confirmarAuth() {
+    const usuario  = document.getElementById('authUsuario').value.trim();
+    const password = document.getElementById('authPassword').value;
+    const errBox   = document.getElementById('authError');
+    const boton    = document.getElementById('authBoton');
+ 
+    if (!usuario || !password) {
+        document.getElementById('authErrorMsg').textContent = 'Ingresa usuario y contraseña.';
+        errBox.classList.add('show');
+        return;
+    }
+ 
+    boton.disabled = true;
+    boton.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Verificando...';
+    errBox.classList.remove('show');
+ 
+    fetch("{% url 'ventas:verificar_acceso_caja' %}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({ username: usuario, password }),
+    })
+    .then(r => r.json())
+    .then(data => {
+        boton.disabled = false;
+        boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
+ 
+        if (!data.ok) {
+            document.getElementById('authErrorMsg').textContent = data.error || 'Error de autenticación.';
+            errBox.classList.add('show');
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authPassword').focus();
+            return;
+        }
+ 
+        // Auth exitosa → cerrar auth y abrir el modal correspondiente
+        cerrarModalAuth();
+        if (_accionPendiente === 'apertura') {
+            _abrirModalApertura();
+        } else if (_accionPendiente === 'cierre') {
+            _abrirModalCierre();
+        }
+    })
+    .catch(() => {
+        boton.disabled = false;
+        boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
+        document.getElementById('authErrorMsg').textContent = 'Error de conexión.';
+        errBox.classList.add('show');
+    });
+}
+ 
+// ════════════════════════════════════════
 // APERTURA
-// ════════════════════════
+// ════════════════════════════════════════
 function calcularTotalApertura() {
     let total = 0;
     document.querySelectorAll('.denom-ap').forEach(i => {
@@ -567,10 +738,29 @@ function calcularTotalApertura() {
     return total;
 }
  
+// Botón público — siempre pasa por auth
 function abrirModalApertura() {
+    abrirModalAuth('apertura');
+}
+ 
+// Solo se llama tras auth exitosa
+function _abrirModalApertura() {
+    // Mostrar aviso de base heredada si existe
+    if (BASE_SIGUIENTE > 0) {
+        const infoEl   = document.getElementById('infoBaseSiguiente');
+        const textoEl  = document.getElementById('infoBaseSiguienteTexto');
+        textoEl.textContent = 'El último cierre dejó una base de $' + formatPesos(BASE_SIGUIENTE) + ' para hoy.';
+        infoEl.classList.add('show');
+    }
+    // Reset denominaciones
+    document.querySelectorAll('.denom-ap').forEach(i => i.value = 0);
+    calcularTotalApertura();
+    document.getElementById('apObservacion').value = '';
+ 
     document.getElementById('overlayApertura').classList.add('open');
     document.getElementById('modalApertura').classList.add('open');
 }
+ 
 function cerrarModalApertura() {
     document.getElementById('overlayApertura').classList.remove('open');
     document.getElementById('modalApertura').classList.remove('open');
@@ -590,8 +780,8 @@ function confirmarApertura() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
         body: JSON.stringify({
-            monto_base: montoBase,
-            observacion: document.getElementById('apObservacion').value,
+            monto_base:   montoBase,
+            observacion:  document.getElementById('apObservacion').value,
             denominaciones,
         }),
     })
@@ -600,9 +790,9 @@ function confirmarApertura() {
     .catch(() => alert('Error de conexión.'));
 }
  
-// ════════════════════════
+// ════════════════════════════════════════
 // CIERRE
-// ════════════════════════
+// ════════════════════════════════════════
 function calcularTotalCierre() {
     let total = 0;
     document.querySelectorAll('.denom-ci').forEach(i => {
@@ -622,10 +812,23 @@ function calcularTotalCierre() {
     return total;
 }
  
+// Botón público — siempre pasa por auth
 function abrirModalCierre() {
+    abrirModalAuth('cierre');
+}
+ 
+// Solo se llama tras auth exitosa
+function _abrirModalCierre() {
+    // Reset denominaciones y resumen
+    document.querySelectorAll('.denom-ci').forEach(i => i.value = 0);
+    document.getElementById('baseSiguiente').value = '';
+    document.getElementById('resumenCierre').style.display = 'none';
+    calcularTotalCierre();
+ 
     document.getElementById('overlayCierre').classList.add('open');
     document.getElementById('modalCierre').classList.add('open');
 }
+ 
 function cerrarModalCierre() {
     document.getElementById('overlayCierre').classList.remove('open');
     document.getElementById('modalCierre').classList.remove('open');
@@ -647,9 +850,9 @@ function confirmarCierre() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
         body: JSON.stringify({
-            total_contado: totalContado,
+            total_contado:        totalContado,
             monto_base_siguiente: baseSiguiente,
-            total_retirado: Math.max(0, totalContado - baseSiguiente),
+            total_retirado:       Math.max(0, totalContado - baseSiguiente),
             denominaciones,
         }),
     })
@@ -741,27 +944,6 @@ function abrirDetalle(ventaId) {
 function cerrarDetalle() {
     document.getElementById('overlayDetalle').classList.remove('open');
     document.getElementById('modalDetalle').classList.remove('open');
-}
- 
-// ── Exportar CSV ──────────────────────────────────────────────
-function exportarCSV() {
-    const ventas = Array.from(document.querySelectorAll('.dato-venta'));
-    if (ventas.length === 0) { alert('No hay ventas para exportar.'); return; }
- 
-    let csv = 'Fecha,Hora,Cliente,Productos,Descuento (%),Total ($)\n';
-    ventas.forEach(v => {
-        const productos = Array.from(v.querySelectorAll('.dato-detalle')).map(d => {
-            const pres = d.dataset.presentacion ? ' (' + d.dataset.presentacion + ')' : '';
-            return d.dataset.nombre + pres + ' x' + d.dataset.cantidad;
-        }).join(' | ');
-        csv += `${v.dataset.fechaDia},${v.dataset.hora},"${v.dataset.cliente}","${productos}",${v.dataset.descuento},${v.dataset.total}\n`;
-    });
- 
-    const blob = new Blob(['\uFEFF' + csv], { type:'text/csv;charset=utf-8;' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = 'ventas_dia_{{ hoy|date:"d-m-Y" }}.csv'; a.click();
-    URL.revokeObjectURL(url);
 }
 </script>
 {% endblock %}
