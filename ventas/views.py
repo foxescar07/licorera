@@ -2,12 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db import transaction
+from django.contrib.auth import authenticate
 from decimal import Decimal, InvalidOperation
 import json
 from django.utils import timezone
 from django.views.decorators.http import require_POST
  
-from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja
+from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion
 from .forms import VentaForm, DetalleVentaForm
 from producto.models import Producto, Inventario, Categoria, PresentacionProducto
  
@@ -53,7 +54,7 @@ def nueva_venta(request):
     pago_daviplata     = to_decimal('pago_daviplata')
  
     if not producto_ids:
-        messages.error(request, "El carrito está vacío.")
+        messages.error(request, "El carrito esta vacio.")
         return redirect('ventas:ventas_lista')
  
     if not form.is_valid():
@@ -70,7 +71,7 @@ def nueva_venta(request):
             if cantidad <= 0 or precio < 0:
                 raise ValueError
         except (ValueError, TypeError, InvalidOperation, IndexError):
-            messages.error(request, f"Datos inválidos en el ítem {i+1}.")
+            messages.error(request, f"Datos invalidos en el item {i+1}.")
             return redirect('ventas:ventas_lista')
  
         try:
@@ -86,11 +87,11 @@ def nueva_venta(request):
             try:
                 presentacion = PresentacionProducto.objects.get(pk=pres_id, producto=producto)
             except PresentacionProducto.DoesNotExist:
-                messages.error(request, f"Presentación inválida para {producto.nombre}.")
+                messages.error(request, f"Presentacion invalida para {producto.nombre}.")
                 return redirect('ventas:ventas_lista')
  
             if cantidad > presentacion.cantidad:
-                messages.error(request, f"Stock insuficiente: solo hay {presentacion.cantidad} '{presentacion.nombre}' de {producto.nombre}.")
+                messages.error(request, f"Stock insuficiente: solo hay {presentacion.cantidad} de {producto.nombre}.")
                 return redirect('ventas:ventas_lista')
         else:
             if cantidad > producto.cantidad_disponible:
@@ -146,7 +147,7 @@ def nueva_venta(request):
             motivo='Venta registrada', ubicacion='Venta',
         )
  
-    messages.success(request, f"Venta registrada — Total: ${total_final:,.0f}".replace(',', '.'))
+    messages.success(request, f"Venta registrada - Total: ${total_final:,.0f}".replace(',', '.'))
     return redirect('ventas:ventas_lista')
  
  
@@ -165,7 +166,7 @@ def eliminar_venta(request, pk):
  
             Inventario.objects.create(
                 producto=det.producto, tipo='entrada', cantidad=unidades,
-                motivo='Anulación de venta', ubicacion='Devolución',
+                motivo='Anulacion de venta', ubicacion='Devolucion',
             )
  
         venta.delete()
@@ -183,11 +184,6 @@ def producto_stock_json(request, pk):
         'stock': producto.cantidad_disponible, 'precio': float(producto.precio_unitario),
         'unidad': producto.unidad, 'presentaciones': presentaciones,
     })
- 
- 
-# ── Devoluciones ──────────────────────────────────────────────
- 
-from .models import Devolucion, DetalleDevolucion
  
  
 def lista_devoluciones(request):
@@ -260,7 +256,7 @@ def registrar_devolucion(request):
     precios          = request.POST.getlist('precio[]')
  
     if not tiene_comprobante:
-        messages.warning(request, 'No se puede registrar la devolución sin comprobante de compra.')
+        messages.warning(request, 'No se puede registrar la devolucion sin comprobante de compra.')
         return redirect('ventas:lista_devoluciones')
  
     venta = get_object_or_404(Venta, pk=venta_id)
@@ -300,7 +296,7 @@ def registrar_devolucion(request):
             presentacion.cantidad += cantidad
             presentacion.save()
  
-    messages.success(request, f'Devolución {devolucion.numero} registrada correctamente.')
+    messages.success(request, f'Devolucion {devolucion.numero} registrada correctamente.')
     return redirect('ventas:comprobante_devolucion', pk=devolucion.pk)
  
  
@@ -316,10 +312,7 @@ def comprobante_devolucion(request, pk):
     })
  
  
-# ── Ventas del día + Caja ─────────────────────────────────────
- 
 def ventas_dia(request):
-    """Página de ventas del día con resumen, detalle, caja y exportación."""
     hoy = timezone.localdate()
  
     ventas = Venta.objects.prefetch_related(
@@ -349,11 +342,10 @@ def ventas_dia(request):
  
 @require_POST
 def apertura_caja(request):
-    """POST JSON → crea AperturaCaja para el día de hoy."""
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+        return JsonResponse({'ok': False, 'error': 'JSON invalido.'}, status=400)
  
     hoy = timezone.localdate()
  
@@ -366,7 +358,7 @@ def apertura_caja(request):
         if monto_base <= 0:
             raise ValueError
     except (TypeError, ValueError):
-        return JsonResponse({'ok': False, 'error': 'Monto base inválido.'}, status=400)
+        return JsonResponse({'ok': False, 'error': 'Monto base invalido.'}, status=400)
  
     AperturaCaja.objects.create(
         fecha=hoy,
@@ -380,11 +372,10 @@ def apertura_caja(request):
  
 @require_POST
 def cierre_caja(request):
-    """POST JSON → crea o actualiza CierreCaja para el día de hoy."""
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+        return JsonResponse({'ok': False, 'error': 'JSON invalido.'}, status=400)
  
     hoy = timezone.localdate()
  
@@ -397,7 +388,7 @@ def cierre_caja(request):
         monto_base_sig = float(data.get('monto_base_siguiente', 0))
         total_retirado = float(data.get('total_retirado', 0))
     except (TypeError, ValueError):
-        return JsonResponse({'ok': False, 'error': 'Valores numéricos inválidos.'}, status=400)
+        return JsonResponse({'ok': False, 'error': 'Valores numericos invalidos.'}, status=400)
  
     CierreCaja.objects.update_or_create(
         fecha=hoy,
@@ -411,30 +402,28 @@ def cierre_caja(request):
     )
  
     return JsonResponse({'ok': True})
-from django.contrib.auth import authenticate
-
+ 
+ 
 @require_POST
 def verificar_acceso_caja(request):
-    """Verifica que el usuario tenga rol admin o cajero antes de operar la caja."""
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
-
+        return JsonResponse({'ok': False, 'error': 'JSON invalido.'}, status=400)
+ 
     username = data.get('username', '').strip()
     password = data.get('password', '')
-
+ 
     user = authenticate(request, username=username, password=password)
-
+ 
     if user is None:
-        return JsonResponse({'ok': False, 'error': 'Usuario o contraseña incorrectos.'})
-
-    # Solo admin o cajero (puedes ajustar los grupos según tu proyecto)
+        return JsonResponse({'ok': False, 'error': 'Usuario o contrasena incorrectos.'})
+ 
     grupos = list(user.groups.values_list('name', flat=True))
-    es_admin   = user.is_superuser or user.is_staff or 'Administrador' in grupos
-    es_cajero  = 'Cajero' in grupos
-
-  # Después (temporal para probar)
-if not (es_admin or es_cajero):
-    return JsonResponse({'ok': False, 'error': f'Sin permiso. Grupos: {grupos}, staff: {user.is_staff}, super: {user.is_superuser}'})
+    es_admin  = user.is_superuser or user.is_staff or 'Administrador' in grupos
+    es_cajero = 'Cajero' in grupos
+ 
+    if not (es_admin or es_cajero):
+        return JsonResponse({'ok': False, 'error': f'Sin permiso. Grupos: {grupos}, staff: {user.is_staff}, super: {user.is_superuser}'})
+ 
     return JsonResponse({'ok': True, 'nombre': user.get_full_name() or user.username})
