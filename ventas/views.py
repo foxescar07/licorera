@@ -406,24 +406,27 @@ def cierre_caja(request):
  
 @require_POST
 def verificar_acceso_caja(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'No has iniciado sesion.'})
+
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
         return JsonResponse({'ok': False, 'error': 'JSON invalido.'}, status=400)
- 
-    username = data.get('username', '').strip()
+
     password = data.get('password', '')
- 
-    user = authenticate(request, username=username, password=password)
- 
+
+    # Verificar contraseña del usuario actual
+    user = authenticate(request, username=request.user.username, password=password)
+
     if user is None:
-        return JsonResponse({'ok': False, 'error': 'Usuario o contrasena incorrectos.'})
- 
+        return JsonResponse({'ok': False, 'error': 'Contrasena incorrecta.'})
+
     grupos = list(user.groups.values_list('name', flat=True))
     es_admin  = user.is_superuser or user.is_staff or 'Administrador' in grupos
     es_cajero = 'Cajero' in grupos
- 
+
     if not (es_admin or es_cajero):
         return JsonResponse({'ok': False, 'error': f'Sin permiso. Grupos: {grupos}, staff: {user.is_staff}, super: {user.is_superuser}'})
- 
+
     return JsonResponse({'ok': True, 'nombre': user.get_full_name() or user.username})
