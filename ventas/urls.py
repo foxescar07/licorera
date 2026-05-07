@@ -20,5 +20,5 @@ urlpatterns = [
     path('devoluciones/buscar/',                           views.buscar_venta_devolucion,   name='buscar_venta_devolucion'),
     path('devoluciones/venta/<int:venta_id>/detalle/',     views.detalle_venta_devolucion,  name='detalle_venta_devolucion'),
     path('devoluciones/registrar/',                        views.registrar_devolucion,      name='registrar_devolucion'),
-    path('devoluciones/comprobante/<int:pk>/',             views.comprobante_devolucion,    name='comprobante_devolucion'),
+
 ]

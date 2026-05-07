@@ -255,9 +255,13 @@
 </div>
 
 
-<!-- MODAL HISTORIAL -->
+<!-- ============================================================
+     MODAL HISTORIAL — MEJORADO
+     ============================================================ -->
 <div id="modalHistorial" onclick="if(event.target===this) cerrarHistorial()">
   <div class="modal-hist-panel">
+
+    <!-- CABECERA -->
     <div class="modal-hist-head">
       <div class="modal-hist-head__title">
         <i class="bi bi-clock-history"></i> Historial de Devoluciones
@@ -268,6 +272,7 @@
     </div>
 
     {% if devoluciones %}
+    <!-- MÉTRICAS -->
     <div class="modal-hist-metrics">
       <div class="modal-metric">
         <div class="modal-metric__val">{{ devoluciones|length }}</div>
@@ -275,7 +280,10 @@
       </div>
       <div class="modal-metric">
         <div class="modal-metric__val" style="color:var(--dg-light);">
-          {% for d in devoluciones %}{% if d.restaurar_stock %}{% if forloop.last %}{{ forloop.counter }}{% endif %}{% endif %}{% endfor %}
+          {% with stock_count=0 %}
+            {% for d in devoluciones %}{% if d.restaurar_stock %}{% with stock_count=stock_count|add:1 %}{% endwith %}{% endif %}{% endfor %}
+            {{ devoluciones|length }}
+          {% endwith %}
         </div>
         <div class="modal-metric__lbl">Stock rest.</div>
       </div>
@@ -286,28 +294,61 @@
     </div>
     {% endif %}
 
-    <div class="modal-hist-list">
+    <!-- BUSCADOR POR PRODUCTO -->
+    <div class="modal-hist-search-wrap">
+      <div class="dev-search" style="margin-bottom:0;">
+        <i class="bi bi-search dev-search__icon"></i>
+        <input type="text"
+               id="buscadorHistorial"
+               class="dev-search__input"
+               placeholder="Buscar por producto, cliente o motivo..."
+               oninput="filtrarHistorial(this.value)">
+        <button id="btnLimpiarBusqueda" class="hist-search-clear"
+                onclick="limpiarBusquedaHistorial()" style="display:none;"
+                title="Limpiar búsqueda">
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
+      </div>
+      <div id="historialContadorResultados" class="hist-contador" style="display:none;"></div>
+    </div>
+
+    <!-- LISTA -->
+    <div class="modal-hist-list" id="modalHistList">
       {% if devoluciones %}
         {% for dev in devoluciones %}
-        <div class="dev-hist-row">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
-            <div>
+        <div class="dev-hist-row"
+             data-busqueda="{{ dev.venta.cliente|lower }} {{ dev.get_motivo_display|lower }} {% for det in dev.detalles.all %}{{ det.producto.nombre|lower }} {% endfor %}">
+
+          <!-- FILA PRINCIPAL (siempre visible) -->
+          <div class="dev-hist-row__main" onclick="toggleDetalle('detalle_{{ dev.id }}', this)">
+            <div class="dev-hist-row__left">
               <div class="dev-hist-num">{{ dev.numero }}</div>
               <div class="dev-hist-cliente">{{ dev.venta.cliente }}</div>
               <div class="dev-hist-fecha"><i class="bi bi-calendar3 me-1"></i>{{ dev.fecha|date:"d/m/Y H:i" }}</div>
             </div>
-            <div style="text-align:right; flex-shrink:0;">
+            <div class="dev-hist-row__right">
               <div class="dev-hist-monto">${{ dev.total_devuelto|floatformat:0 }}</div>
               <div class="dev-hist-motivo">{{ dev.get_motivo_display }}</div>
-              <div style="margin-top:4px;">
+              <div style="margin-top:4px; display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">
                 {% if dev.restaurar_stock %}
                   <span class="dev-pill dev-pill--stock-ok"><i class="bi bi-boxes me-1"></i>Stock rest.</span>
                 {% else %}
                   <span class="dev-pill dev-pill--stock-no"><i class="bi bi-dash-circle me-1"></i>Sin rest.</span>
                 {% endif %}
+                {% if dev.tiene_comprobante %}
+                  <span class="dev-pill dev-pill--comp-ok"><i class="bi bi-receipt me-1"></i>Con comprobante</span>
+                {% else %}
+                  <span class="dev-pill dev-pill--comp-no"><i class="bi bi-x-circle me-1"></i>Sin comprobante</span>
+                {% endif %}
               </div>
             </div>
+            <!-- Flecha expandir -->
+            <div class="dev-hist-chevron">
+              <i class="bi bi-chevron-down"></i>
+            </div>
           </div>
+
+          <!-- PILLS PRODUCTOS (siempre visibles) -->
           <div class="dev-hist-prods">
             {% for det in dev.detalles.all %}
               <span class="dev-pill dev-pill--prod">
@@ -315,7 +356,92 @@
               </span>
             {% endfor %}
           </div>
-        </div>
+
+          <!-- PANEL DE DETALLE EXPANDIBLE -->
+          <div class="dev-hist-detalle" id="detalle_{{ dev.id }}">
+            <div class="dev-hist-detalle__inner">
+
+              <!-- Tabla de productos -->
+              <div class="dev-hist-detalle__section">
+                <div class="dev-hist-detalle__section-title">
+                  <i class="bi bi-bag me-1"></i>Productos devueltos
+                </div>
+                <table class="dev-hist-table">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Presentación</th>
+                      <th style="text-align:center;">Cant.</th>
+                      <th style="text-align:right;">Precio unit.</th>
+                      <th style="text-align:right;">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for det in dev.detalles.all %}
+                    <tr>
+                      <td>{{ det.producto.nombre }}</td>
+                      <td>{{ det.presentacion.nombre|default:"—" }}</td>
+                      <td style="text-align:center;">{{ det.cantidad }}</td>
+                      <td style="text-align:right;">${{ det.precio_unitario|floatformat:0 }}</td>
+                      <td style="text-align:right; font-weight:600; color:var(--dr-light);">
+                        ${{ det.subtotal|floatformat:0 }}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="4" style="text-align:right; font-weight:700; font-size:.8rem; text-transform:uppercase; letter-spacing:.05em;">Total devuelto</td>
+                      <td style="text-align:right; font-weight:700; color:var(--dr-light); font-size:1rem;">
+                        ${{ dev.total_devuelto|floatformat:0 }}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <!-- Info adicional -->
+              <div class="dev-hist-detalle__meta">
+                <div class="dev-hist-detalle__meta-item">
+                  <span class="dev-hist-detalle__meta-lbl"><i class="bi bi-hash me-1"></i>Venta origen</span>
+                  <span class="dev-hist-detalle__meta-val"># {{ dev.venta.id }}</span>
+                </div>
+                <div class="dev-hist-detalle__meta-item">
+                  <span class="dev-hist-detalle__meta-lbl"><i class="bi bi-receipt me-1"></i>Comprobante</span>
+                  <span class="dev-hist-detalle__meta-val">
+                    {% if dev.tiene_comprobante %}
+                      <span style="color:var(--dg-light);">Sí presentó</span>
+                    {% else %}
+                      <span style="color:var(--dr-light);">No presentó</span>
+                    {% endif %}
+                  </span>
+                </div>
+                <div class="dev-hist-detalle__meta-item">
+                  <span class="dev-hist-detalle__meta-lbl"><i class="bi bi-boxes me-1"></i>Stock restaurado</span>
+                  <span class="dev-hist-detalle__meta-val">
+                    {% if dev.restaurar_stock %}
+                      <span style="color:var(--dg-light);">Sí</span>
+                    {% else %}
+                      <span style="color:var(--dr-light);">No</span>
+                    {% endif %}
+                  </span>
+                </div>
+                <div class="dev-hist-detalle__meta-item">
+                  <span class="dev-hist-detalle__meta-lbl"><i class="bi bi-calendar-event me-1"></i>Fecha</span>
+                  <span class="dev-hist-detalle__meta-val">{{ dev.fecha|date:"d/m/Y H:i" }}</span>
+                </div>
+                {% if dev.observaciones %}
+                <div class="dev-hist-detalle__meta-item dev-hist-detalle__meta-item--full">
+                  <span class="dev-hist-detalle__meta-lbl"><i class="bi bi-chat-left-text me-1"></i>Observaciones</span>
+                  <span class="dev-hist-detalle__meta-val dev-hist-detalle__obs">{{ dev.observaciones }}</span>
+                </div>
+                {% endif %}
+              </div>
+
+            </div>
+          </div><!-- /dev-hist-detalle -->
+
+        </div><!-- /dev-hist-row -->
         {% endfor %}
       {% else %}
         <div class="dev-empty">
@@ -323,9 +449,177 @@
           <span>No hay devoluciones registradas</span>
         </div>
       {% endif %}
+    </div><!-- /modal-hist-list -->
+
+    <!-- Sin resultados búsqueda -->
+    <div id="historialSinResultados" style="display:none; padding:2rem 1rem; text-align:center; color:var(--texto-muted);">
+      <i class="bi bi-search" style="font-size:2rem; display:block; opacity:.25; margin-bottom:10px;"></i>
+      <span style="font-size:.85rem;">Sin resultados para esa búsqueda.</span>
     </div>
+
   </div>
 </div>
+
+<!-- ============================================================
+     ESTILOS ADICIONALES PARA LAS MEJORAS
+     ============================================================ -->
+<style>
+/* --- Buscador en historial --- */
+.modal-hist-search-wrap {
+  padding: 10px 16px 6px;
+  border-bottom: 1px solid var(--azul-borde, rgba(255,255,255,.08));
+}
+.hist-search-clear {
+  background: none;
+  border: none;
+  color: var(--texto-muted);
+  cursor: pointer;
+  padding: 0 4px;
+  font-size: .9rem;
+  transition: color .15s;
+}
+.hist-search-clear:hover { color: var(--dr-light, #e07060); }
+.hist-contador {
+  font-size: .72rem;
+  color: var(--texto-muted);
+  margin-top: 5px;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: .02em;
+}
+
+/* --- Fila historial mejorada --- */
+.dev-hist-row__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  padding-bottom: 6px;
+  position: relative;
+}
+.dev-hist-row__main:hover .dev-hist-chevron { color: var(--dr-light, #e07060); }
+.dev-hist-row__left  { flex: 1; min-width: 0; }
+.dev-hist-row__right { text-align: right; flex-shrink: 0; }
+.dev-hist-chevron {
+  position: absolute;
+  right: 0;
+  top: 2px;
+  font-size: .8rem;
+  color: var(--texto-muted);
+  transition: transform .25s ease, color .15s;
+}
+.dev-hist-row__main.abierto .dev-hist-chevron { transform: rotate(180deg); }
+
+/* Pills nuevas */
+.dev-pill--comp-ok {
+  background: rgba(80,200,140,.12);
+  color: #50c88c;
+  border: 1px solid rgba(80,200,140,.25);
+}
+.dev-pill--comp-no {
+  background: rgba(220,80,60,.10);
+  color: #dc7060;
+  border: 1px solid rgba(220,80,60,.20);
+}
+
+/* --- Panel detalle expandible --- */
+.dev-hist-detalle {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s cubic-bezier(.4,0,.2,1);
+}
+.dev-hist-detalle.open {
+  max-height: 600px;
+}
+.dev-hist-detalle__inner {
+  border-top: 1px solid var(--azul-borde, rgba(255,255,255,.08));
+  margin-top: 10px;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.dev-hist-detalle__section-title {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--texto-muted);
+  margin-bottom: 8px;
+}
+
+/* Tabla productos dentro del detalle */
+.dev-hist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .78rem;
+  font-family: 'Inter', sans-serif;
+}
+.dev-hist-table th {
+  font-size: .65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--texto-muted);
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--azul-borde, rgba(255,255,255,.1));
+}
+.dev-hist-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  color: var(--texto-principal, #d8dce8);
+}
+.dev-hist-table tbody tr:last-child td { border-bottom: none; }
+.dev-hist-table tfoot td {
+  padding-top: 8px;
+  border-top: 1px solid var(--azul-borde, rgba(255,255,255,.12));
+  font-size: .78rem;
+}
+
+/* Meta info grid */
+.dev-hist-detalle__meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px 12px;
+}
+.dev-hist-detalle__meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dev-hist-detalle__meta-item--full {
+  grid-column: 1 / -1;
+}
+.dev-hist-detalle__meta-lbl {
+  font-size: .62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--texto-muted);
+}
+.dev-hist-detalle__meta-val {
+  font-size: .78rem;
+  color: var(--texto-principal, #d8dce8);
+  font-family: 'Inter', sans-serif;
+}
+.dev-hist-detalle__obs {
+  background: rgba(255,255,255,.04);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: .78rem;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+/* highlight búsqueda */
+.hist-highlight {
+  background: rgba(220, 100, 80, .25);
+  border-radius: 2px;
+  padding: 0 1px;
+  color: var(--dr-light, #e07060);
+  font-weight: 600;
+}
+</style>
 
 
 <script>
@@ -377,16 +671,77 @@ function irPaso(n) {
   document.getElementById('footerBar').style.display = 'none';
 }
 
+/* ---- HISTORIAL ---- */
 function abrirHistorial() {
   document.getElementById('modalHistorial').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
+
 function cerrarHistorial() {
   document.getElementById('modalHistorial').classList.remove('open');
   document.body.style.overflow = '';
+  limpiarBusquedaHistorial();
+  // Cerrar todos los paneles abiertos
+  document.querySelectorAll('.dev-hist-detalle.open').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.dev-hist-row__main.abierto').forEach(el => el.classList.remove('abierto'));
 }
+
 document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarHistorial(); });
 
+/* ---- DETALLE EXPANDIBLE ---- */
+function toggleDetalle(id, headerEl) {
+  const panel = document.getElementById(id);
+  if (!panel) return;
+  const abierto = panel.classList.contains('open');
+  // Cierra todos los demás
+  document.querySelectorAll('.dev-hist-detalle.open').forEach(el => {
+    if (el !== panel) {
+      el.classList.remove('open');
+      const prevMain = el.closest('.dev-hist-row')?.querySelector('.dev-hist-row__main');
+      if (prevMain) prevMain.classList.remove('abierto');
+    }
+  });
+  panel.classList.toggle('open', !abierto);
+  headerEl.classList.toggle('abierto', !abierto);
+}
+
+/* ---- BUSCADOR HISTORIAL ---- */
+function filtrarHistorial(query) {
+  const q          = query.trim().toLowerCase();
+  const filas      = document.querySelectorAll('#modalHistList .dev-hist-row');
+  let   visibles   = 0;
+  const btnLimpiar = document.getElementById('btnLimpiarBusqueda');
+  const contador   = document.getElementById('historialContadorResultados');
+
+  if (btnLimpiar) btnLimpiar.style.display = q ? 'inline' : 'none';
+
+  filas.forEach(fila => {
+    const texto    = (fila.dataset.busqueda || '').toLowerCase();
+    const coincide = !q || texto.includes(q);
+    fila.style.display = coincide ? '' : 'none';
+    if (coincide) visibles++;
+  });
+
+  const sinRes = document.getElementById('historialSinResultados');
+  if (sinRes) sinRes.style.display = (q && visibles === 0) ? 'block' : 'none';
+
+  if (contador) {
+    if (q && visibles > 0) {
+      contador.style.display  = 'block';
+      contador.textContent    = `${visibles} resultado${visibles !== 1 ? 's' : ''} encontrado${visibles !== 1 ? 's' : ''}`;
+    } else {
+      contador.style.display = 'none';
+    }
+  }
+}
+
+function limpiarBusquedaHistorial() {
+  const inp = document.getElementById('buscadorHistorial');
+  if (inp) { inp.value = ''; }
+  filtrarHistorial('');
+}
+
+/* ---- BUSCAR VENTAS ---- */
 let buscarTimeout;
 document.getElementById('buscadorVenta').addEventListener('input', function () {
   clearTimeout(buscarTimeout);
@@ -620,14 +975,12 @@ function onMotivoChange() {
 function prepararEnvio() {
   const motivo = document.getElementById('selectMotivo').value;
 
-  // Validar que se haya seleccionado un motivo
   if (!motivo) {
     document.getElementById('errorMotivo').style.display = 'block';
     document.getElementById('selectMotivo').focus();
     return;
   }
 
-  // Validar descripción si el motivo es "otro"
   if (motivo === 'otro') {
     const textoOtro = document.getElementById('inputMotivoOtro').value.trim();
     if (!textoOtro) {
