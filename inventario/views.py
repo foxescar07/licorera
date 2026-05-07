@@ -537,3 +537,4 @@ def editar_movimiento(request, pk):
         except (ValueError, TypeError):
             messages.error(request, '❌ Cantidad inválida.')
     return redirect('inventario:inventario_home')
+
