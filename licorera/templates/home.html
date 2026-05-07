@@ -191,7 +191,7 @@
             label: (ctx) => {
               if (ctx.datasetIndex === 0)
                 return ' Total: $' + Math.round(ctx.raw).toLocaleString('es-CO');
-              return ' Transacciones: ' + ctx.raw;
+              return ' Transacciones: ' + Math.round(ctx.raw);
             }
           }
         }
@@ -218,7 +218,12 @@
         },
         y2: {
           position: 'right',
-          ticks: { color: '#1D9E75', font: { size: 11 } },
+          ticks: {
+            color: '#1D9E75',
+            font: { size: 11 },
+            stepSize: 1,
+            callback: v => Number.isInteger(v) ? v : null
+          },
           grid: { drawOnChartArea: false }
         }
       }

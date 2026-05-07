@@ -435,6 +435,25 @@ def verificar_acceso_caja(request):
     es_cajero  = 'Cajero' in grupos
 
   # Después (temporal para probar)
-if not (es_admin or es_cajero):
-    return JsonResponse({'ok': False, 'error': f'Sin permiso. Grupos: {grupos}, staff: {user.is_staff}, super: {user.is_superuser}'})
-    return JsonResponse({'ok': True, 'nombre': user.get_full_name() or user.username})
+ # Solo admin o cajero
+    grupos = list(user.groups.values_list('name', flat=True))
+
+    es_admin = (
+        user.is_superuser or
+        user.is_staff or
+        'Administrador' in grupos
+    )
+
+    es_cajero = 'Cajero' in grupos
+
+    # Validación de permisos
+    if not (es_admin or es_cajero):
+        return JsonResponse({
+            'ok': False,
+            'error': f'Sin permiso. Grupos: {grupos}, staff: {user.is_staff}, super: {user.is_superuser}'
+        })
+
+    return JsonResponse({
+        'ok': True,
+        'nombre': user.get_full_name() or user.username
+    })
