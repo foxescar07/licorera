@@ -23,4 +23,5 @@ urlpatterns = [
     path("presentaciones/<int:pk>/guardar/", views.presentaciones_guardar, name="presentaciones_guardar"),
     path("presentaciones/<int:pk>/json/", views.presentaciones_json, name="presentaciones_json"),
     path("stock-status/", views.stock_status, name="stock_status"),
+    
 ]
