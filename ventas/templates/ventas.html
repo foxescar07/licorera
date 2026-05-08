@@ -1,468 +1,380 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load ventas_extras %}
  
-{% block title %}Ventas — CYS Ltda{% endblock %}
-{% block page_title %}Ventas{% endblock %}
-{% block nav_ventas %}active{% endblock %}
+{% block title %}Ventas del Día — CYS Ltda{% endblock %}
+{% block page_title %}Ventas del Día{% endblock %}
  
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/ventas.css' %}">
 <style>
-@media print {
-    body * { visibility: hidden; }
-    #modalRecibo, #modalRecibo * { visibility: visible; }
-    #modalRecibo { position: fixed; top: 0; left: 0; width: 100%; }
-    #btnImprimir, #btnCerrarRecibo { display: none; }
+.cys-btn-export {
+    background: rgba(77,168,218,.12);
+    border: 1px solid var(--azul-claro);
+    color: var(--azul-claro);
+    border-radius: 8px;
+    padding: .45rem 1rem;
+    font-size: .82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    text-decoration: none;
+    transition: background .2s;
 }
-#id_cliente { color: var(--texto) !important; }
-#id_cliente::placeholder { color: var(--texto-muted) !important; }
- 
-.metodo-pago-btn {
+.cys-btn-export:hover { background: rgba(77,168,218,.25); color: var(--azul-claro); }
+
+.cys-btn-caja {
+    border-radius: 8px;
+    padding: .45rem 1rem;
+    font-size: .82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    text-decoration: none;
+    transition: background .2s;
+    border: 1px solid;
+}
+.cys-btn-caja--abrir  { background: rgba(46,213,115,.12); border-color: #2ed573; color: #2ed573; }
+.cys-btn-caja--abrir:hover  { background: rgba(46,213,115,.25); }
+.cys-btn-caja--cerrar { background: rgba(255,77,77,.12);  border-color: #ff4d4d; color: #ff4d4d; }
+.cys-btn-caja--cerrar:hover { background: rgba(255,77,77,.25); }
+
+.vd-stat {
     background: var(--fondo-card2);
     border: 1px solid var(--azul-borde);
-    border-radius: 8px;
-    padding: .4rem .8rem;
-    color: var(--texto-muted);
-    cursor: pointer;
-    font-size: .8rem;
-    transition: all .2s;
-}
-.metodo-pago-btn.activo {
-    border-color: var(--azul-claro);
-    color: var(--azul-claro);
-    background: rgba(77,168,218,.1);
-}
- 
-/* ── CARRITO LOCK ── */
-#carritoLock {
+    border-radius: 14px;
+    padding: 1.2rem 1.5rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1rem;
-    gap: 1rem;
+    gap: .3rem;
 }
-#carritoContenido { display: none; }
- 
-/* ── OVERLAY ── */
-#overlayAuthVentas {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.82);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    z-index: 9998;
+.vd-stat__label { font-size:.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--texto-muted); font-weight:600; }
+.vd-stat__val   { font-size:1.7rem; font-weight:800; color:var(--azul-claro); line-height:1; }
+.vd-stat__sub   { font-size:.75rem; color:var(--texto-muted); }
+
+.vd-table th { font-size:.72rem; text-transform:uppercase; color:var(--azul-claro); font-weight:600; border-bottom:1px solid var(--azul-borde); padding:.7rem 1rem; white-space:nowrap; }
+.vd-table td { font-size:.85rem; padding:.75rem 1rem; border-bottom:1px solid var(--azul-borde); vertical-align:middle; color:var(--texto); }
+.vd-table tbody tr { cursor:pointer; transition:background .15s; }
+.vd-table tbody tr:hover { background:rgba(77,168,218,.05); }
+
+.vd-separador-dia td {
+    background: rgba(77,168,218,.08) !important;
+    border-top: 2px solid var(--azul-claro) !important;
+    border-bottom: 2px solid var(--azul-claro) !important;
+    text-align: center; font-size:.72rem; font-weight:700;
+    color:var(--azul-claro); letter-spacing:2px; text-transform:uppercase;
+    padding:.5rem !important; cursor:default !important;
 }
-#overlayAuthVentas.open { display: block; }
- 
-/* ── MODAL AUTH ── */
-#modalAuthVentas {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9999;
-    width: 400px;
-    max-width: 95vw;
-    background: var(--fondo-card);
-    border: 1px solid var(--azul-borde);
-    border-radius: 16px;
-    padding: 2rem;
-    animation: modalPop .25s cubic-bezier(.34,1.56,.64,1) both;
+.vd-separador-dia:hover { background: transparent !important; }
+
+.vd-badge {
+    display:inline-flex; align-items:center; gap:.25rem;
+    background:var(--fondo-card2); border:1px solid var(--azul-borde);
+    border-radius:20px; padding:.15rem .55rem; font-size:.7rem; color:var(--texto-muted); white-space:nowrap;
 }
-#modalAuthVentas.open { display: block; }
- 
-@keyframes modalPop {
-    from { transform: translate(-50%,-48%) scale(.9); opacity:0; }
-    to   { transform: translate(-50%,-50%) scale(1);  opacity:1; }
-}
- 
-.caja-input-label {
-    font-size: .75rem;
-    color: var(--texto-muted);
-    text-transform: uppercase;
-    letter-spacing: .8px;
-    margin-bottom: .3rem;
-    font-weight: 600;
-}
-.caja-input {
-    width: 100%;
+
+.caja-panel {
     background: var(--fondo-card2);
     border: 1px solid var(--azul-borde);
-    border-radius: 8px;
-    color: var(--texto);
-    font-size: .9rem;
-    font-weight: 600;
-    padding: .55rem .8rem;
-    margin-bottom: 0;
-    box-sizing: border-box;
-    transition: border-color .15s;
+    border-radius: 14px;
+    padding: 1.3rem 1.5rem;
 }
-.caja-input:focus { outline: none; border-color: var(--azul-claro); }
-.caja-input.error-border { border-color: #ff4d4d !important; }
- 
+.caja-panel__titulo { font-size:.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--texto-muted); font-weight:600; margin-bottom:.8rem; }
+.caja-estado { display:inline-flex; align-items:center; gap:.4rem; border-radius:20px; padding:.25rem .8rem; font-size:.78rem; font-weight:700; }
+.caja-estado--abierta { background:rgba(46,213,115,.15); border:1px solid #2ed573; color:#2ed573; }
+.caja-estado--cerrada { background:rgba(255,77,77,.1);   border:1px solid #ff4d4d; color:#ff4d4d; }
+
+.caja-dato { display:flex; flex-direction:column; gap:.1rem; }
+.caja-dato__lbl { font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.5px; }
+.caja-dato__val { font-weight:700; font-size:.92rem; }
+
+.vd-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9998; }
+.vd-modal-overlay.open { display:block; }
+.vd-modal-box {
+    display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    z-index:9999; width:520px; max-width:95vw; max-height:90vh; overflow-y:auto;
+    background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;
+}
+.vd-modal-box.open { display:block; }
+
+.denom-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-bottom:.8rem; }
+.denom-item {
+    background:var(--fondo-card2); border:1px solid var(--azul-borde);
+    border-radius:10px; padding:.6rem .8rem; display:flex; align-items:center; gap:.6rem;
+}
+.denom-item label  { font-size:.78rem; color:var(--texto-muted); flex:1; margin:0; }
+.denom-item input  {
+    width:60px; background:var(--fondo-card); border:1px solid var(--azul-borde);
+    border-radius:6px; color:var(--texto); font-size:.85rem; font-weight:700; text-align:center; padding:.25rem .3rem;
+}
+.denom-item input:focus { outline:none; border-color:var(--azul-claro); }
+
+.denom-total {
+    background:rgba(77,168,218,.08); border:1px solid var(--azul-claro);
+    border-radius:10px; padding:.8rem 1rem;
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;
+}
+.denom-total__label { font-size:.78rem; color:var(--texto-muted); font-weight:600; }
+.denom-total__val   { font-size:1.4rem; font-weight:800; color:var(--azul-claro); }
+
+.caja-input-label { font-size:.75rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:.3rem; font-weight:600; }
+.caja-input {
+    width:100%; background:var(--fondo-card2); border:1px solid var(--azul-borde);
+    border-radius:8px; color:var(--texto); font-size:.9rem; font-weight:600; padding:.55rem .8rem; margin-bottom:.8rem;
+}
+.caja-input:focus { outline:none; border-color:var(--azul-claro); }
+
 .caja-btn-primary {
-    width: 100%;
-    background: var(--azul-claro);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: .75rem;
-    font-weight: 700;
-    font-size: .95rem;
-    cursor: pointer;
-    transition: opacity .2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: .4rem;
+    width:100%; background:var(--azul-claro); color:#fff; border:none;
+    border-radius:10px; padding:.75rem; font-weight:700; font-size:.95rem; cursor:pointer; transition:opacity .2s;
 }
-.caja-btn-primary:hover { opacity: .85; }
-.caja-btn-primary:disabled { opacity: .5; cursor: not-allowed; }
- 
+.caja-btn-primary:hover { opacity:.85; }
+.caja-btn-primary--danger { background:#ff4d4d; }
+.caja-btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+
+.caja-resultado-fila { display:flex; justify-content:space-between; padding:.35rem 0; font-size:.88rem; }
+
 .auth-aviso {
     display: none;
-    background: rgba(255,77,77,.12);
-    border: 1px solid rgba(255,77,77,.5);
+    background: rgba(255,77,77,.1);
+    border: 1px solid #ff4d4d;
     border-radius: 8px;
     padding: .6rem .9rem;
     font-size: .82rem;
-    color: #ff6b6b;
+    color: #ff4d4d;
     margin-bottom: .8rem;
-    align-items: center;
-    gap: .5rem;
 }
-.auth-aviso.show { display: flex; }
- 
-@keyframes shake {
-    0%,100% { transform: translateX(0); }
-    20% { transform: translateX(-6px); }
-    40% { transform: translateX(6px); }
-    60% { transform: translateX(-4px); }
-    80% { transform: translateX(4px); }
+.auth-aviso.show { display: block; }
+
+.info-base {
+    display: none;
+    background: rgba(46,213,115,.08);
+    border: 1px solid #2ed573;
+    border-radius: 8px;
+    padding: .6rem .9rem;
+    font-size: .82rem;
+    color: #2ed573;
+    margin-bottom: 1rem;
 }
-.shake { animation: shake .35s ease; }
- 
-/* ── BOTÓN VENTAS DEL DÍA (oculto hasta login) ── */
-#btnVerVentasDia { display: none; }
+.info-base.show { display: block; }
+
+@media print {
+    .no-print { display:none !important; }
+    .cys-header, .cys-subnav, aside { display:none !important; }
+    body { background:#fff !important; color:#000 !important; }
+    .cys-card { border:1px solid #ccc !important; }
+    .vd-separador-dia { display:none !important; }
+}
 </style>
 {% endblock %}
- 
+
 {% block content %}
 <div class="container-fluid p-0">
-  <div class="row g-4">
- 
-    <!-- ── COLUMNA PRODUCTOS ── -->
-    <div class="col-lg-7">
-      <section class="cys-card" style="min-height:600px;">
-        <div class="cys-card__title">Selecciona Productos</div>
-        <div class="cys-venta-search mb-4">
-          <i class="bi bi-search cys-venta-search__icon"></i>
-          <input type="text" id="buscadorProducto" class="cys-venta-search__input" placeholder="Buscar producto por nombre...">
+
+  <!-- ── ENCABEZADO ── -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 no-print">
+    <div>
+      <div style="font-size:.75rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Resumen</div>
+      <div style="font-size:1.4rem; font-weight:800; color:var(--texto);">
+        <i class="bi bi-calendar-check me-2" style="color:var(--azul-claro);"></i>
+        Ventas del día — {{ hoy|date:"d/m/Y" }}
+      </div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'ventas:ventas_lista' %}" class="cys-btn-export">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
+      <button onclick="window.print()" class="cys-btn-export">
+        <i class="bi bi-printer"></i> Imprimir
+      </button>
+      {% if caja_abierta %}
+        <button onclick="abrirModalCierre()" class="cys-btn-caja cys-btn-caja--cerrar">
+          <i class="bi bi-lock"></i> Cerrar Caja
+        </button>
+      {% else %}
+        <button onclick="abrirModalApertura()" class="cys-btn-caja cys-btn-caja--abrir">
+          <i class="bi bi-unlock"></i> Abrir Caja
+        </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── TARJETAS RESUMEN ── -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-4">
+      <div class="vd-stat">
+        <div class="vd-stat__label"><i class="bi bi-receipt me-1"></i>Ventas</div>
+        <div class="vd-stat__val">{{ ventas.count }}</div>
+        <div class="vd-stat__sub">transacciones hoy</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-4">
+      <div class="vd-stat">
+        <div class="vd-stat__label"><i class="bi bi-cash-stack me-1"></i>Total del día</div>
+        <div class="vd-stat__val" style="font-size:1.3rem;">${{ total_dia|pesos }}</div>
+        <div class="vd-stat__sub">ingresos acumulados</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-4">
+      <div class="vd-stat">
+        <div class="vd-stat__label"><i class="bi bi-box-seam me-1"></i>Productos vendidos</div>
+        <div class="vd-stat__val" id="totalProductos">{{ total_productos }}</div>
+        <div class="vd-stat__sub">unidades totales</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PANEL ESTADO DE CAJA ── -->
+  <section class="caja-panel mb-4 no-print">
+    <div class="caja-panel__titulo"><i class="bi bi-safe me-1"></i>Estado de Caja</div>
+
+    {% if caja_abierta %}
+      <div class="d-flex flex-wrap gap-4 align-items-center">
+        <span class="caja-estado caja-estado--abierta">
+          <i class="bi bi-circle-fill" style="font-size:.45rem;"></i> Caja Abierta
+        </span>
+        <div class="caja-dato">
+          <span class="caja-dato__lbl">Abierta por</span>
+          <span class="caja-dato__val">{{ caja_abierta.usuario }}</span>
         </div>
- 
-        <div id="vistaCategorias">
-          <div class="cys-cat-grid">
-            {% for cat in categorias %}
-            <div class="cys-cat-card" onclick="mostrarProductos('{{ cat.id }}','{{ cat.nombre }}')">
-              <div class="cys-cat-card__icon"><i class="bi bi-tag-fill"></i></div>
-              <div class="cys-cat-card__nombre">{{ cat.nombre }}</div>
-              <div class="cys-cat-card__count">{{ cat.productos.count }} productos</div>
-            </div>
-            {% endfor %}
-          </div>
+        <div class="caja-dato">
+          <span class="caja-dato__lbl">Hora apertura</span>
+          <span class="caja-dato__val">{{ caja_abierta.fecha_apertura|date:"H:i" }}</span>
         </div>
- 
-        <div id="vistaProductos" style="display:none;">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <button class="cys-btn-volver" onclick="volverCategorias()"><i class="bi bi-arrow-left"></i></button>
-            <span class="cys-cat-titulo" id="catTitulo"></span>
-          </div>
-          <div class="cys-producto-lista" id="productoLista"></div>
+        <div class="caja-dato">
+          <span class="caja-dato__lbl">Monto base</span>
+          <span class="caja-dato__val" style="color:var(--azul-claro);">${{ caja_abierta.monto_base|pesos }}</span>
         </div>
- 
-        <div id="vistaPresentaciones" style="display:none;">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <button class="cys-btn-volver" onclick="volverProductos()"><i class="bi bi-arrow-left"></i></button>
-            <span class="cys-cat-titulo" id="presTitulo"></span>
-          </div>
-          <div id="presentacionLista" class="d-flex flex-column gap-2"></div>
+        <div class="caja-dato">
+          <span class="caja-dato__lbl">Ventas del día</span>
+          <span class="caja-dato__val" style="color:#2ed573;">${{ total_dia|pesos }}</span>
         </div>
- 
-        <div id="datosProductos" style="display:none;">
-          {% for cat in categorias %}
-            {% for p in cat.productos.all %}
-              <div class="dato-producto" data-cat="{{ cat.id }}" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}">
-                {% for pres in p.presentaciones.all %}
-                  <span class="dato-presentacion"
-                        data-pres-id="{{ pres.id }}"
-                        data-nombre="{{ pres.nombre }}"
-                        data-stock="{{ pres.cantidad }}"
-                        data-precio="{{ pres.precio }}"
-                        data-unidades="{{ pres.unidades }}">
-                  </span>
+        <div class="caja-dato">
+          <span class="caja-dato__lbl">Total en caja (est.)</span>
+          <span class="caja-dato__val" style="color:var(--azul-claro);" id="totalEnCaja">—</span>
+        </div>
+      </div>
+
+    {% elif ultimo_cierre %}
+      <div class="d-flex flex-wrap gap-4 align-items-center">
+        <span class="caja-estado caja-estado--cerrada">
+          <i class="bi bi-circle-fill" style="font-size:.45rem;"></i> Caja Cerrada
+        </span>
+        <div class="caja-dato">
+          <span class="caja-dato__lbl">Último cierre</span>
+          <span class="caja-dato__val">{{ ultimo_cierre.fecha_cierre|date:"d/m H:i" }}</span>
+        </div>
+        <div class="caja-dato">
+          <span class="caja-dato__lbl">Total contado</span>
+          <span class="caja-dato__val" style="color:var(--azul-claro);">${{ ultimo_cierre.total_contado|pesos }}</span>
+        </div>
+        <div class="caja-dato">
+          <span class="caja-dato__lbl">Total recogido</span>
+          <span class="caja-dato__val">${{ ultimo_cierre.total_retirado|pesos }}</span>
+        </div>
+        <div class="caja-dato">
+          <span class="caja-dato__lbl">Base para mañana</span>
+          <span class="caja-dato__val" style="color:#2ed573;">${{ ultimo_cierre.monto_base_siguiente|pesos }}</span>
+        </div>
+      </div>
+
+    {% else %}
+      <div style="color:var(--texto-muted); font-size:.88rem;">
+        <i class="bi bi-info-circle me-1"></i>
+        No hay registro de caja hoy. Usa el botón <strong>Abrir Caja</strong> para comenzar.
+      </div>
+    {% endif %}
+  </section>
+
+  <!-- ── TABLA VENTAS ── -->
+  <section class="cys-card">
+    <div class="cys-card__title mb-3">Detalle de Ventas</div>
+
+    {% if ventas %}
+    <div class="table-responsive">
+      <table class="table table-dark vd-table mb-0" id="tablaVentas">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Hora</th>
+            <th>Cliente</th>
+            <th>Productos</th>
+            <th>Métodos de pago</th>
+            <th>Descuento</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for venta in ventas %}
+          <tr onclick="abrirDetalle({{ venta.pk }})" data-fecha="{{ venta.fecha|date:'d/m/Y' }}">
+            <td style="color:var(--texto-muted); font-size:.75rem;">{{ forloop.counter }}</td>
+            <td style="color:var(--texto-muted);">{{ venta.fecha|date:"H:i" }}</td>
+            <td style="font-weight:700;">{{ venta.cliente }}</td>
+            <td>
+              <div class="d-flex flex-wrap gap-1">
+                {% for det in venta.detalles.all %}
+                <span class="vd-badge">
+                  {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %} ×{{ det.cantidad }}
+                </span>
                 {% endfor %}
               </div>
-            {% endfor %}
+            </td>
+            <td>
+              <div class="d-flex flex-wrap gap-1">
+                {% if venta.pago_efectivo > 0 %}<span class="vd-badge"><i class="bi bi-cash"></i> Efectivo</span>{% endif %}
+                {% if venta.pago_tarjeta > 0 %}<span class="vd-badge"><i class="bi bi-credit-card"></i> Tarjeta</span>{% endif %}
+                {% if venta.pago_transferencia > 0 %}<span class="vd-badge"><i class="bi bi-bank"></i> Transfer.</span>{% endif %}
+                {% if venta.pago_nequi > 0 %}<span class="vd-badge"><i class="bi bi-phone"></i> Nequi</span>{% endif %}
+                {% if venta.pago_daviplata > 0 %}<span class="vd-badge"><i class="bi bi-phone"></i> Daviplata</span>{% endif %}
+              </div>
+            </td>
+            <td>
+              {% if venta.descuento_porcentaje > 0 %}
+              <span style="color:#ff4d4d; font-size:.8rem; font-weight:700;">-{{ venta.descuento_porcentaje|floatformat:0 }}%</span>
+              {% else %}
+              <span style="color:var(--texto-muted);">—</span>
+              {% endif %}
+            </td>
+            <td style="font-weight:800; color:var(--azul-claro);">${{ venta.total_venta|pesos }}</td>
+          </tr>
           {% endfor %}
-        </div>
-      </section>
+        </tbody>
+      </table>
     </div>
- 
-    <!-- ── COLUMNA CARRITO ── -->
-    <div class="col-lg-5">
-      <section class="cys-card" style="min-height:600px;">
-        <div class="cys-card__title">Carrito de Venta</div>
- 
-        <!-- PANTALLA DE BLOQUEO -->
-        <div id="carritoLock">
-          <i class="bi bi-lock-fill" style="font-size:3rem; color:var(--texto-muted);"></i>
-          <div style="text-align:center;">
-            <div style="font-weight:700; font-size:1rem; color:var(--texto); margin-bottom:.3rem;">Caja bloqueada</div>
-            <div style="font-size:.82rem; color:var(--texto-muted);">Solo administradores y cajeros pueden registrar ventas.</div>
-          </div>
-          <button onclick="abrirAuthVentas()"
-                  style="background:rgba(77,168,218,.12); border:1px solid var(--azul-claro); color:var(--azul-claro); border-radius:10px; padding:.6rem 1.5rem; font-size:.9rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:.5rem;">
-            <i class="bi bi-unlock"></i> Abrir Carrito
-          </button>
-        </div>
- 
-        <!-- CARRITO DESBLOQUEADO -->
-        <div id="carritoContenido">
-          <div id="usuarioActivo" style="display:flex; align-items:center; justify-content:space-between; background:rgba(46,213,115,.08); border:1px solid #2ed573; border-radius:8px; padding:.4rem .8rem; margin-bottom:1rem; font-size:.8rem;">
-            <span style="color:#2ed573;"><i class="bi bi-person-check me-1"></i><span id="nombreUsuarioActivo"></span></span>
-            <button onclick="bloquearCarrito()" style="background:none; border:none; color:var(--texto-muted); cursor:pointer; font-size:.75rem; padding:0;">
-              <i class="bi bi-lock me-1"></i>Bloquear
-            </button>
-          </div>
- 
-          <form method="POST" action="{% url 'ventas:nueva_venta' %}" id="formVenta">
-            {% csrf_token %}
-            <div class="mb-4">
-              <label class="cys-form-label">Cliente</label>
-              {{ form.cliente }}
-            </div>
-            <div id="carritoVacio" style="text-align:center; padding:2rem 0; color:var(--texto-muted);">
-              <i class="bi bi-cart3" style="font-size:2rem; display:block; margin-bottom:.5rem;"></i>
-              Selecciona productos
-            </div>
-            <div id="carritoItems" style="display:none; margin-bottom:1rem;">
-              <div id="listaCarrito" class="d-flex flex-column gap-2"></div>
-            </div>
-            <div id="seccionDescuento" style="display:none; margin-bottom:1rem;">
-              <div class="d-flex justify-content-between align-items-center" style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem 1.1rem;">
-                <span style="font-size:1rem; color:var(--texto-muted); font-weight:700;">% DESCUENTO</span>
-                <input type="number" id="inputDescuento" name="descuento_porcentaje" class="text-center" value="0" min="0" max="100"
-                       style="width:80px; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--azul-claro); border-radius:5px; font-weight:bold; font-size:1rem; padding:.3rem;">
-              </div>
-            </div>
-            <div id="totalGeneral" style="display:none; background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; padding:1.1rem 1.3rem; margin-bottom:1rem; font-size:1rem;"></div>
- 
-            <!-- MÉTODOS DE PAGO -->
-            <div id="seccionPagos" style="display:none; margin-bottom:1rem;">
-              <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:1rem 1.1rem;">
-                <div style="font-size:1rem; color:var(--texto); font-weight:700; margin-bottom:.9rem; letter-spacing:.5px;">MÉTODO DE PAGO</div>
-                <div class="d-flex flex-wrap gap-2 mb-3">
-                  <button type="button" class="metodo-pago-btn" onclick="toggleMetodo('efectivo')" style="font-size:.9rem; padding:.5rem 1rem;"><i class="bi bi-cash me-1"></i>Efectivo</button>
-                  <button type="button" class="metodo-pago-btn" onclick="toggleMetodo('tarjeta')" style="font-size:.9rem; padding:.5rem 1rem;"><i class="bi bi-credit-card me-1"></i>Tarjeta</button>
-                  <button type="button" class="metodo-pago-btn" onclick="toggleMetodo('transferencia')" style="font-size:.9rem; padding:.5rem 1rem;"><i class="bi bi-bank me-1"></i>Transferencia</button>
-                  <button type="button" class="metodo-pago-btn" onclick="toggleMetodo('nequi')" style="font-size:.9rem; padding:.5rem 1rem;"><i class="bi bi-phone me-1"></i>Nequi</button>
-                  <button type="button" class="metodo-pago-btn" onclick="toggleMetodo('daviplata')" style="font-size:.9rem; padding:.5rem 1rem;"><i class="bi bi-phone me-1"></i>Daviplata</button>
-                </div>
-                <div id="inputsPago" class="d-flex flex-column gap-3"></div>
-                <div id="validacionPago" style="font-size:1rem; font-weight:700; margin-top:.8rem; display:none;"></div>
-              </div>
-            </div>
- 
-            <input type="hidden" name="pago_efectivo"      id="hiddenEfectivo"      value="0">
-            <input type="hidden" name="pago_tarjeta"       id="hiddenTarjeta"       value="0">
-            <input type="hidden" name="pago_transferencia" id="hiddenTransferencia" value="0">
-            <input type="hidden" name="pago_nequi"         id="hiddenNequi"         value="0">
-            <input type="hidden" name="pago_daviplata"     id="hiddenDaviplata"     value="0">
-            <div id="camposHidden"></div>
- 
-            <div class="d-flex gap-2 mt-3">
-              <button type="submit" class="cys-btn cys-btn--danger flex-fill" id="btnRegistrar" disabled>
-                <i class="bi bi-save me-1"></i> REGISTRAR VENTA
-              </button>
-              <button type="button" class="cys-btn flex-fill" id="btnCancelarVenta" onclick="abrirModalCancelar()"
-                      style="display:none; background:var(--fondo-card2); color:#ff4d4d; border:1px solid #ff4d4d; font-weight:700;">
-                <i class="bi bi-x-circle me-1"></i> CANCELAR VENTA
-              </button>
-            </div>
-          </form>
-        </div>
-      </section>
+    <div class="d-flex justify-content-between align-items-center mt-3 px-1" style="border-top:1px solid var(--azul-borde); padding-top:1rem;">
+      <span style="font-weight:700; font-size:.95rem; color:var(--texto-muted);">TOTAL DEL DÍA ({{ ventas.count }} ventas)</span>
+      <span style="font-size:1.5rem; font-weight:800; color:var(--azul-claro);">${{ total_dia|pesos }}</span>
     </div>
-  </div>
- 
-  <!-- ── HISTORIAL DE VENTAS ── -->
-  <div class="row mt-4">
-    <div class="col-12">
-      <section class="cys-card">
-        <div class="cys-card__title">Historial de Ventas</div>
-        {% if ventas %}
-        <div class="table-responsive">
-          <table class="table table-dark table-hover align-middle" style="color:var(--texto);">
-            <thead>
-              <tr style="color:var(--azul-claro); font-size:.75rem; text-transform:uppercase; border-bottom:1px solid var(--azul-borde);">
-                <th>#</th><th>Fecha</th><th>Cliente</th><th>Productos</th><th>Subtotal</th><th>Descuento</th><th>Total</th><th>Accion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for venta in ventas %}
-              <tr style="border-bottom:1px solid var(--azul-borde); cursor:pointer;" onclick="verRecibo({{ venta.pk }})">
-                <td style="color:var(--texto-muted);">{{ forloop.counter }}</td>
-                <td style="font-size:.8rem;">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
-                <td style="font-weight:600;">{{ venta.cliente }}</td>
-                <td>
-                  <div class="d-flex flex-wrap gap-1">
-                    {% for det in venta.detalles.all %}
-                      <span style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:20px; padding:.2rem .6rem; font-size:.75rem;">
-                        {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %} x {{ det.cantidad }}
-                      </span>
-                    {% endfor %}
-                  </div>
-                </td>
-                <td style="color:var(--texto-muted); font-size:.85rem;">
-                  {% if venta.descuento_porcentaje > 0 %}<span style="text-decoration:line-through;">${{ venta.subtotal|floatformat:0 }}</span>{% else %}—{% endif %}
-                </td>
-                <td>
-                  {% if venta.descuento_porcentaje > 0 %}<span style="color:#ff4d4d; font-size:.8rem;">-{{ venta.descuento_porcentaje|floatformat:0 }}%</span>{% else %}<span style="color:var(--texto-muted);">—</span>{% endif %}
-                </td>
-                <td style="font-weight:800; color:var(--azul-claro);">${{ venta.total_venta|floatformat:0 }}</td>
-                <td onclick="event.stopPropagation()">
-                  <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}" onsubmit="return confirm('Eliminar esta venta y restaurar stock?')">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px;"><i class="bi bi-trash"></i></button>
-                  </form>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        {% else %}
-        <div style="text-align:center; padding:2rem 0; color:var(--texto-muted);">
-          <i class="bi bi-receipt" style="font-size:2rem; display:block; margin-bottom:.5rem;"></i>
-          No hay ventas registradas
-        </div>
-        {% endif %}
-      </section>
+
+    {% else %}
+    <div style="text-align:center; padding:3rem 0; color:var(--texto-muted);">
+      <i class="bi bi-receipt" style="font-size:2.5rem; display:block; margin-bottom:.7rem;"></i>
+      No hay ventas registradas hoy
     </div>
-  </div>
+    {% endif %}
+  </section>
 </div>
- 
-<!-- ── MODAL AUTH VENTAS ── -->
-<div id="overlayAuthVentas"></div>
-<div id="modalAuthVentas">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-    <div>
-      <div style="font-size:.7rem; color:var(--azul-claro); text-transform:uppercase; letter-spacing:1px; font-weight:700;">Acceso al carrito</div>
-      <div style="font-size:1.15rem; font-weight:800; color:var(--texto);">Abrir Carrito</div>
-    </div>
-    <button onclick="cerrarAuthVentas()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
-  </div>
-  <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
-    Solo administradores y cajeros pueden registrar ventas.
-  </p>
-  <div class="caja-input-label">Contrasena</div>
-  <div style="position:relative; margin-bottom:.8rem;">
-    <input type="password" class="caja-input" id="authVentasPassword" placeholder="Password"
-           autocomplete="current-password" style="padding-right:2.8rem;"
-           onkeydown="if(event.key==='Enter') confirmarAuthVentas()">
-    <button type="button" onclick="togglePassVentas()"
-            style="position:absolute;right:.7rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--texto-muted);cursor:pointer;font-size:1rem;padding:0;">
-      <i class="bi bi-eye" id="eyeVentas"></i>
-    </button>
-  </div>
-  <div class="auth-aviso" id="authVentasError">
-    <i class="bi bi-exclamation-circle"></i>
-    <span id="authVentasErrorMsg"></span>
-  </div>
-  <button class="caja-btn-primary" id="authVentasBoton" onclick="confirmarAuthVentas()">
-    <i class="bi bi-shield-check"></i> Verificar e Ingresar
-  </button>
-</div>
- 
-<!-- MODAL VENTAS DEL DÍA -->
-<div id="overlayVentasDia" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.7); z-index:9998;" onclick="cerrarVentasDia()"></div>
-<div id="modalVentasDia" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999; width:480px; max-width:95vw; max-height:90vh; overflow-y:auto; background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
-    <div>
-      <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Resumen</div>
-      <div style="font-size:1.1rem; font-weight:800; color:var(--texto);"><i class="bi bi-calendar-check me-2" style="color:var(--azul-claro);"></i>Ventas del dia</div>
-    </div>
-    <button onclick="cerrarVentasDia()" style="background:none; border:none; color:var(--texto-muted); font-size:1.3rem; cursor:pointer;"><i class="bi bi-x-lg"></i></button>
-  </div>
-  <div id="ventasDiaContenido"></div>
-  <div id="ventasDiaTotal"></div>
-  <button onclick="cerrarVentasDia()" style="width:100%; margin-top:1rem; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
-</div>
- 
-<!-- MODAL RECIBO -->
-<div id="overlayRecibo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.7); z-index:9998;" onclick="cerrarRecibo()"></div>
-<div id="modalRecibo" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999; width:440px; max-width:95vw; max-height:90vh; overflow-y:auto; background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-    <div>
-      <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Comprobante de Venta</div>
-      <div style="font-size:1.2rem; font-weight:800; color:var(--texto);">CYS Ltda</div>
-    </div>
-    <button id="btnCerrarRecibo" onclick="cerrarRecibo()" style="background:none; border:none; color:var(--texto-muted); font-size:1.3rem; cursor:pointer;"><i class="bi bi-x-lg"></i></button>
-  </div>
-  <div id="reciboContenido"></div>
-  <div style="display:flex; gap:.7rem; margin-top:1.5rem; flex-wrap:wrap;">
-    <button id="btnImprimir" onclick="window.print()" class="cys-btn" style="flex:1; background:var(--azul-claro); color:#000; font-weight:700; border:none; border-radius:10px; padding:.7rem; display:flex; align-items:center; justify-content:center; min-width:120px;">
-      <i class="bi bi-printer me-1"></i> Imprimir
-    </button>
-    <form id="formCancelarVentaRecibo" method="POST" action="" style="flex:1; min-width:120px;">
-      {% csrf_token %}
-      <button type="submit" id="btnCancelarRecibo"
-              style="width:100%; background:none; border:1px solid #ff4d4d; color:#ff4d4d; border-radius:10px; padding:.7rem; font-weight:700; cursor:pointer; font-size:.9rem; display:flex; align-items:center; justify-content:center; gap:.4rem;"
-              onclick="return confirm('Cancelar esta venta? Se eliminara del historial y se restaurara el stock.')">
-        <i class="bi bi-x-circle"></i> Cancelar Venta
-      </button>
-    </form>
-    <button onclick="cerrarRecibo()" style="flex:1; min-width:120px; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
-  </div>
-</div>
- 
-<!-- MODAL CONFIRMAR CANCELAR VENTA EN PROCESO -->
-<div id="overlayCancelar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.75); z-index:10000;"></div>
-<div id="modalCancelar" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:10001; width:420px; max-width:95vw; background:var(--fondo-card); border:1px solid #ff4d4d; border-radius:16px; padding:2rem;">
-  <div style="text-align:center; margin-bottom:1.2rem;">
-    <i class="bi bi-exclamation-triangle-fill" style="font-size:2.5rem; color:#ff4d4d;"></i>
-    <div style="font-size:1.1rem; font-weight:800; color:var(--texto); margin-top:.7rem;">Cancelar venta en proceso?</div>
-    <div style="font-size:.85rem; color:var(--texto-muted); margin-top:.4rem;">Se eliminaran los siguientes productos del carrito:</div>
-  </div>
-  <div id="cancelarListaProductos" style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.8rem 1rem; margin-bottom:1.2rem; max-height:200px; overflow-y:auto;"></div>
-  <div class="d-flex gap-2">
-    <button onclick="cerrarModalCancelar()" style="flex:1; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">
-      <i class="bi bi-arrow-left me-1"></i> Volver
-    </button>
-    <button onclick="confirmarCancelar()" style="flex:1; background:#ff4d4d; color:#fff; border:none; border-radius:10px; padding:.7rem; cursor:pointer; font-weight:700;">
-      <i class="bi bi-x-circle me-1"></i> Si, cancelar
-    </button>
-  </div>
-</div>
- 
-<!-- DATOS VENTAS PARA JS -->
+
+<!-- ── DATOS PARA JS ── -->
 <div id="datosVentas" style="display:none;">
   {% for venta in ventas %}
   <div class="dato-venta"
        data-id="{{ venta.pk }}"
        data-cliente="{{ venta.cliente }}"
        data-fecha="{{ venta.fecha|date:'d/m/Y H:i' }}"
+       data-hora="{{ venta.fecha|date:'H:i' }}"
+       data-fecha-dia="{{ venta.fecha|date:'d/m/Y' }}"
        data-descuento="{{ venta.descuento_porcentaje }}"
        data-total="{{ venta.total_venta }}"
        data-efectivo="{{ venta.pago_efectivo }}"
        data-tarjeta="{{ venta.pago_tarjeta }}"
        data-transferencia="{{ venta.pago_transferencia }}"
        data-nequi="{{ venta.pago_nequi }}"
-       data-daviplata="{{ venta.pago_daviplata }}"
-       data-url-eliminar="{% url 'ventas:eliminar_venta' venta.pk %}">
+       data-daviplata="{{ venta.pago_daviplata }}">
     {% for det in venta.detalles.all %}
     <span class="dato-detalle"
           data-nombre="{{ det.producto.nombre }}"
@@ -475,50 +387,267 @@
   </div>
   {% endfor %}
 </div>
+
+<!-- ══════════════════════════════════════
+     MODAL AUTENTICACIÓN CAJA
+══════════════════════════════════════ -->
+<div id="overlayAuth" class="vd-modal-overlay"></div>
+<div id="modalAuth" class="vd-modal-box" style="width:400px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+      <div style="font-size:.7rem; color:var(--azul-claro); text-transform:uppercase; letter-spacing:1px; font-weight:700;" id="authSubtitulo">Verificación</div>
+      <div style="font-size:1.15rem; font-weight:800; color:var(--texto);" id="authTitulo">Acceso a Caja</div>
+    </div>
+    <button onclick="cerrarModalAuth()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+  </div>
+
+  <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;" id="authDescripcion">
+    Confirma tu contraseña para continuar.
+  </p>
+
+  <div class="caja-input-label">Contraseña</div>
+  <div style="position:relative; margin-bottom:.8rem;">
+    <input type="password" class="caja-input" id="authPassword" placeholder="••••••••"
+           autocomplete="current-password" style="margin-bottom:0; padding-right:2.8rem;"
+           onkeydown="if(event.key==='Enter') confirmarAuth()">
+    <button onclick="togglePasswordAuth()" style="position:absolute;right:.7rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--texto-muted);cursor:pointer;font-size:1rem;padding:0;">
+      <i class="bi bi-eye" id="authEyeIcon"></i>
+    </button>
+  </div>
+
+  <div class="auth-aviso" id="authError">
+    <i class="bi bi-exclamation-circle me-1"></i><span id="authErrorMsg"></span>
+  </div>
+
+  <button class="caja-btn-primary" id="authBoton" onclick="confirmarAuth()">
+    <i class="bi bi-shield-check me-1"></i> Verificar e Ingresar
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL APERTURA DE CAJA
+══════════════════════════════════════ -->
+<div id="overlayApertura" class="vd-modal-overlay"></div>
+<div id="modalApertura" class="vd-modal-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+      <div style="font-size:.7rem; color:#2ed573; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Apertura</div>
+      <div style="font-size:1.15rem; font-weight:800; color:var(--texto);">Abrir Caja</div>
+    </div>
+    <button onclick="cerrarModalApertura()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+  </div>
+
+  <div class="info-base" id="infoBaseSiguiente">
+    <i class="bi bi-info-circle me-1"></i>
+    <span id="infoBaseSiguienteTexto"></span>
+  </div>
+
+  <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
+    Cuenta el dinero con el que inicias el día e ingresa la cantidad por denominación.
+  </p>
+
+  <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
+  <div class="denom-grid">
+    <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="100000"></div>
+    <div class="denom-item"><label>$50.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="50000"></div>
+    <div class="denom-item"><label>$20.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="20000"></div>
+    <div class="denom-item"><label>$10.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="10000"></div>
+    <div class="denom-item"><label>$5.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="5000"></div>
+    <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="2000"></div>
+    <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="1000"></div>
+  </div>
+
+  <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
+  <div class="denom-grid">
+    <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ap" data-valor="500"></div>
+    <div class="denom-item"><label>$200</label><input type="number" min="0" value="0" class="denom-ap" data-valor="200"></div>
+    <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ap" data-valor="100"></div>
+    <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ap" data-valor="50"></div>
+  </div>
+
+  <div class="denom-total">
+    <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Monto base calculado</span>
+    <span class="denom-total__val" id="totalApertura">$0</span>
+  </div>
+
+  <div class="caja-input-label">Responsable / Observación (opcional)</div>
+  <input type="text" class="caja-input" id="apObservacion" placeholder="Ej: Juan — apertura normal">
+
+  <button class="caja-btn-primary" onclick="confirmarApertura()">
+    <i class="bi bi-unlock me-1"></i> Confirmar Apertura
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL CIERRE DE CAJA
+══════════════════════════════════════ -->
+<div id="overlayCierre" class="vd-modal-overlay"></div>
+<div id="modalCierre" class="vd-modal-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+      <div style="font-size:.7rem; color:#ff4d4d; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Cierre</div>
+      <div style="font-size:1.15rem; font-weight:800; color:var(--texto);">Cerrar Caja</div>
+    </div>
+    <button onclick="cerrarModalCierre()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
+    Cuenta todo el dinero físico en caja. El sistema calculará cuánto se recoge y cuánto queda de base para mañana.
+  </p>
+
+  <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
+  <div class="denom-grid">
+    <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100000"></div>
+    <div class="denom-item"><label>$50.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="50000"></div>
+    <div class="denom-item"><label>$20.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="20000"></div>
+    <div class="denom-item"><label>$10.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="10000"></div>
+    <div class="denom-item"><label>$5.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="5000"></div>
+    <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="2000"></div>
+    <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="1000"></div>
+  </div>
+
+  <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
+  <div class="denom-grid">
+    <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ci" data-valor="500"></div>
+    <div class="denom-item"><label>$200</label><input type="number" min="0" value="0" class="denom-ci" data-valor="200"></div>
+    <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100"></div>
+    <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ci" data-valor="50"></div>
+  </div>
+
+  <div class="denom-total">
+    <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Total contado en caja</span>
+    <span class="denom-total__val" id="totalCierre">$0</span>
+  </div>
+
+  <div class="caja-input-label">Monto base para mañana ($)</div>
+  <input type="number" class="caja-input" id="baseSiguiente" placeholder="Ej: 100000" min="0">
+
+  <div id="resumenCierre" style="display:none; background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem; margin-bottom:1rem;">
+    <div style="font-size:.7rem; text-transform:uppercase; color:var(--texto-muted); margin-bottom:.6rem; font-weight:700; letter-spacing:.8px;">Resumen del día</div>
+    <div class="caja-resultado-fila">
+      <span style="color:var(--texto-muted);">Base de apertura</span>
+      <span id="res-base-apertura" style="font-weight:600;">$0</span>
+    </div>
+    <div class="caja-resultado-fila">
+      <span style="color:var(--texto-muted);">Ventas del día</span>
+      <span id="res-ventas" style="font-weight:600; color:#2ed573;">$0</span>
+    </div>
+    <div class="caja-resultado-fila" style="border-top:1px solid var(--azul-borde); padding-top:.5rem; margin-top:.3rem;">
+      <span style="color:var(--texto-muted);">Total contado en caja</span>
+      <span id="res-contado" style="font-weight:700; color:var(--azul-claro);">$0</span>
+    </div>
+    <div class="caja-resultado-fila">
+      <span style="color:var(--texto-muted);">Base para mañana</span>
+      <span id="res-base-sig" style="font-weight:600;">$0</span>
+    </div>
+    <div class="caja-resultado-fila" style="border-top:2px solid var(--azul-borde); padding-top:.6rem; margin-top:.4rem;">
+      <span style="font-weight:700; font-size:.95rem;">Total a retirar</span>
+      <span id="res-retirar" style="font-weight:800; font-size:1.15rem; color:#2ed573;">$0</span>
+    </div>
+  </div>
+
+  <button class="caja-btn-primary caja-btn-primary--danger" onclick="confirmarCierre()">
+    <i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja
+  </button>
+</div>
+
+<!-- ── MODAL DETALLE VENTA ── -->
+<div id="overlayDetalle" class="vd-modal-overlay" onclick="cerrarDetalle()"></div>
+<div id="modalDetalle" class="vd-modal-box">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.3rem;">
+    <div>
+      <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Comprobante</div>
+      <div style="font-size:1.1rem; font-weight:800; color:var(--texto);">Detalle de Venta</div>
+    </div>
+    <button onclick="cerrarDetalle()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div id="detalleContenido"></div>
+  <button onclick="cerrarDetalle()" style="width:100%; margin-top:1.2rem; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
+</div>
+
 {% endblock %}
- 
+
 {% block extra_js %}
 <script>
-const URL_VENTAS     = "{% url 'ventas:nueva_venta' %}";
-const URL_VENTAS_DIA = "{% url 'ventas:ventas_dia' %}";
-const URL_VERIFICAR  = "{% url 'ventas:verificar_acceso_caja' %}";
+const TOTAL_DIA      = {{ total_dia|default:0 }};
+const BASE_APERTURA  = {{ caja_abierta.monto_base|default:0 }};
+const BASE_SIGUIENTE = {{ ultimo_cierre.monto_base_siguiente|default:0 }};
 const CSRF_TOKEN     = '{{ csrf_token }}';
- 
-{% verbatim %}
-let carrito        = [];
-let metodosActivos = new Set();
-let totalActual    = 0;
- 
-/* ════════════════════════════════════════════════════════════
-   AUTH CARRITO
-════════════════════════════════════════════════════════════ */
- 
-function abrirAuthVentas() {
-    const passInput = document.getElementById('authVentasPassword');
-    const errBox    = document.getElementById('authVentasError');
-    const boton     = document.getElementById('authVentasBoton');
- 
-    passInput.value = '';
-    passInput.type  = 'password';
-    passInput.classList.remove('error-border', 'shake');
-    document.getElementById('eyeVentas').className = 'bi bi-eye';
-    errBox.classList.remove('show');
-    boton.disabled = false;
-    boton.innerHTML = '<i class="bi bi-shield-check"></i> Verificar e Ingresar';
- 
-    document.getElementById('overlayAuthVentas').classList.add('open');
-    document.getElementById('modalAuthVentas').classList.add('open');
-    setTimeout(() => passInput.focus(), 150);
+
+function formatPesos(val) {
+    const n = Math.round(parseFloat(val) || 0);
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
- 
-function cerrarAuthVentas() {
-    document.getElementById('overlayAuthVentas').classList.remove('open');
-    document.getElementById('modalAuthVentas').classList.remove('open');
+
+// ── Init ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+    const totalEnCajaEl = document.getElementById('totalEnCaja');
+    if (totalEnCajaEl) {
+        totalEnCajaEl.textContent = '$' + formatPesos(BASE_APERTURA + TOTAL_DIA);
+    }
+
+    const filas = Array.from(document.querySelectorAll('#tablaVentas tbody tr'));
+    let fechaAnterior = null;
+    filas.forEach(fila => {
+        const fechaActual = fila.dataset.fecha;
+        if (!fechaActual) return;
+        if (fechaAnterior !== null && fechaActual !== fechaAnterior) {
+            const sep = document.createElement('tr');
+            sep.className = 'vd-separador-dia no-print';
+            const partes = fechaActual.split('/');
+            const meses = ['enero','febrero','marzo','abril','mayo','junio',
+                           'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+            const fechaTexto = ${parseInt(partes[0])} de ${meses[parseInt(partes[1])-1]} de ${partes[2]};
+            sep.innerHTML = <td colspan="7"><i class="bi bi-calendar3 me-2"></i>${fechaTexto}</td>;
+            fila.parentNode.insertBefore(sep, fila);
+        }
+        fechaAnterior = fechaActual;
+    });
+
+    document.querySelectorAll('.denom-ap').forEach(i => i.addEventListener('input', calcularTotalApertura));
+    document.querySelectorAll('.denom-ci').forEach(i => i.addEventListener('input', calcularTotalCierre));
+    const baseInp = document.getElementById('baseSiguiente');
+    if (baseInp) baseInp.addEventListener('input', calcularTotalCierre);
+});
+
+// ════════════════════════════════════════
+// MODAL AUTENTICACIÓN
+// ════════════════════════════════════════
+let _accionPendiente = null;
+
+function abrirModalAuth(accion) {
+    _accionPendiente = accion;
+    const esCierre = accion === 'cierre';
+
+    document.getElementById('authSubtitulo').textContent   = esCierre ? 'Cierre de Caja' : 'Apertura de Caja';
+    document.getElementById('authTitulo').textContent      = esCierre ? 'Cerrar Caja' : 'Abrir Caja';
+    document.getElementById('authDescripcion').textContent = esCierre
+        ? 'Confirma tu contraseña para proceder con el cierre de caja.'
+        : 'Confirma tu contraseña para proceder con la apertura de caja.';
+
+    const boton = document.getElementById('authBoton');
+    boton.className = esCierre ? 'caja-btn-primary caja-btn-primary--danger' : 'caja-btn-primary';
+    boton.disabled  = false;
+    boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
+
+    document.getElementById('authPassword').value = '';
+    document.getElementById('authPassword').type  = 'password';
+    document.getElementById('authEyeIcon').className = 'bi bi-eye';
+    document.getElementById('authError').classList.remove('show');
+
+    document.getElementById('overlayAuth').classList.add('open');
+    document.getElementById('modalAuth').classList.add('open');
+    setTimeout(() => document.getElementById('authPassword').focus(), 120);
 }
- 
-function togglePassVentas() {
-    const inp  = document.getElementById('authVentasPassword');
-    const icon = document.getElementById('eyeVentas');
+
+function cerrarModalAuth() {
+    document.getElementById('overlayAuth').classList.remove('open');
+    document.getElementById('modalAuth').classList.remove('open');
+    _accionPendiente = null;
+}
+
+function togglePasswordAuth() {
+    const inp  = document.getElementById('authPassword');
+    const icon = document.getElementById('authEyeIcon');
     if (inp.type === 'password') {
         inp.type = 'text';
         icon.className = 'bi bi-eye-slash';
@@ -527,521 +656,264 @@ function togglePassVentas() {
         icon.className = 'bi bi-eye';
     }
 }
- 
-function mostrarErrorAuth(msg) {
-    const passInput = document.getElementById('authVentasPassword');
-    const errBox    = document.getElementById('authVentasError');
-    document.getElementById('authVentasErrorMsg').textContent = msg;
-    errBox.classList.add('show');
-    passInput.classList.add('error-border');
-    passInput.value = '';
-    passInput.classList.remove('shake');
-    void passInput.offsetWidth;
-    passInput.classList.add('shake');
-    setTimeout(() => passInput.classList.remove('shake', 'error-border'), 500);
-    passInput.focus();
-}
- 
-function confirmarAuthVentas() {
-    const password = document.getElementById('authVentasPassword').value.trim();
-    const errBox   = document.getElementById('authVentasError');
-    const boton    = document.getElementById('authVentasBoton');
- 
+
+function confirmarAuth() {
+    const password = document.getElementById('authPassword').value;
+    const errBox   = document.getElementById('authError');
+    const boton    = document.getElementById('authBoton');
+
     if (!password) {
-        mostrarErrorAuth('Por favor ingresa tu contrasena.');
+        document.getElementById('authErrorMsg').textContent = 'Ingresa tu contraseña.';
+        errBox.classList.add('show');
         return;
     }
- 
+
     boton.disabled = true;
-    boton.innerHTML = '<i class="bi bi-hourglass-split"></i> Verificando...';
+    boton.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Verificando...';
     errBox.classList.remove('show');
- 
-    // ✅ FIX PRINCIPAL: credentials:'same-origin' para enviar cookies de sesión
-    fetch(URL_VERIFICAR, {
+
+    fetch("{% url 'ventas:verificar_acceso_caja' %}", {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': CSRF_TOKEN,
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({ password: password }),
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({ password }),
     })
-    .then(r => {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-    })
+    .then(r => r.json())
     .then(data => {
         boton.disabled = false;
-        boton.innerHTML = '<i class="bi bi-shield-check"></i> Verificar e Ingresar';
- 
+        boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
+
         if (!data.ok) {
-            mostrarErrorAuth(data.error || 'Contrasena incorrecta o sin permisos.');
+            document.getElementById('authErrorMsg').textContent = data.error || 'Error de autenticación.';
+            errBox.classList.add('show');
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authPassword').focus();
             return;
         }
-        // Acceso concedido
-        cerrarAuthVentas();
-        desbloquearCarrito(data.nombre);
+
+        cerrarModalAuth();
+        if (_accionPendiente === 'apertura') {
+            _abrirModalApertura();
+        } else if (_accionPendiente === 'cierre') {
+            _abrirModalCierre();
+        }
     })
     .catch(() => {
         boton.disabled = false;
-        boton.innerHTML = '<i class="bi bi-shield-check"></i> Verificar e Ingresar';
-        mostrarErrorAuth('Error de conexion. Intenta de nuevo.');
+        boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
+        document.getElementById('authErrorMsg').textContent = 'Error de conexión.';
+        errBox.classList.add('show');
     });
 }
- 
-function desbloquearCarrito(nombre) {
-    document.getElementById('carritoLock').style.display      = 'none';
-    document.getElementById('carritoContenido').style.display = 'block';
-    document.getElementById('nombreUsuarioActivo').textContent = nombre;
- 
-    // ✅ Mostrar botón "Ver ventas del día" al desbloquear
-    const btn = document.getElementById('btnVerVentasDia');
-    if (btn) btn.style.display = 'flex';
-}
- 
-function bloquearCarrito() {
-    carrito        = [];
-    metodosActivos = new Set();
-    totalActual    = 0;
-    document.getElementById('carritoContenido').style.display = 'none';
-    document.getElementById('carritoLock').style.display      = 'flex';
- 
-    // Limpiar UI del carrito
-    document.getElementById('inputsPago').innerHTML   = '';
-    document.getElementById('camposHidden').innerHTML = '';
-    document.getElementById('listaCarrito').innerHTML = '';
-    document.getElementById('carritoItems').style.display      = 'none';
-    document.getElementById('seccionDescuento').style.display  = 'none';
-    document.getElementById('seccionPagos').style.display      = 'none';
-    document.getElementById('totalGeneral').style.display      = 'none';
-    document.getElementById('carritoVacio').style.display      = 'block';
-    document.getElementById('btnRegistrar').disabled           = true;
-    document.getElementById('btnCancelarVenta').style.display  = 'none';
-    document.getElementById('validacionPago').style.display    = 'none';
-    document.getElementById('inputDescuento').value            = 0;
-    document.querySelectorAll('.metodo-pago-btn').forEach(b => b.classList.remove('activo'));
- 
-    // ✅ Ocultar botón "Ver ventas del día" al bloquear
-    const btn = document.getElementById('btnVerVentasDia');
-    if (btn) btn.style.display = 'none';
-}
- 
-/* ════════════════════════════════════════════════
-   FORMATEO Y PAGOS
-════════════════════════════════════════════════ */
-function formatPesos(val) {
-    const esEntero = Math.abs(val - Math.round(val)) < 0.001;
-    if (esEntero) return Math.round(val).toLocaleString('es-CO');
-    return val.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
- 
-function formatearInputPago(input) {
-    const cursor  = input.selectionStart;
-    const prevLen = input.value.length;
-    const solo    = input.value.replace(/\D/g, '');
-    const numero  = parseInt(solo) || 0;
-    input.value   = numero > 0 ? numero.toLocaleString('es-CO') : '';
-    const diff    = input.value.length - prevLen;
-    input.setSelectionRange(cursor + diff, cursor + diff);
-    actualizarPagos();
-}
- 
-function toggleMetodo(metodo) {
-    if (metodosActivos.has(metodo)) { metodosActivos.delete(metodo); }
-    else { metodosActivos.add(metodo); }
-    document.querySelectorAll('.metodo-pago-btn').forEach(btn => {
-        const m = btn.getAttribute('onclick').replace("toggleMetodo('", '').replace("')", '');
-        btn.classList.toggle('activo', metodosActivos.has(m));
+
+// ════════════════════════════════════════
+// APERTURA
+// ════════════════════════════════════════
+function calcularTotalApertura() {
+    let total = 0;
+    document.querySelectorAll('.denom-ap').forEach(i => {
+        total += (parseInt(i.value) || 0) * parseInt(i.dataset.valor);
     });
-    renderInputsPago();
+    document.getElementById('totalApertura').textContent = '$' + formatPesos(total);
+    return total;
 }
- 
-function renderInputsPago() {
-    const nombres = { efectivo:'Efectivo', tarjeta:'Tarjeta', transferencia:'Transferencia', nequi:'Nequi', daviplata:'Daviplata' };
-    const iconos  = { efectivo:'bi-cash', tarjeta:'bi-credit-card', transferencia:'bi-bank', nequi:'bi-phone', daviplata:'bi-phone' };
-    const cont    = document.getElementById('inputsPago');
-    cont.innerHTML = '';
-    metodosActivos.forEach(m => {
-        const div = document.createElement('div');
-        div.className = 'd-flex align-items-center gap-2';
-        div.innerHTML = `
-            <i class="bi ${iconos[m]}" style="color:var(--azul-claro); width:16px;"></i>
-            <span style="font-size:.8rem; color:var(--texto); min-width:90px;">${nombres[m]}</span>
-            <input type="text" id="input_${m}" placeholder="0" inputmode="numeric"
-                   oninput="formatearInputPago(this)"
-                   style="flex:1; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:6px; padding:.3rem .6rem; font-size:.85rem;">
-        `;
-        cont.appendChild(div);
+
+function abrirModalApertura() {
+    abrirModalAuth('apertura');
+}
+
+function _abrirModalApertura() {
+    if (BASE_SIGUIENTE > 0) {
+        const infoEl  = document.getElementById('infoBaseSiguiente');
+        const textoEl = document.getElementById('infoBaseSiguienteTexto');
+        textoEl.textContent = 'El último cierre dejó una base de $' + formatPesos(BASE_SIGUIENTE) + ' para hoy.';
+        infoEl.classList.add('show');
+    }
+    document.querySelectorAll('.denom-ap').forEach(i => i.value = 0);
+    calcularTotalApertura();
+    document.getElementById('apObservacion').value = '';
+    document.getElementById('overlayApertura').classList.add('open');
+    document.getElementById('modalApertura').classList.add('open');
+}
+
+function cerrarModalApertura() {
+    document.getElementById('overlayApertura').classList.remove('open');
+    document.getElementById('modalApertura').classList.remove('open');
+}
+
+function confirmarApertura() {
+    const montoBase = calcularTotalApertura();
+    if (montoBase === 0) { alert('Ingresa el dinero con el que abres la caja.'); return; }
+
+    const denominaciones = {};
+    document.querySelectorAll('.denom-ap').forEach(i => {
+        const cant = parseInt(i.value) || 0;
+        if (cant > 0) denominaciones[i.dataset.valor] = cant;
     });
-    actualizarPagos();
+
+    fetch("{% url 'ventas:apertura_caja' %}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({
+            monto_base:    montoBase,
+            observacion:   document.getElementById('apObservacion').value,
+            denominaciones,
+        }),
+    })
+    .then(r => r.json())
+    .then(data => { if (data.ok) location.reload(); else alert(data.error || 'Error al abrir caja.'); })
+    .catch(() => alert('Error de conexión.'));
 }
- 
-function actualizarPagos() {
-    let totalPagado = 0;
-    ['efectivo','tarjeta','transferencia','nequi','daviplata'].forEach(m => {
-        const inp = document.getElementById('input_' + m);
-        const val = inp ? (parseFloat(inp.value.replace(/\./g,'').replace(/,/g,'.')) || 0) : 0;
-        const hid = document.getElementById('hidden' + m.charAt(0).toUpperCase() + m.slice(1));
-        if (hid) hid.value = val;
-        totalPagado += val;
+
+// ════════════════════════════════════════
+// CIERRE
+// ════════════════════════════════════════
+function calcularTotalCierre() {
+    let total = 0;
+    document.querySelectorAll('.denom-ci').forEach(i => {
+        total += (parseInt(i.value) || 0) * parseInt(i.dataset.valor);
     });
-    const faltante = totalActual - totalPagado;
-    const validDiv = document.getElementById('validacionPago');
-    if (metodosActivos.size === 0) {
-        validDiv.style.display = 'none';
-        document.getElementById('btnRegistrar').disabled = true;
-        return;
-    }
-    validDiv.style.display = 'block';
-    if (faltante > 0.01) {
-        validDiv.innerHTML = `<span style="color:#ff4d4d;"><i class="bi bi-exclamation-circle me-1"></i>Falta: $${formatPesos(faltante)}</span>`;
-        document.getElementById('btnRegistrar').disabled = true;
-    } else if (totalPagado > totalActual + 0.01) {
-        const cambio = totalPagado - totalActual;
-        validDiv.innerHTML = `<span style="color:#4dff91;"><i class="bi bi-check-circle me-1"></i>Cambio: $${formatPesos(cambio)}</span>`;
-        document.getElementById('btnRegistrar').disabled = carrito.length === 0;
-    } else {
-        validDiv.innerHTML = `<span style="color:#4dff91;"><i class="bi bi-check-circle me-1"></i>Pago completo</span>`;
-        document.getElementById('btnRegistrar').disabled = carrito.length === 0;
-    }
+    document.getElementById('totalCierre').textContent = '$' + formatPesos(total);
+
+    const baseSig = parseInt(document.getElementById('baseSiguiente').value) || 0;
+    const retirar = Math.max(0, total - baseSig);
+
+    document.getElementById('resumenCierre').style.display = 'block';
+    document.getElementById('res-base-apertura').textContent = '$' + formatPesos(BASE_APERTURA);
+    document.getElementById('res-ventas').textContent        = '$' + formatPesos(TOTAL_DIA);
+    document.getElementById('res-contado').textContent       = '$' + formatPesos(total);
+    document.getElementById('res-base-sig').textContent      = '$' + formatPesos(baseSig);
+    document.getElementById('res-retirar').textContent       = '$' + formatPesos(retirar);
+    return total;
 }
- 
-/* ════════════════════════════════════════════════
-   CARRITO
-════════════════════════════════════════════════ */
-function agregarAlCarrito(prodId, prodNombre, presId, presNombre, stock, precio) {
-    const precioNum = parseFloat(precio) || 0;
-    const key       = prodId + '_' + presId;
-    const existente = carrito.find(item => item.key === key);
-    if (existente) {
-        if (existente.cantidad < existente.stock) {
-            existente.cantidad++;
-            existente.subtotal = existente.cantidad * existente.precio;
-        }
-    } else {
-        carrito.push({ key, prodId, presId, nombre: prodNombre + ' - ' + presNombre, stock: parseInt(stock), precio: precioNum, cantidad: 1, subtotal: precioNum });
-    }
-    renderCarrito();
+
+function abrirModalCierre() {
+    abrirModalAuth('cierre');
 }
- 
-function renderCarrito() {
-    const lista    = document.getElementById('listaCarrito');
-    const totalDiv = document.getElementById('totalGeneral');
-    const hayItems = carrito.length > 0;
- 
-    document.getElementById('carritoItems').style.display     = hayItems ? 'block' : 'none';
-    document.getElementById('seccionDescuento').style.display = hayItems ? 'block' : 'none';
-    document.getElementById('seccionPagos').style.display     = hayItems ? 'block' : 'none';
-    totalDiv.style.display                                     = hayItems ? 'block' : 'none';
-    document.getElementById('carritoVacio').style.display     = hayItems ? 'none'  : 'block';
-    document.getElementById('btnCancelarVenta').style.display = hayItems ? 'block' : 'none';
-    document.getElementById('btnRegistrar').disabled          = true;
- 
-    lista.innerHTML = carrito.map((item, i) => `
-        <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem .9rem;">
-            <div class="d-flex justify-content-between">
-                <span style="font-weight:700; color:var(--texto); font-size:.9rem;">${item.nombre}</span>
-                <button type="button" onclick="quitar(${i})" class="btn-close btn-close-white" style="font-size:0.6rem;"></button>
-            </div>
-            <div class="d-flex align-items-center justify-content-between mt-2">
-                <div class="d-flex align-items-center gap-2">
-                    <input type="number" value="${item.cantidad}" min="1" max="${item.stock}"
-                           onchange="actualizarCant(${i}, this.value)"
-                           style="width:50px; background:var(--fondo-card); border:1px solid var(--azul-borde); color:var(--texto); border-radius:5px;">
-                    <span style="font-size:.75rem; color:var(--texto-muted);">x $${formatPesos(item.precio)}</span>
-                </div>
-                <span style="font-weight:700; color:var(--azul-claro);">$${formatPesos(item.subtotal)}</span>
-            </div>
-        </div>
-    `).join('');
- 
-    const subtotal   = carrito.reduce((s, c) => s + c.subtotal, 0);
-    const pct        = parseFloat(document.getElementById('inputDescuento').value) || 0;
-    const ahorro     = subtotal * (pct / 100);
-    const totalFinal = subtotal - ahorro;
-    totalActual      = totalFinal;
- 
-    totalDiv.innerHTML = `
-        <div class="d-flex justify-content-between mb-1" style="font-size:.75rem; color:var(--texto-muted);">
-            <span>Subtotal original:</span>
-            <span style="${ahorro > 0 ? 'text-decoration:line-through' : ''}">$${formatPesos(subtotal)}</span>
-        </div>
-        ${ahorro > 0 ? `<div class="d-flex justify-content-between mb-1" style="font-size:.75rem; color:#ff4d4d;"><span>Descuento (${pct}%):</span><span>-$${formatPesos(ahorro)}</span></div>` : ''}
-        <div class="d-flex justify-content-between align-items-center pt-1" style="border-top:1px solid var(--azul-borde);">
-            <span style="font-weight:600;">TOTAL ESTIMADO:</span>
-            <span style="font-size:1.4rem; font-weight:800; color:var(--azul-claro);">$${formatPesos(totalFinal)}</span>
-        </div>
-    `;
-    actualizarHiddens();
-    actualizarPagos();
+
+function _abrirModalCierre() {
+    document.querySelectorAll('.denom-ci').forEach(i => i.value = 0);
+    document.getElementById('baseSiguiente').value = '';
+    document.getElementById('resumenCierre').style.display = 'none';
+    calcularTotalCierre();
+    document.getElementById('overlayCierre').classList.add('open');
+    document.getElementById('modalCierre').classList.add('open');
 }
- 
-function actualizarCant(i, v) {
-    const val = parseInt(v) || 1;
-    carrito[i].cantidad = val > carrito[i].stock ? carrito[i].stock : val;
-    carrito[i].subtotal = carrito[i].cantidad * carrito[i].precio;
-    renderCarrito();
+
+function cerrarModalCierre() {
+    document.getElementById('overlayCierre').classList.remove('open');
+    document.getElementById('modalCierre').classList.remove('open');
 }
- 
-function quitar(i) { carrito.splice(i, 1); renderCarrito(); }
- 
-function actualizarHiddens() {
-    document.getElementById('camposHidden').innerHTML = carrito.map(item => `
-        <input type="hidden" name="producto_id[]"     value="${item.prodId}">
-        <input type="hidden" name="presentacion_id[]" value="${item.presId}">
-        <input type="hidden" name="cantidad[]"         value="${item.cantidad}">
-        <input type="hidden" name="precio[]"           value="${item.precio}">
-    `).join('');
-}
- 
-/* ════════════════════════════════════════════════
-   MODAL CANCELAR VENTA EN PROCESO
-════════════════════════════════════════════════ */
-function abrirModalCancelar() {
-    const lista = document.getElementById('cancelarListaProductos');
-    lista.innerHTML = carrito.map(item => `
-        <div style="display:flex; justify-content:space-between; padding:.4rem 0; border-bottom:1px solid var(--azul-borde); font-size:.85rem;">
-            <span style="color:var(--texto);">${item.nombre}</span>
-            <span style="color:var(--texto-muted);">x${item.cantidad}</span>
-        </div>
-    `).join('');
-    document.getElementById('overlayCancelar').style.display = 'block';
-    document.getElementById('modalCancelar').style.display   = 'block';
-}
- 
-function cerrarModalCancelar() {
-    document.getElementById('overlayCancelar').style.display = 'none';
-    document.getElementById('modalCancelar').style.display   = 'none';
-}
- 
-function confirmarCancelar() {
-    cerrarModalCancelar();
-    bloquearCarrito();
-}
- 
-/* ════════════════════════════════════════════════
-   NAVEGACIÓN PRODUCTOS
-════════════════════════════════════════════════ */
-function renderizarProductos(datos) {
-    const lista = document.getElementById('productoLista');
-    lista.innerHTML = '';
-    if (datos.length === 0) {
-        lista.innerHTML = '<p style="color:var(--texto-muted); text-align:center;">No hay productos en esta categoria.</p>';
-        return;
-    }
-    datos.forEach(d => {
-        const div  = document.createElement('div');
-        div.className = 'cys-cat-card mb-2 w-100';
-        div.style.cursor = 'pointer';
-        const pres   = d.querySelector('.dato-presentacion');
-        const precio = pres ? parseFloat(pres.dataset.precio) : 0;
-        div.innerHTML = `<div class="p-2"><strong>${d.dataset.nombre}</strong><br><small style="color:var(--azul-claro)">desde $${formatPesos(precio)}</small></div>`;
-        div.onclick   = () => mostrarPresentaciones(d.dataset.id, d.dataset.nombre);
-        lista.appendChild(div);
+
+function confirmarCierre() {
+    const totalContado  = calcularTotalCierre();
+    const baseSiguiente = parseInt(document.getElementById('baseSiguiente').value) || 0;
+
+    if (totalContado === 0) { alert('Ingresa el dinero contado en caja antes de cerrar.'); return; }
+
+    const denominaciones = {};
+    document.querySelectorAll('.denom-ci').forEach(i => {
+        const cant = parseInt(i.value) || 0;
+        if (cant > 0) denominaciones[i.dataset.valor] = cant;
     });
+
+    fetch("{% url 'ventas:cierre_caja' %}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({
+            total_contado:        totalContado,
+            monto_base_siguiente: baseSiguiente,
+            total_retirado:       Math.max(0, totalContado - baseSiguiente),
+            denominaciones,
+        }),
+    })
+    .then(r => r.json())
+    .then(data => { if (data.ok) location.reload(); else alert(data.error || 'Error al cerrar caja.'); })
+    .catch(() => alert('Error de conexión.'));
 }
- 
-function mostrarProductos(catId, catNombre) {
-    document.getElementById('catTitulo').textContent = catNombre;
-    const datos = Array.from(document.querySelectorAll('.dato-producto[data-cat="' + catId + '"]'));
-    renderizarProductos(datos);
-    document.getElementById('vistaCategorias').style.display = 'none';
-    document.getElementById('vistaProductos').style.display  = 'block';
-}
- 
-function mostrarPresentaciones(prodId, prodNombre) {
-    document.getElementById('presTitulo').textContent = prodNombre;
-    const prodDiv        = document.querySelector('.dato-producto[data-id="' + prodId + '"]');
-    const presentaciones = prodDiv ? Array.from(prodDiv.querySelectorAll('.dato-presentacion')) : [];
-    const lista          = document.getElementById('presentacionLista');
-    lista.innerHTML      = '';
-    if (presentaciones.length === 0) {
-        lista.innerHTML = '<p style="color:var(--texto-muted); text-align:center;">No hay presentaciones disponibles.</p>';
-    } else {
-        presentaciones.forEach(p => {
-            const div = document.createElement('div');
-            div.style.cssText = 'background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.8rem 1rem; cursor:pointer; transition:border-color .2s;';
-            div.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <span style="font-weight:700; color:var(--texto);">${p.dataset.nombre}</span>
-                        <span style="font-size:.75rem; color:var(--texto-muted); margin-left:.5rem;">${p.dataset.unidades} uds</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <span style="color:var(--azul-claro); font-weight:700;">$${formatPesos(parseFloat(p.dataset.precio))}</span>
-                        <span style="font-size:.75rem; color:var(--texto-muted);">Stock: ${p.dataset.stock}</span>
-                    </div>
-                </div>`;
-            div.onmouseenter = () => div.style.borderColor = 'var(--azul-claro)';
-            div.onmouseleave = () => div.style.borderColor = 'var(--azul-borde)';
-            div.onclick = () => {
-                agregarAlCarrito(prodId, prodNombre, p.dataset.presId, p.dataset.nombre, p.dataset.stock, p.dataset.precio);
-                volverProductos();
-            };
-            lista.appendChild(div);
-        });
-    }
-    document.getElementById('vistaProductos').style.display      = 'none';
-    document.getElementById('vistaPresentaciones').style.display = 'block';
-}
- 
-function volverCategorias() {
-    document.getElementById('vistaProductos').style.display      = 'none';
-    document.getElementById('vistaPresentaciones').style.display = 'none';
-    document.getElementById('vistaCategorias').style.display     = 'block';
-}
- 
-function volverProductos() {
-    document.getElementById('vistaPresentaciones').style.display = 'none';
-    document.getElementById('vistaProductos').style.display      = 'block';
-}
- 
-/* ════════════════════════════════════════════════
-   RECIBO
-════════════════════════════════════════════════ */
-function verRecibo(ventaId) {
-    const ventaDiv = document.querySelector('.dato-venta[data-id="' + ventaId + '"]');
-    if (!ventaDiv) return;
-    const cliente       = ventaDiv.dataset.cliente;
-    const fecha         = ventaDiv.dataset.fecha;
-    const descuento     = parseFloat(ventaDiv.dataset.descuento)     || 0;
-    const total         = parseFloat(ventaDiv.dataset.total)         || 0;
-    const efectivo      = parseFloat(ventaDiv.dataset.efectivo)      || 0;
-    const tarjeta       = parseFloat(ventaDiv.dataset.tarjeta)       || 0;
-    const transferencia = parseFloat(ventaDiv.dataset.transferencia) || 0;
-    const nequi         = parseFloat(ventaDiv.dataset.nequi)         || 0;
-    const daviplata     = parseFloat(ventaDiv.dataset.daviplata)     || 0;
-    const urlEliminar   = ventaDiv.dataset.urlEliminar;
-    const detalles      = Array.from(ventaDiv.querySelectorAll('.dato-detalle'));
- 
-    document.getElementById('formCancelarVentaRecibo').action = urlEliminar;
- 
+
+// ── Modal detalle venta ───────────────────────────────────────
+function abrirDetalle(ventaId) {
+    const v = document.querySelector('.dato-venta[data-id="' + ventaId + '"]');
+    if (!v) return;
+
+    const detalles = Array.from(v.querySelectorAll('.dato-detalle'));
     let subtotalBruto = 0;
-    let itemsHTML = detalles.map(d => {
+
+    const itemsHTML = detalles.map(d => {
         const sub = parseFloat(d.dataset.subtotal) || 0;
         subtotalBruto += sub;
         const pres = d.dataset.presentacion ? ' (' + d.dataset.presentacion + ')' : '';
-        return `<div style="display:flex; justify-content:space-between; align-items:center; padding:.5rem 0; border-bottom:1px solid var(--azul-borde);">
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--azul-borde);">
             <div>
-                <div style="font-weight:600; color:var(--texto); font-size:.9rem;">${d.dataset.nombre}${pres}</div>
-                <div style="font-size:.75rem; color:var(--texto-muted);">${d.dataset.cantidad} x $${formatPesos(parseFloat(d.dataset.precio))}</div>
+                <div style="font-weight:600;color:var(--texto);font-size:.9rem;">${d.dataset.nombre}${pres}</div>
+                <div style="font-size:.75rem;color:var(--texto-muted);">${d.dataset.cantidad} × $${formatPesos(d.dataset.precio)}</div>
             </div>
-            <span style="font-weight:700; color:var(--azul-claro);">$${formatPesos(sub)}</span>
+            <span style="font-weight:700;color:var(--azul-claro);">$${formatPesos(sub)}</span>
         </div>`;
     }).join('');
- 
+
+    const descuento = parseFloat(v.dataset.descuento) || 0;
     const ahorro    = subtotalBruto * (descuento / 100);
-    const pagosInfo = [
-        { label:'Efectivo',      val:efectivo,      icon:'bi-cash' },
-        { label:'Tarjeta',       val:tarjeta,        icon:'bi-credit-card' },
-        { label:'Transferencia', val:transferencia,  icon:'bi-bank' },
-        { label:'Nequi',         val:nequi,          icon:'bi-phone' },
-        { label:'Daviplata',     val:daviplata,      icon:'bi-phone' },
-    ].filter(p => p.val > 0);
- 
-    const totalPagado = pagosInfo.reduce((s, p) => s + p.val, 0);
-    const cambio      = totalPagado - total;
- 
-    const pagosHTML = pagosInfo.length > 0 ? `
-        <div style="margin-top:1rem;">
-            <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; margin-bottom:.5rem;">Metodos de Pago</div>
-            ${pagosInfo.map(p => `
-                <div style="display:flex; justify-content:space-between; padding:.3rem 0; font-size:.85rem;">
-                    <span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span>
-                    <span style="color:var(--texto); font-weight:600;">$${formatPesos(p.val)}</span>
-                </div>`).join('')}
-            <div style="display:flex; justify-content:space-between; padding:.4rem 0; margin-top:.3rem; border-top:1px solid var(--azul-borde); font-size:.85rem;">
-                <span style="color:var(--texto-muted);">Total recibido:</span>
-                <span style="color:var(--texto); font-weight:600;">$${formatPesos(totalPagado)}</span>
+    const total     = parseFloat(v.dataset.total) || 0;
+
+    const pagos = [
+        { label:'Efectivo',      val:v.dataset.efectivo,      icon:'bi-cash' },
+        { label:'Tarjeta',       val:v.dataset.tarjeta,       icon:'bi-credit-card' },
+        { label:'Transferencia', val:v.dataset.transferencia, icon:'bi-bank' },
+        { label:'Nequi',         val:v.dataset.nequi,         icon:'bi-phone' },
+        { label:'Daviplata',     val:v.dataset.daviplata,     icon:'bi-phone' },
+    ].filter(p => parseFloat(p.val) > 0);
+
+    const pagosHTML = pagos.map(p => `
+        <div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.85rem;">
+            <span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span>
+            <span style="color:var(--texto);font-weight:600;">$${formatPesos(p.val)}</span>
+        </div>`).join('');
+
+    document.getElementById('detalleContenido').innerHTML = `
+        <div style="background:var(--fondo-card2);border-radius:10px;padding:1rem;margin-bottom:1rem;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
+                <span style="font-size:.75rem;color:var(--texto-muted);">CLIENTE</span>
+                <span style="font-weight:700;color:var(--texto);">${v.dataset.cliente}</span>
             </div>
-            ${cambio > 0.01 ? `
-            <div style="display:flex; justify-content:space-between; padding:.4rem .7rem; background:rgba(77,255,145,.1); border:1px solid #4dff91; border-radius:8px; margin-top:.4rem; font-size:.9rem;">
-                <span style="color:#4dff91; font-weight:700;"><i class="bi bi-arrow-return-left me-1"></i>Cambio a devolver:</span>
-                <span style="color:#4dff91; font-weight:800;">$${formatPesos(cambio)}</span>
-            </div>` : ''}
-        </div>` : '';
- 
-    document.getElementById('reciboContenido').innerHTML = `
-        <div style="background:var(--fondo-card2); border-radius:10px; padding:1rem; margin-bottom:1rem;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:.3rem;">
-                <span style="font-size:.75rem; color:var(--texto-muted);">CLIENTE</span>
-                <span style="font-weight:700; color:var(--texto);">${cliente}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between;">
-                <span style="font-size:.75rem; color:var(--texto-muted);">FECHA</span>
-                <span style="font-size:.85rem; color:var(--texto);">${fecha}</span>
+            <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:.75rem;color:var(--texto-muted);">HORA</span>
+                <span style="font-size:.85rem;color:var(--texto);">${v.dataset.hora}</span>
             </div>
         </div>
         <div style="margin-bottom:1rem;">
-            <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; margin-bottom:.5rem;">Productos</div>
+            <div style="font-size:.7rem;color:var(--texto-muted);text-transform:uppercase;margin-bottom:.5rem;">Productos</div>
             ${itemsHTML}
         </div>
-        <div style="background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem;">
+        <div style="background:rgba(77,168,218,.08);border:1px solid var(--azul-borde);border-radius:10px;padding:.9rem;margin-bottom:1rem;">
             ${descuento > 0 ? `
-            <div style="display:flex; justify-content:space-between; margin-bottom:.4rem; font-size:.85rem;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.85rem;">
                 <span style="color:var(--texto-muted);">Subtotal:</span>
-                <span style="text-decoration:line-through; color:var(--texto-muted);">$${formatPesos(subtotalBruto)}</span>
+                <span style="text-decoration:line-through;color:var(--texto-muted);">$${formatPesos(subtotalBruto)}</span>
             </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:.4rem; font-size:.85rem;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.85rem;">
                 <span style="color:#ff4d4d;">Descuento (${descuento}%):</span>
                 <span style="color:#ff4d4d;">-$${formatPesos(ahorro)}</span>
             </div>` : ''}
-            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--azul-borde); padding-top:.6rem; margin-top:.3rem;">
-                <span style="font-weight:700; font-size:1rem;">TOTAL</span>
-                <span style="font-size:1.5rem; font-weight:800; color:var(--azul-claro);">$${formatPesos(total)}</span>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--azul-borde);padding-top:.6rem;margin-top:.3rem;">
+                <span style="font-weight:700;font-size:1rem;">TOTAL</span>
+                <span style="font-size:1.5rem;font-weight:800;color:var(--azul-claro);">$${formatPesos(total)}</span>
             </div>
         </div>
-        ${pagosHTML}`;
- 
-    document.getElementById('overlayRecibo').style.display = 'block';
-    document.getElementById('modalRecibo').style.display   = 'block';
+        ${pagos.length > 0 ? `
+        <div style="background:var(--fondo-card2);border:1px solid var(--azul-borde);border-radius:10px;padding:.9rem;">
+            <div style="font-size:.7rem;color:var(--texto-muted);text-transform:uppercase;margin-bottom:.5rem;">Métodos de pago</div>
+            ${pagosHTML}
+        </div>` : ''}
+    `;
+
+    document.getElementById('overlayDetalle').classList.add('open');
+    document.getElementById('modalDetalle').classList.add('open');
 }
- 
-function cerrarRecibo() {
-    document.getElementById('overlayRecibo').style.display = 'none';
-    document.getElementById('modalRecibo').style.display   = 'none';
+
+function cerrarDetalle() {
+    document.getElementById('overlayDetalle').classList.remove('open');
+    document.getElementById('modalDetalle').classList.remove('open');
 }
- 
-/* ════════════════════════════════════════════════
-   BUSCADOR + DESCUENTO
-════════════════════════════════════════════════ */
-document.getElementById('buscadorProducto').addEventListener('input', function () {
-    const q        = this.value.toLowerCase().trim();
-    const filtrados = Array.from(document.querySelectorAll('.dato-producto')).filter(d =>
-        d.dataset.nombre.toLowerCase().includes(q)
-    );
-    if (q.length > 0) {
-        renderizarProductos(filtrados);
-        document.getElementById('vistaCategorias').style.display    = 'none';
-        document.getElementById('vistaPresentaciones').style.display = 'none';
-        document.getElementById('vistaProductos').style.display     = 'block';
-        document.getElementById('catTitulo').textContent            = 'Resultados de busqueda';
-    } else {
-        document.getElementById('vistaProductos').style.display  = 'none';
-        document.getElementById('vistaCategorias').style.display = 'block';
-    }
-});
- 
-document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
- 
-/* ════════════════════════════════════════════════
-   BOTÓN VENTAS DEL DÍA — se inyecta en el subnav
-   y empieza OCULTO hasta que se desbloquee el carrito
-════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', function () {
-    const subnav  = document.querySelector('.cys-subnav');
-    const menuBtn = document.getElementById('menuBtn');
-    if (!subnav || !menuBtn) return;
-    if (document.getElementById('btnVerVentasDia')) return;
- 
-    const btn = document.createElement('button');
-    btn.id = 'btnVerVentasDia';
-    btn.innerHTML = '<i class="bi bi-calendar-check me-1"></i> Ver ventas del dia';
-    btn.style.cssText = 'display:none; background:rgba(77,168,218,.12); border:1px solid var(--azul-claro); color:var(--azul-claro); border-radius:8px; padding:.4rem .9rem; font-size:.8rem; font-weight:700; cursor:pointer; align-items:center; gap:.3rem; white-space:nowrap; margin-left:auto; margin-right:.5rem;';
-    btn.onclick = function () { window.location.href = URL_VENTAS_DIA; };
-    subnav.insertBefore(btn, menuBtn);
-});
-{% endverbatim %}
 </script>
 {% endblock %}
- 
