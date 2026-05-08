@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.core.paginator import Paginator
 from ventas.models import Venta, DetalleVenta
-from producto.models import Producto, Inventario, Categoria
+from producto.models import Producto, Inventario
 from proveedores.models import Proveedor
 import json
 from django.core.serializers.json import DjangoJSONEncoder
@@ -11,12 +11,11 @@ from django.core.serializers.json import DjangoJSONEncoder
 def reportes(request):
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin    = request.GET.get('fecha_fin')
-    categoria_id = request.GET.get('categoria')
     cliente_q    = request.GET.get('cliente')
     producto_q   = request.GET.get('producto')
 
     ventas_qs = Venta.objects.prefetch_related(
-        'detalles__producto__categoria',
+        'detalles__producto',
         'detalles__presentacion'
     ).all().order_by('-fecha')
 
@@ -24,10 +23,6 @@ def reportes(request):
         ventas_qs = ventas_qs.filter(fecha__date__gte=fecha_inicio)
     if fecha_fin:
         ventas_qs = ventas_qs.filter(fecha__date__lte=fecha_fin)
-    if categoria_id:
-        ventas_qs = ventas_qs.filter(
-            detalles__producto__categoria_id=categoria_id
-        ).distinct()
     if cliente_q:
         ventas_qs = ventas_qs.filter(cliente__icontains=cliente_q).distinct()
     if producto_q:
@@ -45,7 +40,6 @@ def reportes(request):
 
     productos   = Producto.objects.all().order_by('nombre')
     proveedores = Proveedor.objects.all().order_by('nombre_empresa')
-    categorias  = Categoria.objects.all().order_by('nombre')
 
     total_ventas    = sum(v.total_venta for v in ventas_todas)
     total_productos = sum(det.cantidad for v in ventas_todas for det in v.detalles.all())
@@ -71,7 +65,7 @@ def reportes(request):
 
     hoy        = timezone.now().date()
     ventas_hoy = Venta.objects.prefetch_related(
-        'detalles__producto__categoria',
+        'detalles__producto',
         'detalles__presentacion'
     ).filter(fecha__date=hoy).order_by('-fecha')
 
@@ -86,7 +80,7 @@ def reportes(request):
     productos_vendidos_hoy = (
         DetalleVenta.objects
         .filter(venta__fecha__date=hoy)
-        .select_related('producto__categoria', 'presentacion', 'venta')
+        .select_related('producto', 'presentacion', 'venta')
         .order_by('producto__nombre')
     )
     top_productos_hoy = {}
@@ -103,9 +97,6 @@ def reportes(request):
     )[:5]
 
     # ── JSON para gráficas ────────────────────────────────────────────────
-    # ✅ CORRECCIÓN: se reemplaza </script> por <\/script> para que el
-    #    bloque <script type="application/json"> no se cierre prematuramente
-    #    si algún nombre de producto/cliente contiene esa cadena.
     ventas_data = []
     for v in ventas_todas:
         for det in v.detalles.all():
@@ -115,11 +106,6 @@ def reportes(request):
                 "cliente":         str(v.cliente),
                 "producto":        det.producto.nombre,
                 "presentacion":    det.presentacion.nombre if det.presentacion else "Unidad",
-                "categoria":       (
-                    det.producto.categoria.nombre
-                    if det.producto.categoria
-                    else "Sin categoría"
-                ),
                 "cantidad":        det.cantidad,
                 "precio_unitario": float(det.precio_unitario),
                 "subtotal":        float(det.subtotal()),
@@ -129,8 +115,8 @@ def reportes(request):
 
     ventas_json = (
         json.dumps(ventas_data, cls=DjangoJSONEncoder)
-        .replace('</script>', r'<\/script>')   # ✅ evita romper el bloque
-        .replace('<!--',      r'<\!--')         # ✅ evita comentarios HTML
+        .replace('</script>', r'<\/script>')
+        .replace('<!--',      r'<\!--')
     )
 
     return render(request, 'reportes.html', {
@@ -139,7 +125,7 @@ def reportes(request):
         'page_obj':           page_obj,
         'paginator':          paginator,
 
-        # Totales (calculados sobre el queryset completo)
+        # Totales
         'total_ventas':       total_ventas,
         'total_productos':    total_productos,
         'total_clientes':     total_clientes,
@@ -147,7 +133,6 @@ def reportes(request):
         # Catálogos
         'productos':          productos,
         'proveedores':        proveedores,
-        'categorias':         categorias,
 
         # Inventario
         'total_registrados':  total_registrados,
@@ -160,7 +145,6 @@ def reportes(request):
         # Filtros activos
         'fecha_inicio':       fecha_inicio or '',
         'fecha_fin':          fecha_fin or '',
-        'categoria_id':       categoria_id or '',
         'cliente_q':          cliente_q or '',
         'producto_q':         producto_q or '',
 
