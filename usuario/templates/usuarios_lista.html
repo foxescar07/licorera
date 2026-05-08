@@ -39,10 +39,9 @@
       onmouseover="this.style.borderColor='rgba(77,168,218,.4)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,.3)'"
       onmouseout="this.style.borderColor='rgba(77,168,218,.18)'; this.style.boxShadow='none'">
 
-      <!-- Cabecera de la tarjeta -->
+      <!-- Cabecera -->
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:.9rem;">
         <div style="display:flex; align-items:center; gap:.7rem;">
-          <!-- Avatar -->
           <div style="
             width:40px; height:40px; border-radius:50%; flex-shrink:0;
             background:rgba(77,168,218,.12); border:1px solid rgba(77,168,218,.3);
@@ -61,7 +60,6 @@
           </div>
         </div>
 
-        <!-- Badge rol -->
         <span id="rol-badge-{{ u.pk }}" style="
           font-size:.62rem; padding:.2rem .6rem; border-radius:999px;
           font-weight:600; text-transform:uppercase; letter-spacing:.06em; flex-shrink:0;
@@ -80,7 +78,6 @@
 
       <!-- Datos -->
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:.55rem .9rem; font-size:.78rem; margin-bottom:.9rem;">
-
         <div>
           <div style="color:rgba(232,237,242,.35); font-size:.62rem; text-transform:uppercase;
                       letter-spacing:.08em; margin-bottom:.2rem;">Identificación</div>
@@ -117,12 +114,12 @@
             {% if u.activo %}Activo{% else %}Inactivo{% endif %}
           </span>
         </div>
-
       </div>
 
       <!-- Acciones solo admin -->
       {% if request.session.usuario_rol == 'admin' %}
       <div style="display:flex; gap:.5rem; margin-top:.25rem;">
+
         <button onclick="abrirEditar({{ u.pk }})" style="
           flex:1; background:rgba(77,168,218,.08); border:1px solid rgba(77,168,218,.25);
           color:#4DA8DA; border-radius:8px; padding:.5rem;
@@ -135,23 +132,46 @@
         </button>
 
         {% if u.pk != request.session.usuario_id %}
-        <button onclick="toggleActivo({{ u.pk }}, {{ u.activo|yesno:'true,false' }})"
-          id="btn-toggle-{{ u.pk }}" style="
-          flex:1; border-radius:8px; padding:.5rem;
-          cursor:pointer; font-size:.78rem; font-family:'Inter',sans-serif;
-          display:flex; align-items:center; justify-content:center; gap:.35rem;
-          transition:background .2s;
-          {% if u.activo %}
+        <div id="wrap-toggle-{{ u.pk }}"
+          style="flex:1; display:flex; flex-direction:column; gap:.35rem;">
+
+          <button
+            id="btn-toggle-{{ u.pk }}"
+            onclick="toggleActivo({{ u.pk }}, {{ u.activo|yesno:'true,false' }})"
+            style="
+            width:100%; border-radius:8px; padding:.5rem;
+            cursor:pointer; font-size:.78rem; font-family:'Inter',sans-serif;
+            display:flex; align-items:center; justify-content:center; gap:.35rem;
+            transition:background .2s;
+            {% if u.activo %}
+              background:rgba(192,57,43,.08); border:1px solid rgba(192,57,43,.25); color:#e87070;
+            {% else %}
+              background:rgba(77,218,140,.08); border:1px solid rgba(77,218,140,.25); color:#5edb97;
+            {% endif %}">
+            <i class="bi bi-{% if u.activo %}person-dash{% else %}person-check{% endif %}"></i>
+            {% if u.activo %}Desactivar{% else %}Activar{% endif %}
+          </button>
+
+          <button
+            id="btn-eliminar-{{ u.pk }}"
+            onclick="eliminarUsuario({{ u.pk }})"
+            onmouseover="this.style.background='rgba(192,57,43,1)'; this.style.color='#fff'; this.style.borderColor='#c0392b'"
+            onmouseout="this.style.background='rgba(192,57,43,.08)'; this.style.color='#e87070'; this.style.borderColor='rgba(192,57,43,.25)'"
+            style="
+            width:100%; border-radius:8px; padding:.4rem;
+            cursor:pointer; font-size:.73rem; font-family:'Inter',sans-serif;
+            {% if not u.activo %}display:flex;{% else %}display:none;{% endif %}
+            align-items:center; justify-content:center; gap:.35rem;
             background:rgba(192,57,43,.08); border:1px solid rgba(192,57,43,.25); color:#e87070;
-          {% else %}
-            background:rgba(77,218,140,.08); border:1px solid rgba(77,218,140,.25); color:#5edb97;
-          {% endif %}"
-          onmouseover="this.style.opacity='.8'"
-          onmouseout="this.style.opacity='1'">
-          <i class="bi bi-{% if u.activo %}person-dash{% else %}person-check{% endif %}"></i>
-          {% if u.activo %}Desactivar{% else %}Activar{% endif %}
-        </button>
+            opacity:{% if not u.activo %}1{% else %}0{% endif %};
+            transform:translateY(0);
+            transition:opacity .25s ease, transform .25s ease, background .2s, color .2s, border-color .2s;">
+            <i class="bi bi-trash3"></i> Eliminar usuario
+          </button>
+
+        </div>
         {% endif %}
+
       </div>
       {% endif %}
 
@@ -171,7 +191,7 @@
 
 
 <!-- ══════════════════════════════════════
-     MODAL EDITAR USUARIO (solo admin)
+     MODAL EDITAR USUARIO
 ══════════════════════════════════════ -->
 {% if request.session.usuario_rol == 'admin' %}
 <div id="modalEditarUsuario" style="
@@ -392,23 +412,72 @@
     .then(r => r.json())
     .then(d => {
       if (!d.ok) { alert(d.error); return; }
+
+      // Actualizar badge de estado
       const badge = document.getElementById(`estado-badge-${pk}`);
       if (badge) {
         const dot = d.activo ? '#5edb97' : 'rgba(232,237,242,.25)';
         badge.style.color = d.activo ? '#5edb97' : 'rgba(232,237,242,.35)';
         badge.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;display:inline-block;background:${dot};"></span> ${d.activo ? 'Activo' : 'Inactivo'}`;
       }
+
+      // Actualizar botón toggle
       const btn = document.getElementById(`btn-toggle-${pk}`);
       if (btn) {
         if (d.activo) {
-          btn.style.cssText += 'background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.25);color:#e87070;';
-          btn.innerHTML = '<i class="bi bi-person-dash"></i> Desactivar';
+          btn.style.background = 'rgba(192,57,43,.08)';
+          btn.style.border     = '1px solid rgba(192,57,43,.25)';
+          btn.style.color      = '#e87070';
+          btn.innerHTML        = '<i class="bi bi-person-dash"></i> Desactivar';
           btn.setAttribute('onclick', `toggleActivo(${pk}, true)`);
         } else {
-          btn.style.cssText += 'background:rgba(77,218,140,.08);border:1px solid rgba(77,218,140,.25);color:#5edb97;';
-          btn.innerHTML = '<i class="bi bi-person-check"></i> Activar';
+          btn.style.background = 'rgba(77,218,140,.08)';
+          btn.style.border     = '1px solid rgba(77,218,140,.25)';
+          btn.style.color      = '#5edb97';
+          btn.innerHTML        = '<i class="bi bi-person-check"></i> Activar';
           btn.setAttribute('onclick', `toggleActivo(${pk}, false)`);
         }
+      }
+
+      // Mostrar/ocultar botón eliminar según estado resultante
+      const btnEliminar = document.getElementById(`btn-eliminar-${pk}`);
+      if (btnEliminar) {
+        if (!d.activo) {
+          btnEliminar.style.display   = 'flex';
+          btnEliminar.style.opacity   = '1';
+          btnEliminar.style.transform = 'translateY(0)';
+        } else {
+          btnEliminar.style.opacity   = '0';
+          btnEliminar.style.transform = 'translateY(-4px)';
+          setTimeout(() => { btnEliminar.style.display = 'none'; }, 250);
+        }
+      }
+    })
+    .catch(() => alert('Error de conexión.'));
+  }
+
+  function eliminarUsuario(pk) {
+    if (!confirm('¿Seguro que deseas eliminar este usuario? Esta acción no se puede deshacer.')) return;
+
+    const fd = new FormData();
+    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+    fetch(`/usuario/eliminar/${pk}/`, {
+      method: 'POST', body: fd,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        const card = document.getElementById(`fila-${pk}`);
+        if (card) {
+          card.style.transition = 'opacity .4s ease, transform .4s ease';
+          card.style.opacity    = '0';
+          card.style.transform  = 'scale(.96)';
+          setTimeout(() => card.remove(), 400);
+        }
+      } else {
+        alert(d.error || 'No se pudo eliminar el usuario.');
       }
     })
     .catch(() => alert('Error de conexión.'));
@@ -420,6 +489,7 @@
       if (e.target === this) cerrarEditar();
     });
   }
+
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') cerrarEditar();
   });
