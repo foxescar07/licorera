@@ -2,13 +2,19 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db import transaction
+from django.contrib.auth import authenticate
 from decimal import Decimal, InvalidOperation
 import json
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+<<<<<<< HEAD
 from django.contrib.auth import authenticate
 
 from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja
+=======
+ 
+from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion
+>>>>>>> main
 from .forms import VentaForm, DetalleVentaForm
 from producto.models import Producto, Inventario, Categoria, PresentacionProducto
 from .models import Devolucion, DetalleDevolucion
@@ -59,7 +65,7 @@ def nueva_venta(request):
     pago_daviplata     = to_decimal('pago_daviplata')
 
     if not producto_ids:
-        messages.error(request, "El carrito está vacío.")
+        messages.error(request, "El carrito esta vacio.")
         return redirect('ventas:ventas_lista')
 
     if not form.is_valid():
@@ -76,7 +82,7 @@ def nueva_venta(request):
             if cantidad <= 0 or precio < 0:
                 raise ValueError
         except (ValueError, TypeError, InvalidOperation, IndexError):
-            messages.error(request, f"Datos inválidos en el ítem {i+1}.")
+            messages.error(request, f"Datos invalidos en el item {i+1}.")
             return redirect('ventas:ventas_lista')
 
         try:
@@ -92,15 +98,19 @@ def nueva_venta(request):
             try:
                 presentacion = PresentacionProducto.objects.get(pk=pres_id, producto=producto)
             except PresentacionProducto.DoesNotExist:
-                messages.error(request, f"Presentación inválida para {producto.nombre}.")
+                messages.error(request, f"Presentacion invalida para {producto.nombre}.")
                 return redirect('ventas:ventas_lista')
 
             if cantidad > presentacion.cantidad:
+<<<<<<< HEAD
                 messages.error(
                     request,
                     f"Stock insuficiente: solo hay {presentacion.cantidad} "
                     f"'{presentacion.nombre}' de {producto.nombre}."
                 )
+=======
+                messages.error(request, f"Stock insuficiente: solo hay {presentacion.cantidad} de {producto.nombre}.")
+>>>>>>> main
                 return redirect('ventas:ventas_lista')
         else:
             if cantidad > producto.cantidad_disponible:
@@ -171,8 +181,13 @@ def nueva_venta(request):
             motivo='Venta registrada',
             ubicacion='Venta',
         )
+<<<<<<< HEAD
 
     messages.success(request, f"Venta registrada — Total: ${total_final:,.0f}".replace(',', '.'))
+=======
+ 
+    messages.success(request, f"Venta registrada - Total: ${total_final:,.0f}".replace(',', '.'))
+>>>>>>> main
     return redirect('ventas:ventas_lista')
 
 
@@ -190,11 +205,16 @@ def eliminar_venta(request, pk):
                 unidades = det.cantidad
 
             Inventario.objects.create(
+<<<<<<< HEAD
                 producto=det.producto,
                 tipo='entrada',
                 cantidad=unidades,
                 motivo='Anulación de venta',
                 ubicacion='Devolución',
+=======
+                producto=det.producto, tipo='entrada', cantidad=unidades,
+                motivo='Anulacion de venta', ubicacion='Devolucion',
+>>>>>>> main
             )
 
         venta.delete()
@@ -220,12 +240,17 @@ def producto_stock_json(request, pk):
         'unidad':         producto.unidad,
         'presentaciones': presentaciones,
     })
+<<<<<<< HEAD
 
 
 # ══════════════════════════════════════════════════════════════
 #  DEVOLUCIONES
 # ══════════════════════════════════════════════════════════════
 
+=======
+ 
+ 
+>>>>>>> main
 def lista_devoluciones(request):
     devoluciones = Devolucion.objects.select_related('venta').prefetch_related(
         'detalles__producto',
@@ -305,7 +330,7 @@ def registrar_devolucion(request):
     precios          = request.POST.getlist('precio[]')
 
     if not tiene_comprobante:
-        messages.warning(request, 'No se puede registrar la devolución sin comprobante de compra.')
+        messages.warning(request, 'No se puede registrar la devolucion sin comprobante de compra.')
         return redirect('ventas:lista_devoluciones')
 
     if not motivo:
@@ -350,6 +375,7 @@ def registrar_devolucion(request):
             cantidad=cantidad,
             precio_unitario=precio,
         )
+<<<<<<< HEAD
 
         # Restaurar stock solo si se indicó
         if restaurar_stock:
@@ -376,6 +402,29 @@ def registrar_devolucion(request):
 #  VENTAS DEL DÍA + CAJA
 # ══════════════════════════════════════════════════════════════
 
+=======
+ 
+        if restaurar_stock and presentacion:
+            presentacion.cantidad += cantidad
+            presentacion.save()
+ 
+    messages.success(request, f'Devolucion {devolucion.numero} registrada correctamente.')
+    return redirect('ventas:comprobante_devolucion', pk=devolucion.pk)
+ 
+ 
+def comprobante_devolucion(request, pk):
+    devolucion = get_object_or_404(
+        Devolucion.objects.select_related('venta').prefetch_related(
+            'detalles__producto', 'detalles__presentacion'
+        ),
+        pk=pk
+    )
+    return render(request, 'ventas/comprobante_devolucion.html', {
+        'devolucion': devolucion,
+    })
+ 
+ 
+>>>>>>> main
 def ventas_dia(request):
     hoy = timezone.localdate()
 
@@ -409,8 +458,13 @@ def apertura_caja(request):
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
+<<<<<<< HEAD
         return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
 
+=======
+        return JsonResponse({'ok': False, 'error': 'JSON invalido.'}, status=400)
+ 
+>>>>>>> main
     hoy = timezone.localdate()
 
     if AperturaCaja.objects.filter(fecha=hoy).exists():
@@ -422,8 +476,13 @@ def apertura_caja(request):
         if monto_base <= 0:
             raise ValueError
     except (TypeError, ValueError):
+<<<<<<< HEAD
         return JsonResponse({'ok': False, 'error': 'Monto base inválido.'}, status=400)
 
+=======
+        return JsonResponse({'ok': False, 'error': 'Monto base invalido.'}, status=400)
+ 
+>>>>>>> main
     AperturaCaja.objects.create(
         fecha=hoy,
         monto_base=monto_base,
@@ -438,8 +497,13 @@ def cierre_caja(request):
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
+<<<<<<< HEAD
         return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
 
+=======
+        return JsonResponse({'ok': False, 'error': 'JSON invalido.'}, status=400)
+ 
+>>>>>>> main
     hoy = timezone.localdate()
 
     apertura = AperturaCaja.objects.filter(fecha=hoy).first()
@@ -451,8 +515,13 @@ def cierre_caja(request):
         monto_base_sig = float(data.get('monto_base_siguiente', 0))
         total_retirado = float(data.get('total_retirado', 0))
     except (TypeError, ValueError):
+<<<<<<< HEAD
         return JsonResponse({'ok': False, 'error': 'Valores numéricos inválidos.'}, status=400)
 
+=======
+        return JsonResponse({'ok': False, 'error': 'Valores numericos invalidos.'}, status=400)
+ 
+>>>>>>> main
     CierreCaja.objects.update_or_create(
         fecha=hoy,
         defaults={
@@ -464,23 +533,34 @@ def cierre_caja(request):
         }
     )
     return JsonResponse({'ok': True})
+<<<<<<< HEAD
 
 
 @require_POST
 def verificar_acceso_caja(request):
+=======
+ 
+ 
+@require_POST
+def verificar_acceso_caja(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'No has iniciado sesion.'})
+
+>>>>>>> main
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+        return JsonResponse({'ok': False, 'error': 'JSON invalido.'}, status=400)
 
-    username = data.get('username', '').strip()
     password = data.get('password', '')
 
-    user = authenticate(request, username=username, password=password)
+    # Verificar contraseña del usuario actual
+    user = authenticate(request, username=request.user.username, password=password)
 
     if user is None:
-        return JsonResponse({'ok': False, 'error': 'Usuario o contraseña incorrectos.'})
+        return JsonResponse({'ok': False, 'error': 'Contrasena incorrecta.'})
 
+<<<<<<< HEAD
     grupos    = list(user.groups.values_list('name', flat=True))
     es_admin  = user.is_superuser or user.is_staff or 'Administrador' in grupos
     es_cajero = 'Cajero' in grupos
@@ -489,3 +569,40 @@ def verificar_acceso_caja(request):
         return JsonResponse({'ok': False, 'error': 'No tienes permisos para operar la caja.'})
 
     return JsonResponse({'ok': True, 'rol': 'admin' if es_admin else 'cajero'})
+=======
+    grupos = list(user.groups.values_list('name', flat=True))
+    es_admin  = user.is_superuser or user.is_staff or 'Administrador' in grupos
+    es_cajero = 'Cajero' in grupos
+
+    if not (es_admin or es_cajero):
+        return JsonResponse({'ok': False, 'error': f'Sin permiso. Grupos: {grupos}, staff: {user.is_staff}, super: {user.is_superuser}'})
+ 
+    return JsonResponse({'ok': True, 'nombre': user.get_full_name() or user.username})
+
+    es_admin   = user.is_superuser or user.is_staff or 'Administrador' in grupos
+    es_cajero  = 'Cajero' in grupos
+
+  # Después (temporal para probar)
+ # Solo admin o cajero
+    grupos = list(user.groups.values_list('name', flat=True))
+
+    es_admin = (
+        user.is_superuser or
+        user.is_staff or
+        'Administrador' in grupos
+    )
+
+    es_cajero = 'Cajero' in grupos
+
+    # Validación de permisos
+    if not (es_admin or es_cajero):
+        return JsonResponse({
+            'ok': False,
+            'error': f'Sin permiso. Grupos: {grupos}, staff: {user.is_staff}, super: {user.is_superuser}'
+        })
+
+    return JsonResponse({
+        'ok': True,
+        'nombre': user.get_full_name() or user.username
+    })
+>>>>>>> main

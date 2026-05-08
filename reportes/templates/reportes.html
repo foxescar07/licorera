@@ -169,7 +169,7 @@
           <i class="bi bi-graph-up-arrow" style="color:#E8834A;font-size:16px;"></i>
         </div>
         <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem;color:var(--texto);margin-bottom:4px;">Análisis de Ventas</div>
-        <div style="font-size:.78rem;color:var(--texto-muted);margin-bottom:14px;">Gráficos de ventas, top productos y categorías</div>
+        <div style="font-size:.78rem;color:var(--texto-muted);margin-bottom:14px;">Gráficos de ventas y top productos</div>
         <div style="font-size:.75rem;color:#E8834A;font-weight:600;">Ver reporte →</div>
       </div>
     </div>
@@ -225,15 +225,6 @@
         <input type="date" name="fecha_fin" class="form-control form-control-sm" value="{{ fecha_fin }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label" style="font-size:.78rem;color:var(--texto-muted);">Categoría</label>
-        <select name="categoria" class="form-select form-select-sm">
-          <option value="">Todas</option>
-          {% for cat in categorias %}
-            <option value="{{ cat.id }}" {% if categoria_id == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.nombre }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="col-md-2">
         <label class="form-label" style="font-size:.78rem;color:var(--texto-muted);">Cliente</label>
         <input type="text" name="cliente" class="form-control form-control-sm" placeholder="Nombre cliente…" value="{{ cliente_q }}">
       </div>
@@ -255,7 +246,7 @@
       <table class="cys-inv-table">
         <thead>
           <tr>
-            <th>#</th><th>Cliente</th><th>Producto</th><th>Categoría</th>
+            <th>#</th><th>Cliente</th><th>Producto</th>
             <th>Cantidad</th><th>Precio Unit.</th><th>Total</th><th>Fecha</th>
           </tr>
         </thead>
@@ -266,7 +257,6 @@
               <td style="font-size:.85rem;color:var(--azul-claro);">{{ forloop.parentloop.counter }}</td>
               <td style="font-size:.85rem;font-weight:600;color:var(--azul-claro);">{{ venta.cliente }}</td>
               <td style="font-size:.85rem;color:var(--azul-claro);">{{ det.producto.nombre }}</td>
-              <td><span class="cys-tag">{{ det.producto.categoria|default:"—" }}</span></td>
               <td style="font-size:.85rem;color:var(--azul-claro);">{{ det.cantidad }}</td>
               <td style="font-size:.85rem;color:var(--azul-claro);">${{ det.precio_unitario|floatformat:0 }}</td>
               <td style="font-size:.85rem;font-weight:600;color:var(--azul-claro);">${{ det.subtotal|floatformat:0 }}</td>
@@ -275,7 +265,7 @@
             {% endfor %}
           {% empty %}
           <tr>
-            <td colspan="8" class="text-center py-5" style="color:var(--texto-muted);font-size:.85rem;">
+            <td colspan="7" class="text-center py-5" style="color:var(--texto-muted);font-size:.85rem;">
               <i class="bi bi-bar-chart d-block mb-2" style="font-size:2.5rem;color:var(--azul-borde);"></i>
               No hay ventas registradas aún.
             </td>
@@ -344,14 +334,13 @@
 
       <div class="modal-body p-0">
         <table class="cys-inv-table" id="invTable">
-          <thead><tr><th>#</th><th>Producto</th><th>Categoría</th><th>Cantidad disponible</th><th>Estado</th></tr></thead>
+          <thead><tr><th>#</th><th>Producto</th><th>Cantidad disponible</th><th>Estado</th></tr></thead>
           <tbody>
             {% for p in productos %}
               {% if p.cantidad_disponible == 0 %}
                 <tr data-estado="out">
                   <td class="text-muted">{{ forloop.counter }}</td>
                   <td><strong>{{ p.nombre }}</strong></td>
-                  <td><span class="cys-tag">{{ p.categoria|default:"—" }}</span></td>
                   <td class="cys-qty cys-qty--out">{{ p.cantidad_disponible }}</td>
                   <td><span class="cys-badge cys-badge--rojo">Agotado</span></td>
                 </tr>
@@ -359,7 +348,6 @@
                 <tr data-estado="low">
                   <td class="text-muted">{{ forloop.counter }}</td>
                   <td><strong>{{ p.nombre }}</strong></td>
-                  <td><span class="cys-tag">{{ p.categoria|default:"—" }}</span></td>
                   <td class="cys-qty cys-qty--low">{{ p.cantidad_disponible }}</td>
                   <td><span class="cys-badge cys-badge--amarillo">Stock bajo</span></td>
                 </tr>
@@ -367,13 +355,12 @@
                 <tr data-estado="ok">
                   <td class="text-muted">{{ forloop.counter }}</td>
                   <td><strong>{{ p.nombre }}</strong></td>
-                  <td><span class="cys-tag">{{ p.categoria|default:"—" }}</span></td>
                   <td class="cys-qty cys-qty--ok">{{ p.cantidad_disponible }}</td>
                   <td><span class="cys-badge cys-badge--verde">En stock</span></td>
                 </tr>
               {% endif %}
             {% empty %}
-              <tr><td colspan="5" class="text-center py-5" style="color:var(--texto-muted);">No hay productos registrados.</td></tr>
+              <tr><td colspan="4" class="text-center py-5" style="color:var(--texto-muted);">No hay productos registrados.</td></tr>
             {% endfor %}
           </tbody>
         </table>
@@ -810,7 +797,6 @@
         <div class="cys-stat-mini cys-stat-mini--verde"><div class="cys-stat-mini__val" id="av-stat-total">$0</div><div class="cys-stat-mini__label">Total ventas</div></div>
         <div class="cys-stat-mini"><div class="cys-stat-mini__val" id="av-stat-txns">0</div><div class="cys-stat-mini__label">Transacciones</div></div>
         <div class="cys-stat-mini cys-stat-mini--amarillo"><div class="cys-stat-mini__val" id="av-stat-top">—</div><div class="cys-stat-mini__label">Producto estrella</div></div>
-        <div class="cys-stat-mini"><div class="cys-stat-mini__val" id="av-stat-cat">—</div><div class="cys-stat-mini__label">Categoría líder</div></div>
       </div>
 
       <div class="cys-modal__filters" style="flex-wrap:wrap;gap:8px;">
@@ -823,9 +809,6 @@
             Limpiar
           </button>
         </div>
-        <select id="avCategoria" class="cys-select">
-          <option value="">Todas las categorías</option>
-        </select>
       </div>
 
       <div class="modal-body" style="padding:20px;display:flex;flex-direction:column;gap:28px;">
@@ -848,17 +831,6 @@
           </div>
           <div style="position:relative;height:300px;">
             <canvas id="avChartProductos"></canvas>
-          </div>
-        </div>
-
-        <div style="background:rgba(255,255,255,.03);border:1px solid var(--azul-borde);border-radius:10px;padding:16px;display:flex;flex-direction:column;align-items:center;">
-          <div style="font-size:.75rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#7F77DD;margin-bottom:14px;display:flex;align-items:center;gap:8px;width:100%;">
-            <span style="width:8px;height:8px;border-radius:50%;background:#7F77DD;display:inline-block;"></span>
-            Ventas por categoría
-            <span style="font-size:.7rem;font-weight:400;color:var(--texto-muted);text-transform:none;letter-spacing:0;margin-left:auto;">por monto total</span>
-          </div>
-          <div style="position:relative;height:280px;width:100%;max-width:420px;">
-            <canvas id="avChartCategorias"></canvas>
           </div>
         </div>
 
@@ -1293,29 +1265,15 @@ const AV_COLORS = [
   '#60C0E0','#F09060'
 ];
 
-let avChartFecha      = null;
-let avChartProductos  = null;
-let avChartCategorias = null;
-
-/* Poblar select de categorías */
-(function poblarCategorias() {
-  const cats = [...new Set(AV_DATA.map(d => d.categoria))].filter(Boolean).sort();
-  const sel  = document.getElementById('avCategoria');
-  cats.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c; opt.textContent = c;
-    sel.appendChild(opt);
-  });
-})();
+let avChartFecha     = null;
+let avChartProductos = null;
 
 function avDatosFiltrados() {
-  const inicio    = document.getElementById('avFechaInicio').value;
-  const fin       = document.getElementById('avFechaFin').value;
-  const categoria = document.getElementById('avCategoria').value;
+  const inicio = document.getElementById('avFechaInicio').value;
+  const fin    = document.getElementById('avFechaFin').value;
   return AV_DATA.filter(d => {
-    if (inicio    && d.fecha < inicio)          return false;
-    if (fin       && d.fecha > fin)             return false;
-    if (categoria && d.categoria !== categoria) return false;
+    if (inicio && d.fecha < inicio) return false;
+    if (fin    && d.fecha > fin)    return false;
     return true;
   });
 }
@@ -1338,7 +1296,7 @@ function mostrarVacioGrafica(canvasId, mensaje) {
 
 function limpiarVaciosGrafica() {
   document.querySelectorAll('.av-empty-msg').forEach(el => el.remove());
-  ['avChartFecha','avChartProductos','avChartCategorias'].forEach(id => {
+  ['avChartFecha','avChartProductos'].forEach(id => {
     const c = document.getElementById(id);
     if (c) c.style.display = '';
   });
@@ -1349,21 +1307,17 @@ function renderAnalisis() {
   limpiarVaciosGrafica();
   const data = avDatosFiltrados();
 
-  /* Si no hay datos, mostrar estados vacíos */
   if (data.length === 0) {
-    if (avChartFecha)      { avChartFecha.destroy();      avChartFecha = null; }
-    if (avChartProductos)  { avChartProductos.destroy();  avChartProductos = null; }
-    if (avChartCategorias) { avChartCategorias.destroy(); avChartCategorias = null; }
+    if (avChartFecha)    { avChartFecha.destroy();    avChartFecha = null; }
+    if (avChartProductos){ avChartProductos.destroy(); avChartProductos = null; }
 
     document.getElementById('av-stat-total').textContent = '$0';
     document.getElementById('av-stat-txns').textContent  = '0';
     document.getElementById('av-stat-top').textContent   = '—';
-    document.getElementById('av-stat-cat').textContent   = '—';
     document.getElementById('av-total-registros').textContent = '0';
 
-    mostrarVacioGrafica('avChartFecha',      'Sin ventas en el período seleccionado');
-    mostrarVacioGrafica('avChartProductos',  'No hay productos vendidos para mostrar');
-    mostrarVacioGrafica('avChartCategorias', 'No hay categorías para mostrar');
+    mostrarVacioGrafica('avChartFecha',     'Sin ventas en el período seleccionado');
+    mostrarVacioGrafica('avChartProductos', 'No hay productos vendidos para mostrar');
     return;
   }
 
@@ -1374,14 +1328,9 @@ function renderAnalisis() {
   data.forEach(d => { porProducto[d.producto] = (porProducto[d.producto] || 0) + d.cantidad; });
   const topProd = Object.entries(porProducto).sort((a,b) => b[1]-a[1])[0];
 
-  const porCat = {};
-  data.forEach(d => { porCat[d.categoria] = (porCat[d.categoria] || 0) + d.subtotal; });
-  const topCat = Object.entries(porCat).sort((a,b) => b[1]-a[1])[0];
-
   document.getElementById('av-stat-total').textContent = '$' + totalMonto.toLocaleString('es-CO', {maximumFractionDigits:0});
   document.getElementById('av-stat-txns').textContent  = data.length;
   document.getElementById('av-stat-top').textContent   = topProd ? topProd[0] : '—';
-  document.getElementById('av-stat-cat').textContent   = topCat  ? topCat[0]  : '—';
   document.getElementById('av-total-registros').textContent = data.length;
 
   /* ── Gráfico 1: línea por fecha ── */
@@ -1443,63 +1392,20 @@ function renderAnalisis() {
       }
     }
   });
-
-  /* ── Gráfico 3: dona por categoría ── */
-  const catLabels = Object.keys(porCat);
-  const catVals   = catLabels.map(c => porCat[c]);
-
-  if (avChartCategorias) avChartCategorias.destroy();
-  avChartCategorias = new Chart(document.getElementById('avChartCategorias').getContext('2d'), {
-    type: 'doughnut',
-    data: {
-      labels: catLabels,
-      datasets: [{
-        data: catVals,
-        backgroundColor: catLabels.map((_,i) => AV_COLORS[i % AV_COLORS.length] + 'CC'),
-        borderColor:     catLabels.map((_,i) => AV_COLORS[i % AV_COLORS.length]),
-        borderWidth: 2, hoverOffset: 8,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, cutout: '62%',
-      plugins: {
-        legend: { position:'bottom', labels: { color:'#8FA3B1', font:{size:11}, padding:14, boxWidth:12, boxHeight:12 } },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const val   = ctx.parsed;
-              const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
-              const pct   = ((val/total)*100).toFixed(1);
-              return ` $${val.toLocaleString('es-CO',{maximumFractionDigits:0})} (${pct}%)`;
-            }
-          }
-        }
-      }
-    }
-  });
 }
 
-/* ══════════════════════════════════════════════
-   LISTENERS DEL MODAL ANÁLISIS DE VENTAS
-   ✅ FIX PRINCIPAL: setTimeout(80ms) para esperar
-   que Bootstrap termine la animación del modal
-   antes de que Chart.js mida el canvas.
-══════════════════════════════════════════════ */
 document.getElementById('modalAnalisisVentas')
   .addEventListener('shown.bs.modal', () => {
     rellenarFechaGeneracion();
     setTimeout(() => renderAnalisis(), 80);
   });
 
-/* Listeners de filtros usando addEventListener (no inline onchange) */
 document.getElementById('avFechaInicio').addEventListener('change', renderAnalisis);
 document.getElementById('avFechaFin').addEventListener('change',   renderAnalisis);
-document.getElementById('avCategoria').addEventListener('change',   renderAnalisis);
 
 document.getElementById('avBtnLimpiar').addEventListener('click', () => {
   document.getElementById('avFechaInicio').value = '';
   document.getElementById('avFechaFin').value    = '';
-  document.getElementById('avCategoria').value   = '';
   renderAnalisis();
 });
 </script>
