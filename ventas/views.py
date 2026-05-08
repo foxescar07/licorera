@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db import transaction
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from decimal import Decimal, InvalidOperation
 import json
 from django.utils import timezone
@@ -99,8 +99,10 @@ def nueva_venta(request):
                 return redirect('ventas:ventas_lista')
  
         items_validados.append({
-            'producto': producto, 'presentacion': presentacion,
-            'cantidad': cantidad, 'precio': precio,
+            'producto':     producto,
+            'presentacion': presentacion,
+            'cantidad':     cantidad,
+            'precio':       precio,
         })
         subtotal_venta += precio * cantidad
  
@@ -129,8 +131,11 @@ def nueva_venta(request):
         precio       = item['precio']
  
         DetalleVenta.objects.create(
-            venta=venta, producto=producto, presentacion=presentacion,
-            cantidad=cantidad, precio_unitario=precio,
+            venta=venta,
+            producto=producto,
+            presentacion=presentacion,
+            cantidad=cantidad,
+            precio_unitario=precio,
         )
  
         if presentacion:
@@ -143,8 +148,11 @@ def nueva_venta(request):
             unidades = cantidad
  
         Inventario.objects.create(
-            producto=producto, tipo='salida', cantidad=unidades,
-            motivo='Venta registrada', ubicacion='Venta',
+            producto=producto,
+            tipo='salida',
+            cantidad=unidades,
+            motivo='Venta registrada',
+            ubicacion='Venta',
         )
  
     messages.success(request, f"Venta registrada - Total: ${total_final:,.0f}".replace(',', '.'))
@@ -165,8 +173,11 @@ def eliminar_venta(request, pk):
                 unidades = det.cantidad
  
             Inventario.objects.create(
-                producto=det.producto, tipo='entrada', cantidad=unidades,
-                motivo='Anulacion de venta', ubicacion='Devolucion',
+                producto=det.producto,
+                tipo='entrada',
+                cantidad=unidades,
+                motivo='Anulacion de venta',
+                ubicacion='Devolucion',
             )
  
         venta.delete()
@@ -177,12 +188,20 @@ def eliminar_venta(request, pk):
 def producto_stock_json(request, pk):
     producto = get_object_or_404(Producto.objects.prefetch_related('presentaciones'), pk=pk)
     presentaciones = [
-        {'id': p.id, 'nombre': p.nombre, 'unidades': p.unidades, 'cantidad': p.cantidad, 'precio': float(p.precio)}
+        {
+            'id':       p.id,
+            'nombre':   p.nombre,
+            'unidades': p.unidades,
+            'cantidad': p.cantidad,
+            'precio':   float(p.precio),
+        }
         for p in producto.presentaciones.all()
     ]
     return JsonResponse({
-        'stock': producto.cantidad_disponible, 'precio': float(producto.precio_unitario),
-        'unidad': producto.unidad, 'presentaciones': presentaciones,
+        'stock':          producto.cantidad_disponible,
+        'precio':         float(producto.precio_unitario),
+        'unidad':         producto.unidad,
+        'presentaciones': presentaciones,
     })
  
  
@@ -230,12 +249,12 @@ def detalle_venta_devolucion(request, venta_id):
             'subtotal':        float(d.subtotal()),
         })
     return JsonResponse({
-        'venta_id': venta.pk,
-        'cliente':  venta.cliente,
-        'fecha':    venta.fecha.strftime('%d/%m/%Y %H:%M'),
-        'total':    float(venta.total_venta),
+        'venta_id':  venta.pk,
+        'cliente':   venta.cliente,
+        'fecha':     venta.fecha.strftime('%d/%m/%Y %H:%M'),
+        'total':     float(venta.total_venta),
         'descuento': float(venta.descuento_porcentaje),
-        'detalles': detalles,
+        'detalles':  detalles,
     })
  
  
@@ -305,7 +324,7 @@ def comprobante_devolucion(request, pk):
         Devolucion.objects.select_related('venta').prefetch_related(
             'detalles__producto', 'detalles__presentacion'
         ),
-        pk=pk
+        pk=pk,
     )
     return render(request, 'ventas/comprobante_devolucion.html', {
         'devolucion': devolucion,
@@ -406,54 +425,57 @@ def cierre_caja(request):
  
 @require_POST
 def verificar_acceso_caja(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'ok': False, 'error': 'No has iniciado sesion.'})
-
+    # Parsear body JSON primero
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
         return JsonResponse({'ok': False, 'error': 'JSON invalido.'}, status=400)
-
-    password = data.get('password', '')
-
-    # Verificar contraseña del usuario actual
-    user = authenticate(request, username=request.user.username, password=password)
-
-    if user is None:
-        return JsonResponse({'ok': False, 'error': 'Contrasena incorrecta.'})
-
-    grupos = list(user.groups.values_list('name', flat=True))
-    es_admin  = user.is_superuser or user.is_staff or 'Administrador' in grupos
-    es_cajero = 'Cajero' in grupos
-
-    if not (es_admin or es_cajero):
-        return JsonResponse({'ok': False, 'error': f'Sin permiso. Grupos: {grupos}, staff: {user.is_staff}, super: {user.is_superuser}'})
  
-    return JsonResponse({'ok': True, 'nombre': user.get_full_name() or user.username})
-
-    es_admin   = user.is_superuser or user.is_staff or 'Administrador' in grupos
-    es_cajero  = 'Cajero' in grupos
-
-  # Después (temporal para probar)
- # Solo admin o cajero
-    grupos = list(user.groups.values_list('name', flat=True))
-
-    es_admin = (
-        user.is_superuser or
-        user.is_staff or
-        'Administrador' in grupos
-    )
-
-    es_cajero = 'Cajero' in grupos
-
-    # Validación de permisos
-    if not (es_admin or es_cajero):
+    password = data.get('password', '').strip()
+    if not password:
+        return JsonResponse({'ok': False, 'error': 'Ingresa tu contrasena.'})
+ 
+    # ── Obtener el username de la sesión activa ──────────────────────────────
+    # Primero intentamos request.user (funciona si credentials llegó bien)
+    # Si no, leemos _auth_user_id directo de la sesión (solución robusta)
+    # ─────────────────────────────────────────────────────────────────────────
+    username = None
+ 
+    if request.user.is_authenticated:
+        username = request.user.username
+    else:
+        user_id = request.session.get('_auth_user_id')
+        if user_id:
+            try:
+                User = get_user_model()
+                usuario_sesion = User.objects.get(pk=user_id)
+                username = usuario_sesion.username
+            except Exception:
+                pass
+ 
+    if not username:
         return JsonResponse({
             'ok': False,
-            'error': f'Sin permiso. Grupos: {grupos}, staff: {user.is_staff}, super: {user.is_superuser}'
+            'error': 'Sesion expirada. Por favor recarga la pagina e inicia sesion de nuevo.',
         })
-
+ 
+    # Verificar contraseña del usuario de la sesión
+    user = authenticate(request, username=username, password=password)
+    if user is None:
+        return JsonResponse({'ok': False, 'error': 'Contrasena incorrecta.'})
+ 
+    # Verificar permisos: admin o cajero
+    grupos    = list(user.groups.values_list('name', flat=True))
+    es_admin  = user.is_superuser or user.is_staff or 'Administrador' in grupos
+    es_cajero = 'Cajero' in grupos
+ 
+    if not (es_admin or es_cajero):
+        return JsonResponse({
+            'ok':    False,
+            'error': 'No tienes permiso. Tu usuario no es administrador ni cajero.',
+        })
+ 
     return JsonResponse({
-        'ok': True,
-        'nombre': user.get_full_name() or user.username
+        'ok':     True,
+        'nombre': user.get_full_name() or user.username,
     })
