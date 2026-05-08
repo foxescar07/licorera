@@ -428,10 +428,6 @@ def apertura_caja(request):
         if monto_base <= 0:
             raise ValueError
     except (TypeError, ValueError):
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD  
->>>>>>> Stashed changes
         return JsonResponse({'ok': False, 'error': 'Monto base inválido.'}, status=400)
 
     AperturaCaja.objects.create(
