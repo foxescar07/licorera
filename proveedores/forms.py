@@ -19,7 +19,6 @@ class ProveedorForm(forms.ModelForm):
             'nombre_contacto',
             'email',
             'telefono',
-            'tipo_proveedor',
             'categorias_surtidas',
         ]
         widgets = {
@@ -27,5 +26,4 @@ class ProveedorForm(forms.ModelForm):
             'nombre_contacto': forms.TextInput(attrs={'class': 'cys-input', 'placeholder': 'Ej: Juan Pérez'}),
             'email':           forms.EmailInput(attrs={'class': 'cys-input', 'placeholder': 'correo@empresa.com'}),
             'telefono':        forms.TextInput(attrs={'class': 'cys-input', 'placeholder': '3001234567'}),
-            'tipo_proveedor':  forms.Select(attrs={'class': 'cys-input'}),
         }

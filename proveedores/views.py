@@ -13,9 +13,9 @@ from .models import Proveedor, Compra
 from .forms import ProveedorForm
 
 
-# ===============================
-# DASHBOARD PROVEEDORES
-# ===============================
+# ══════════════════════════════════════════════════════════════
+#  DASHBOARD PROVEEDORES
+# ══════════════════════════════════════════════════════════════
 def inicio_proveedores(request):
     proveedores  = Proveedor.objects.prefetch_related('categorias_surtidas').all().order_by('-ultima_modificacion')
     total        = proveedores.count()
@@ -36,7 +36,7 @@ def inicio_proveedores(request):
                 p.registrado_por = request.user
                 p.modificado_por = request.user
             p.save()
-            form.save_m2m()   # guarda categorias_surtidas (ManyToMany)
+            form.save_m2m()
             messages.success(request, f'¡Proveedor "{p.nombre_empresa}" registrado!')
             return redirect('proveedores')
     else:
@@ -57,10 +57,9 @@ def inicio_proveedores(request):
     return render(request, 'proveedores/proveedor.html', context)
 
 
-# ===============================
-# CAMBIAR ESTADO PROVEEDOR (AJAX)
-# POST /proveedores/<id>/estado/
-# ===============================
+# ══════════════════════════════════════════════════════════════
+#  CAMBIAR ESTADO PROVEEDOR (AJAX)
+# ══════════════════════════════════════════════════════════════
 @require_POST
 def cambiar_estado_proveedor(request, id):
     proveedor = get_object_or_404(Proveedor, id=id)
@@ -83,9 +82,9 @@ def cambiar_estado_proveedor(request, id):
     return JsonResponse({'ok': True, 'estado': nuevo_estado})
 
 
-# ===============================
-# EDITAR PROVEEDOR
-# ===============================
+# ══════════════════════════════════════════════════════════════
+#  EDITAR PROVEEDOR
+# ══════════════════════════════════════════════════════════════
 def editar_proveedor(request, id):
     proveedor = get_object_or_404(Proveedor, id=id)
 
@@ -97,7 +96,7 @@ def editar_proveedor(request, id):
                 p.modificado_por = request.user
             p.ultima_modificacion = timezone.now()
             p.save()
-            form.save_m2m()   # guarda categorias_surtidas
+            form.save_m2m()
             messages.success(request, f'¡Proveedor "{p.nombre_empresa}" actualizado correctamente!')
             return redirect('proveedores')
     else:
@@ -109,9 +108,9 @@ def editar_proveedor(request, id):
     })
 
 
-# ===============================
-# ELIMINAR PROVEEDOR
-# ===============================
+# ══════════════════════════════════════════════════════════════
+#  ELIMINAR PROVEEDOR
+# ══════════════════════════════════════════════════════════════
 def eliminar_proveedor(request, id):
     proveedor = get_object_or_404(Proveedor, id=id)
     if request.method == 'POST':
@@ -121,9 +120,9 @@ def eliminar_proveedor(request, id):
     return redirect('proveedores')
 
 
-# ===============================
-# MARCAR COMPRA COMO RECIBIDA
-# ===============================
+# ══════════════════════════════════════════════════════════════
+#  MARCAR COMPRA COMO RECIBIDA
+# ══════════════════════════════════════════════════════════════
 def marcar_recibida(request, compra_id):
     if request.method == 'POST':
         compra = get_object_or_404(Compra, id=compra_id)
@@ -133,9 +132,9 @@ def marcar_recibida(request, compra_id):
     return redirect(request.META.get('HTTP_REFERER', 'proveedores'))
 
 
-# ===============================
-# REGISTRAR COMPRA
-# ===============================
+# ══════════════════════════════════════════════════════════════
+#  REGISTRAR COMPRA
+# ══════════════════════════════════════════════════════════════
 def registrar_compra(request):
     todos_proveedores = Proveedor.objects.all().order_by('nombre_empresa')
 
@@ -152,30 +151,27 @@ def registrar_compra(request):
             request.session['proveedor_id'] = primer_proveedor.id
             proveedor_id = primer_proveedor.id
 
-    proveedor_obj    = get_object_or_404(Proveedor, id=request.session['proveedor_id'])
-    compras          = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
-    subtotal         = sum((c.cantidad * c.precio_unitario) for c in compras if c.precio_unitario)
-    pendientes       = Compra.objects.filter(recibida=False).order_by('-fecha_registro')[:5]
-    total_pendientes = Compra.objects.filter(recibida=False).count()
+    proveedor_obj = get_object_or_404(Proveedor, id=request.session['proveedor_id'])
+    compras       = Compra.objects.filter(proveedor=proveedor_obj).order_by('-fecha_registro')
+    subtotal      = sum((c.cantidad * c.precio_unitario) for c in compras if c.precio_unitario)
 
     if request.method == 'POST':
         id_prod = request.POST.get('producto')
         cant    = request.POST.get('cantidad')
-        precio  = request.POST.get('precio_unitario')
+        precio  = request.POST.get('precio_unitario') or None
+        lote_id = request.POST.get('lote_id') or None
 
         if not id_prod or not cant:
-            messages.warning(request, "Completa todos los campos.")
+            messages.warning(request, 'Completa todos los campos obligatorios.')
         else:
             try:
-                producto_instancia = Producto.objects.get(id=int(id_prod))
+                producto_instancia = get_object_or_404(Producto, id=int(id_prod))
                 cantidad_int       = int(cant)
 
                 if cantidad_int <= 0:
-                    messages.error(request, "La cantidad debe ser mayor a cero.")
+                    messages.error(request, 'La cantidad debe ser mayor a cero.')
                     return redirect('registrar_compra')
 
-                
-                lote_id = request.POST.get('lote_id')
                 lote_instancia = None
                 if lote_id:
                     lote_instancia = Lote.objects.filter(pk=lote_id).first()
@@ -185,8 +181,7 @@ def registrar_compra(request):
                     producto        = producto_instancia,
                     lote            = lote_instancia,
                     cantidad        = cantidad_int,
-                    precio_unitario = precio if precio else None,
-                    
+                    precio_unitario = precio,
                 )
 
                 producto_instancia.cantidad_disponible += cantidad_int
@@ -202,18 +197,18 @@ def registrar_compra(request):
 
                 messages.success(
                     request,
-                    f'✅ {cantidad_int} unidades de "{producto_instancia.nombre}" ingresadas.'
+                    f'✅ {cantidad_int} unidades de "{producto_instancia.nombre}" ingresadas correctamente.'
                 )
                 return redirect('registrar_compra')
 
             except Producto.DoesNotExist:
-                messages.error(request, "El producto seleccionado no existe.")
+                messages.error(request, 'El producto seleccionado no existe.')
             except Exception as e:
-                messages.error(request, f"Error: {e}")
+                messages.error(request, f'Error inesperado: {e}')
 
-    productos = Producto.objects.prefetch_related('presentaciones').all()
-
-    hoy = timezone.now()
+    productos = Producto.objects.select_related('categoria').all()
+    lotes     = Lote.objects.select_related('producto').all()
+    hoy       = timezone.now()
 
     total_gastado = sum(
         c.cantidad * c.precio_unitario
@@ -237,18 +232,134 @@ def registrar_compra(request):
         .order_by('-total_und')
         .first()
     )
-    lotes = Lote.objects.select_related('producto').all()
+
     return render(request, 'proveedores/compra.html', {
         'proveedor':         proveedor_obj,
         'todos_proveedores': todos_proveedores,
         'productos':         productos,
         'compras':           compras,
         'subtotal_compras':  subtotal,
-        'pendientes':        pendientes,
-        'total_pendientes':  total_pendientes,
         'total_gastado':     total_gastado,
         'count_mes':         count_mes,
         'total_mes':         total_mes,
         'producto_top':      producto_top,
-        'lotes':             lotes, 
+        'lotes':             lotes,
+        'categorias':        Categoria.objects.all().order_by('nombre'),  # ← AGREGADO
     })
+
+
+# ══════════════════════════════════════════════════════════════
+#  EDITAR COMPRA (AJAX — GET datos / POST guardar)
+# ══════════════════════════════════════════════════════════════
+def editar_compra(request, compra_id):
+    compra = get_object_or_404(Compra, id=compra_id)
+
+    if request.method == 'GET':
+        return JsonResponse({
+            'ok':              True,
+            'id':              compra.id,
+            'producto_id':     compra.producto.id,
+            'producto_nombre': compra.producto.nombre,
+            'cantidad':        compra.cantidad,
+            'precio_unitario': float(compra.precio_unitario) if compra.precio_unitario else '',
+            'lote_id':         compra.lote.id if compra.lote else '',
+            'lote_numero':     compra.lote.numero_lote if compra.lote else '',
+        })
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+
+        cantidad_nueva = data.get('cantidad')
+        precio_nuevo   = data.get('precio_unitario')
+        lote_id        = data.get('lote_id')
+
+        try:
+            cantidad_nueva = int(cantidad_nueva)
+            if cantidad_nueva <= 0:
+                raise ValueError
+        except (TypeError, ValueError):
+            return JsonResponse({'ok': False, 'error': 'La cantidad debe ser un número mayor a cero.'}, status=400)
+
+        precio_decimal = None
+        if precio_nuevo not in (None, '', 'null'):
+            try:
+                from decimal import Decimal
+                precio_decimal = Decimal(str(precio_nuevo))
+                if precio_decimal < 0:
+                    raise ValueError
+            except Exception:
+                return JsonResponse({'ok': False, 'error': 'El precio no es válido.'}, status=400)
+
+        diferencia = cantidad_nueva - compra.cantidad
+        producto   = compra.producto
+
+        if diferencia != 0:
+            producto.cantidad_disponible += diferencia
+            producto.save()
+
+            Inventario.objects.create(
+                producto  = producto,
+                tipo      = 'entrada' if diferencia > 0 else 'salida',
+                cantidad  = abs(diferencia),
+                motivo    = f'Ajuste por edición de compra #{compra.id}',
+                ubicacion = 'Ajuste compra',
+            )
+
+        lote_instancia = None
+        if lote_id and str(lote_id) not in ('', 'null', 'None'):
+            lote_instancia = Lote.objects.filter(pk=lote_id).first()
+
+        compra.cantidad        = cantidad_nueva
+        compra.precio_unitario = precio_decimal
+        compra.lote            = lote_instancia
+        compra.save()
+
+        return JsonResponse({
+            'ok':      True,
+            'mensaje': f'Compra #{compra.id} actualizada correctamente.',
+            'compra': {
+                'id':              compra.id,
+                'cantidad':        compra.cantidad,
+                'precio_unitario': float(compra.precio_unitario) if compra.precio_unitario else None,
+                'total':           float(compra.cantidad * compra.precio_unitario) if compra.precio_unitario else None,
+                'lote':            compra.lote.numero_lote if compra.lote else None,
+            }
+        })
+
+    return JsonResponse({'ok': False, 'error': 'Método no permitido.'}, status=405)
+
+
+# ══════════════════════════════════════════════════════════════
+#  ELIMINAR COMPRA (AJAX)
+# ══════════════════════════════════════════════════════════════
+@require_POST
+def eliminar_compra(request, compra_id):
+    compra = get_object_or_404(Compra, id=compra_id)
+
+    try:
+        producto = compra.producto
+        producto.cantidad_disponible -= compra.cantidad
+        if producto.cantidad_disponible < 0:
+            producto.cantidad_disponible = 0
+        producto.save()
+
+        Inventario.objects.create(
+            producto  = producto,
+            tipo      = 'salida',
+            cantidad  = compra.cantidad,
+            motivo    = f'Eliminación de compra #{compra.id}',
+            ubicacion = 'Ajuste compra',
+        )
+
+        compra_id_str = str(compra.id)
+        compra.delete()
+
+        return JsonResponse({
+            'ok':      True,
+            'mensaje': f'Compra #{compra_id_str} eliminada y stock revertido.',
+        })
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=500)

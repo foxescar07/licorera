@@ -14,15 +14,6 @@ class Proveedor(models.Model):
         ('sancionado', 'Sancionado'),
     ]
 
-    TIPO_CHOICES = [
-        ('mayorista',   'Mayorista'),
-        ('minorista',   'Minorista'),
-        ('distribuidor','Distribuidor'),
-        ('fabricante',  'Fabricante'),
-        ('importador',  'Importador'),
-        ('otro',        'Otro'),
-    ]
-
     nombre_contacto = models.CharField(max_length=100)
     nombre_empresa  = models.CharField(max_length=100)
     email           = models.EmailField(unique=True)
@@ -38,12 +29,6 @@ class Proveedor(models.Model):
     )
 
     # ── Categorización ──────────────────────────────────────────
-    tipo_proveedor = models.CharField(
-        max_length=20,
-        choices=TIPO_CHOICES,
-        default='mayorista',
-        verbose_name="Tipo de proveedor"
-    )
     categorias_surtidas = models.ManyToManyField(
         'producto.Categoria',
         blank=True,
@@ -89,6 +74,7 @@ class Proveedor(models.Model):
 class Compra(models.Model):
     proveedor       = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='compras')
     producto        = models.ForeignKey('producto.Producto', on_delete=models.CASCADE, related_name='compras')
+    lote            = models.ForeignKey('inventario.Lote', on_delete=models.SET_NULL, null=True, blank=True, related_name='compras')
     cantidad        = models.IntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     fecha_registro  = models.DateTimeField(auto_now_add=True)
@@ -101,18 +87,9 @@ class Compra(models.Model):
         return None
 
     class Meta:
-        ordering        = ['-fecha_registro']
-        verbose_name    = 'Compra'
+        ordering            = ['-fecha_registro']
+        verbose_name        = 'Compra'
         verbose_name_plural = 'Compras'
 
     def __str__(self):
         return f"{self.proveedor.nombre_empresa} → {self.producto.nombre} ({self.cantidad} uds)"
-    
-    class Compra(models.Model):
-        proveedor       = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='compras')
-    producto        = models.ForeignKey('producto.Producto', on_delete=models.CASCADE, related_name='compras')
-    lote            = models.ForeignKey( 'inventario.Lote' , on_delete=models.SET_NULL, null=True, blank=True, related_name='compras')  # ← NUEVO
-    cantidad        = models.IntegerField()
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    fecha_registro  = models.DateTimeField(auto_now_add=True)
-    recibida        = models.BooleanField(default=False)
