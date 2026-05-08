@@ -75,6 +75,11 @@
     </div>
   </section>
 
+  <!-- TÍTULO ESTADÍSTICAS -->
+ <div class="cys-seccion-titulo">
+    Estadísticas C y S
+    <i class="bi bi-bar-chart-fill"></i>
+ </div>
   <!-- GRÁFICA SEMANAL -->
   <section class="cys-card mb-4">
 
@@ -585,10 +590,7 @@ async function cargarMensual() {
             backgroundColor     : 'rgba(251,146,60,0.07)',
             tension             : 0.4,
             fill                : true,
-            pointBackgroundColor: _countsMes.map((_, i) =>
-              _idxMejores.has(i) ? '#1D9E75' :
-              _idxPeores.has(i)  ? '#dc3545' : '#FB923C'
-            ),
+            pointBackgroundColor: '#FB923C',
             pointRadius     : 5,
             pointHoverRadius: 7,
             yAxisID         : 'y2',
