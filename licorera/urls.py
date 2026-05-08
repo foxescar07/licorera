@@ -13,4 +13,6 @@ urlpatterns = [
     path('ventas/', include('ventas.urls')),
     path('usuario/', include('usuario.urls')),
     path('categorias-json/', views.categorias_json, name='categorias_json'),
+    path('semana-json/', views.semana_json, name='semana_json'),
+    path('meses-json/', views.meses_json, name='meses_json'),
 ]
