@@ -92,4 +92,7 @@ EMAIL_USE_TLS       = True
 EMAIL_HOST_USER     = 'ccanariasogamoso@gmail.com'
 EMAIL_HOST_PASSWORD = 'jmcikwsvajdmbzab'
 DEFAULT_FROM_EMAIL  = 'CYS Ltda <ccanariasogamoso@gmail.com>'
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE    = 'Lax'
  
