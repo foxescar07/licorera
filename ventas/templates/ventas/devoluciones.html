@@ -186,13 +186,26 @@
             </div>
           </div>
           <div>
-            <label class="dev-field-label"><i class="bi bi-tag me-1"></i>Motivo de devolución</label>
-            <select id="selectMotivo" class="dev-select">
+            <label class="dev-field-label"><i class="bi bi-tag me-1"></i>Motivo de devolución <span style="color:var(--dr);">*</span></label>
+            <select id="selectMotivo" class="dev-select" onchange="onMotivoChange()">
+              <option value="">— Selecciona un motivo —</option>
               <option value="defectuoso">Producto defectuoso</option>
               <option value="equivocado">Producto equivocado</option>
               <option value="insatisfecho">Cliente insatisfecho</option>
               <option value="otro">Otro</option>
             </select>
+            <div id="errorMotivo" style="display:none; color:var(--dr-light);
+                 font-size:0.75rem; margin-top:4px;">
+              <i class="bi bi-exclamation-circle me-1"></i>Debes seleccionar un motivo.
+            </div>
+            <div id="wrapMotivoOtro" style="display:none; margin-top:8px;">
+              <input type="text" id="inputMotivoOtro" class="dev-select"
+                     placeholder="Describe el motivo de la devolución...">
+              <div id="errorMotivoOtro" style="display:none; color:var(--dr-light);
+                   font-size:0.75rem; margin-top:4px;">
+                <i class="bi bi-exclamation-circle me-1"></i>Por favor describe el motivo antes de continuar.
+              </div>
+            </div>
           </div>
           <div style="grid-column:1/-1;">
             <label class="dev-field-label">
@@ -228,10 +241,10 @@
       <input type="hidden" name="venta_id"          id="hiddenVentaId"       value="">
       <input type="hidden" name="tiene_comprobante" id="hiddenComprobante"   value="0">
       <input type="hidden" name="restaurar_stock"   id="hiddenStock"         value="1">
-      <input type="hidden" name="motivo"            id="hiddenMotivo"        value="otro">
+      <input type="hidden" name="motivo"            id="hiddenMotivo"        value="">
       <input type="hidden" name="observaciones"     id="hiddenObservaciones" value="">
       <div id="hiddenProductos"></div>
-      <button type="submit" id="btnRegistrarDevolucion" disabled
+      <button type="button" id="btnRegistrarDevolucion" disabled
               class="dev-btn-submit" onclick="prepararEnvio()">
         <i class="bi bi-arrow-return-left"></i>
         Registrar Devolución
@@ -593,11 +606,43 @@ function setStock(si) {
   document.getElementById('btnNoStock').className = 'dev-toggle-btn' + (!si ? ' activo-no' : '');
 }
 
+function onMotivoChange() {
+  const motivo = document.getElementById('selectMotivo').value;
+  const wrap   = document.getElementById('wrapMotivoOtro');
+  const error  = document.getElementById('errorMotivoOtro');
+  const errMot = document.getElementById('errorMotivo');
+  wrap.style.display   = motivo === 'otro' ? 'block' : 'none';
+  error.style.display  = 'none';
+  errMot.style.display = 'none';
+  if (motivo !== 'otro') document.getElementById('inputMotivoOtro').value = '';
+}
+
 function prepararEnvio() {
+  const motivo = document.getElementById('selectMotivo').value;
+
+  // Validar que se haya seleccionado un motivo
+  if (!motivo) {
+    document.getElementById('errorMotivo').style.display = 'block';
+    document.getElementById('selectMotivo').focus();
+    return;
+  }
+
+  // Validar descripción si el motivo es "otro"
+  if (motivo === 'otro') {
+    const textoOtro = document.getElementById('inputMotivoOtro').value.trim();
+    if (!textoOtro) {
+      document.getElementById('errorMotivoOtro').style.display = 'block';
+      document.getElementById('inputMotivoOtro').focus();
+      return;
+    }
+    document.getElementById('hiddenMotivo').value = textoOtro;
+  } else {
+    document.getElementById('hiddenMotivo').value = motivo;
+  }
+
   document.getElementById('hiddenVentaId').value       = ventaActual.id;
   document.getElementById('hiddenComprobante').value   = tieneComprobante ? '1' : '0';
   document.getElementById('hiddenStock').value         = restaurarStock   ? '1' : '0';
-  document.getElementById('hiddenMotivo').value        = document.getElementById('selectMotivo').value;
   document.getElementById('hiddenObservaciones').value = document.getElementById('txtObservaciones').value;
   document.getElementById('hiddenProductos').innerHTML = productosSeleccionados.map(p => `
     <input type="hidden" name="producto_id[]"     value="${p.prodId}">
@@ -605,6 +650,8 @@ function prepararEnvio() {
     <input type="hidden" name="cantidad[]"        value="${p.cantidad}">
     <input type="hidden" name="precio[]"          value="${p.precio}">
   `).join('');
+
+  document.getElementById('formDevolucion').submit();
 }
 
 actualizarDots(1);
