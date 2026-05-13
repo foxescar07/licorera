@@ -99,24 +99,37 @@
 .gp-section { display:none; }
 .gp-section.active { display:block; }
 
-.gp-stats-grid {
-  display:grid; grid-template-columns:repeat(3,1fr);
-  gap:.75rem; margin-bottom:1rem;
+/* ── Gauges de métricas ─────────────────────────────────────── */
+.gp-gauges {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 1.75rem;
 }
-
-.gp-stat-card {
-  background:var(--gp-card); border:1px solid var(--gp-border);
-  border-radius:12px; padding:.85rem 1rem;
+.gp-gauge-card {
+  background: #0a1628;
+  border: 1px solid rgba(77,168,218,.15);
+  border-radius: 14px;
+  padding: 18px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.gp-stat-card__label {
-  font-size:.59rem; font-weight:700; color:var(--gp-muted);
-  letter-spacing:.1em; text-transform:uppercase; margin-bottom:.3rem;
+.gp-gauge-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 160px;
+  height: 90px;
 }
-.gp-stat-card__val {
-  font-family:'Rajdhani',sans-serif; font-size:1.65rem;
-  font-weight:700; color:var(--gp-blue); line-height:1;
+.gp-gauge-lbl {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(77,168,218,.5);
+  margin-top: 6px;
+  text-align: center;
 }
-.gp-stat-card__val.danger { color:var(--gp-danger); }
 
 .gp-search-wrap { position:relative; margin-bottom:1rem; }
 .gp-search-wrap i {
@@ -401,7 +414,6 @@
 @media (max-width: 768px) {
   .gp-tabs { grid-template-columns: repeat(2, 1fr); }
   .gp-form-grid { grid-template-columns: 1fr; }
-  .gp-stats-grid { grid-template-columns: 1fr 1fr; }
   .gp-col-header { display:none; }
   .gp-fila {
     grid-template-columns: 1fr;
