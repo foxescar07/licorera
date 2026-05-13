@@ -126,3 +126,45 @@
 }
 .d1-alert-warn  { background: rgba(240,165,0,.08);  border: 1px solid rgba(240,165,0,.3);  color: #f0a500; }
 .d1-alert-error { background: rgba(192,57,43,.1);   border: 1px solid rgba(192,57,43,.3);  color: #e87070; }
+
+/* ============================================================
+   PRODUCTO.HTML — FORMULARIO PRESENTACIONES / NUEVO PRODUCTO
+   ============================================================ */
+@keyframes pulso-rojo {
+  0%   { box-shadow: 0 0 0 0 rgba(192,57,43,0.7); }
+  70%  { box-shadow: 0 0 0 10px rgba(192,57,43,0); }
+  100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
+}
+
+.pres-row {
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  border-radius: 10px;
+  padding: .75rem 1rem;
+  margin-bottom: .5rem;
+}
+
+.np-input {
+  background: var(--fondo-card2) !important;
+  color: var(--texto) !important;
+  border: 1px solid var(--azul-borde) !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  font-size: .85rem;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.np-input:focus {
+  border-color: var(--azul-claro) !important;
+}
+
+.np-label {
+  font-size: .65rem;
+  font-weight: 600;
+  color: var(--texto-muted);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: .35rem;
+}
