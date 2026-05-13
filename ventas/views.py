@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db import transaction
-from django.contrib.auth import authenticate
 from decimal import Decimal, InvalidOperation
+from functools import wraps
+import hashlib
 import json
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -11,22 +12,31 @@ from django.views.decorators.http import require_POST
 from .models import Venta, DetalleVenta, AperturaCaja, CierreCaja, Devolucion, DetalleDevolucion
 from .forms import VentaForm, DetalleVentaForm
 from producto.models import Producto, Inventario, Categoria, PresentacionProducto
+from usuario.models import Usuario
 
 
-# ══════════════════════════════════════════════════════════════
-#  VENTAS
-# ══════════════════════════════════════════════════════════════
+# ── DECORADOR PERSONALIZADO ───────────────────────────────────────────────────
+def session_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.session.get('usuario_id'):
+            return redirect('login')
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
+
+# ── VISTAS ────────────────────────────────────────────────────────────────────
+@session_required
 def ventas_lista(request):
     ventas = Venta.objects.prefetch_related(
         'detalles__producto',
         'detalles__presentacion'
     ).all().order_by('-fecha')
-    form       = VentaForm()
-    detalle    = DetalleVentaForm()
+    form      = VentaForm()
+    detalle   = DetalleVentaForm()
     categorias = Categoria.objects.prefetch_related('productos__presentaciones').all()
 
-    return render(request, 'ventas.html', {
+    return render(request, 'ventas/ventas.html', {
         'ventas':     ventas,
         'form':       form,
         'detalle':    detalle,
@@ -34,6 +44,7 @@ def ventas_lista(request):
     })
 
 
+@session_required
 def nueva_venta(request):
     if request.method != 'POST':
         return redirect('ventas:ventas_lista')
@@ -130,7 +141,7 @@ def nueva_venta(request):
         )
         return redirect('ventas:ventas_lista')
 
-    venta                      = form.save(commit=False)
+    venta = form.save(commit=False)
     venta.descuento_porcentaje = descuento_pct
     venta.total_con_descuento  = total_final
     venta.pago_efectivo        = pago_efectivo
@@ -171,10 +182,11 @@ def nueva_venta(request):
             ubicacion='Venta',
         )
 
-    messages.success(request, f"Venta registrada — Total: ${total_final:,.0f}".replace(',', '.'))
+    messages.success(request, f"Venta registrada - Total: ${total_final:,.0f}".replace(',', '.'))
     return redirect('ventas:ventas_lista')
 
 
+@session_required
 def eliminar_venta(request, pk):
     venta = get_object_or_404(Venta, pk=pk)
     if request.method == 'POST':
@@ -192,8 +204,8 @@ def eliminar_venta(request, pk):
                 producto=det.producto,
                 tipo='entrada',
                 cantidad=unidades,
-                motivo='Anulación de venta',
-                ubicacion='Devolución',
+                motivo='Anulacion de venta',
+                ubicacion='Devolucion',
             )
 
         venta.delete()
@@ -221,9 +233,7 @@ def producto_stock_json(request, pk):
     })
 
 
-# ══════════════════════════════════════════════════════════════
-#  DEVOLUCIONES
-# ══════════════════════════════════════════════════════════════
+@session_required
 
 def lista_devoluciones(request):
     devoluciones = Devolucion.objects.select_related('venta').prefetch_related(
@@ -235,6 +245,7 @@ def lista_devoluciones(request):
     })
 
 
+@session_required
 def buscar_venta_devolucion(request):
     q = request.GET.get('q', '').strip()
     if not q:
@@ -255,6 +266,7 @@ def buscar_venta_devolucion(request):
     return JsonResponse({'ventas': data})
 
 
+@session_required
 def detalle_venta_devolucion(request, venta_id):
     venta            = get_object_or_404(Venta, pk=venta_id)
     descuento_factor = (Decimal('100') - venta.descuento_porcentaje) / Decimal('100')
@@ -283,6 +295,7 @@ def detalle_venta_devolucion(request, venta_id):
     })
 
 
+@session_required
 @transaction.atomic
 def registrar_devolucion(request):
     if request.method != 'POST':
@@ -301,14 +314,6 @@ def registrar_devolucion(request):
 
     if not tiene_comprobante:
         messages.warning(request, 'No se puede registrar la devolución sin comprobante de compra.')
-        return redirect('ventas:lista_devoluciones')
-
-    if not motivo:
-        messages.error(request, 'Debes seleccionar un motivo para la devolución.')
-        return redirect('ventas:lista_devoluciones')
-
-    if not producto_ids:
-        messages.error(request, 'Debes seleccionar al menos un producto para devolver.')
         return redirect('ventas:lista_devoluciones')
 
     venta = get_object_or_404(Venta, pk=venta_id)
@@ -331,12 +336,11 @@ def registrar_devolucion(request):
         producto = get_object_or_404(Producto, pk=producto_ids[i])
 
         presentacion = None
-        pres_id      = presentacion_ids[i] if i < len(presentacion_ids) else ''
-        if pres_id and pres_id not in ('', 'null', 'None'):
-            presentacion = PresentacionProducto.objects.filter(pk=pres_id).first()
+        if presentacion_ids[i] and presentacion_ids[i] != 'null':
+            presentacion = PresentacionProducto.objects.filter(pk=presentacion_ids[i]).first()
 
         cantidad = int(cantidades[i])
-        precio   = Decimal(str(precios[i]))
+        precio   = float(precios[i])
 
         DetalleDevolucion.objects.create(
             devolucion=devolucion,
@@ -346,42 +350,28 @@ def registrar_devolucion(request):
             precio_unitario=precio,
         )
 
-        if restaurar_stock:
-            if presentacion:
-                presentacion.cantidad += cantidad
-                presentacion.save()
-            else:
-                producto.cantidad_disponible += cantidad
-                producto.save()
+        if restaurar_stock and presentacion:
+            presentacion.cantidad += cantidad
+            presentacion.save()
 
-            Inventario.objects.create(
-                producto=producto,
-                tipo='entrada',
-                cantidad=cantidad * (presentacion.unidades if presentacion else 1),
-                motivo=f'Devolución {devolucion.numero}',
-                ubicacion='Devolución',
-            )
-
-    messages.success(request, f'Devolución {devolucion.numero} registrada correctamente.')
-    return redirect('ventas:lista_devoluciones')
+    messages.success(request, f'Devolucion {devolucion.numero} registrada correctamente.')
+    return redirect('ventas:comprobante_devolucion', pk=devolucion.pk)
 
 
+@session_required
 def comprobante_devolucion(request, pk):
     devolucion = get_object_or_404(
         Devolucion.objects.select_related('venta').prefetch_related(
             'detalles__producto', 'detalles__presentacion'
         ),
-        pk=pk
+        pk=pk,
     )
     return render(request, 'ventas/comprobante_devolucion.html', {
         'devolucion': devolucion,
     })
 
 
-# ══════════════════════════════════════════════════════════════
-#  VENTAS DEL DÍA + CAJA
-# ══════════════════════════════════════════════════════════════
-
+@session_required
 def ventas_dia(request):
     hoy = timezone.localdate()
 
@@ -390,7 +380,7 @@ def ventas_dia(request):
         'detalles__presentacion',
     ).filter(fecha__date=hoy).order_by('-fecha')
 
-    total_dia       = sum(v.total_venta for v in ventas)
+    total_dia = sum(v.total_venta for v in ventas)
     total_productos = sum(
         det.cantidad
         for v in ventas
@@ -400,7 +390,7 @@ def ventas_dia(request):
     caja_abierta  = AperturaCaja.objects.filter(fecha=hoy).first()
     ultimo_cierre = CierreCaja.objects.filter(fecha=hoy).first()
 
-    return render(request, 'ventas_dia.html', {
+    return render(request, 'ventas/ventas_dia.html', {
         'ventas':          ventas,
         'total_dia':       total_dia,
         'total_productos': total_productos,
@@ -411,11 +401,12 @@ def ventas_dia(request):
 
 
 @require_POST
+@session_required
 def apertura_caja(request):
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+        return JsonResponse({'ok': False, 'error': 'JSON invalido.'}, status=400)
 
     hoy = timezone.localdate()
 
@@ -428,7 +419,7 @@ def apertura_caja(request):
         if monto_base <= 0:
             raise ValueError
     except (TypeError, ValueError):
-        return JsonResponse({'ok': False, 'error': 'Monto base inválido.'}, status=400)
+        return JsonResponse({'ok': False, 'error': 'Monto base invalido.'}, status=400)
 
     AperturaCaja.objects.create(
         fecha=hoy,
@@ -440,13 +431,15 @@ def apertura_caja(request):
 
 
 @require_POST
+@session_required
 def cierre_caja(request):
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+        return JsonResponse({'ok': False, 'error': 'JSON invalido.'}, status=400)
 
-    hoy      = timezone.localdate()
+    hoy = timezone.localdate()
+
     apertura = AperturaCaja.objects.filter(fecha=hoy).first()
 
     if not apertura:
@@ -457,7 +450,7 @@ def cierre_caja(request):
         monto_base_sig = float(data.get('monto_base_siguiente', 0))
         total_retirado = float(data.get('total_retirado', 0))
     except (TypeError, ValueError):
-        return JsonResponse({'ok': False, 'error': 'Valores numéricos inválidos.'}, status=400)
+        return JsonResponse({'ok': False, 'error': 'Valores numericos invalidos.'}, status=400)
 
     CierreCaja.objects.update_or_create(
         fecha=hoy,
@@ -469,30 +462,39 @@ def cierre_caja(request):
             'denominaciones':       data.get('denominaciones', {}),
         }
     )
+
     return JsonResponse({'ok': True})
 
 
 @require_POST
+@session_required
 def verificar_acceso_caja(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'ok': False, 'error': 'No has iniciado sesión.'})
-
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'ok': False, 'error': 'JSON inválido.'}, status=400)
+        return JsonResponse({'ok': False, 'error': 'JSON invalido.'})
 
-    password = data.get('password', '')
-    user     = authenticate(request, username=request.user.username, password=password)
+    password = data.get('password', '').strip()
+    if not password:
+        return JsonResponse({'ok': False, 'error': 'Ingresa tu contrasena.'})
 
-    if user is None:
-        return JsonResponse({'ok': False, 'error': 'Contraseña incorrecta.'})
+    # ── Verificar contra el modelo Usuario personalizado ──
+    try:
+        usuario = Usuario.objects.get(
+            pk=request.session['usuario_id'],
+            activo=True
+        )
+    except Usuario.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Sesion invalida.'})
 
-    grupos    = list(user.groups.values_list('name', flat=True))
-    es_admin  = user.is_superuser or user.is_staff or 'Administrador' in grupos
-    es_cajero = 'Cajero' in grupos
+    clave_hash = hashlib.sha256(password.encode()).hexdigest()
+    if usuario.clave != clave_hash:
+        return JsonResponse({'ok': False, 'error': 'Contrasena incorrecta.'})
+
+    es_admin  = usuario.rol == 'admin'
+    es_cajero = usuario.rol == 'cajero'
 
     if not (es_admin or es_cajero):
-        return JsonResponse({'ok': False, 'error': 'No tienes permisos para operar la caja.'})
+        return JsonResponse({'ok': False, 'error': 'No tienes permiso. Tu usuario no es administrador ni cajero.'})
 
-    return JsonResponse({'ok': True, 'rol': 'admin' if es_admin else 'cajero'})
+    return JsonResponse({'ok': True, 'nombre': usuario.nombre_completo})

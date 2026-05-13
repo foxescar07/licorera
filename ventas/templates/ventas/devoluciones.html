@@ -748,7 +748,7 @@ document.getElementById('buscadorVenta').addEventListener('input', function () {
   const q = this.value.trim();
   if (q.length < 2) { document.getElementById('resultadosBusqueda').innerHTML = ''; return; }
   buscarTimeout = setTimeout(() => {
-    fetch(`{% url 'ventas:buscar_venta_devolucion' %}?q=${encodeURIComponent(q)}`)
+    fetch({% url 'ventas:buscar_venta_devolucion' %}?q=${encodeURIComponent(q)})
       .then(r => r.json())
       .then(data => renderResultados(data.ventas));
   }, 300);
@@ -813,7 +813,7 @@ function cargarProductosVenta() {
                 color:var(--texto-muted); font-size:.82rem; padding:1rem 0;">
       <i class="bi bi-hourglass-split" style="color:var(--dr);"></i> Cargando productos...
     </div>`;
-  fetch(`/ventas/devoluciones/venta/${ventaActual.id}/detalle/`)
+  fetch(/ventas/devoluciones/venta/${ventaActual.id}/detalle/)
     .then(r => r.json())
     .then(data => renderProductosDevolver(data.detalles))
     .catch(() => {
@@ -921,7 +921,7 @@ function actualizarContadorPaso3() {
   if (dot) dot.classList.toggle('activo', n > 0);
   if (txt) txt.textContent = n === 0
     ? 'Ningún producto seleccionado'
-    : `${n} producto${n > 1 ? 's' : ''} seleccionado${n > 1 ? 's' : ''}`;
+    : ${n} producto${n > 1 ? 's' : ''} seleccionado${n > 1 ? 's' : ''};
 }
 
 function actualizarTotalDevolucion() {

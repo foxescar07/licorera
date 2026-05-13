@@ -72,7 +72,12 @@ def login_view(request):
 
 def logout_view(request):
     request.session.flush()
-    return redirect('login')
+    response = redirect('login')
+    # Evita que el navegador muestre páginas protegidas al presionar "atrás"
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, private'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
 
 
 def lista_usuarios(request):
@@ -335,3 +340,20 @@ def perfil_editar(request):
         'mensaje': 'Perfil actualizado correctamente.',
         'nombre_completo': u.nombre_completo,
     })
+
+
+def eliminar_usuario(request, pk):
+    if request.session.get('usuario_rol') != 'admin':
+        return JsonResponse({'ok': False, 'error': 'Sin permiso.'})
+    if request.method != 'POST':
+        return JsonResponse({'ok': False})
+    try:
+        u = Usuario.objects.get(pk=pk)
+        if u.activo:
+            return JsonResponse({'ok': False, 'error': 'Solo se pueden eliminar usuarios inactivos.'})
+        if u.pk == request.session.get('usuario_id'):
+            return JsonResponse({'ok': False, 'error': 'No puedes eliminarte a ti mismo.'})
+        u.delete()
+        return JsonResponse({'ok': True})
+    except Usuario.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Usuario no encontrado.'})

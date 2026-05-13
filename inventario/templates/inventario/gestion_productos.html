@@ -53,20 +53,42 @@
 
   <!-- TAB 1: CATÁLOGO -->
   <div id="tab-productos" class="gp-section active">
-    <div class="gp-stats-grid">
-      <div class="gp-stat-card">
-        <div class="gp-stat-card__label"><i class="bi bi-box-seam me-1"></i>Total Productos</div>
-        <div class="gp-stat-card__val">{{ productos|length }}</div>
-      </div>
-      <div class="gp-stat-card">
-        <div class="gp-stat-card__label"><i class="bi bi-exclamation-triangle me-1"></i>Stock Crítico</div>
-        <div class="gp-stat-card__val danger">{{ total_criticos|default:0 }}</div>
-      </div>
-      <div class="gp-stat-card">
-        <div class="gp-stat-card__label"><i class="bi bi-tags me-1"></i>Categorías</div>
-        <div class="gp-stat-card__val">{{ categorias|length }}</div>
-      </div>
+   <div class="gp-gauges">
+
+  <div class="gp-gauge-card">
+    <div class="gp-gauge-wrap">
+      <canvas id="gaugeTotal"
+              role="img"
+              aria-label="Medidor total de productos: {{ productos|length }}">
+        Total productos: {{ productos|length }}.
+      </canvas>
     </div>
+    <div class="gp-gauge-lbl">Total productos</div>
+  </div>
+
+  <div class="gp-gauge-card">
+    <div class="gp-gauge-wrap">
+      <canvas id="gaugeCritico"
+              role="img"
+              aria-label="Medidor stock crítico: {{ total_criticos|default:0}}">
+        Stock crítico: {{ total_criticos|default:0 }}.
+      </canvas>
+    </div>
+    <div class="gp-gauge-lbl">Stock crítico</div>
+  </div>
+
+  <div class="gp-gauge-card">
+    <div class="gp-gauge-wrap">
+      <canvas id="gaugeCats"
+              role="img"
+              aria-label="Medidor categorías: {{ categorias|length }}">
+        Categorías: {{ categorias|length }}.
+      </canvas>
+    </div>
+    <div class="gp-gauge-lbl">Categorías</div>
+  </div>
+
+</div>
 
     <div class="gp-search-wrap">
       <i class="bi bi-search"></i>
@@ -734,7 +756,7 @@
     </form>
   </div>
 </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 const CSRF_TOKEN = "{{ csrf_token }}";
 
@@ -785,13 +807,15 @@ function gpToggle(header) {
 // ── BUSCADOR CATÁLOGO ─────────────────────────────────────────────────────────
 function gpBuscar(q) {
   const term = q.toLowerCase().trim();
+  let totalCoincidencias = 0;
+
   document.querySelectorAll('[data-group]').forEach(grupo => {
     const filas = grupo.querySelectorAll('.gp-fila');
     let alguna = false;
     filas.forEach(fila => {
       const match = !term || fila.dataset.nombre.includes(term) || fila.dataset.codigo.includes(term);
       fila.classList.toggle('hidden', !match);
-      if (match) alguna = true;
+      if (match) { alguna = true; totalCoincidencias++; }
     });
     grupo.style.display = alguna ? '' : 'none';
     if (term && alguna) {
@@ -799,6 +823,33 @@ function gpBuscar(q) {
       grupo.querySelector('.gp-group-body').classList.add('open');
     }
   });
+
+  // Mensaje de "sin resultados"
+  let msgEl = document.getElementById('gp-sin-resultados');
+  if (!msgEl) {
+    msgEl = document.createElement('div');
+    msgEl.id = 'gp-sin-resultados';
+    msgEl.style.cssText = `
+      display:none; text-align:center; padding:2.5rem 1rem;
+      color:var(--gp-muted); font-size:.88rem;
+    `;
+    document.getElementById('gp-grupos').after(msgEl);
+  }
+
+  if (term && totalCoincidencias === 0) {
+    msgEl.style.display = 'block';
+    msgEl.innerHTML = `
+      <i class="bi bi-search" style="font-size:2.2rem; display:block; margin-bottom:.6rem;
+         color:rgba(77,168,218,.25);"></i>
+      No se encontró ningún producto con el código o nombre
+      <strong style="color:var(--gp-blue);">"${q}"</strong>.<br>
+      <span style="font-size:.78rem; margin-top:.3rem; display:block;">
+        Verifica que el código o nombre esté registrado en el inventario.
+      </span>
+    `;
+  } else {
+    msgEl.style.display = 'none';
+  }
 }
 
 // ── PRODUCTOS COMPARTIDO ──────────────────────────────────────────────────────
@@ -1479,6 +1530,70 @@ window._salidaSeleccionar    = _salidaSeleccionar;
 window._salidaLimpiar        = _salidaLimpiar;
 window._loteSeleccionar      = _loteSeleccionar;
 window._loteLimpiar          = _loteLimpiar;
+
+// ── GAUGES ─────────────────────────────────────────────────────────────────
+(function () {
+  const TOTAL    = {{ productos|length }};
+  const CRITICOS = {{ total_criticos|default:0 }};
+  const CATS     = {{ categorias|length }};
+
+  const MUTED  = 'rgba(77,168,218,0.13)';
+  const BLUE   = '#4DA8DA';
+  const RED    = '#E24B4A';
+  const PURPLE = '#7F77DD';
+
+  function makeGauge(id, value, max, color) {
+    const ratio = max > 0 ? Math.min(value / max, 1) : 0;
+
+    new Chart(document.getElementById(id), {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: [ratio, 1 - ratio],
+          backgroundColor: [color, MUTED],
+          borderWidth: 0,
+          circumference: 180,
+          rotation: -90
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '72%',
+        plugins: {
+          legend:  { display: false },
+          tooltip: { enabled: false }
+        },
+        animation: {
+          duration: 900,
+          easing: 'easeOutQuart'
+        }
+      },
+      plugins: [{
+        id: 'gaugeCenter_' + id,
+        afterDraw(chart) {
+          const { ctx, chartArea: { left, right, bottom } } = chart;
+          const cx = (left + right) / 2;
+          const cy = bottom - 6;
+          ctx.save();
+          ctx.font = '500 28px system-ui, sans-serif';
+          ctx.fillStyle = color;
+          ctx.textAlign    = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(value, cx, cy);
+          ctx.restore();
+        }
+      }]
+    });
+  }
+
+  // max dinámico: el mayor de los tres valores, mínimo 10
+  const maxVal = Math.max(TOTAL, CATS, 10);
+
+  makeGauge('gaugeTotal',   TOTAL,    maxVal, BLUE);
+  makeGauge('gaugeCritico', CRITICOS, maxVal, RED);
+  makeGauge('gaugeCats',    CATS,     maxVal, PURPLE);
+})();
 </script>
 
 {% endblock %}

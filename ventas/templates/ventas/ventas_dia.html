@@ -11,7 +11,7 @@
 /* ── Botón exportar ── */
 .cys-btn-export {
     background: rgba(77,168,218,.12);
-    border: 1px solid var(--azul-claro);
+    border: 1px solid var(--azul-claro)ñ;
     color: var(--azul-claro);
     border-radius: 8px;
     padding: .45rem 1rem;
@@ -450,7 +450,6 @@
     <button onclick="cerrarModalApertura()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
   </div>
  
-  <!-- Aviso base heredada del cierre anterior -->
   <div class="info-base" id="infoBaseSiguiente">
     <i class="bi bi-info-circle me-1"></i>
     <span id="infoBaseSiguienteTexto"></span>
@@ -535,7 +534,6 @@
   <div class="caja-input-label">Monto base para mañana ($)</div>
   <input type="number" class="caja-input" id="baseSiguiente" placeholder="Ej: 100000" min="0">
  
-  <!-- Resumen automático -->
   <div id="resumenCierre" style="display:none; background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem; margin-bottom:1rem;">
     <div style="font-size:.7rem; text-transform:uppercase; color:var(--texto-muted); margin-bottom:.6rem; font-weight:700; letter-spacing:.8px;">Resumen del día</div>
     <div class="caja-resultado-fila">
@@ -595,13 +593,11 @@ function formatPesos(val) {
  
 // ── Init ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-    // Total en caja estimado
     const totalEnCajaEl = document.getElementById('totalEnCaja');
     if (totalEnCajaEl) {
         totalEnCajaEl.textContent = '$' + formatPesos(BASE_APERTURA + TOTAL_DIA);
     }
  
-    // Separadores entre días
     const filas = Array.from(document.querySelectorAll('#tablaVentas tbody tr'));
     let fechaAnterior = null;
     filas.forEach(fila => {
@@ -620,7 +616,6 @@ document.addEventListener('DOMContentLoaded', function() {
         fechaAnterior = fechaActual;
     });
  
-    // Listeners denominaciones
     document.querySelectorAll('.denom-ap').forEach(i => i.addEventListener('input', calcularTotalApertura));
     document.querySelectorAll('.denom-ci').forEach(i => i.addEventListener('input', calcularTotalCierre));
     const baseInp = document.getElementById('baseSiguiente');
@@ -630,15 +625,15 @@ document.addEventListener('DOMContentLoaded', function() {
 // ════════════════════════════════════════
 // MODAL AUTENTICACIÓN
 // ════════════════════════════════════════
-let _accionPendiente = null; // 'apertura' o 'cierre'
+let _accionPendiente = null;
  
 function abrirModalAuth(accion) {
     _accionPendiente = accion;
     const esCierre = accion === 'cierre';
  
-    document.getElementById('authSubtitulo').textContent    = esCierre ? 'Cierre de Caja' : 'Apertura de Caja';
-    document.getElementById('authTitulo').textContent       = esCierre ? 'Cerrar Caja' : 'Abrir Caja';
-    document.getElementById('authDescripcion').textContent  = esCierre
+    document.getElementById('authSubtitulo').textContent   = esCierre ? 'Cierre de Caja' : 'Apertura de Caja';
+    document.getElementById('authTitulo').textContent      = esCierre ? 'Cerrar Caja' : 'Abrir Caja';
+    document.getElementById('authDescripcion').textContent = esCierre
         ? 'Confirma tu identidad para proceder con el cierre de caja.'
         : 'Confirma tu identidad para proceder con la apertura de caja.';
  
@@ -695,7 +690,7 @@ function confirmarAuth() {
     fetch("{% url 'ventas:verificar_acceso_caja' %}", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-        body: JSON.stringify({ username: usuario, password }),
+        body: JSON.stringify({ username: usuario, password: password }),
     })
     .then(r => r.json())
     .then(data => {
@@ -710,7 +705,6 @@ function confirmarAuth() {
             return;
         }
  
-        // Auth exitosa → cerrar auth y abrir el modal correspondiente
         cerrarModalAuth();
         if (_accionPendiente === 'apertura') {
             _abrirModalApertura();
@@ -738,25 +732,20 @@ function calcularTotalApertura() {
     return total;
 }
  
-// Botón público — siempre pasa por auth
 function abrirModalApertura() {
     abrirModalAuth('apertura');
 }
  
-// Solo se llama tras auth exitosa
 function _abrirModalApertura() {
-    // Mostrar aviso de base heredada si existe
     if (BASE_SIGUIENTE > 0) {
-        const infoEl   = document.getElementById('infoBaseSiguiente');
-        const textoEl  = document.getElementById('infoBaseSiguienteTexto');
+        const infoEl  = document.getElementById('infoBaseSiguiente');
+        const textoEl = document.getElementById('infoBaseSiguienteTexto');
         textoEl.textContent = 'El último cierre dejó una base de $' + formatPesos(BASE_SIGUIENTE) + ' para hoy.';
         infoEl.classList.add('show');
     }
-    // Reset denominaciones
     document.querySelectorAll('.denom-ap').forEach(i => i.value = 0);
     calcularTotalApertura();
     document.getElementById('apObservacion').value = '';
- 
     document.getElementById('overlayApertura').classList.add('open');
     document.getElementById('modalApertura').classList.add('open');
 }
@@ -780,8 +769,8 @@ function confirmarApertura() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
         body: JSON.stringify({
-            monto_base:   montoBase,
-            observacion:  document.getElementById('apObservacion').value,
+            monto_base:    montoBase,
+            observacion:   document.getElementById('apObservacion').value,
             denominaciones,
         }),
     })
@@ -812,19 +801,15 @@ function calcularTotalCierre() {
     return total;
 }
  
-// Botón público — siempre pasa por auth
 function abrirModalCierre() {
     abrirModalAuth('cierre');
 }
  
-// Solo se llama tras auth exitosa
 function _abrirModalCierre() {
-    // Reset denominaciones y resumen
     document.querySelectorAll('.denom-ci').forEach(i => i.value = 0);
     document.getElementById('baseSiguiente').value = '';
     document.getElementById('resumenCierre').style.display = 'none';
     calcularTotalCierre();
- 
     document.getElementById('overlayCierre').classList.add('open');
     document.getElementById('modalCierre').classList.add('open');
 }
