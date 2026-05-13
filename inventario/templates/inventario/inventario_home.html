@@ -91,11 +91,35 @@
     </a>
   </div>
 
-  <!-- ── INVENTARIOS PROGRAMADOS ── -->
-  <section class="cys-card mb-4">
-    <div class="cys-card__title">
-      <i class="bi bi-calendar2-week me-2" style="color:var(--azul-claro);"></i>Inventarios Programados
+ <!-- ── INVENTARIOS PROGRAMADOS ── -->
+<section class="cys-card mb-4" style="padding:0; overflow:hidden;">
+
+  <!-- Cabecera siempre visible / clickeable -->
+  <div id="inv-agenda-header"
+       onclick="toggleAgenda()"
+       style="display:flex; align-items:center; justify-content:space-between;
+              padding:1rem 1.4rem; cursor:pointer; user-select:none;
+              transition:background .2s;"
+       onmouseover="this.style.background='rgba(77,168,218,.04)'"
+       onmouseout="this.style.background='transparent'">
+    <div class="cys-card__title" style="margin:0; padding:0; border:none;">
+      <i class="bi bi-calendar2-week me-2" style="color:var(--azul-claro);"></i>
+      Inventarios Programados
+      {% if agendas %}
+        <span style="font-size:.65rem; padding:.15rem .5rem; border-radius:999px; font-weight:600;
+                     background:rgba(77,168,218,.12); color:var(--azul-claro);
+                     border:1px solid rgba(77,168,218,.22); margin-left:.5rem;">
+          {{ agendas|length }}
+        </span>
+      {% endif %}
     </div>
+    <i id="inv-agenda-chevron" class="bi bi-chevron-down"
+       style="color:rgba(77,168,218,.45); font-size:.8rem;
+              transition:transform .25s ease;"></i>
+  </div>
+
+  <!-- Cuerpo colapsable -->
+  <div id="inv-agenda-body" style="display:none; border-top:1px solid rgba(77,168,218,.12); padding:1rem 1.4rem;">
     {% for agenda in agendas %}
     <div class="inv-agenda-item">
       <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
@@ -137,13 +161,14 @@
       </div>
     </div>
     {% empty %}
-    <div class="text-center py-5" style="color:var(--texto-muted);font-size:.85rem;">
-      <i class="bi bi-calendar-x d-block mb-2" style="font-size:2.5rem;color:var(--azul-borde);"></i>
+    <div style="text-align:center; padding:1rem 0; color:var(--texto-muted); font-size:.82rem;">
+      <i class="bi bi-calendar-x d-block mb-1" style="font-size:1.6rem; color:var(--azul-borde);"></i>
       No hay inventarios programados.
     </div>
     {% endfor %}
-  </section>
+  </div>
 
+</section>
   <!-- ══════════════════════════════════════════════════════════ -->
   <!-- MOVIMIENTOS DEL DÍA                                       -->
   <!-- ══════════════════════════════════════════════════════════ -->
@@ -318,7 +343,7 @@
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════ MODALES ═══════════════════ -->
+  <!-- ══════════════════ MODALES ═══════════════════ -->
 
   <!-- MODAL AGENDAR -->
   <div class="modal fade" id="modalAgendar" tabindex="-1">
@@ -979,6 +1004,15 @@
 
 {% block extra_js %}
 <script>
+
+  // ── ACORDEÓN INVENTARIOS ──────────────────────────────────────
+function toggleAgenda() {
+  const body    = document.getElementById('inv-agenda-body');
+  const chevron = document.getElementById('inv-agenda-chevron');
+  const abierto = body.style.display === 'block';
+  body.style.display    = abierto ? 'none' : 'block';
+  chevron.style.transform = abierto ? 'rotate(0deg)' : 'rotate(180deg)';
+}
 // ── DETALLE PRODUCTO ──────────────────────────────────────────────────────────
 function abrirDetalle(nombre, codigo, categoria, precio, cantidad, unidad, descripcion) {
   document.getElementById('inv-det-nombre').textContent     = nombre;
