@@ -5,7 +5,11 @@ from ventas.models import Venta, DetalleVenta
 from producto.models import Producto, Inventario
 from proveedores.models import Proveedor
 import json
+import zoneinfo
 from django.core.serializers.json import DjangoJSONEncoder
+
+
+ZONA_COLOMBIA = zoneinfo.ZoneInfo('America/Bogota')
 
 
 def reportes(request):
@@ -63,7 +67,9 @@ def reportes(request):
         .order_by('-fecha_actualizada')
     )
 
-    hoy        = timezone.now().date()
+    # ── Fecha de hoy en hora Colombia (UTC-5) ─────────────────────────────
+    hoy = timezone.now().astimezone(ZONA_COLOMBIA).date()
+
     ventas_hoy = Venta.objects.prefetch_related(
         'detalles__producto',
         'detalles__presentacion'
@@ -101,8 +107,8 @@ def reportes(request):
     for v in ventas_todas:
         for det in v.detalles.all():
             ventas_data.append({
-                "fecha":           v.fecha.strftime("%Y-%m-%d"),
-                "hora":            v.fecha.strftime("%H:%M"),
+                "fecha":           v.fecha.astimezone(ZONA_COLOMBIA).strftime("%Y-%m-%d"),
+                "hora":            v.fecha.astimezone(ZONA_COLOMBIA).strftime("%H:%M"),
                 "cliente":         str(v.cliente),
                 "producto":        det.producto.nombre,
                 "presentacion":    det.presentacion.nombre if det.presentacion else "Unidad",
