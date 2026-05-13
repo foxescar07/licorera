@@ -18,16 +18,55 @@
       --texto-muted: rgba(232,237,242,.55); --radius: 12px;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
     body {
-      font-family: 'Inter', sans-serif; background: var(--fondo);
-      color: var(--texto); min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', sans-serif;
+      color: var(--texto);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 2rem 1rem;
+      position: relative;
+      overflow: hidden; /* <-- CAMBIO: fondo con imagen del collage */
     }
+ 
+    /* FONDO: imagen del collage */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("{% static 'usuario/img/collage_licores.jpg' %}");
+      background-size: cover;
+      background-position: center;
+      opacity: 0.22;
+      z-index: 0;
+    }
+ 
+    /* OVERLAY: filtro azul oscuro sobre la imagen */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg,
+        rgba(8, 15, 26, 0.92) 0%,
+        rgba(10, 40, 100, 0.85) 50%,
+        rgba(5, 20, 60, 0.95) 100%
+      );
+      z-index: 1;
+    }
+ 
+    /* Todo el contenido por encima del overlay */
     .cys-card {
-      background: var(--fondo-card); border: 1px solid var(--azul-borde);
-      border-radius: 18px; box-shadow: 0 8px 40px rgba(0,0,0,.6), 0 0 20px var(--azul-glow);
-      width: 100%; max-width: 420px; padding: 2.5rem;
+      position: relative;
+      z-index: 2;
+      background: var(--fondo-card);
+      border: 1px solid var(--azul-borde);
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.6), 0 0 20px var(--azul-glow);
+      width: 100%;
+      max-width: 420px;
+      padding: 2.5rem;
     }
     .cys-logo {
       width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
@@ -90,27 +129,27 @@
 <body>
   <div class="cys-card">
     <img src="{% static 'img/logo.jpeg' %}" class="cys-logo" alt="Logo CYS">
-
+ 
     {% if exito %}
       <div class="cys-title" style="color:#5edb97;">¡Listo!</div>
       <div class="cys-msg-ok">Tu contraseña fue actualizada correctamente.</div>
       <a href="{% url 'login' %}" class="cys-btn d-block text-center text-decoration-none">
         <i class="bi bi-box-arrow-in-right me-1"></i> Ir al Inicio de Sesión
       </a>
-
+ 
     {% elif error %}
       <div class="cys-title">Enlace Inválido</div>
       <div class="cys-msg-err">{{ error }}</div>
       <a href="{% url 'login' %}" class="cys-btn d-block text-center text-decoration-none">
         <i class="bi bi-arrow-left me-1"></i> Volver al Inicio
       </a>
-
+ 
     {% else %}
       <div class="cys-title">Nueva Contraseña</div>
       <p style="font-size:.78rem; color:var(--texto-muted); text-align:center; margin-bottom:1.5rem; line-height:1.6;">
         Crea una contraseña segura para tu cuenta.
       </p>
-
+ 
       <form method="POST" id="formReset">
         {% csrf_token %}
         <div class="mb-3">
@@ -133,15 +172,15 @@
           <i class="bi bi-shield-check me-1"></i> Guardar Nueva Contraseña
         </button>
       </form>
-
+ 
       <div class="cys-divider"></div>
       <a href="{% url 'login' %}" class="cys-link">
         <i class="bi bi-arrow-left me-1"></i> Volver al inicio
       </a>
     {% endif %}
-
+ 
   </div>
-
+ 
   <script>
     const form = document.getElementById('formReset');
     if (form) {
@@ -151,10 +190,10 @@
         const errClave     = document.getElementById('errClave');
         const errConfirmar = document.getElementById('errConfirmar');
         let ok = true;
-
+ 
         errClave.style.display = 'none';
         errConfirmar.style.display = 'none';
-
+ 
         if (clave.length < 6) {
           errClave.textContent = 'Mínimo 6 caracteres.';
           errClave.style.display = 'block'; ok = false;
@@ -165,12 +204,12 @@
           errClave.textContent = 'Debe contener al menos 1 mayúscula.';
           errClave.style.display = 'block'; ok = false;
         }
-
+ 
         if (clave !== confirmar) {
           errConfirmar.textContent = 'Las contraseñas no coinciden.';
           errConfirmar.style.display = 'block'; ok = false;
         }
-
+ 
         if (!ok) e.preventDefault();
       });
     }

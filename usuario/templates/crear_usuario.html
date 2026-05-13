@@ -24,17 +24,48 @@
       --radius:      12px;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--fondo);
       color: var(--texto);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 2rem 1rem;
+      position: relative;
+      overflow: hidden; /* <-- CAMBIO: fondo con imagen del collage */
     }
+ 
+    /* FONDO: imagen del collage */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("{% static 'usuario/img/collage_licores.jpg' %}");
+      background-size: cover;
+      background-position: center;
+      opacity: 0.22;
+      z-index: 0;
+    }
+ 
+    /* OVERLAY: filtro azul oscuro sobre la imagen */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg,
+        rgba(8, 15, 26, 0.92) 0%,
+        rgba(10, 40, 100, 0.85) 50%,
+        rgba(5, 20, 60, 0.95) 100%
+      );
+      z-index: 1;
+    }
+ 
+    /* Todo el contenido por encima del overlay */
     .cys-card {
+      position: relative;
+      z-index: 2;
       background: var(--fondo-card);
       border: 1px solid var(--azul-borde);
       border-radius: 18px;
@@ -285,3 +316,4 @@
   </script>
 </body>
 </html>
+ 
