@@ -1,10 +1,12 @@
 from pathlib import Path
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 SECRET_KEY = 'django-insecure-s@_&4vrrq#szp0&6yksbq9y8xbhwku&9yi6p*oof)b%b-$)kk#'
 DEBUG = True
- 
+
 ALLOWED_HOSTS = ['*']
- 
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -12,7 +14,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.humanize',  # ← formatos de números y fechas
+    'django.contrib.humanize',
     'crispy_forms',
     'crispy_bootstrap5',
     'licorera',
@@ -23,10 +25,10 @@ INSTALLED_APPS = [
     'inventario',
     'ventas',
 ]
- 
+
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
- 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -35,12 +37,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     'usuario.no_cache.NoCacheMiddleware',
 ]
- 
+
 ROOT_URLCONF = 'licorera.urls'
- 
+
 import os
- 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -59,32 +62,39 @@ TEMPLATES = [
         },
     },
 ]
- 
+
 WSGI_APPLICATION = 'core.wsgi.application'
- 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
- 
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
- 
+
 # ── IDIOMA Y ZONA HORARIA ─────────────────────────────────
 LANGUAGE_CODE = 'es'
 TIME_ZONE     = 'America/Bogota'
 USE_I18N      = True
 USE_TZ        = True
- 
+
+# ── AUTH / REDIRECCIONES ──────────────────────────────────
+LOGIN_URL           = '/usuario/login/'
+LOGIN_REDIRECT_URL  = '/'
+LOGOUT_REDIRECT_URL = '/usuario/login/'
+
+# ── ARCHIVOS ESTÁTICOS ────────────────────────────────────
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
- 
+
+# ── EMAIL ─────────────────────────────────────────────────
 EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST          = 'smtp.gmail.com'
 EMAIL_PORT          = 587
@@ -92,7 +102,13 @@ EMAIL_USE_TLS       = True
 EMAIL_HOST_USER     = 'ccanariasogamoso@gmail.com'
 EMAIL_HOST_PASSWORD = 'jmcikwsvajdmbzab'
 DEFAULT_FROM_EMAIL  = 'CYS Ltda <ccanariasogamoso@gmail.com>'
+
+# ── SEGURIDAD COOKIES ─────────────────────────────────────
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE    = 'Lax'
+
  
+
+CSRF_COOKIE_SAMESITE    = 'Lax'
+

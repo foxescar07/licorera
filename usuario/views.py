@@ -72,7 +72,12 @@ def login_view(request):
 
 def logout_view(request):
     request.session.flush()
-    return redirect('login')
+    response = redirect('login')
+    # Evita que el navegador muestre páginas protegidas al presionar "atrás"
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, private'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
 
 
 def lista_usuarios(request):

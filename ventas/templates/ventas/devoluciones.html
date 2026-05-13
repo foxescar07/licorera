@@ -1,0 +1,667 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Devoluciones — CYS Ltda{% endblock %}
+{% block page_title %}Devoluciones{% endblock %}
+{% block nav_devoluciones %}active{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/devoluciones.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+{% if messages %}
+{% for message in messages %}
+<div class="dev-alert dev-alert--{% if message.tags == 'success' %}ok{% else %}err{% endif %} mb-3" id="devAlertMsg">
+  <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% else %}bi-exclamation-triangle-fill{% endif %}"></i>
+  <span>{{ message }}</span>
+  <button onclick="document.getElementById('devAlertMsg').remove()"
+          style="background:none; border:none; color:inherit; cursor:pointer; margin-left:auto; font-size:0.9rem;">
+    <i class="bi bi-x-lg"></i>
+  </button>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="dev-topbar">
+  <div class="dev-topbar__title">
+    <i class="bi bi-arrow-return-left"></i> Nueva Devolución
+  </div>
+  <button class="dev-btn-historial" onclick="abrirHistorial()">
+    <i class="bi bi-clock-history"></i>
+    Ver Historial
+    <span class="dev-btn-historial__badge">{{ devoluciones|length }}</span>
+  </button>
+</div>
+
+<div class="dev-card">
+
+  <div class="dev-stepper-wrap">
+    <div class="dev-stepper">
+      <div class="dev-step-dot active" id="dot1">
+        <div class="dev-step-dot__circle"><span class="icon-n">1</span><i class="bi bi-check icon-c"></i></div>
+        <div class="dev-step-dot__label">Buscar venta</div>
+      </div>
+      <div class="dev-step-dot" id="dot2">
+        <div class="dev-step-dot__circle"><span class="icon-n">2</span><i class="bi bi-check icon-c"></i></div>
+        <div class="dev-step-dot__label">Comprobante</div>
+      </div>
+      <div class="dev-step-dot" id="dot3">
+        <div class="dev-step-dot__circle"><span class="icon-n">3</span><i class="bi bi-check icon-c"></i></div>
+        <div class="dev-step-dot__label">Seleccionar</div>
+      </div>
+      <div class="dev-step-dot" id="dot4">
+        <div class="dev-step-dot__circle"><span class="icon-n">4</span><i class="bi bi-check icon-c"></i></div>
+        <div class="dev-step-dot__label">Opciones</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dev-steps-content">
+
+    <!-- PANE 1 -->
+    <div class="dev-pane visible" id="pane1">
+      <div class="pane-center">
+        <div class="dev-search mb-3">
+          <i class="bi bi-search dev-search__icon"></i>
+          <input type="text" id="buscadorVenta" class="dev-search__input"
+                 placeholder="Busca por nombre del cliente o número de venta...">
+        </div>
+        <div id="resultadosBusqueda"></div>
+        <div id="ventaSeleccionadaInfo" class="dev-venta-banner" style="display:none;">
+          <div>
+            <div class="dev-venta-banner__tag"><i class="bi bi-receipt me-1"></i>Venta seleccionada</div>
+            <div id="ventaInfoNombre" class="dev-venta-banner__nombre"></div>
+            <div id="ventaInfoFecha"  class="dev-venta-banner__fecha"></div>
+            <button type="button" onclick="limpiarVenta()" class="dev-btn-cambiar">
+              <i class="bi bi-x-circle"></i> Cambiar venta
+            </button>
+          </div>
+          <div style="text-align:right; flex-shrink:0;">
+            <div style="font-size:0.62rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--texto-muted); margin-bottom:3px;">Total original</div>
+            <div id="ventaInfoTotal" class="dev-venta-banner__total"></div>
+          </div>
+        </div>
+      </div>
+      <div class="dev-nav">
+        <span></span>
+        <button class="dev-btn-nav dev-btn-nav--primary" id="btnNext1" onclick="irPaso(2)" disabled>
+          Siguiente <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- PANE 2 -->
+    <div class="dev-pane" id="pane2">
+      <div class="pane-center pane-center--vcenter">
+        <p class="pane-title">
+          <i class="bi bi-file-earmark-check me-2" style="color:var(--dr);"></i>
+          ¿El cliente presenta comprobante de compra?
+        </p>
+        <div class="comprobante-btns">
+          <button type="button" id="btnSiComprobante" onclick="setComprobante(true)" class="comprobante-btn">
+            <i class="bi bi-check-circle comprobante-btn__icon"></i>
+            <span class="comprobante-btn__label">Sí tiene</span>
+            <span class="comprobante-btn__sub">El cliente presenta recibo</span>
+          </button>
+          <button type="button" id="btnNoComprobante" onclick="setComprobante(false)" class="comprobante-btn">
+            <i class="bi bi-x-circle comprobante-btn__icon"></i>
+            <span class="comprobante-btn__label">No tiene</span>
+            <span class="comprobante-btn__sub">Sin comprobante de compra</span>
+          </button>
+        </div>
+        <div id="warningComprobante" class="dev-warning" style="max-width:480px; width:100%;">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>Sin comprobante de compra no es posible procesar la devolución.</span>
+        </div>
+      </div>
+      <div class="dev-nav">
+        <button class="dev-btn-nav" onclick="irPaso(1)">
+          <i class="bi bi-arrow-left"></i> Atrás
+        </button>
+        <button class="dev-btn-nav dev-btn-nav--primary" id="btnNext2" onclick="irPaso(3)" disabled>
+          Siguiente <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- PANE 3 -->
+    <div class="dev-pane" id="pane3">
+      <div class="pane3-layout">
+        <div class="pane3-header">
+          <div class="pane3-header__title">
+            <i class="bi bi-bag-check"></i>
+            Selecciona los productos a devolver
+          </div>
+          <div class="pane3-counter" id="pane3Counter">
+            <span class="pane3-counter__dot" id="pane3Dot"></span>
+            <span id="pane3CounterText">Ningún producto seleccionado</span>
+          </div>
+        </div>
+        <div class="dev-hint" id="hintSelecciona">
+          <i class="bi bi-hand-index-thumb" style="flex-shrink:0; font-size:1rem;"></i>
+          <span>Haz clic en una tarjeta para seleccionarla. Ajusta la cantidad con los botones <strong>−</strong> y <strong>+</strong>.</span>
+        </div>
+        <div id="listaProductosDevolver" class="dev-prod-grid"></div>
+        <div class="dev-resumen" id="resumenSeleccion">
+          <div class="dev-resumen__left">
+            <div class="dev-resumen__stat">
+              <div class="dev-resumen__stat-val" id="resumenCantProd">0</div>
+              <div class="dev-resumen__stat-lbl">Productos</div>
+            </div>
+            <div class="dev-resumen__divider"></div>
+            <div class="dev-resumen__stat">
+              <div class="dev-resumen__stat-val" id="resumenCantUnidades">0</div>
+              <div class="dev-resumen__stat-lbl">Unidades</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:'Rajdhani',sans-serif; font-size:0.62rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--dr); margin-bottom:4px;">Total a devolver</div>
+            <div class="dev-resumen__total" id="resumenTotal">$0</div>
+          </div>
+        </div>
+      </div>
+      <div class="dev-nav">
+        <button class="dev-btn-nav" onclick="irPaso(2)">
+          <i class="bi bi-arrow-left"></i> Atrás
+        </button>
+        <button class="dev-btn-nav dev-btn-nav--primary" id="btnNext3" onclick="irPaso(4)" disabled>
+          Continuar <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- PANE 4 -->
+    <div class="dev-pane" id="pane4">
+      <div class="pane-center">
+        <div class="dev-opts-grid">
+          <div>
+            <label class="dev-field-label"><i class="bi bi-boxes me-1"></i>¿Restaurar inventario?</label>
+            <div class="dev-toggle-group">
+              <button type="button" id="btnSiStock" onclick="setStock(true)" class="dev-toggle-btn">
+                <i class="bi bi-arrow-up-circle"></i> Sí, restaurar
+              </button>
+              <button type="button" id="btnNoStock" onclick="setStock(false)" class="dev-toggle-btn">
+                <i class="bi bi-slash-circle"></i> No restaurar
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="dev-field-label"><i class="bi bi-tag me-1"></i>Motivo de devolución <span style="color:var(--dr);">*</span></label>
+            <select id="selectMotivo" class="dev-select" onchange="onMotivoChange()">
+              <option value="">— Selecciona un motivo —</option>
+              <option value="defectuoso">Producto defectuoso</option>
+              <option value="equivocado">Producto equivocado</option>
+              <option value="insatisfecho">Cliente insatisfecho</option>
+              <option value="otro">Otro</option>
+            </select>
+            <div id="errorMotivo" style="display:none; color:var(--dr-light);
+                 font-size:0.75rem; margin-top:4px;">
+              <i class="bi bi-exclamation-circle me-1"></i>Debes seleccionar un motivo.
+            </div>
+            <div id="wrapMotivoOtro" style="display:none; margin-top:8px;">
+              <input type="text" id="inputMotivoOtro" class="dev-select"
+                     placeholder="Describe el motivo de la devolución...">
+              <div id="errorMotivoOtro" style="display:none; color:var(--dr-light);
+                   font-size:0.75rem; margin-top:4px;">
+                <i class="bi bi-exclamation-circle me-1"></i>Por favor describe el motivo antes de continuar.
+              </div>
+            </div>
+          </div>
+          <div style="grid-column:1/-1;">
+            <label class="dev-field-label">
+              <i class="bi bi-chat-left-text me-1"></i>Observaciones
+              <span style="font-weight:400; text-transform:none; font-size:0.72rem; letter-spacing:0;">(opcional)</span>
+            </label>
+            <textarea id="txtObservaciones" rows="3"
+                      placeholder="Detalles adicionales sobre la devolución..."
+                      class="dev-textarea"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="dev-nav">
+        <button class="dev-btn-nav" onclick="irPaso(3)">
+          <i class="bi bi-arrow-left"></i> Atrás
+        </button>
+        <span style="font-size:0.78rem; color:var(--texto-muted); font-family:'Inter',sans-serif;">
+          <i class="bi bi-info-circle me-1"></i>Registra la devolución en el botón de abajo
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="dev-footer-bar" id="footerBar">
+    <div>
+      <div class="dev-total-label"><i class="bi bi-calculator me-1"></i>Total a devolver</div>
+      <div class="dev-total-sub">Monto a reembolsar al cliente</div>
+      <div id="totalDevolucionMonto" class="dev-total-monto">$0</div>
+    </div>
+    <form method="POST" action="{% url 'ventas:registrar_devolucion' %}" id="formDevolucion">
+      {% csrf_token %}
+      <input type="hidden" name="venta_id"          id="hiddenVentaId"       value="">
+      <input type="hidden" name="tiene_comprobante" id="hiddenComprobante"   value="0">
+      <input type="hidden" name="restaurar_stock"   id="hiddenStock"         value="1">
+      <input type="hidden" name="motivo"            id="hiddenMotivo"        value="">
+      <input type="hidden" name="observaciones"     id="hiddenObservaciones" value="">
+      <div id="hiddenProductos"></div>
+      <button type="button" id="btnRegistrarDevolucion" disabled
+              class="dev-btn-submit" onclick="prepararEnvio()">
+        <i class="bi bi-arrow-return-left"></i>
+        Registrar Devolución
+      </button>
+    </form>
+  </div>
+
+</div>
+
+
+<!-- MODAL HISTORIAL -->
+<div id="modalHistorial" onclick="if(event.target===this) cerrarHistorial()">
+  <div class="modal-hist-panel">
+    <div class="modal-hist-head">
+      <div class="modal-hist-head__title">
+        <i class="bi bi-clock-history"></i> Historial de Devoluciones
+      </div>
+      <button class="modal-hist-close" onclick="cerrarHistorial()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    {% if devoluciones %}
+    <div class="modal-hist-metrics">
+      <div class="modal-metric">
+        <div class="modal-metric__val">{{ devoluciones|length }}</div>
+        <div class="modal-metric__lbl">Total</div>
+      </div>
+      <div class="modal-metric">
+        <div class="modal-metric__val" style="color:var(--dg-light);">
+          {% for d in devoluciones %}{% if d.restaurar_stock %}{% if forloop.last %}{{ forloop.counter }}{% endif %}{% endif %}{% endfor %}
+        </div>
+        <div class="modal-metric__lbl">Stock rest.</div>
+      </div>
+      <div class="modal-metric">
+        <div class="modal-metric__val" style="color:var(--dr-light);">{{ devoluciones|length }}</div>
+        <div class="modal-metric__lbl">Registradas</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="modal-hist-list">
+      {% if devoluciones %}
+        {% for dev in devoluciones %}
+        <div class="dev-hist-row">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+            <div>
+              <div class="dev-hist-num">{{ dev.numero }}</div>
+              <div class="dev-hist-cliente">{{ dev.venta.cliente }}</div>
+              <div class="dev-hist-fecha"><i class="bi bi-calendar3 me-1"></i>{{ dev.fecha|date:"d/m/Y H:i" }}</div>
+            </div>
+            <div style="text-align:right; flex-shrink:0;">
+              <div class="dev-hist-monto">${{ dev.total_devuelto|floatformat:0 }}</div>
+              <div class="dev-hist-motivo">{{ dev.get_motivo_display }}</div>
+              <div style="margin-top:4px;">
+                {% if dev.restaurar_stock %}
+                  <span class="dev-pill dev-pill--stock-ok"><i class="bi bi-boxes me-1"></i>Stock rest.</span>
+                {% else %}
+                  <span class="dev-pill dev-pill--stock-no"><i class="bi bi-dash-circle me-1"></i>Sin rest.</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="dev-hist-prods">
+            {% for det in dev.detalles.all %}
+              <span class="dev-pill dev-pill--prod">
+                {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %} ×{{ det.cantidad }}
+              </span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="dev-empty">
+          <i class="bi bi-arrow-return-left"></i>
+          <span>No hay devoluciones registradas</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+<script>
+let ventaActual            = null;
+let tieneComprobante       = null;
+let restaurarStock         = true;
+let productosSeleccionados = [];
+let pasoActual             = 1;
+
+function formatPesos(val) {
+  const esEntero = Math.abs(val - Math.round(val)) < 0.001;
+  if (esEntero) return Math.round(val).toLocaleString('es-CO');
+  return val.toLocaleString('es-CO', { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+
+function actualizarDots(n) {
+  for (let i = 1; i <= 4; i++) {
+    const d = document.getElementById('dot' + i);
+    d.classList.remove('active', 'done');
+    if (i === n) d.classList.add('active');
+    if (i  < n)  d.classList.add('done');
+  }
+}
+
+function irPaso(n) {
+  document.getElementById('pane' + pasoActual).classList.remove('visible');
+  pasoActual = n;
+  document.getElementById('pane' + n).classList.add('visible');
+  actualizarDots(n);
+
+  if (n === 3) {
+    productosSeleccionados = [];
+    document.getElementById('btnNext3').disabled = true;
+    document.getElementById('footerBar').style.display        = 'none';
+    document.getElementById('resumenSeleccion').style.display = 'none';
+    document.getElementById('hintSelecciona').style.display   = 'flex';
+    actualizarContadorPaso3();
+    cargarProductosVenta();
+    return;
+  }
+
+  if (n === 4) {
+    setStock(restaurarStock);
+    document.getElementById('footerBar').style.display =
+      productosSeleccionados.length > 0 ? 'flex' : 'none';
+    return;
+  }
+
+  document.getElementById('footerBar').style.display = 'none';
+}
+
+function abrirHistorial() {
+  document.getElementById('modalHistorial').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function cerrarHistorial() {
+  document.getElementById('modalHistorial').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarHistorial(); });
+
+let buscarTimeout;
+document.getElementById('buscadorVenta').addEventListener('input', function () {
+  clearTimeout(buscarTimeout);
+  const q = this.value.trim();
+  if (q.length < 2) { document.getElementById('resultadosBusqueda').innerHTML = ''; return; }
+  buscarTimeout = setTimeout(() => {
+    fetch({% url 'ventas:buscar_venta_devolucion' %}?q=${encodeURIComponent(q)})
+      .then(r => r.json())
+      .then(data => renderResultados(data.ventas));
+  }, 300);
+});
+
+function renderResultados(ventas) {
+  const cont = document.getElementById('resultadosBusqueda');
+  if (!ventas.length) {
+    cont.innerHTML = '<p style="color:var(--texto-muted); font-size:.82rem; text-align:center; padding:.6rem 0;">Sin resultados.</p>';
+    return;
+  }
+  cont.innerHTML = ventas.map(v => `
+    <div class="dev-result-row" onclick="seleccionarVenta(${v.id},'${v.cliente}','${v.fecha}',${v.total})">
+      <div>
+        <div class="dev-result-row__nombre">${v.cliente}</div>
+        <div class="dev-result-row__fecha">${v.fecha}</div>
+      </div>
+      <span class="dev-result-row__total">$${formatPesos(v.total)}</span>
+    </div>
+  `).join('');
+}
+
+function seleccionarVenta(id, cliente, fecha, total) {
+  ventaActual = { id, cliente, fecha, total };
+  document.getElementById('resultadosBusqueda').innerHTML        = '';
+  document.getElementById('buscadorVenta').value                 = '';
+  document.getElementById('ventaInfoNombre').textContent         = cliente;
+  document.getElementById('ventaInfoFecha').textContent          = fecha;
+  document.getElementById('ventaInfoTotal').textContent          = '$' + formatPesos(total);
+  document.getElementById('ventaSeleccionadaInfo').style.display = 'flex';
+  document.getElementById('btnNext1').disabled = false;
+}
+
+function limpiarVenta() {
+  ventaActual = null;
+  document.getElementById('ventaSeleccionadaInfo').style.display = 'none';
+  document.getElementById('btnNext1').disabled = true;
+}
+
+function setComprobante(tiene) {
+  tieneComprobante = tiene;
+  const btnSi = document.getElementById('btnSiComprobante');
+  const btnNo = document.getElementById('btnNoComprobante');
+  btnSi.classList.remove('activo-si', 'activo-no');
+  btnNo.classList.remove('activo-si', 'activo-no');
+  if (tiene) btnSi.classList.add('activo-si');
+  else       btnNo.classList.add('activo-no');
+  const warning = document.getElementById('warningComprobante');
+  if (!tiene) {
+    warning.style.display = 'flex';
+    document.getElementById('btnNext2').disabled = true;
+    return;
+  }
+  warning.style.display = 'none';
+  document.getElementById('btnNext2').disabled = false;
+}
+
+function cargarProductosVenta() {
+  const lista = document.getElementById('listaProductosDevolver');
+  lista.innerHTML = `
+    <div style="grid-column:1/-1; display:flex; align-items:center; gap:10px;
+                color:var(--texto-muted); font-size:.82rem; padding:1rem 0;">
+      <i class="bi bi-hourglass-split" style="color:var(--dr);"></i> Cargando productos...
+    </div>`;
+  fetch(/ventas/devoluciones/venta/${ventaActual.id}/detalle/)
+    .then(r => r.json())
+    .then(data => renderProductosDevolver(data.detalles))
+    .catch(() => {
+      lista.innerHTML = '<p style="color:#e07060; font-size:.82rem; grid-column:1/-1;">Error al cargar los productos.</p>';
+    });
+}
+
+function renderProductosDevolver(detalles) {
+  const lista = document.getElementById('listaProductosDevolver');
+  if (!detalles || detalles.length === 0) {
+    lista.innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; padding:3rem 0; color:var(--texto-muted);">
+        <i class="bi bi-inbox" style="font-size:2.5rem; display:block; margin-bottom:12px; opacity:.25;"></i>
+        <span style="font-family:'Inter',sans-serif; font-size:.85rem;">No hay productos en esta venta.</span>
+      </div>`;
+    return;
+  }
+  lista.innerHTML = detalles.map(d => `
+    <div class="dev-prod-row" id="row_${d.detalle_id}"
+         onclick="clickFila(${d.detalle_id},${d.producto_id},${d.presentacion_id||'null'},'${d.producto}','${d.presentacion||''}',${d.precio},${d.cantidad})">
+      <div class="dev-prod-row__head">
+        <input type="checkbox" id="chk_${d.detalle_id}" class="dev-prod-check"
+               onclick="event.stopPropagation()"
+               onchange="toggleProducto(${d.detalle_id},${d.producto_id},${d.presentacion_id||'null'},'${d.producto}','${d.presentacion||''}',${d.precio},${d.cantidad})">
+        <div class="dev-prod-row__info">
+          <div class="dev-prod-row__nombre">
+            ${d.producto}${d.presentacion ? ' <span style="opacity:.6;font-weight:400;">— ' + d.presentacion + '</span>' : ''}
+          </div>
+          <div class="dev-prod-row__precio">
+            <span class="dev-prod-row__precio-unit">$${formatPesos(d.precio)}</span>
+            <span>por unidad</span>
+            <span class="dev-prod-stock-badge"><i class="bi bi-boxes" style="margin-right:3px;"></i>${d.cantidad} disp.</span>
+          </div>
+        </div>
+      </div>
+      <div class="dev-prod-row__foot">
+        <div class="dev-qty-wrap" onclick="event.stopPropagation()">
+          <span class="dev-qty-label">Cant.:</span>
+          <div class="dev-qty-controls">
+            <button class="dev-qty-btn" onclick="cambiarQty(${d.detalle_id},-1,${d.cantidad})">−</button>
+            <input type="number" id="qty_${d.detalle_id}" value="1" min="1" max="${d.cantidad}"
+                   onchange="actualizarCantidadDev(${d.detalle_id})" class="dev-qty">
+            <button class="dev-qty-btn" onclick="cambiarQty(${d.detalle_id},+1,${d.cantidad})">+</button>
+          </div>
+          <span class="dev-qty-max">/ ${d.cantidad}</span>
+        </div>
+        <div style="text-align:right;">
+          <div id="sub_${d.detalle_id}" class="dev-prod-row__sub">$${formatPesos(d.precio)}</div>
+          <div class="dev-prod-row__sub-label">subtotal</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function cambiarQty(detalleId, delta, maxCant) {
+  const qtyEl = document.getElementById('qty_' + detalleId);
+  let v = parseInt(qtyEl.value) || 1;
+  v = Math.min(maxCant, Math.max(1, v + delta));
+  qtyEl.value = v;
+  actualizarCantidadDev(detalleId);
+}
+
+function clickFila(detalleId, prodId, presId, prodNombre, presNombre, precio, maxCant) {
+  const chk = document.getElementById('chk_' + detalleId);
+  chk.checked = !chk.checked;
+  sincronizarProducto(detalleId, prodId, presId, prodNombre, presNombre, precio, maxCant, chk.checked);
+}
+
+function toggleProducto(detalleId, prodId, presId, prodNombre, presNombre, precio, maxCant) {
+  const chk = document.getElementById('chk_' + detalleId);
+  sincronizarProducto(detalleId, prodId, presId, prodNombre, presNombre, precio, maxCant, chk.checked);
+}
+
+function sincronizarProducto(detalleId, prodId, presId, prodNombre, presNombre, precio, maxCant, checked) {
+  const row = document.getElementById('row_' + detalleId);
+  row.classList.toggle('seleccionado', checked);
+  productosSeleccionados = productosSeleccionados.filter(p => p.detalleId !== detalleId);
+  if (checked) {
+    const qtyEl = document.getElementById('qty_' + detalleId);
+    const qty   = qtyEl ? (parseInt(qtyEl.value) || 1) : 1;
+    productosSeleccionados.push({ detalleId, prodId, presId, prodNombre, presNombre, precio, cantidad: qty });
+    const subEl = document.getElementById('sub_' + detalleId);
+    if (subEl) subEl.textContent = '$' + formatPesos(precio * qty);
+  }
+  actualizarTotalDevolucion();
+}
+
+function actualizarCantidadDev(detalleId) {
+  const qtyEl = document.getElementById('qty_' + detalleId);
+  const qty   = parseInt(qtyEl.value) || 1;
+  const prod  = productosSeleccionados.find(p => p.detalleId === detalleId);
+  if (prod) {
+    prod.cantidad = qty;
+    const subEl = document.getElementById('sub_' + detalleId);
+    if (subEl) subEl.textContent = '$' + formatPesos(prod.precio * qty);
+  }
+  actualizarTotalDevolucion();
+}
+
+function actualizarContadorPaso3() {
+  const n   = productosSeleccionados.length;
+  const dot = document.getElementById('pane3Dot');
+  const txt = document.getElementById('pane3CounterText');
+  if (dot) dot.classList.toggle('activo', n > 0);
+  if (txt) txt.textContent = n === 0
+    ? 'Ningún producto seleccionado'
+    : ${n} producto${n > 1 ? 's' : ''} seleccionado${n > 1 ? 's' : ''};
+}
+
+function actualizarTotalDevolucion() {
+  const total      = productosSeleccionados.reduce((s, p) => s + p.precio * p.cantidad, 0);
+  const totalUnits = productosSeleccionados.reduce((s, p) => s + p.cantidad, 0);
+  const hayProds   = productosSeleccionados.length > 0;
+
+  const montoEl = document.getElementById('totalDevolucionMonto');
+  if (montoEl) montoEl.textContent = '$' + formatPesos(total);
+
+  const footer = document.getElementById('footerBar');
+  if (footer) footer.style.display = hayProds ? 'flex' : 'none';
+
+  const btn3 = document.getElementById('btnNext3');
+  if (btn3) btn3.disabled = !hayProds;
+
+  const btnReg = document.getElementById('btnRegistrarDevolucion');
+  if (btnReg) btnReg.disabled = !hayProds;
+
+  const resumen = document.getElementById('resumenSeleccion');
+  if (resumen) {
+    resumen.style.display = hayProds ? 'flex' : 'none';
+    document.getElementById('resumenCantProd').textContent     = productosSeleccionados.length;
+    document.getElementById('resumenCantUnidades').textContent = totalUnits;
+    document.getElementById('resumenTotal').textContent        = '$' + formatPesos(total);
+  }
+
+  const hint = document.getElementById('hintSelecciona');
+  if (hint) hint.style.display = hayProds ? 'none' : 'flex';
+
+  actualizarContadorPaso3();
+}
+
+function setStock(si) {
+  restaurarStock = si;
+  document.getElementById('btnSiStock').className = 'dev-toggle-btn' + (si  ? ' activo-si' : '');
+  document.getElementById('btnNoStock').className = 'dev-toggle-btn' + (!si ? ' activo-no' : '');
+}
+
+function onMotivoChange() {
+  const motivo = document.getElementById('selectMotivo').value;
+  const wrap   = document.getElementById('wrapMotivoOtro');
+  const error  = document.getElementById('errorMotivoOtro');
+  const errMot = document.getElementById('errorMotivo');
+  wrap.style.display   = motivo === 'otro' ? 'block' : 'none';
+  error.style.display  = 'none';
+  errMot.style.display = 'none';
+  if (motivo !== 'otro') document.getElementById('inputMotivoOtro').value = '';
+}
+
+function prepararEnvio() {
+  const motivo = document.getElementById('selectMotivo').value;
+
+  // Validar que se haya seleccionado un motivo
+  if (!motivo) {
+    document.getElementById('errorMotivo').style.display = 'block';
+    document.getElementById('selectMotivo').focus();
+    return;
+  }
+
+  // Validar descripción si el motivo es "otro"
+  if (motivo === 'otro') {
+    const textoOtro = document.getElementById('inputMotivoOtro').value.trim();
+    if (!textoOtro) {
+      document.getElementById('errorMotivoOtro').style.display = 'block';
+      document.getElementById('inputMotivoOtro').focus();
+      return;
+    }
+    document.getElementById('hiddenMotivo').value = textoOtro;
+  } else {
+    document.getElementById('hiddenMotivo').value = motivo;
+  }
+
+  document.getElementById('hiddenVentaId').value       = ventaActual.id;
+  document.getElementById('hiddenComprobante').value   = tieneComprobante ? '1' : '0';
+  document.getElementById('hiddenStock').value         = restaurarStock   ? '1' : '0';
+  document.getElementById('hiddenObservaciones').value = document.getElementById('txtObservaciones').value;
+  document.getElementById('hiddenProductos').innerHTML = productosSeleccionados.map(p => `
+    <input type="hidden" name="producto_id[]"     value="${p.prodId}">
+    <input type="hidden" name="presentacion_id[]" value="${p.presId || ''}">
+    <input type="hidden" name="cantidad[]"        value="${p.cantidad}">
+    <input type="hidden" name="precio[]"          value="${p.precio}">
+  `).join('');
+
+  document.getElementById('formDevolucion').submit();
+}
+
+actualizarDots(1);
+
+(function() {
+  const alerta = document.getElementById('devAlertMsg');
+  if (alerta && alerta.classList.contains('dev-alert--ok')) {
+    setTimeout(() => abrirHistorial(), 400);
+  }
+})();
+</script>
+
+{% endblock %}
