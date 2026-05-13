@@ -35,6 +35,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     'usuario.no_cache.NoCacheMiddleware',
 ]
  
 ROOT_URLCONF = 'licorera.urls'
@@ -95,4 +96,5 @@ DEFAULT_FROM_EMAIL  = 'CYS Ltda <ccanariasogamoso@gmail.com>'
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE    = 'Lax'
+
  

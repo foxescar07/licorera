@@ -153,10 +153,10 @@
   </style>
 </head>
 <body>
-
+ 
   <div class="cys-card" id="tarjeta">
     <img src="{% static 'img/logo.jpeg' %}" class="cys-logo" alt="Logo CYS">
-
+ 
     {% if usuario_creado %}
     <!-- PANTALLA ÉXITO -->
     <div class="cys-success">
@@ -173,11 +173,11 @@
         <i class="bi bi-box-arrow-in-right me-1"></i> Ir al Inicio de Sesión
       </a>
     </div>
-
+ 
     {% else %}
     <!-- FORMULARIO -->
     <div class="cys-title">Nuevo Usuario</div>
-
+ 
     {% if messages %}
       <div class="cys-msg cys-msg--err">
         {% for message in messages %}
@@ -185,10 +185,10 @@
         {% endfor %}
       </div>
     {% endif %}
-
+ 
     <form method="POST" action="{% url 'crear_usuario' %}">
       {% csrf_token %}
-
+ 
       <div class="mb-3">
         <div class="cys-row cys-row--1-2">
           <div>
@@ -203,7 +203,7 @@
           </div>
         </div>
       </div>
-
+ 
       <div class="mb-3">
         <div class="cys-row cys-row--2">
           <div>
@@ -218,7 +218,7 @@
           </div>
         </div>
       </div>
-
+ 
       <div class="mb-3">
         <div class="cys-row cys-row--2">
           <div>
@@ -227,14 +227,28 @@
             {% if form.email.errors %}<div class="cys-form-error">{{ form.email.errors }}</div>{% endif %}
           </div>
           <div>
+            <label class="cys-label">Teléfono</label>
+            {{ form.telefono }}
+            {% if form.telefono.errors %}<div class="cys-form-error">{{ form.telefono.errors }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+ 
+      <div class="mb-3">
+        <div class="cys-row cys-row--2">
+          <div>
             <label class="cys-label">Nombre de Usuario</label>
             {{ form.usuario }}
             {% if form.usuario.errors %}<div class="cys-form-error">{{ form.usuario.errors }}</div>{% endif %}
           </div>
+          <div>
+            <label class="cys-label">Rol</label>
+            {{ form.rol }}
+          </div>
         </div>
       </div>
-
-      <div class="mb-3">
+ 
+      <div class="mb-4">
         <div class="cys-row cys-row--2">
           <div>
             <label class="cys-label">Contraseña</label>
@@ -247,27 +261,22 @@
           </div>
         </div>
       </div>
-
-      <div class="mb-4">
-        <label class="cys-label">Rol</label>
-        {{ form.rol }}
-      </div>
-
+ 
       <button type="submit" class="cys-btn-primary">
         <i class="bi bi-person-check me-1"></i> Crear Usuario
       </button>
     </form>
-
+ 
     <div class="cys-divider"></div>
     <div class="text-center">
       <a href="{% url 'login' %}" class="cys-btn-link">
         <i class="bi bi-arrow-left" style="font-size:.75rem;"></i> Volver al inicio
       </a>
     </div>
-
+ 
     {% endif %}
   </div>
-
+ 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.querySelectorAll('select, input, textarea').forEach(el => {
