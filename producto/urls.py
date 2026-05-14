@@ -9,6 +9,7 @@ urlpatterns = [
     path("producto/<int:pk>/", views.producto_detalle, name="producto_detalle"),
     path("producto/<int:pk>/editar/", views.producto_editar, name="producto_editar"),
     path("registro/", views.producto_registro, name="producto_registro"),
+    path("rotacion/", views.rotacion_json, name="rotacion_json"),
     
 
     # ✅ Endpoint centralizado para crear producto (usado desde inventario/gestion_productos)

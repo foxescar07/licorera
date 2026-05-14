@@ -10,38 +10,6 @@
   {% include 'stock_widget.html' %}
   {% include 'busqueda_producto.html' %}
 
-  <style>
-    @keyframes pulso-rojo {
-      0%   { box-shadow: 0 0 0 0 rgba(192,57,43,0.7); }
-      70%  { box-shadow: 0 0 0 10px rgba(192,57,43,0); }
-      100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
-    }
-    .pres-row {
-      background: var(--fondo-card2);
-      border: 1px solid var(--azul-borde);
-      border-radius: 10px;
-      padding: .75rem 1rem;
-      margin-bottom: .5rem;
-    }
-    .np-input {
-      background: var(--fondo-card2) !important;
-      color: var(--texto) !important;
-      border: 1px solid var(--azul-borde) !important;
-      border-radius: 10px !important;
-      padding: 10px 14px !important;
-      font-size: .85rem;
-      outline: none;
-      transition: border-color .2s;
-    }
-    .np-input:focus { border-color: var(--azul-claro) !important; }
-    .np-label {
-      font-size: .65rem; font-weight: 600;
-      color: var(--texto-muted);
-      letter-spacing: .1em; text-transform: uppercase;
-      display: block; margin-bottom: .35rem;
-    }
-  </style>
-
   <!-- ── Encabezado ── -->
   <section class="cys-card mb-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -67,6 +35,153 @@
       {% endfor %}
     </div>
   </section>
+
+ <!-- ── Analítica: Estrella + Rotación ── -->
+<section class="cys-card mb-4" id="seccion-analitica" style="display:none;">
+
+  <!-- PRODUCTO ESTRELLA -->
+  <div id="bloque-estrella" style="display:none; margin-bottom:1.75rem;">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-trophy-fill" style="color:#EF9F27; font-size:1rem;"></i>
+        <span style="font-family:'Rajdhani',sans-serif; font-size:.75rem; font-weight:700;
+                     color:var(--texto-muted); letter-spacing:.12em; text-transform:uppercase;">
+          Producto Estrella del Mes
+        </span>
+      </div>
+      <span id="estrella-mes-label"
+            style="background:rgba(239,159,39,.15); border:1px solid rgba(239,159,39,.35);
+                   color:#EF9F27; border-radius:20px; padding:.25rem .75rem;
+                   font-size:.7rem; font-weight:700; letter-spacing:.05em;"></span>
+    </div>
+
+    <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde);
+                border-radius:12px; padding:1.25rem 1.5rem;">
+      <div class="row g-3 align-items-stretch mb-3">
+        <div class="col-md-4">
+          <div style="background:var(--fondo-card); border:1px solid var(--azul-borde);
+                      border-radius:10px; padding:1rem; height:100%;">
+            <div style="font-size:.65rem; color:var(--texto-muted); text-transform:uppercase;
+                        letter-spacing:.08em; margin-bottom:.4rem;">Producto</div>
+            <div id="estrella-nombre"
+                 style="font-size:1.25rem; font-weight:700; color:var(--texto); line-height:1.3;"></div>
+            <div id="estrella-categoria"
+                 style="font-size:.78rem; color:var(--texto-muted); margin-top:.3rem;">
+              Categoría: <span></span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div style="background:var(--fondo-card); border:1px solid var(--azul-borde);
+                      border-radius:10px; padding:1rem; height:100%; text-align:center;">
+            <div style="font-size:.65rem; color:var(--texto-muted); text-transform:uppercase;
+                        letter-spacing:.08em; margin-bottom:.4rem;">Unidades vendidas</div>
+            <div id="estrella-vendido"
+                 style="font-size:2rem; font-weight:700; color:var(--azul-claro);"></div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div style="background:var(--fondo-card); border:1px solid var(--azul-borde);
+                      border-radius:10px; padding:1rem; height:100%; text-align:center;">
+            <div style="font-size:.65rem; color:var(--texto-muted); text-transform:uppercase;
+                        letter-spacing:.08em; margin-bottom:.4rem;">Ingresos generados</div>
+            <div id="estrella-ingresos"
+                 style="font-size:2rem; font-weight:700; color:#27ae60;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div style="background:var(--fondo-card); border:1px solid var(--azul-borde);
+                      border-radius:10px; padding:.85rem 1rem;">
+            <div style="font-size:.62rem; color:var(--texto-muted); text-transform:uppercase;
+                        letter-spacing:.08em; margin-bottom:.3rem;">Presentación más vendida</div>
+            <div id="estrella-presentacion"
+                 style="font-size:.9rem; font-weight:700; color:var(--texto);">—</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div style="background:var(--fondo-card); border:1px solid var(--azul-borde);
+                      border-radius:10px; padding:.85rem 1rem;">
+            <div style="font-size:.62rem; color:var(--texto-muted); text-transform:uppercase;
+                        letter-spacing:.08em; margin-bottom:.3rem;">Índice de rotación</div>
+            <div id="estrella-rotacion"
+                 style="font-size:.9rem; font-weight:700; color:var(--texto);">—</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div style="background:var(--fondo-card); border:1px solid var(--azul-borde);
+                      border-radius:10px; padding:.85rem 1rem;">
+            <div style="font-size:.62rem; color:var(--texto-muted); text-transform:uppercase;
+                        letter-spacing:.08em; margin-bottom:.3rem;">Stock actual</div>
+            <div id="estrella-stock"
+                 style="font-size:.9rem; font-weight:700;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRÁFICA ROTACIÓN -->
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <i class="bi bi-arrow-left-right" style="color:var(--azul-claro); font-size:1rem;"></i>
+    <span style="font-family:'Rajdhani',sans-serif; font-size:.75rem; font-weight:700;
+                 color:var(--texto-muted); letter-spacing:.12em; text-transform:uppercase;">
+      Rotación de Productos — Últimos 30 días
+    </span>
+    <div class="ms-auto d-flex gap-3 align-items-center">
+      <span style="font-size:.7rem; color:var(--texto-muted);">
+        <span style="display:inline-block; width:10px; height:10px; border-radius:2px;
+                     background:#378ADD; margin-right:4px;"></span>Ventas (uds)
+      </span>
+      <span style="font-size:.7rem; color:var(--texto-muted);">
+        <span style="display:inline-block; width:10px; height:10px; border-radius:2px;
+                     background:#E24B4A; margin-right:4px;"></span>Sin movimiento
+      </span>
+    </div>
+  </div>
+
+  <div id="rotacion-chart-wrapper" style="position:relative; width:100%; min-height:300px;">
+    <div id="rotacion-loading"
+         style="display:flex; align-items:center; justify-content:center;
+                height:200px; color:var(--texto-muted); font-size:.85rem;">
+      <span class="spinner-border spinner-border-sm me-2"></span> Cargando datos…
+    </div>
+    <canvas id="chartRotacion" style="display:none;"></canvas>
+  </div>
+
+  <!-- TABLAS ALTA / BAJA ROTACIÓN -->
+  <div class="row g-3 mt-2" id="tablas-rotacion" style="display:none;">
+    <div class="col-md-6">
+      <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde);
+                  border-radius:12px; padding:1.1rem 1.25rem; height:100%;">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <i class="bi bi-graph-up-arrow" style="color:#27ae60; font-size:.95rem;"></i>
+          <span style="font-family:'Rajdhani',sans-serif; font-size:.72rem; font-weight:700;
+                       color:#27ae60; letter-spacing:.1em; text-transform:uppercase;">
+            Alta Rotación
+          </span>
+        </div>
+        <div id="lista-alta-rotacion"></div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde);
+                  border-radius:12px; padding:1.1rem 1.25rem; height:100%;">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <i class="bi bi-graph-down-arrow" style="color:#e74c3c; font-size:.95rem;"></i>
+          <span style="font-family:'Rajdhani',sans-serif; font-size:.72rem; font-weight:700;
+                       color:#e74c3c; letter-spacing:.1em; text-transform:uppercase;">
+            Baja Rotación / Sin Movimiento
+          </span>
+        </div>
+        <div id="lista-baja-rotacion"></div>
+      </div>
+    </div>
+  </div>
+
+</section>
 
 </div>
 
@@ -413,7 +528,146 @@ const GESTION_URL = "{% url 'inventario:gestion_productos' %}";
 const CREAR_URL   = "{% url 'producto:crear_producto' %}";
 const PRES_URL    = "{% url 'producto:presentaciones_guardar' 0 %}";
 const CSRF_TOKEN  = "{{ csrf_token }}";
+const ROTACION_URL = "{% url 'producto:rotacion_json' %}";
 
+(function () {
+  const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+  function fmtCOP(v) {
+    if (v >= 1000000) return '$' + (v/1000000).toFixed(1).replace('.0','') + 'M';
+    if (v >= 1000)    return '$' + Math.round(v/1000) + 'k';
+    return '$' + v.toLocaleString('es-CO');
+  }
+
+  function calcRotacion(uds) {
+    if (uds >= 100) return '<span style="color:#27ae60;font-weight:700;">Alta</span> — reposición cada 3 días';
+    if (uds >= 30)  return '<span style="color:#EF9F27;font-weight:700;">Media</span> — reposición cada semana';
+    if (uds > 0)    return '<span style="color:#e87070;font-weight:700;">Baja</span> — poca salida';
+    return '<span style="color:#e74c3c;font-weight:700;">Sin movimiento</span>';
+  }
+
+  function itemFila(nombre, cantidad, sinMov) {
+    const color  = sinMov ? '#e74c3c' : (cantidad >= 50 ? '#27ae60' : '#EF9F27');
+    const bg     = sinMov ? 'rgba(231,76,60,.06)' : 'transparent';
+    const border = sinMov ? '1px solid rgba(231,76,60,.2)' : '1px solid transparent';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;
+                        padding:.55rem .75rem;border-radius:8px;margin-bottom:.35rem;
+                        background:${bg};border:${border}">
+      <span style="font-size:.83rem;color:var(--texto);">${nombre}</span>
+      <span style="font-size:.83rem;font-weight:700;color:${color};">${cantidad} uds</span>
+    </div>`;
+  }
+
+  function renderTablas(rotacion, sinMovimiento) {
+    const alta = rotacion.filter(p => p.cantidad >= 50);
+    const baja = rotacion.filter(p => p.cantidad > 0 && p.cantidad < 50);
+
+    const elAlta = document.getElementById('lista-alta-rotacion');
+    const elBaja = document.getElementById('lista-baja-rotacion');
+
+    if (elAlta) elAlta.innerHTML = alta.length
+      ? alta.map(p => itemFila(p.nombre, p.cantidad, false)).join('')
+      : '<p style="color:var(--texto-muted);font-size:.8rem;text-align:center;padding:1rem 0;">Sin productos de alta rotación.</p>';
+
+    if (elBaja) elBaja.innerHTML = [
+      ...baja.map(p => itemFila(p.nombre, p.cantidad, false)),
+      ...sinMovimiento.map(p => itemFila(p.nombre, 0, true)),
+    ].join('') || '<p style="color:var(--texto-muted);font-size:.8rem;text-align:center;padding:1rem 0;">Todos los productos tienen movimiento.</p>';
+
+    const tablas = document.getElementById('tablas-rotacion');
+    if (tablas) tablas.style.display = 'flex';
+  }
+
+  function buildChart(labels, valores, colores) {
+    new Chart(document.getElementById('chartRotacion'), {
+      type: 'bar',
+      data: { labels, datasets: [{ label:'Unidades vendidas', data:valores,
+                backgroundColor:colores, borderRadius:5, borderSkipped:false }] },
+      options: {
+        indexAxis: 'y', responsive:true, maintainAspectRatio:false,
+        plugins: { legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} unidades`}} },
+        scales: {
+          x: { beginAtZero:true, grid:{color:'rgba(255,255,255,0.07)'}, ticks:{color:'#8899aa',font:{size:11}} },
+          y: { grid:{display:false}, ticks:{color:'#c8d6e5',font:{size:12},autoSkip:false} }
+        }
+      }
+    });
+  }
+
+  function renderGrafica(rotacion, sinMovimiento) {
+    const todos  = [...rotacion, ...sinMovimiento];
+    const labels = todos.map(p => p.nombre);
+    const valores = todos.map(p => p.cantidad);
+    const colores = todos.map((_, i) => i < rotacion.length ? '#378ADD' : '#E24B4A');
+
+    const alturaMin = Math.max(300, todos.length * 40);
+    const wrapper   = document.getElementById('rotacion-chart-wrapper');
+    if (wrapper) wrapper.style.height = alturaMin + 'px';
+
+    document.getElementById('rotacion-loading').style.display = 'none';
+    document.getElementById('chartRotacion').style.display    = 'block';
+
+    if (window.Chart) { buildChart(labels, valores, colores); }
+    else {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+      s.onload = () => buildChart(labels, valores, colores);
+      document.body.appendChild(s);
+    }
+  }
+
+  function renderEstrella(data) {
+    const bloque = document.getElementById('bloque-estrella');
+    if (!data.estrella_nombre) { bloque.style.display = 'none'; return; }
+
+    const ahora = new Date();
+    document.getElementById('estrella-mes-label').textContent =
+      MESES[ahora.getMonth()] + ' ' + ahora.getFullYear();
+
+    document.getElementById('estrella-nombre').textContent = data.estrella_nombre;
+    document.getElementById('estrella-categoria').querySelector('span').textContent =
+      data.estrella_categoria || '—';
+    document.getElementById('estrella-vendido').textContent  = data.estrella_vendido;
+    document.getElementById('estrella-ingresos').textContent =
+      data.estrella_ingresos > 0 ? fmtCOP(data.estrella_ingresos) : '—';
+    document.getElementById('estrella-presentacion').textContent =
+      data.estrella_presentacion || '—';
+    document.getElementById('estrella-rotacion').innerHTML =
+      calcRotacion(data.estrella_vendido || 0);
+
+    const critico = data.estrella_stock_critico;
+    document.getElementById('estrella-stock').innerHTML =
+      `<span style="color:${critico ? '#e87070' : '#27ae60'};">
+        ${data.estrella_stock} uds
+        ${critico ? ' <i class="bi bi-exclamation-triangle-fill" style="font-size:.8rem;"></i> reponer pronto' : ''}
+      </span>`;
+
+    bloque.style.display = 'block';
+  }
+
+  fetch(ROTACION_URL)
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('seccion-analitica').style.display = 'block';
+      const todos = [...(data.rotacion||[]), ...(data.sin_movimiento||[])];
+
+      renderEstrella(data);
+
+      if (todos.length) {
+        renderGrafica(data.rotacion||[], data.sin_movimiento||[]);
+        renderTablas(data.rotacion||[], data.sin_movimiento||[]);
+      } else {
+        document.getElementById('rotacion-loading').innerHTML =
+          '<p style="color:var(--texto-muted);font-size:.85rem;text-align:center;padding:2rem 0;">No hay datos de ventas en los últimos 30 días.</p>';
+      }
+    })
+    .catch(() => {
+      document.getElementById('seccion-analitica').style.display = 'block';
+      document.getElementById('rotacion-loading').innerHTML =
+        '<p style="color:var(--texto-muted);font-size:.8rem;">Error al cargar datos.</p>';
+    });
+})();
 const todoProductos = [
   {% for producto in productos %}
   {

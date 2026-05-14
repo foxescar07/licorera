@@ -5,11 +5,14 @@ from django.db.models import Sum
 from .models import Producto, Categoria, Inventario, AgendaInventario, PresentacionProducto
 from .forms import ProductoForm, AgendaInventarioForm, PresentacionForm, ProductoRegistroForm
 from django.db import transaction
+from django.utils import timezone
+from datetime import timedelta
 
 
 # ===============================
 # LISTA DE PRODUCTOS
 # ===============================
+
 def producto_lista(request):
     form = ProductoForm()
 
@@ -32,16 +35,56 @@ def producto_lista(request):
     for cat in categorias:
         resumen_categorias.append({"nombre": cat.nombre, "total": cat.productos.count(), "pk": cat.pk})
 
-    productos = Producto.objects.select_related("categoria").prefetch_related("presentaciones").all()
+    productos = Producto.objects.select_related("categoria").prefetch_related("presentaciones", "movimientos").all()
 
-    context = {
+    # ── Rotación últimos 30 días ──────────────────────────────────
+    hace_30 = timezone.now() - timedelta(days=30)
+
+    rotacion = (
+        Inventario.objects
+        .filter(tipo='salida', fecha_actualizada__gte=hace_30)
+        .values('producto__pk', 'producto__nombre')
+        .annotate(total_vendido=Sum('cantidad'))
+        .order_by('-total_vendido')
+    )
+
+    ids_con_movimiento = {r['producto__pk'] for r in rotacion}
+
+    sin_movimiento = (
+        Producto.objects
+        .exclude(pk__in=ids_con_movimiento)
+        .values('pk', 'nombre')
+    )
+
+    estrella = None
+    if rotacion:
+        top = rotacion[0]
+        try:
+            prod_estrella = Producto.objects.prefetch_related('presentaciones').get(pk=top['producto__pk'])
+            estrella = {
+                'nombre':        prod_estrella.nombre,
+                'categoria':     prod_estrella.categoria.nombre,
+                'total_vendido': top['total_vendido'],
+                'stock_actual':  prod_estrella.stock_total,
+                'stock_critico': prod_estrella.stock_critico,
+            }
+        except Producto.DoesNotExist:
+            pass
+
+    hay_analitica = rotacion.exists() or sin_movimiento.exists()
+
+    # ── RETURN con todo el contexto ───────────────────────────────
+    return render(request, "producto.html", {
         "form":               form,
         "productos":          productos,
         "resumen_categorias": resumen_categorias,
-    }
-    return render(request, "producto.html", context)
+        "estrella":           estrella,
+        "hay_analitica":      hay_analitica,
+    })
 
-
+# ===============================
+# CREAR PRODUCTO (AJAX)
+# ===============================
 def crear_producto(request):
     if request.method != 'POST':
         return redirect('inventario:gestion_productos')
@@ -53,14 +96,12 @@ def crear_producto(request):
     if form.is_valid():
         p = form.save(commit=False)
 
-        # ── Cantidad inicial ──────────────────────────────────────────────
         try:
             cantidad = int(request.POST.get('cantidad_disponible', 0) or 0)
             p.cantidad_disponible = max(0, cantidad)
         except (ValueError, TypeError):
             p.cantidad_disponible = 0
 
-        # ── Precio unitario ───────────────────────────────────────────────
         precio_raw = request.POST.get('precio_unitario', '').strip()
         if precio_raw:
             try:
@@ -117,7 +158,6 @@ def presentaciones_guardar(request, pk):
         precios    = request.POST.getlist("precio[]")
         cantidades = request.POST.getlist("cantidad[]")
 
-        # Si no llegaron filas (no se abrió el modal), salir sin tocar BD
         if not any(n.strip() for n in nombres):
             next_url = request.POST.get('next') or request.GET.get('next')
             return redirect(next_url or "producto:producto_lista")
@@ -207,7 +247,7 @@ def categoria_crear(request):
 
 
 # ===============================
-# REGISTRO (vista standalone, opcional)
+# REGISTRO (vista standalone)
 # ===============================
 def producto_registro(request):
     form = ProductoRegistroForm()
@@ -325,6 +365,7 @@ def producto_salida(request):
 
     return redirect("producto:producto_lista")
 
+
 # ===============================
 # BÚSQUEDA DE PRODUCTO (cajero)
 # ===============================
@@ -376,3 +417,75 @@ def buscar_producto(request):
             {'encontrado': False, 'mensaje': 'Error al consultar. Inténtalo de nuevo.'},
             status=500
         )
+
+
+# ===============================
+# ROTACIÓN JSON (para gráfica)
+# ===============================
+def rotacion_json(request):
+    hace_30 = timezone.now() - timedelta(days=30)
+
+    rotacion_qs = (
+        Inventario.objects
+        .filter(tipo='salida', fecha_actualizada__gte=hace_30)
+        .values('producto__pk', 'producto__nombre')
+        .annotate(total_vendido=Sum('cantidad'))
+        .order_by('-total_vendido')[:15]
+    )
+
+    ids_con_movimiento = {r['producto__pk'] for r in rotacion_qs}
+
+    sin_movimiento = list(
+        Producto.objects
+        .exclude(pk__in=ids_con_movimiento)
+        .values('pk', 'nombre')[:5]
+    )
+
+    estrella_nombre = estrella_categoria = estrella_presentacion = None
+    estrella_vendido = estrella_stock = estrella_ingresos = 0
+    estrella_stock_critico = False
+
+    if rotacion_qs:
+        top = rotacion_qs[0]
+        try:
+            prod = Producto.objects.prefetch_related('presentaciones').get(pk=top['producto__pk'])
+            estrella_nombre    = prod.nombre
+            estrella_categoria = prod.categoria.nombre if prod.categoria else ''
+            estrella_vendido   = top['total_vendido']
+            estrella_stock     = prod.stock_total if hasattr(prod, 'stock_total') else prod.cantidad_disponible
+            estrella_stock_critico = prod.stock_critico if hasattr(prod, 'stock_critico') else (estrella_stock < 10)
+
+            pres_qs = prod.presentaciones.all()
+            if pres_qs.exists():
+                mejor = max(pres_qs, key=lambda p: float(p.precio or 0) * p.unidades)
+                estrella_presentacion = f"{mejor.nombre} — {mejor.unidades} unid."
+                try:
+                    precio_base = float(pres_qs.order_by('unidades').first().precio or 0)
+                    estrella_ingresos = round(precio_base * estrella_vendido)
+                except Exception:
+                    estrella_ingresos = 0
+            elif hasattr(prod, 'precio_unitario') and prod.precio_unitario:
+                try:
+                    estrella_ingresos = round(float(prod.precio_unitario) * estrella_vendido)
+                except Exception:
+                    estrella_ingresos = 0
+        except Producto.DoesNotExist:
+            pass
+
+    return JsonResponse({
+        'rotacion': [
+            {'nombre': r['producto__nombre'], 'cantidad': r['total_vendido']}
+            for r in rotacion_qs
+        ],
+        'sin_movimiento': [
+            {'nombre': p['nombre'], 'cantidad': 0}
+            for p in sin_movimiento
+        ],
+        'estrella_nombre':        estrella_nombre,
+        'estrella_categoria':     estrella_categoria,
+        'estrella_vendido':       estrella_vendido,
+        'estrella_stock':         estrella_stock,
+        'estrella_stock_critico': estrella_stock_critico,
+        'estrella_presentacion':  estrella_presentacion,
+        'estrella_ingresos':      estrella_ingresos,
+    })
