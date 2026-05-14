@@ -12,11 +12,11 @@ import smtplib
 import re
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-
+ 
 EMAIL_USER = 'ccanariasogamoso@gmail.com'
 EMAIL_PASS = 'jmcikwsvajdmbzab'
-
-
+ 
+ 
 def _enviar_correo(destinatario, asunto, cuerpo):
     mensaje = MIMEMultipart()
     mensaje['Subject'] = asunto
@@ -32,8 +32,8 @@ def _enviar_correo(destinatario, asunto, cuerpo):
         server.ehlo()
         server.login(EMAIL_USER, EMAIL_PASS)
         server.sendmail(EMAIL_USER, destinatario, mensaje.as_string())
-
-
+ 
+ 
 def _validar_clave_segura(clave):
     if len(clave) < 6:
         return 'La contraseña debe tener al menos 6 caracteres.'
@@ -42,12 +42,12 @@ def _validar_clave_segura(clave):
     if not re.search(r'[A-Z]', clave):
         return 'La contraseña debe contener al menos 1 letra mayúscula.'
     return None
-
-
+ 
+ 
 def _solo_admin(request):
     return request.session.get('usuario_rol') == 'admin'
-
-
+ 
+ 
 def login_view(request):
     if request.session.get('usuario_id'):
         return redirect('home')
@@ -68,25 +68,26 @@ def login_view(request):
             except Usuario.DoesNotExist:
                 return JsonResponse({'ok': False, 'error': 'Usuario o contraseña incorrectos.'})
     return render(request, 'usuario.html')
-
-
+ 
+ 
 def logout_view(request):
     request.session.flush()
     response = redirect('login')
-    # Evita que el navegador muestre páginas protegidas al presionar "atrás"
     response['Cache-Control'] = 'no-store, no-cache, must-revalidate, private'
     response['Pragma'] = 'no-cache'
     response['Expires'] = '0'
     return response
-
-
+ 
+ 
 def lista_usuarios(request):
     if not request.session.get('usuario_id'):
         return redirect('login')
+    # ── FIX: descarta mensajes de otras apps (ej: ventas) para que no aparezcan aquí
+    list(messages.get_messages(request))
     usuarios = Usuario.objects.all().order_by('-fecha_registro')
     return render(request, 'usuarios_lista.html', {'usuarios': usuarios})
-
-
+ 
+ 
 def crear_usuario(request):
     form = UsuarioForm()
     if request.method == 'POST':
@@ -103,20 +104,19 @@ def crear_usuario(request):
                 for error in errores:
                     messages.error(request, error)
     return render(request, 'crear_usuario.html', {'form': form})
-
-
+ 
+ 
 def editar_usuario(request, pk):
-    """Solo admin puede editar otros usuarios."""
     if not request.session.get('usuario_id'):
         return redirect('login')
     if not _solo_admin(request):
         return JsonResponse({'ok': False, 'error': 'Sin permisos.'}, status=403)
-
+ 
     try:
         u = Usuario.objects.get(pk=pk)
     except Usuario.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Usuario no encontrado.'}, status=404)
-
+ 
     if request.method == 'GET':
         return JsonResponse({
             'ok': True,
@@ -133,14 +133,14 @@ def editar_usuario(request, pk):
             'activo':        u.activo,
             'fecha_registro': u.fecha_registro.strftime('%d/%m/%Y'),
         })
-
+ 
     if request.method == 'POST':
         nombre        = request.POST.get('nombre', '').strip()
         apellidos     = request.POST.get('apellidos', '').strip()
         email         = request.POST.get('email', '').strip().lower()
         rol           = request.POST.get('rol', '').strip()
         clave_nueva   = request.POST.get('clave_nueva', '').strip()
-
+ 
         if not nombre or not apellidos:
             return JsonResponse({'ok': False, 'error': 'Nombre y apellidos son obligatorios.'})
         if any(c.isdigit() for c in nombre):
@@ -152,22 +152,22 @@ def editar_usuario(request, pk):
         if email and email != (u.email or '').lower():
             if Usuario.objects.filter(email__iexact=email).exclude(pk=u.pk).exists():
                 return JsonResponse({'ok': False, 'error': 'Este correo ya está en uso.'})
-
+ 
         if clave_nueva:
             err = _validar_clave_segura(clave_nueva)
             if err:
                 return JsonResponse({'ok': False, 'error': err})
-
+ 
         fields = ['nombre', 'apellidos', 'email', 'rol']
         u.nombre    = nombre
         u.apellidos = apellidos
         u.email     = email or None
         u.rol       = rol
-
+ 
         if clave_nueva:
             u.clave = hashlib.sha256(clave_nueva.encode()).hexdigest()
             fields.append('clave')
-
+ 
         u.save(update_fields=fields)
         return JsonResponse({
             'ok': True,
@@ -175,12 +175,11 @@ def editar_usuario(request, pk):
             'nombre_completo': u.nombre_completo,
             'rol_label': u.get_rol_display(),
         })
-
+ 
     return JsonResponse({'ok': False, 'error': 'Método no permitido.'})
-
-
+ 
+ 
 def toggle_activo(request, pk):
-    """Admin puede activar/desactivar usuarios."""
     if not request.session.get('usuario_id'):
         return redirect('login')
     if not _solo_admin(request):
@@ -191,11 +190,10 @@ def toggle_activo(request, pk):
         u = Usuario.objects.get(pk=pk)
     except Usuario.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Usuario no encontrado.'})
-
-    # No permitir desactivarse a sí mismo
+ 
     if u.pk == request.session.get('usuario_id'):
         return JsonResponse({'ok': False, 'error': 'No puedes desactivar tu propia cuenta.'})
-
+ 
     u.activo = not u.activo
     u.save(update_fields=['activo'])
     return JsonResponse({
@@ -203,8 +201,8 @@ def toggle_activo(request, pk):
         'activo': u.activo,
         'mensaje': f'Usuario {"activado" if u.activo else "desactivado"} correctamente.',
     })
-
-
+ 
+ 
 def solicitar_recuperacion(request):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         correo = request.POST.get('correo', '').strip().lower()
@@ -236,8 +234,8 @@ def solicitar_recuperacion(request):
             print(f"ERROR EMAIL: {type(e).__name__}: {e}")
             return JsonResponse({'ok': False, 'error': f'Error al enviar: {type(e).__name__}: {e}'})
     return JsonResponse({'ok': False, 'error': 'Petición inválida.'})
-
-
+ 
+ 
 def restablecer_clave(request, token):
     try:
         usuario = Usuario.objects.get(reset_token=token, activo=True)
@@ -268,8 +266,8 @@ def restablecer_clave(request, token):
         )
         return render(request, 'restablecer_clave.html', {'exito': True})
     return render(request, 'restablecer_clave.html', {'token': token})
-
-
+ 
+ 
 def perfil_datos(request):
     if not request.session.get('usuario_id'):
         return JsonResponse({'ok': False, 'error': 'Sin sesión.'})
@@ -290,8 +288,8 @@ def perfil_datos(request):
         })
     except Usuario.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Usuario no encontrado.'})
-
-
+ 
+ 
 def perfil_editar(request):
     if not request.session.get('usuario_id'):
         return JsonResponse({'ok': False, 'error': 'Sin sesión.'})
@@ -301,13 +299,13 @@ def perfil_editar(request):
         u = Usuario.objects.get(pk=request.session['usuario_id'])
     except Usuario.DoesNotExist:
         return JsonResponse({'ok': False, 'error': 'Usuario no encontrado.'})
-
+ 
     nombre       = request.POST.get('nombre', '').strip()
     apellidos    = request.POST.get('apellidos', '').strip()
     email        = request.POST.get('email', '').strip().lower()
     clave_nueva  = request.POST.get('clave_nueva', '').strip()
     clave_actual = request.POST.get('clave_actual', '').strip()
-
+ 
     if not nombre or not apellidos:
         return JsonResponse({'ok': False, 'error': 'Nombre y apellidos son obligatorios.'})
     if any(c.isdigit() for c in nombre):
@@ -325,7 +323,7 @@ def perfil_editar(request):
         err = _validar_clave_segura(clave_nueva)
         if err:
             return JsonResponse({'ok': False, 'error': err})
-
+ 
     fields = ['nombre', 'apellidos', 'email']
     u.nombre    = nombre
     u.apellidos = apellidos
@@ -340,8 +338,8 @@ def perfil_editar(request):
         'mensaje': 'Perfil actualizado correctamente.',
         'nombre_completo': u.nombre_completo,
     })
-
-
+ 
+ 
 def eliminar_usuario(request, pk):
     if request.session.get('usuario_rol') != 'admin':
         return JsonResponse({'ok': False, 'error': 'Sin permiso.'})
