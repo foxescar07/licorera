@@ -32,8 +32,8 @@ def ventas_lista(request):
         'detalles__producto',
         'detalles__presentacion'
     ).all().order_by('-fecha')
-    form      = VentaForm()
-    detalle   = DetalleVentaForm()
+    form       = VentaForm()
+    detalle    = DetalleVentaForm()
     categorias = Categoria.objects.prefetch_related('productos__presentaciones').all()
  
     return render(request, 'ventas/ventas.html', {
@@ -370,14 +370,21 @@ def ventas_dia(request):
  
     caja_abierta  = AperturaCaja.objects.filter(fecha=hoy).first()
     ultimo_cierre = CierreCaja.objects.filter(fecha=hoy).first()
- 
+
+
+    # ── Leer autorización de caja desde sesión ──
+    caja_autorizado   = request.session.get('caja_autorizado', False)
+    caja_autor_nombre = request.session.get('caja_autorizado_usuario', '')
+
     return render(request, 'ventas/ventas_dia.html', {
-        'ventas':          ventas,
-        'total_dia':       total_dia,
-        'total_productos': total_productos,
-        'hoy':             hoy,
-        'caja_abierta':    caja_abierta,
-        'ultimo_cierre':   ultimo_cierre,
+        'ventas':            ventas,
+        'total_dia':         total_dia,
+        'total_productos':   total_productos,
+        'hoy':               hoy,
+        'caja_abierta':      caja_abierta,
+        'ultimo_cierre':     ultimo_cierre,
+        'caja_autorizado':   caja_autorizado,
+        'caja_autor_nombre': caja_autor_nombre,
     })
  
  
@@ -408,7 +415,14 @@ def apertura_caja(request):
         usuario=data.get('observacion', ''),
         denominaciones=data.get('denominaciones', {}),
     )
- 
+
+
+    # ── Limpiar autorización tras usarla ──
+    request.session.pop('caja_autorizado', None)
+    request.session.pop('caja_autorizado_usuario', None)
+    request.session.pop('caja_autorizado_ts', None)
+
+
     return JsonResponse({'ok': True})
  
  
@@ -443,7 +457,13 @@ def cierre_caja(request):
             'denominaciones':       data.get('denominaciones', {}),
         }
     )
- 
+
+
+    # ── Limpiar autorización tras usarla ──
+    request.session.pop('caja_autorizado', None)
+    request.session.pop('caja_autorizado_usuario', None)
+    request.session.pop('caja_autorizado_ts', None)
+
     return JsonResponse({'ok': True})
  
  
@@ -476,5 +496,13 @@ def verificar_acceso_caja(request):
  
     if not (es_admin or es_cajero):
         return JsonResponse({'ok': False, 'error': 'No tienes permiso. Tu usuario no es administrador ni cajero.'})
- 
+
+
+    # ── Guardar autorización en sesión ──
+    request.session['caja_autorizado']         = True
+    request.session['caja_autorizado_usuario'] = usuario.nombre_completo
+    request.session['caja_autorizado_ts']      = timezone.now().isoformat()
+    request.session.modified = True
+
+
     return JsonResponse({'ok': True, 'nombre': usuario.nombre_completo})
