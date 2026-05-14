@@ -147,6 +147,20 @@
  
 /* ── BOTÓN VENTAS DEL DÍA (oculto hasta login) ── */
 #btnVerVentasDia { display: none; }
+ 
+/* ── SEPARADOR DE FECHA ── */
+.fila-fecha-grupo td {
+    background: rgba(77,168,218,.06);
+    border-top: 2px solid rgba(77,168,218,.25) !important;
+    border-bottom: 1px solid rgba(77,168,218,.15) !important;
+    padding: .45rem 1rem !important;
+    font-size: .7rem;
+    font-weight: 700;
+    color: var(--azul-claro);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    pointer-events: none;
+}
 </style>
 {% endblock %}
  
@@ -312,34 +326,42 @@
               </tr>
             </thead>
             <tbody>
-              {% for venta in ventas %}
-              <tr style="border-bottom:1px solid var(--azul-borde); cursor:pointer;" onclick="verRecibo({{ venta.pk }})">
-                <td style="color:var(--texto-muted);">{{ forloop.counter }}</td>
-                <td style="font-size:.8rem;">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
-                <td style="font-weight:600;">{{ venta.cliente }}</td>
-                <td>
-                  <div class="d-flex flex-wrap gap-1">
-                    {% for det in venta.detalles.all %}
-                      <span style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:20px; padding:.2rem .6rem; font-size:.75rem;">
-                        {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %} x {{ det.cantidad }}
-                      </span>
-                    {% endfor %}
-                  </div>
-                </td>
-                <td style="color:var(--texto-muted); font-size:.85rem;">
-                  {% if venta.descuento_porcentaje > 0 %}<span style="text-decoration:line-through;">${{ venta.subtotal|floatformat:0 }}</span>{% else %}—{% endif %}
-                </td>
-                <td>
-                  {% if venta.descuento_porcentaje > 0 %}<span style="color:#ff4d4d; font-size:.8rem;">-{{ venta.descuento_porcentaje|floatformat:0 }}%</span>{% else %}<span style="color:var(--texto-muted);">—</span>{% endif %}
-                </td>
-                <td style="font-weight:800; color:var(--azul-claro);">${{ venta.total_venta|floatformat:0 }}</td>
-                <td onclick="event.stopPropagation()">
-                  <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}" onsubmit="return confirm('Eliminar esta venta y restaurar stock?')">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px;"><i class="bi bi-trash"></i></button>
-                  </form>
-                </td>
-              </tr>
+              {% regroup ventas by fecha|date:"d/m/Y" as ventas_por_dia %}
+              {% for dia in ventas_por_dia %}
+                <tr class="fila-fecha-grupo">
+                  <td colspan="8">
+                    <i class="bi bi-calendar3 me-2"></i>{{ dia.grouper }}
+                  </td>
+                </tr>
+                {% for venta in dia.list %}
+                <tr style="border-bottom:1px solid var(--azul-borde); cursor:pointer;" onclick="verRecibo({{ venta.pk }})">
+                  <td style="color:var(--texto-muted);">{{ forloop.counter }}</td>
+                  <td style="font-size:.8rem;">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                  <td style="font-weight:600;">{{ venta.cliente }}</td>
+                  <td>
+                    <div class="d-flex flex-wrap gap-1">
+                      {% for det in venta.detalles.all %}
+                        <span style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:20px; padding:.2rem .6rem; font-size:.75rem;">
+                          {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %} x {{ det.cantidad }}
+                        </span>
+                      {% endfor %}
+                    </div>
+                  </td>
+                  <td style="color:var(--texto-muted); font-size:.85rem;">
+                    {% if venta.descuento_porcentaje > 0 %}<span style="text-decoration:line-through;">${{ venta.subtotal|floatformat:0 }}</span>{% else %}—{% endif %}
+                  </td>
+                  <td>
+                    {% if venta.descuento_porcentaje > 0 %}<span style="color:#ff4d4d; font-size:.8rem;">-{{ venta.descuento_porcentaje|floatformat:0 }}%</span>{% else %}<span style="color:var(--texto-muted);">—</span>{% endif %}
+                  </td>
+                  <td style="font-weight:800; color:var(--azul-claro);">${{ venta.total_venta|floatformat:0 }}</td>
+                  <td onclick="event.stopPropagation()">
+                    <form method="POST" action="{% url 'ventas:eliminar_venta' venta.pk %}" onsubmit="return confirm('Eliminar esta venta y restaurar stock?')">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px;"><i class="bi bi-trash"></i></button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
               {% endfor %}
             </tbody>
           </table>
@@ -368,7 +390,7 @@
   <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
     Solo administradores y cajeros pueden registrar ventas.
   </p>
-
+ 
   <div class="caja-input-label">Contraseña</div>
   <div style="position:relative; margin-bottom:.8rem;">
     <input type="password" class="caja-input" id="authVentasPassword" placeholder="••••••••"
@@ -482,21 +504,21 @@
 const URL_VENTAS     = "{% url 'ventas:nueva_venta' %}";
 const URL_VENTAS_DIA = "{% url 'ventas:ventas_dia' %}";
 const CSRF_TOKEN     = '{{ csrf_token }}';
-
+ 
 {% verbatim %}
 let carrito        = [];
 let metodosActivos = new Set();
 let totalActual    = 0;
-
+ 
 /* ════════════════════════════════════════════════════════════
    AUTH CARRITO
 ════════════════════════════════════════════════════════════ */
-
+ 
 function abrirAuthVentas() {
     const passInput = document.getElementById('authVentasPassword');
     const errBox    = document.getElementById('authVentasError');
     const boton     = document.getElementById('authVentasBoton');
-
+ 
     passInput.value = '';
     passInput.type  = 'password';
     passInput.classList.remove('error-border', 'shake');
@@ -504,17 +526,17 @@ function abrirAuthVentas() {
     errBox.classList.remove('show');
     boton.disabled = false;
     boton.innerHTML = '<i class="bi bi-shield-check"></i> Verificar e Ingresar';
-
+ 
     document.getElementById('overlayAuthVentas').classList.add('open');
     document.getElementById('modalAuthVentas').classList.add('open');
     setTimeout(() => passInput.focus(), 150);
 }
-
+ 
 function cerrarAuthVentas() {
     document.getElementById('overlayAuthVentas').classList.remove('open');
     document.getElementById('modalAuthVentas').classList.remove('open');
 }
-
+ 
 function togglePassVentas() {
     const inp  = document.getElementById('authVentasPassword');
     const icon = document.getElementById('eyeVentas');
@@ -526,7 +548,7 @@ function togglePassVentas() {
         icon.className = 'bi bi-eye';
     }
 }
-
+ 
 function mostrarErrorAuth(msg) {
     const passInput = document.getElementById('authVentasPassword');
     const errBox    = document.getElementById('authVentasError');
@@ -540,23 +562,23 @@ function mostrarErrorAuth(msg) {
     setTimeout(() => passInput.classList.remove('shake', 'error-border'), 500);
     passInput.focus();
 }
-
+ 
 function desbloquearCarrito(nombre) {
     document.getElementById('carritoLock').style.display      = 'none';
     document.getElementById('carritoContenido').style.display = 'block';
     document.getElementById('nombreUsuarioActivo').textContent = nombre;
-
+ 
     const btn = document.getElementById('btnVerVentasDia');
     if (btn) btn.style.display = 'flex';
 }
-
+ 
 function bloquearCarrito() {
     carrito        = [];
     metodosActivos = new Set();
     totalActual    = 0;
     document.getElementById('carritoContenido').style.display = 'none';
     document.getElementById('carritoLock').style.display      = 'flex';
-
+ 
     document.getElementById('inputsPago').innerHTML   = '';
     document.getElementById('camposHidden').innerHTML = '';
     document.getElementById('listaCarrito').innerHTML = '';
@@ -570,11 +592,11 @@ function bloquearCarrito() {
     document.getElementById('validacionPago').style.display    = 'none';
     document.getElementById('inputDescuento').value            = 0;
     document.querySelectorAll('.metodo-pago-btn').forEach(b => b.classList.remove('activo'));
-
+ 
     const btn = document.getElementById('btnVerVentasDia');
     if (btn) btn.style.display = 'none';
 }
-
+ 
 /* ════════════════════════════════════════════════
    FORMATEO Y PAGOS
 ════════════════════════════════════════════════ */
@@ -583,7 +605,7 @@ function formatPesos(val) {
     if (esEntero) return Math.round(val).toLocaleString('es-CO');
     return val.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
-
+ 
 function formatearInputPago(input) {
     const cursor  = input.selectionStart;
     const prevLen = input.value.length;
@@ -594,7 +616,7 @@ function formatearInputPago(input) {
     input.setSelectionRange(cursor + diff, cursor + diff);
     actualizarPagos();
 }
-
+ 
 function toggleMetodo(metodo) {
     if (metodosActivos.has(metodo)) { metodosActivos.delete(metodo); }
     else { metodosActivos.add(metodo); }
@@ -604,7 +626,7 @@ function toggleMetodo(metodo) {
     });
     renderInputsPago();
 }
-
+ 
 function renderInputsPago() {
     const nombres = { efectivo:'Efectivo', tarjeta:'Tarjeta', transferencia:'Transferencia', nequi:'Nequi', daviplata:'Daviplata' };
     const iconos  = { efectivo:'bi-cash', tarjeta:'bi-credit-card', transferencia:'bi-bank', nequi:'bi-phone', daviplata:'bi-phone' };
@@ -624,7 +646,7 @@ function renderInputsPago() {
     });
     actualizarPagos();
 }
-
+ 
 function actualizarPagos() {
     let totalPagado = 0;
     ['efectivo','tarjeta','transferencia','nequi','daviplata'].forEach(m => {
@@ -654,7 +676,7 @@ function actualizarPagos() {
         document.getElementById('btnRegistrar').disabled = carrito.length === 0;
     }
 }
-
+ 
 /* ════════════════════════════════════════════════
    CARRITO
 ════════════════════════════════════════════════ */
@@ -672,12 +694,12 @@ function agregarAlCarrito(prodId, prodNombre, presId, presNombre, stock, precio)
     }
     renderCarrito();
 }
-
+ 
 function renderCarrito() {
     const lista    = document.getElementById('listaCarrito');
     const totalDiv = document.getElementById('totalGeneral');
     const hayItems = carrito.length > 0;
-
+ 
     document.getElementById('carritoItems').style.display     = hayItems ? 'block' : 'none';
     document.getElementById('seccionDescuento').style.display = hayItems ? 'block' : 'none';
     document.getElementById('seccionPagos').style.display     = hayItems ? 'block' : 'none';
@@ -685,7 +707,7 @@ function renderCarrito() {
     document.getElementById('carritoVacio').style.display     = hayItems ? 'none'  : 'block';
     document.getElementById('btnCancelarVenta').style.display = hayItems ? 'block' : 'none';
     document.getElementById('btnRegistrar').disabled          = true;
-
+ 
     lista.innerHTML = carrito.map((item, i) => `
         <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem .9rem;">
             <div class="d-flex justify-content-between">
@@ -703,13 +725,13 @@ function renderCarrito() {
             </div>
         </div>
     `).join('');
-
+ 
     const subtotal   = carrito.reduce((s, c) => s + c.subtotal, 0);
     const pct        = parseFloat(document.getElementById('inputDescuento').value) || 0;
     const ahorro     = subtotal * (pct / 100);
     const totalFinal = subtotal - ahorro;
     totalActual      = totalFinal;
-
+ 
     totalDiv.innerHTML = `
         <div class="d-flex justify-content-between mb-1" style="font-size:.75rem; color:var(--texto-muted);">
             <span>Subtotal original:</span>
@@ -724,16 +746,16 @@ function renderCarrito() {
     actualizarHiddens();
     actualizarPagos();
 }
-
+ 
 function actualizarCant(i, v) {
     const val = parseInt(v) || 1;
     carrito[i].cantidad = val > carrito[i].stock ? carrito[i].stock : val;
     carrito[i].subtotal = carrito[i].cantidad * carrito[i].precio;
     renderCarrito();
 }
-
+ 
 function quitar(i) { carrito.splice(i, 1); renderCarrito(); }
-
+ 
 function actualizarHiddens() {
     document.getElementById('camposHidden').innerHTML = carrito.map(item => `
         <input type="hidden" name="producto_id[]"     value="${item.prodId}">
@@ -742,7 +764,7 @@ function actualizarHiddens() {
         <input type="hidden" name="precio[]"           value="${item.precio}">
     `).join('');
 }
-
+ 
 /* ════════════════════════════════════════════════
    MODAL CANCELAR VENTA EN PROCESO
 ════════════════════════════════════════════════ */
@@ -757,17 +779,17 @@ function abrirModalCancelar() {
     document.getElementById('overlayCancelar').style.display = 'block';
     document.getElementById('modalCancelar').style.display   = 'block';
 }
-
+ 
 function cerrarModalCancelar() {
     document.getElementById('overlayCancelar').style.display = 'none';
     document.getElementById('modalCancelar').style.display   = 'none';
 }
-
+ 
 function confirmarCancelar() {
     cerrarModalCancelar();
     bloquearCarrito();
 }
-
+ 
 /* ════════════════════════════════════════════════
    NAVEGACIÓN PRODUCTOS
 ════════════════════════════════════════════════ */
@@ -789,7 +811,7 @@ function renderizarProductos(datos) {
         lista.appendChild(div);
     });
 }
-
+ 
 function mostrarProductos(catId, catNombre) {
     document.getElementById('catTitulo').textContent = catNombre;
     const datos = Array.from(document.querySelectorAll('.dato-producto[data-cat="' + catId + '"]'));
@@ -797,7 +819,7 @@ function mostrarProductos(catId, catNombre) {
     document.getElementById('vistaCategorias').style.display = 'none';
     document.getElementById('vistaProductos').style.display  = 'block';
 }
-
+ 
 function mostrarPresentaciones(prodId, prodNombre) {
     document.getElementById('presTitulo').textContent = prodNombre;
     const prodDiv        = document.querySelector('.dato-producto[data-id="' + prodId + '"]');
@@ -833,18 +855,18 @@ function mostrarPresentaciones(prodId, prodNombre) {
     document.getElementById('vistaProductos').style.display      = 'none';
     document.getElementById('vistaPresentaciones').style.display = 'block';
 }
-
+ 
 function volverCategorias() {
     document.getElementById('vistaProductos').style.display      = 'none';
     document.getElementById('vistaPresentaciones').style.display = 'none';
     document.getElementById('vistaCategorias').style.display     = 'block';
 }
-
+ 
 function volverProductos() {
     document.getElementById('vistaPresentaciones').style.display = 'none';
     document.getElementById('vistaProductos').style.display      = 'block';
 }
-
+ 
 /* ════════════════════════════════════════════════
    RECIBO
 ════════════════════════════════════════════════ */
@@ -862,9 +884,9 @@ function verRecibo(ventaId) {
     const daviplata     = parseFloat(ventaDiv.dataset.daviplata)     || 0;
     const urlEliminar   = ventaDiv.dataset.urlEliminar;
     const detalles      = Array.from(ventaDiv.querySelectorAll('.dato-detalle'));
-
+ 
     document.getElementById('formCancelarVentaRecibo').action = urlEliminar;
-
+ 
     let subtotalBruto = 0;
     let itemsHTML = detalles.map(d => {
         const sub = parseFloat(d.dataset.subtotal) || 0;
@@ -878,7 +900,7 @@ function verRecibo(ventaId) {
             <span style="font-weight:700; color:var(--azul-claro);">$${formatPesos(sub)}</span>
         </div>`;
     }).join('');
-
+ 
     const ahorro    = subtotalBruto * (descuento / 100);
     const pagosInfo = [
         { label:'Efectivo',      val:efectivo,      icon:'bi-cash' },
@@ -887,10 +909,10 @@ function verRecibo(ventaId) {
         { label:'Nequi',         val:nequi,          icon:'bi-phone' },
         { label:'Daviplata',     val:daviplata,      icon:'bi-phone' },
     ].filter(p => p.val > 0);
-
+ 
     const totalPagado = pagosInfo.reduce((s, p) => s + p.val, 0);
     const cambio      = totalPagado - total;
-
+ 
     const pagosHTML = pagosInfo.length > 0 ? `
         <div style="margin-top:1rem;">
             <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; margin-bottom:.5rem;">Metodos de Pago</div>
@@ -909,7 +931,7 @@ function verRecibo(ventaId) {
                 <span style="color:#4dff91; font-weight:800;">$${formatPesos(cambio)}</span>
             </div>` : ''}
         </div>` : '';
-
+ 
     document.getElementById('reciboContenido').innerHTML = `
         <div style="background:var(--fondo-card2); border-radius:10px; padding:1rem; margin-bottom:1rem;">
             <div style="display:flex; justify-content:space-between; margin-bottom:.3rem;">
@@ -941,16 +963,16 @@ function verRecibo(ventaId) {
             </div>
         </div>
         ${pagosHTML}`;
-
+ 
     document.getElementById('overlayRecibo').style.display = 'block';
     document.getElementById('modalRecibo').style.display   = 'block';
 }
-
+ 
 function cerrarRecibo() {
     document.getElementById('overlayRecibo').style.display = 'none';
     document.getElementById('modalRecibo').style.display   = 'none';
 }
-
+ 
 /* ════════════════════════════════════════════════
    BUSCADOR + DESCUENTO
 ════════════════════════════════════════════════ */
@@ -970,9 +992,9 @@ document.getElementById('buscadorProducto').addEventListener('input', function (
         document.getElementById('vistaCategorias').style.display = 'block';
     }
 });
-
+ 
 document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
-
+ 
 /* ════════════════════════════════════════════════
    BOTÓN VENTAS DEL DÍA
 ════════════════════════════════════════════════ */
@@ -981,7 +1003,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const menuBtn = document.getElementById('menuBtn');
     if (!subnav || !menuBtn) return;
     if (document.getElementById('btnVerVentasDia')) return;
-
+ 
     const btn = document.createElement('button');
     btn.id = 'btnVerVentasDia';
     btn.innerHTML = '<i class="bi bi-calendar-check me-1"></i> Ver ventas del dia';
@@ -990,7 +1012,7 @@ document.addEventListener('DOMContentLoaded', function () {
     subnav.insertBefore(btn, menuBtn);
 });
 {% endverbatim %}
-
+ 
 /* ════════════════════════════════════════════════
    CONFIRMAR AUTH — FUERA DE VERBATIM para usar 
 ════════════════════════════════════════════════ */
@@ -998,17 +1020,17 @@ function confirmarAuthVentas() {
     const password = document.getElementById('authVentasPassword').value.trim();
     const errBox   = document.getElementById('authVentasError');
     const boton    = document.getElementById('authVentasBoton');
-
+ 
     if (!password) {
         document.getElementById('authVentasErrorMsg').textContent = 'Por favor ingresa tu contrasena.';
         errBox.classList.add('show');
         return;
     }
-
+ 
     boton.disabled = true;
     boton.innerHTML = '<i class="bi bi-hourglass-split"></i> Verificando...';
     errBox.classList.remove('show');
-
+ 
     fetch("{% url 'ventas:verificar_acceso_caja' %}", {
         method: 'POST',
         headers: {
