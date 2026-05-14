@@ -68,10 +68,53 @@
 .caja-btn-primary--danger { background:#ff4d4d; }
 .caja-btn-primary:disabled { opacity:.5; cursor:not-allowed; }
 .caja-resultado-fila { display:flex; justify-content:space-between; padding:.35rem 0; font-size:.88rem; }
+<<<<<<< HEAD
 .auth-aviso { display:none; background:rgba(255,77,77,.1); border:1px solid #ff4d4d; border-radius:8px; padding:.6rem .9rem; font-size:.82rem; color:#ff4d4d; margin-bottom:.8rem; }
 .auth-aviso.show { display:block; }
 .info-base { display:none; background:rgba(46,213,115,.08); border:1px solid #2ed573; border-radius:8px; padding:.6rem .9rem; font-size:.82rem; color:#2ed573; margin-bottom:1rem; }
 .info-base.show { display:block; }
+=======
+ 
+/* ── Auth modal ── */
+.auth-aviso {
+    display: none;
+    background: rgba(255,77,77,.1);
+    border: 1px solid #ff4d4d;
+    border-radius: 8px;
+    padding: .6rem .9rem;
+    font-size: .82rem;
+    color: #ff4d4d;
+    margin-bottom: .8rem;
+}
+.auth-aviso.show { display: block; }
+ 
+.info-base {
+    display: none;
+    background: rgba(46,213,115,.08);
+    border: 1px solid #2ed573;
+    border-radius: 8px;
+    padding: .6rem .9rem;
+    font-size: .82rem;
+    color: #2ed573;
+    margin-bottom: 1rem;
+}
+.info-base.show { display: block; }
+
+/* ── Badge autorización activa ── */
+.caja-auth-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    background: rgba(46,213,115,.1);
+    border: 1px solid #2ed573;
+    border-radius: 20px;
+    padding: .25rem .75rem;
+    font-size: .75rem;
+    font-weight: 700;
+    color: #2ed573;
+}
+ 
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
 @media print {
     .no-print { display:none !important; }
     .cys-header, .cys-subnav, aside { display:none !important; }
@@ -91,9 +134,24 @@
       <i class="bi bi-calendar-check me-2" style="color:var(--azul-claro);"></i>
       Ventas del día — {{ hoy|date:"d/m/Y" }}
     </div>
+<<<<<<< HEAD
     <div class="d-flex gap-2 flex-wrap">
       <a href="{% url 'ventas:ventas_lista' %}" class="cys-btn-export"><i class="bi bi-arrow-left"></i> Volver</a>
       <button onclick="window.print()" class="cys-btn-export"><i class="bi bi-printer"></i> Imprimir</button>
+=======
+    <div class="d-flex gap-2 flex-wrap align-items-center">
+      {% if caja_autorizado %}
+      <span id="cajaAuthBadge" class="caja-auth-badge" style="display:none;">
+       <i class="bi bi-shield-check"></i> <span id="cajaAuthNombre"></span> autenticado
+      </span>
+      {% endif %}
+      <a href="{% url 'ventas:ventas_lista' %}" class="cys-btn-export">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
+      <button onclick="window.print()" class="cys-btn-export">
+        <i class="bi bi-printer"></i> Imprimir
+      </button>
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
       {% if caja_abierta %}
         <button onclick="abrirModalCierre()" class="cys-btn-caja cys-btn-caja--cerrar"><i class="bi bi-lock"></i> Cerrar Caja</button>
       {% else %}
@@ -322,6 +380,7 @@
  
 {% block extra_js %}
 <script>
+<<<<<<< HEAD
 const TOTAL_DIA      = {{ total_dia|floatformat:0 }};
 const BASE_APERTURA  = {{ caja_abierta.monto_base|floatformat:0|default:0 }};
 const BASE_SIGUIENTE = {{ ultimo_cierre.monto_base_siguiente|floatformat:0|default:0 }};
@@ -330,15 +389,45 @@ const URL_VERIFICAR  = "{% url 'ventas:verificar_acceso_caja' %}";
 const URL_APERTURA   = "{% url 'ventas:apertura_caja' %}";
 const URL_CIERRE     = "{% url 'ventas:cierre_caja' %}";
  
+=======
+const TOTAL_DIA         = {{ total_dia|default:0 }};
+const BASE_APERTURA     = {{ caja_abierta.monto_base|default:0 }};
+const BASE_SIGUIENTE    = {{ ultimo_cierre.monto_base_siguiente|default:0 }};
+const CSRF_TOKEN        = '{{ csrf_token }}';
+const CAJA_AUTORIZADO   = localStorage.getItem('caja_autorizado') === 'true';
+const CAJA_AUTOR_NOMBRE = localStorage.getItem('caja_autor_nombre') || '';
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
 function formatPesos(val) {
     const n = Math.round(parseFloat(val) || 0);
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
+<<<<<<< HEAD
  
 document.addEventListener('DOMContentLoaded', function() {
     const el = document.getElementById('totalEnCaja');
     if (el) el.textContent = '$' + formatPesos(BASE_APERTURA + TOTAL_DIA);
  
+=======
+
+// ── Init ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+    const totalEnCajaEl = document.getElementById('totalEnCaja');
+    if (totalEnCajaEl) {
+        totalEnCajaEl.textContent = '$' + formatPesos(BASE_APERTURA + TOTAL_DIA);
+    }
+
+    // ── Mostrar badge si ya está autorizado ──
+    if (CAJA_AUTORIZADO) {
+        const badge  = document.getElementById('cajaAuthBadge');
+        const nombre = document.getElementById('cajaAuthNombre');
+        if (badge) {
+            nombre.textContent = CAJA_AUTOR_NOMBRE;
+            badge.style.display = 'inline-flex';
+        }
+    }
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
     const filas = Array.from(document.querySelectorAll('#tablaVentas tbody tr'));
     let fechaAnterior = null;
     filas.forEach(fila => {
@@ -354,61 +443,99 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         fechaAnterior = fechaActual;
     });
- 
+
     document.querySelectorAll('.denom-ap').forEach(i => i.addEventListener('input', calcularTotalApertura));
     document.querySelectorAll('.denom-ci').forEach(i => i.addEventListener('input', calcularTotalCierre));
     const bi = document.getElementById('baseSiguiente');
     if (bi) bi.addEventListener('input', calcularTotalCierre);
 });
+<<<<<<< HEAD
  
 // ── AUTH ──
+=======
+
+// ════════════════════════════════════════
+// MODAL AUTENTICACIÓN
+// ════════════════════════════════════════
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
 let _accionPendiente = null;
- 
+
 function abrirModalAuth(accion) {
     _accionPendiente = accion;
     const esCierre = accion === 'cierre';
+<<<<<<< HEAD
     document.getElementById('authSubtitulo').textContent   = esCierre ? 'Cierre de Caja' : 'Apertura de Caja';
     document.getElementById('authTitulo').textContent      = esCierre ? 'Cerrar Caja' : 'Abrir Caja';
     document.getElementById('authDescripcion').textContent = esCierre ? 'Confirma tu identidad para proceder con el cierre.' : 'Confirma tu identidad para proceder con la apertura.';
+=======
+
+    document.getElementById('authSubtitulo').textContent   = esCierre ? 'Cierre de Caja' : 'Apertura de Caja';
+    document.getElementById('authTitulo').textContent      = esCierre ? 'Cerrar Caja' : 'Abrir Caja';
+    document.getElementById('authDescripcion').textContent = esCierre
+        ? 'Confirma tu identidad para proceder con el cierre de caja.'
+        : 'Confirma tu identidad para proceder con la apertura de caja.';
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
     const boton = document.getElementById('authBoton');
     boton.className = esCierre ? 'caja-btn-primary caja-btn-primary--danger' : 'caja-btn-primary';
     boton.disabled  = false;
     boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
+<<<<<<< HEAD
+=======
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
     document.getElementById('authUsuario').value  = '';
     document.getElementById('authPassword').value = '';
     document.getElementById('authPassword').type  = 'password';
     document.getElementById('authEyeIcon').className = 'bi bi-eye';
     document.getElementById('authError').classList.remove('show');
+<<<<<<< HEAD
+=======
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
     document.getElementById('overlayAuth').classList.add('open');
     document.getElementById('modalAuth').classList.add('open');
     setTimeout(() => document.getElementById('authUsuario').focus(), 120);
 }
- 
+
 function cerrarModalAuth() {
     document.getElementById('overlayAuth').classList.remove('open');
     document.getElementById('modalAuth').classList.remove('open');
     _accionPendiente = null;
 }
- 
+
 function togglePasswordAuth() {
     const inp = document.getElementById('authPassword');
     inp.type = inp.type === 'password' ? 'text' : 'password';
     document.getElementById('authEyeIcon').className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
 }
- 
+
 function confirmarAuth() {
     const usuario  = document.getElementById('authUsuario').value.trim();
     const password = document.getElementById('authPassword').value;
     const errBox   = document.getElementById('authError');
     const boton    = document.getElementById('authBoton');
+<<<<<<< HEAD
+=======
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
     if (!usuario || !password) {
         document.getElementById('authErrorMsg').textContent = 'Ingresa usuario y contraseña.';
         errBox.classList.add('show'); return;
     }
+<<<<<<< HEAD
     boton.disabled = true;
     boton.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Verificando...';
     errBox.classList.remove('show');
     fetch(URL_VERIFICAR, {
+=======
+
+    boton.disabled = true;
+    boton.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Verificando...';
+    errBox.classList.remove('show');
+
+    fetch("{% url 'ventas:verificar_acceso_caja' %}", {
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
         body: JSON.stringify({ username: usuario, password }),
@@ -417,6 +544,10 @@ function confirmarAuth() {
     .then(data => {
         boton.disabled = false;
         boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
+<<<<<<< HEAD
+=======
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
         if (!data.ok) {
             document.getElementById('authErrorMsg').textContent = data.error || 'Error de autenticación.';
             errBox.classList.add('show');
@@ -424,6 +555,14 @@ function confirmarAuth() {
             document.getElementById('authPassword').focus();
             return;
         }
+<<<<<<< HEAD
+=======
+
+        // ── Guardar autorización en localStorage ──
+        localStorage.setItem('caja_autorizado', 'true');
+        localStorage.setItem('caja_autor_nombre', data.nombre || '');
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
         cerrarModalAuth();
         if (_accionPendiente === 'apertura') _abrirModalApertura();
         else if (_accionPendiente === 'cierre') _abrirModalCierre();
@@ -435,15 +574,34 @@ function confirmarAuth() {
         errBox.classList.add('show');
     });
 }
+<<<<<<< HEAD
  
 // ── APERTURA ──
+=======
+
+// ════════════════════════════════════════
+// APERTURA
+// ════════════════════════════════════════
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
 function calcularTotalApertura() {
     let t = 0;
     document.querySelectorAll('.denom-ap').forEach(i => { t += (parseInt(i.value)||0) * parseInt(i.dataset.valor); });
     document.getElementById('totalApertura').textContent = '$' + formatPesos(t);
     return t;
 }
+<<<<<<< HEAD
 function abrirModalApertura() { abrirModalAuth('apertura'); }
+=======
+
+function abrirModalApertura() {
+    if (CAJA_AUTORIZADO) {
+        _abrirModalApertura();
+    } else {
+        abrirModalAuth('apertura');
+    }
+}
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
 function _abrirModalApertura() {
     if (BASE_SIGUIENTE > 0) {
         document.getElementById('infoBaseSiguienteTexto').textContent = 'El último cierre dejó una base de $' + formatPesos(BASE_SIGUIENTE) + ' para hoy.';
@@ -455,24 +613,52 @@ function _abrirModalApertura() {
     document.getElementById('overlayApertura').classList.add('open');
     document.getElementById('modalApertura').classList.add('open');
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
 function cerrarModalApertura() {
     document.getElementById('overlayApertura').classList.remove('open');
     document.getElementById('modalApertura').classList.remove('open');
 }
+<<<<<<< HEAD
 function confirmarApertura() {
     const montoBase = calcularTotalApertura();
     if (montoBase === 0) { alert('Ingresa el dinero con el que abres la caja.'); return; }
     const denominaciones = {};
     document.querySelectorAll('.denom-ap').forEach(i => { const c=parseInt(i.value)||0; if(c>0) denominaciones[i.dataset.valor]=c; });
     fetch(URL_APERTURA, {
+=======
+
+function confirmarApertura() {
+    const montoBase = calcularTotalApertura();
+    if (montoBase === 0) { alert('Ingresa el dinero con el que abres la caja.'); return; }
+
+    const denominaciones = {};
+    document.querySelectorAll('.denom-ap').forEach(i => {
+        const cant = parseInt(i.value) || 0;
+        if (cant > 0) denominaciones[i.dataset.valor] = cant;
+    });
+
+    fetch("{% url 'ventas:apertura_caja' %}", {
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
         body: JSON.stringify({ monto_base: montoBase, observacion: document.getElementById('apObservacion').value, denominaciones }),
     })
     .then(r => r.json())
-    .then(data => { if (data.ok) location.reload(); else alert(data.error || 'Error al abrir caja.'); })
+    .then(data => {
+        if (data.ok) {
+            localStorage.removeItem('caja_autorizado');
+            localStorage.removeItem('caja_autor_nombre');
+            location.reload();
+        } else {
+            alert(data.error || 'Error al abrir caja.');
+        }
+    })
     .catch(() => alert('Error de conexión.'));
 }
+<<<<<<< HEAD
  
 // ── CIERRE ──
 function calcularTotalCierre() {
@@ -480,6 +666,22 @@ function calcularTotalCierre() {
     document.querySelectorAll('.denom-ci').forEach(i => { t += (parseInt(i.value)||0) * parseInt(i.dataset.valor); });
     document.getElementById('totalCierre').textContent = '$' + formatPesos(t);
     const bs = parseInt(document.getElementById('baseSiguiente').value) || 0;
+=======
+
+// ════════════════════════════════════════
+// CIERRE
+// ════════════════════════════════════════
+function calcularTotalCierre() {
+    let total = 0;
+    document.querySelectorAll('.denom-ci').forEach(i => {
+        total += (parseInt(i.value) || 0) * parseInt(i.dataset.valor);
+    });
+    document.getElementById('totalCierre').textContent = '$' + formatPesos(total);
+
+    const baseSig = parseInt(document.getElementById('baseSiguiente').value) || 0;
+    const retirar = Math.max(0, total - baseSig);
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
     document.getElementById('resumenCierre').style.display = 'block';
     document.getElementById('res-base-apertura').textContent = '$' + formatPesos(BASE_APERTURA);
     document.getElementById('res-ventas').textContent        = '$' + formatPesos(TOTAL_DIA);
@@ -488,7 +690,19 @@ function calcularTotalCierre() {
     document.getElementById('res-retirar').textContent       = '$' + formatPesos(Math.max(0, t - bs));
     return t;
 }
+<<<<<<< HEAD
 function abrirModalCierre() { abrirModalAuth('cierre'); }
+=======
+
+function abrirModalCierre() {
+    if (CAJA_AUTORIZADO) {
+        _abrirModalCierre();
+    } else {
+        abrirModalAuth('cierre');
+    }
+}
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
 function _abrirModalCierre() {
     document.querySelectorAll('.denom-ci').forEach(i => i.value = 0);
     document.getElementById('baseSiguiente').value = '';
@@ -496,10 +710,15 @@ function _abrirModalCierre() {
     document.getElementById('overlayCierre').classList.add('open');
     document.getElementById('modalCierre').classList.add('open');
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
 function cerrarModalCierre() {
     document.getElementById('overlayCierre').classList.remove('open');
     document.getElementById('modalCierre').classList.remove('open');
 }
+<<<<<<< HEAD
 function confirmarCierre() {
     const tc = calcularTotalCierre();
     const bs = parseInt(document.getElementById('baseSiguiente').value) || 0;
@@ -507,14 +726,39 @@ function confirmarCierre() {
     const denominaciones = {};
     document.querySelectorAll('.denom-ci').forEach(i => { const c=parseInt(i.value)||0; if(c>0) denominaciones[i.dataset.valor]=c; });
     fetch(URL_CIERRE, {
+=======
+
+function confirmarCierre() {
+    const totalContado  = calcularTotalCierre();
+    const baseSiguiente = parseInt(document.getElementById('baseSiguiente').value) || 0;
+
+    if (totalContado === 0) { alert('Ingresa el dinero contado en caja antes de cerrar.'); return; }
+
+    const denominaciones = {};
+    document.querySelectorAll('.denom-ci').forEach(i => {
+        const cant = parseInt(i.value) || 0;
+        if (cant > 0) denominaciones[i.dataset.valor] = cant;
+    });
+
+    fetch("{% url 'ventas:cierre_caja' %}", {
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
         body: JSON.stringify({ total_contado: tc, monto_base_siguiente: bs, total_retirado: Math.max(0, tc - bs), denominaciones }),
     })
     .then(r => r.json())
-    .then(data => { if (data.ok) location.reload(); else alert(data.error || 'Error al cerrar caja.'); })
+    .then(data => {
+        if (data.ok) {
+            localStorage.removeItem('caja_autorizado');
+            localStorage.removeItem('caja_autor_nombre');
+            location.reload();
+        } else {
+            alert(data.error || 'Error al cerrar caja.');
+        }
+    })
     .catch(() => alert('Error de conexión.'));
 }
+<<<<<<< HEAD
  
 // ── DETALLE ──
 function abrirDetalle(ventaId) {
@@ -522,6 +766,17 @@ function abrirDetalle(ventaId) {
     if (!v) return;
     const detalles = Array.from(v.querySelectorAll('.dato-detalle'));
     let subtotalBruto = 0;
+=======
+
+// ── Modal detalle venta ───────────────────────────────────────
+function abrirDetalle(ventaId) {
+    const v = document.querySelector('.dato-venta[data-id="' + ventaId + '"]');
+    if (!v) return;
+
+    const detalles = Array.from(v.querySelectorAll('.dato-detalle'));
+    let subtotalBruto = 0;
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
     const itemsHTML = detalles.map(d => {
         const sub = parseFloat(d.dataset.subtotal) || 0; subtotalBruto += sub;
         const pres = d.dataset.presentacion ? ' (' + d.dataset.presentacion + ')' : '';
@@ -530,9 +785,17 @@ function abrirDetalle(ventaId) {
             <div style="font-size:.75rem;color:var(--texto-muted);">${d.dataset.cantidad} × $${formatPesos(d.dataset.precio)}</div></div>
             <span style="font-weight:700;color:var(--azul-claro);">$${formatPesos(sub)}</span></div>`;
     }).join('');
+<<<<<<< HEAD
     const descuento = parseFloat(v.dataset.descuento) || 0;
     const ahorro    = subtotalBruto * (descuento / 100);
     const total     = parseFloat(v.dataset.total) || 0;
+=======
+
+    const descuento = parseFloat(v.dataset.descuento) || 0;
+    const ahorro    = subtotalBruto * (descuento / 100);
+    const total     = parseFloat(v.dataset.total) || 0;
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
     const pagos = [
         {label:'Efectivo',val:v.dataset.efectivo,icon:'bi-cash'},
         {label:'Tarjeta',val:v.dataset.tarjeta,icon:'bi-credit-card'},
@@ -540,7 +803,17 @@ function abrirDetalle(ventaId) {
         {label:'Nequi',val:v.dataset.nequi,icon:'bi-phone'},
         {label:'Daviplata',val:v.dataset.daviplata,icon:'bi-phone'},
     ].filter(p => parseFloat(p.val) > 0);
+<<<<<<< HEAD
     const pagosHTML = pagos.map(p => `<div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.85rem;"><span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span><span style="color:var(--texto);font-weight:600;">$${formatPesos(p.val)}</span></div>`).join('');
+=======
+
+    const pagosHTML = pagos.map(p => `
+        <div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.85rem;">
+            <span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span>
+            <span style="color:var(--texto);font-weight:600;">$${formatPesos(p.val)}</span>
+        </div>`).join('');
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
     document.getElementById('detalleContenido').innerHTML = `
         <div style="background:var(--fondo-card2);border-radius:10px;padding:1rem;margin-bottom:1rem;">
             <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;"><span style="font-size:.75rem;color:var(--texto-muted);">CLIENTE</span><span style="font-weight:700;color:var(--texto);">${v.dataset.cliente}</span></div>
@@ -551,10 +824,24 @@ function abrirDetalle(ventaId) {
             ${descuento > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.85rem;"><span style="color:var(--texto-muted);">Subtotal:</span><span style="text-decoration:line-through;color:var(--texto-muted);">$${formatPesos(subtotalBruto)}</span></div><div style="display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.85rem;"><span style="color:#ff4d4d;">Descuento (${descuento}%):</span><span style="color:#ff4d4d;">-$${formatPesos(ahorro)}</span></div>` : ''}
             <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--azul-borde);padding-top:.6rem;margin-top:.3rem;"><span style="font-weight:700;font-size:1rem;">TOTAL</span><span style="font-size:1.5rem;font-weight:800;color:var(--azul-claro);">$${formatPesos(total)}</span></div>
         </div>
+<<<<<<< HEAD
         ${pagos.length > 0 ? `<div style="background:var(--fondo-card2);border:1px solid var(--azul-borde);border-radius:10px;padding:.9rem;"><div style="font-size:.7rem;color:var(--texto-muted);text-transform:uppercase;margin-bottom:.5rem;">Métodos de pago</div>${pagosHTML}</div>` : ''}`;
     document.getElementById('overlayDetalle').classList.add('open');
     document.getElementById('modalDetalle').classList.add('open');
 }
+=======
+        ${pagos.length > 0 ? `
+        <div style="background:var(--fondo-card2);border:1px solid var(--azul-borde);border-radius:10px;padding:.9rem;">
+            <div style="font-size:.7rem;color:var(--texto-muted);text-transform:uppercase;margin-bottom:.5rem;">Métodos de pago</div>
+            ${pagosHTML}
+        </div>` : ''}
+    `;
+
+    document.getElementById('overlayDetalle').classList.add('open');
+    document.getElementById('modalDetalle').classList.add('open');
+}
+
+>>>>>>> 387361dec48803d17f5e28a1f7d85c31c8c2b080
 function cerrarDetalle() {
     document.getElementById('overlayDetalle').classList.remove('open');
     document.getElementById('modalDetalle').classList.remove('open');
