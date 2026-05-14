@@ -30,11 +30,12 @@
       color: var(--texto);
       min-height: 100vh;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       padding: 2rem 1rem;
       position: relative;
-      overflow: hidden; /* <-- CAMBIO: fondo con imagen del collage */
+      overflow-y: auto;
+      overflow-x: hidden;
     }
  
     /* FONDO: imagen del collage */
@@ -60,6 +61,7 @@
         rgba(5, 20, 60, 0.95) 100%
       );
       z-index: 1;
+      pointer-events: none; /* NO bloquea clicks ni inputs */
     }
  
     /* Todo el contenido por encima del overlay */
@@ -316,4 +318,3 @@
   </script>
 </body>
 </html>
- 
