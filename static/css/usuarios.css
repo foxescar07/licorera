@@ -2,46 +2,88 @@
    ESTILOS PERSONALIZADOS CYS - ADAPTADOS AL REGISTRO
    ============================================================ */
 
-/* Importamos las fuentes que usa tu nuevo estilo */
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Usamos tus colores beige y rojo dentro de la estructura de tokens */
   --fondo-beige:   #E8C898;
-  --fondo-card:    #f1e9dc;
+  --fondo-card:    rgba(20, 30, 60, 0.72);   /* ← oscuro semitransparente como el login */
   --rojo-cys:      #B7372A;
   --rojo-hover:    #a01e1e;
   --rojo-glow:     rgba(183, 55, 42, 0.3);
-  --azul-claro:    #4DA8DA; /* Para detalles de enfoque */
+  --azul-claro:    #4DA8DA;
   --trans:         all .22s ease;
   --radius:        15px;
 }
 
+/* ── FONDO CON IMAGEN (igual que login) ── */
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--fondo-beige);
   min-height: 100vh;
   margin: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Imagen de fondo */
+  background-image: url('../img/collage_licores.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
-/* Tarjeta Principal (Mantiene la forma pero con tus nuevos efectos) */
+/* Overlay azul oscuro encima de la imagen (igual que login) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 18, 40, 0.82) 0%,
+    rgba(15, 30, 65, 0.78) 50%,
+    rgba(8, 20, 50, 0.85) 100%
+  );
+  z-index: 0;
+}
+
+/* Todo el contenido debe ir encima del overlay */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── TARJETA PRINCIPAL ── */
 .card-cys {
-  background-color: var(--fondo-card);
+  background: rgba(13, 22, 48, 0.72);          /* mismo vidrio del login */
+  border: 1px solid rgba(77, 168, 218, 0.25);
   width: 100%;
   max-width: 400px;
   border-radius: 20px;
-  border: none;
   padding: 3rem;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(77, 168, 218, 0.08),
+    inset 0 1px 0 rgba(255,255,255,0.05);
   transition: var(--trans);
+  animation: slideUp .5s cubic-bezier(.22,.68,0,1.2) both;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .card-cys:hover {
-  /* Efecto de brillo rojo al pasar el mouse por la tarjeta */
-  box-shadow: 0 15px 45px rgba(183, 55, 42, 0.15);
+  box-shadow:
+    0 15px 45px rgba(183, 55, 42, 0.15),
+    0 0 0 1px rgba(77, 168, 218, 0.15),
+    inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
-/* Botones con estilo Rajdhani (Futurista) */
+/* ── BOTONES ── */
 .btn-cys {
   background-color: var(--rojo-cys) !important;
   color: white !important;
@@ -61,52 +103,73 @@ body {
   box-shadow: 0 6px 20px rgba(183, 55, 42, 0.4) !important;
 }
 
-/* Títulos con la fuente Oswald/Rajdhani */
+/* ── TÍTULOS ── */
 h2, h3 {
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
   letter-spacing: 2px;
-  color: var(--rojo-cys);
+  color: #e8f0fe;                              /* ← blanco azulado sobre fondo oscuro */
 }
 
-/* Inputs con el estilo de tu nuevo CSS */
+/* ── INPUTS ── */
 .form-control, .form-select {
-  background: #ffffff !important;
-  border: 1px solid rgba(0,0,0,0.05) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(77, 168, 218, 0.2) !important;
   border-radius: 12px !important;
   padding: 12px !important;
   font-family: 'Inter', sans-serif !important;
+  color: #e8f0fe !important;
   transition: var(--trans) !important;
+}
+
+.form-control::placeholder {
+  color: rgba(180, 200, 230, 0.35) !important;
 }
 
 .form-control:focus {
   border-color: var(--rojo-cys) !important;
+  background: rgba(183, 55, 42, 0.08) !important;
   box-shadow: 0 0 0 3px var(--rojo-glow) !important;
   outline: none;
+  color: #e8f0fe !important;
 }
 
-/* Logo con el anillo de brillo */
+/* Labels de formulario */
+label {
+  color: rgba(180, 200, 230, 0.75) !important;
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+}
+
+/* ── LOGO ── */
 .logo-cys {
   width: 110px;
   height: 110px;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid var(--rojo-cys);
-  box-shadow: 0 0 0 4px rgba(183, 55, 42, 0.1), 0 0 20px var(--rojo-glow);
+  box-shadow: 0 0 0 4px rgba(183, 55, 42, 0.15), 0 0 20px var(--rojo-glow);
 }
 
-/* Enlaces de "Volver" */
+/* ── ENLACES ── */
 .btn-link {
-  color: var(--rojo-cys) !important;
+  color: var(--azul-claro) !important;
   text-decoration: none !important;
   font-weight: 600;
   font-size: 0.85rem;
   font-family: 'Rajdhani', sans-serif;
   text-transform: uppercase;
   letter-spacing: 1px;
+  transition: var(--trans);
 }
 
-/* Animación suave para los colapsables */
+.btn-link:hover {
+  color: #e8f0fe !important;
+}
+
+/* ── COLAPSABLES ── */
 .collapse {
   transition: all 0.3s ease-in-out;
 }
