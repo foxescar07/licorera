@@ -8,7 +8,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/ventas.css' %}">
 <style>
-/* ── Botón exportar ── */
 .cys-btn-export {
     background: rgba(77,168,218,.12);
     border: 1px solid var(--azul-claro);
@@ -25,154 +24,54 @@
     transition: background .2s;
 }
 .cys-btn-export:hover { background: rgba(77,168,218,.25); color: var(--azul-claro); }
-
-/* ── Botones caja ── */
-.cys-btn-caja {
-    border-radius: 8px;
-    padding: .45rem 1rem;
-    font-size: .82rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    text-decoration: none;
-    transition: background .2s;
-    border: 1px solid;
-}
-.cys-btn-caja--abrir  { background: rgba(46,213,115,.12); border-color: #2ed573; color: #2ed573; }
-.cys-btn-caja--abrir:hover  { background: rgba(46,213,115,.25); }
-.cys-btn-caja--cerrar { background: rgba(255,77,77,.12);  border-color: #ff4d4d; color: #ff4d4d; }
-.cys-btn-caja--cerrar:hover { background: rgba(255,77,77,.25); }
-
-/* ── Tarjetas resumen ── */
-.vd-stat {
-    background: var(--fondo-card2);
-    border: 1px solid var(--azul-borde);
-    border-radius: 14px;
-    padding: 1.2rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: .3rem;
-}
+.cys-btn-caja { border-radius:8px; padding:.45rem 1rem; font-size:.82rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:.4rem; text-decoration:none; transition:background .2s; border:1px solid; }
+.cys-btn-caja--abrir  { background:rgba(46,213,115,.12); border-color:#2ed573; color:#2ed573; }
+.cys-btn-caja--abrir:hover  { background:rgba(46,213,115,.25); }
+.cys-btn-caja--cerrar { background:rgba(255,77,77,.12); border-color:#ff4d4d; color:#ff4d4d; }
+.cys-btn-caja--cerrar:hover { background:rgba(255,77,77,.25); }
+.vd-stat { background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:14px; padding:1.2rem 1.5rem; display:flex; flex-direction:column; gap:.3rem; }
 .vd-stat__label { font-size:.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--texto-muted); font-weight:600; }
 .vd-stat__val   { font-size:1.7rem; font-weight:800; color:var(--azul-claro); line-height:1; }
 .vd-stat__sub   { font-size:.75rem; color:var(--texto-muted); }
-
-/* ── Tabla ── */
 .vd-table th { font-size:.72rem; text-transform:uppercase; color:var(--azul-claro); font-weight:600; border-bottom:1px solid var(--azul-borde); padding:.7rem 1rem; white-space:nowrap; }
 .vd-table td { font-size:.85rem; padding:.75rem 1rem; border-bottom:1px solid var(--azul-borde); vertical-align:middle; color:var(--texto); }
 .vd-table tbody tr { cursor:pointer; transition:background .15s; }
 .vd-table tbody tr:hover { background:rgba(77,168,218,.05); }
-
-/* ── Separador de día ── */
-.vd-separador-dia td {
-    background: rgba(77,168,218,.08) !important;
-    border-top: 2px solid var(--azul-claro) !important;
-    border-bottom: 2px solid var(--azul-claro) !important;
-    text-align: center; font-size:.72rem; font-weight:700;
-    color:var(--azul-claro); letter-spacing:2px; text-transform:uppercase;
-    padding:.5rem !important; cursor:default !important;
-}
-.vd-separador-dia:hover { background: transparent !important; }
-
-/* ── Badge método pago ── */
-.vd-badge {
-    display:inline-flex; align-items:center; gap:.25rem;
-    background:var(--fondo-card2); border:1px solid var(--azul-borde);
-    border-radius:20px; padding:.15rem .55rem; font-size:.7rem; color:var(--texto-muted); white-space:nowrap;
-}
-
-/* ── Panel de caja ── */
-.caja-panel {
-    background: var(--fondo-card2);
-    border: 1px solid var(--azul-borde);
-    border-radius: 14px;
-    padding: 1.3rem 1.5rem;
-}
+.vd-separador-dia td { background:rgba(77,168,218,.08) !important; border-top:2px solid var(--azul-claro) !important; border-bottom:2px solid var(--azul-claro) !important; text-align:center; font-size:.72rem; font-weight:700; color:var(--azul-claro); letter-spacing:2px; text-transform:uppercase; padding:.5rem !important; cursor:default !important; }
+.vd-separador-dia:hover { background:transparent !important; }
+.vd-badge { display:inline-flex; align-items:center; gap:.25rem; background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:20px; padding:.15rem .55rem; font-size:.7rem; color:var(--texto-muted); white-space:nowrap; }
+.caja-panel { background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:14px; padding:1.3rem 1.5rem; }
 .caja-panel__titulo { font-size:.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--texto-muted); font-weight:600; margin-bottom:.8rem; }
 .caja-estado { display:inline-flex; align-items:center; gap:.4rem; border-radius:20px; padding:.25rem .8rem; font-size:.78rem; font-weight:700; }
 .caja-estado--abierta { background:rgba(46,213,115,.15); border:1px solid #2ed573; color:#2ed573; }
-.caja-estado--cerrada { background:rgba(255,77,77,.1);   border:1px solid #ff4d4d; color:#ff4d4d; }
-
+.caja-estado--cerrada { background:rgba(255,77,77,.1); border:1px solid #ff4d4d; color:#ff4d4d; }
 .caja-dato { display:flex; flex-direction:column; gap:.1rem; }
 .caja-dato__lbl { font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.5px; }
 .caja-dato__val { font-weight:700; font-size:.92rem; }
-
-/* ── Badge caja abierta ── */
-.caja-auth-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: .35rem;
-    background: rgba(46,213,115,.1);
-    border: 1px solid #2ed573;
-    border-radius: 20px;
-    padding: .25rem .75rem;
-    font-size: .75rem;
-    font-weight: 700;
-    color: #2ed573;
-}
-
-/* ── Modal genérico ── */
 .vd-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9998; }
 .vd-modal-overlay.open { display:block; }
-.vd-modal-box {
-    display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-    z-index:9999; width:520px; max-width:95vw; max-height:90vh; overflow-y:auto;
-    background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;
-}
+.vd-modal-box { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999; width:520px; max-width:95vw; max-height:90vh; overflow-y:auto; background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem; }
 .vd-modal-box.open { display:block; }
-
-/* ── Denominaciones ── */
 .denom-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-bottom:.8rem; }
-.denom-item {
-    background:var(--fondo-card2); border:1px solid var(--azul-borde);
-    border-radius:10px; padding:.6rem .8rem; display:flex; align-items:center; gap:.6rem;
-}
-.denom-item label  { font-size:.78rem; color:var(--texto-muted); flex:1; margin:0; }
-.denom-item input  {
-    width:60px; background:var(--fondo-card); border:1px solid var(--azul-borde);
-    border-radius:6px; color:var(--texto); font-size:.85rem; font-weight:700; text-align:center; padding:.25rem .3rem;
-}
+.denom-item { background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.6rem .8rem; display:flex; align-items:center; gap:.6rem; }
+.denom-item label { font-size:.78rem; color:var(--texto-muted); flex:1; margin:0; }
+.denom-item input { width:60px; background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:6px; color:var(--texto); font-size:.85rem; font-weight:700; text-align:center; padding:.25rem .3rem; }
 .denom-item input:focus { outline:none; border-color:var(--azul-claro); }
-
-.denom-total {
-    background:rgba(77,168,218,.08); border:1px solid var(--azul-claro);
-    border-radius:10px; padding:.8rem 1rem;
-    display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;
-}
+.denom-total { background:rgba(77,168,218,.08); border:1px solid var(--azul-claro); border-radius:10px; padding:.8rem 1rem; display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
 .denom-total__label { font-size:.78rem; color:var(--texto-muted); font-weight:600; }
 .denom-total__val   { font-size:1.4rem; font-weight:800; color:var(--azul-claro); }
-
 .caja-input-label { font-size:.75rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:.3rem; font-weight:600; }
-.caja-input {
-    width:100%; background:var(--fondo-card2); border:1px solid var(--azul-borde);
-    border-radius:8px; color:var(--texto); font-size:.9rem; font-weight:600; padding:.55rem .8rem; margin-bottom:.8rem;
-}
+.caja-input { width:100%; background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:8px; color:var(--texto); font-size:.9rem; font-weight:600; padding:.55rem .8rem; margin-bottom:.8rem; }
 .caja-input:focus { outline:none; border-color:var(--azul-claro); }
-
-.caja-btn-primary {
-    width:100%; background:var(--azul-claro); color:#fff; border:none;
-    border-radius:10px; padding:.75rem; font-weight:700; font-size:.95rem; cursor:pointer; transition:opacity .2s;
-}
+.caja-btn-primary { width:100%; background:var(--azul-claro); color:#fff; border:none; border-radius:10px; padding:.75rem; font-weight:700; font-size:.95rem; cursor:pointer; transition:opacity .2s; }
 .caja-btn-primary:hover { opacity:.85; }
 .caja-btn-primary--danger { background:#ff4d4d; }
 .caja-btn-primary:disabled { opacity:.5; cursor:not-allowed; }
-
 .caja-resultado-fila { display:flex; justify-content:space-between; padding:.35rem 0; font-size:.88rem; }
-
-.info-base {
-    display: none;
-    background: rgba(46,213,115,.08);
-    border: 1px solid #2ed573;
-    border-radius: 8px;
-    padding: .6rem .9rem;
-    font-size: .82rem;
-    color: #2ed573;
-    margin-bottom: 1rem;
-}
-.info-base.show { display: block; }
-
+.auth-aviso { display:none; background:rgba(255,77,77,.1); border:1px solid #ff4d4d; border-radius:8px; padding:.6rem .9rem; font-size:.82rem; color:#ff4d4d; margin-bottom:.8rem; }
+.auth-aviso.show { display:block; }
+.info-base { display:none; background:rgba(46,213,115,.08); border:1px solid #2ed573; border-radius:8px; padding:.6rem .9rem; font-size:.82rem; color:#2ed573; margin-bottom:1rem; }
+.info-base.show { display:block; }
 @media print {
     .no-print { display:none !important; }
     .cys-header, .cys-subnav, aside { display:none !important; }
@@ -186,41 +85,24 @@
 {% block content %}
 <div class="container-fluid p-0">
 
-  <!-- ── ENCABEZADO ── -->
+  <!-- ENCABEZADO -->
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 no-print">
-    <div>
-      <div style="font-size:.75rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Resumen</div>
-      <div style="font-size:1.4rem; font-weight:800; color:var(--texto);">
-        <i class="bi bi-calendar-check me-2" style="color:var(--azul-claro);"></i>
-        Ventas del día — {{ hoy|date:"d/m/Y" }}
-      </div>
+    <div style="font-size:1.4rem; font-weight:800; color:var(--texto);">
+      <i class="bi bi-calendar-check me-2" style="color:var(--azul-claro);"></i>
+      Ventas del día — {{ hoy|date:"d/m/Y" }}
     </div>
-    <div class="d-flex gap-2 flex-wrap align-items-center">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'ventas:ventas_lista' %}" class="cys-btn-export"><i class="bi bi-arrow-left"></i> Volver</a>
+      <button onclick="window.print()" class="cys-btn-export"><i class="bi bi-printer"></i> Imprimir</button>
       {% if caja_abierta %}
-        <span class="caja-auth-badge">
-          <i class="bi bi-circle-fill" style="font-size:.4rem;"></i>
-          Caja abierta · {{ caja_abierta.usuario }}
-        </span>
-      {% endif %}
-      <a href="{% url 'ventas:ventas_lista' %}" class="cys-btn-export">
-        <i class="bi bi-arrow-left"></i> Volver
-      </a>
-      <button onclick="window.print()" class="cys-btn-export">
-        <i class="bi bi-printer"></i> Imprimir
-      </button>
-      {% if caja_abierta %}
-        <button onclick="abrirModalCierre()" class="cys-btn-caja cys-btn-caja--cerrar">
-          <i class="bi bi-lock"></i> Cerrar Caja
-        </button>
+        <button onclick="abrirModalCierre()" class="cys-btn-caja cys-btn-caja--cerrar"><i class="bi bi-lock"></i> Cerrar Caja</button>
       {% else %}
-        <button onclick="abrirModalApertura()" class="cys-btn-caja cys-btn-caja--abrir">
-          <i class="bi bi-unlock"></i> Abrir Caja
-        </button>
+        <button onclick="abrirModalApertura()" class="cys-btn-caja cys-btn-caja--abrir"><i class="bi bi-unlock"></i> Abrir Caja</button>
       {% endif %}
     </div>
   </div>
 
-  <!-- ── TARJETAS RESUMEN ── -->
+  <!-- TARJETAS -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-lg-4">
       <div class="vd-stat">
@@ -245,117 +127,55 @@
     </div>
   </div>
 
-  <!-- ── PANEL ESTADO DE CAJA ── -->
+  <!-- PANEL CAJA -->
   <section class="caja-panel mb-4 no-print">
     <div class="caja-panel__titulo"><i class="bi bi-safe me-1"></i>Estado de Caja</div>
-
     {% if caja_abierta %}
       <div class="d-flex flex-wrap gap-4 align-items-center">
-        <span class="caja-estado caja-estado--abierta">
-          <i class="bi bi-circle-fill" style="font-size:.45rem;"></i> Caja Abierta
-        </span>
-        <div class="caja-dato">
-          <span class="caja-dato__lbl">Abierta por</span>
-          <span class="caja-dato__val">{{ caja_abierta.usuario }}</span>
-        </div>
-        <div class="caja-dato">
-          <span class="caja-dato__lbl">Hora apertura</span>
-          <span class="caja-dato__val">{{ caja_abierta.fecha_apertura|date:"H:i" }}</span>
-        </div>
-        <div class="caja-dato">
-          <span class="caja-dato__lbl">Monto base</span>
-          <span class="caja-dato__val" style="color:var(--azul-claro);">${{ caja_abierta.monto_base|pesos }}</span>
-        </div>
-        <div class="caja-dato">
-          <span class="caja-dato__lbl">Ventas del día</span>
-          <span class="caja-dato__val" style="color:#2ed573;">${{ total_dia|pesos }}</span>
-        </div>
-        <div class="caja-dato">
-          <span class="caja-dato__lbl">Total en caja (est.)</span>
-          <span class="caja-dato__val" style="color:var(--azul-claro);" id="totalEnCaja">—</span>
-        </div>
+        <span class="caja-estado caja-estado--abierta"><i class="bi bi-circle-fill" style="font-size:.45rem;"></i> Caja Abierta</span>
+        <div class="caja-dato"><span class="caja-dato__lbl">Abierta por</span><span class="caja-dato__val">{{ caja_abierta.usuario }}</span></div>
+        <div class="caja-dato"><span class="caja-dato__lbl">Hora apertura</span><span class="caja-dato__val">{{ caja_abierta.fecha_apertura|date:"H:i" }}</span></div>
+        <div class="caja-dato"><span class="caja-dato__lbl">Monto base</span><span class="caja-dato__val" style="color:var(--azul-claro);">${{ caja_abierta.monto_base|pesos }}</span></div>
+        <div class="caja-dato"><span class="caja-dato__lbl">Ventas del día</span><span class="caja-dato__val" style="color:#2ed573;">${{ total_dia|pesos }}</span></div>
+        <div class="caja-dato"><span class="caja-dato__lbl">Total en caja (est.)</span><span class="caja-dato__val" style="color:var(--azul-claro);" id="totalEnCaja">—</span></div>
       </div>
-
     {% elif ultimo_cierre %}
       <div class="d-flex flex-wrap gap-4 align-items-center">
-        <span class="caja-estado caja-estado--cerrada">
-          <i class="bi bi-circle-fill" style="font-size:.45rem;"></i> Caja Cerrada
-        </span>
-        <div class="caja-dato">
-          <span class="caja-dato__lbl">Último cierre</span>
-          <span class="caja-dato__val">{{ ultimo_cierre.fecha_cierre|date:"d/m H:i" }}</span>
-        </div>
-        <div class="caja-dato">
-          <span class="caja-dato__lbl">Total contado</span>
-          <span class="caja-dato__val" style="color:var(--azul-claro);">${{ ultimo_cierre.total_contado|pesos }}</span>
-        </div>
-        <div class="caja-dato">
-          <span class="caja-dato__lbl">Total recogido</span>
-          <span class="caja-dato__val">${{ ultimo_cierre.total_retirado|pesos }}</span>
-        </div>
-        <div class="caja-dato">
-          <span class="caja-dato__lbl">Base para mañana</span>
-          <span class="caja-dato__val" style="color:#2ed573;">${{ ultimo_cierre.monto_base_siguiente|pesos }}</span>
-        </div>
+        <span class="caja-estado caja-estado--cerrada"><i class="bi bi-circle-fill" style="font-size:.45rem;"></i> Caja Cerrada</span>
+        <div class="caja-dato"><span class="caja-dato__lbl">Último cierre</span><span class="caja-dato__val">{{ ultimo_cierre.fecha_cierre|date:"d/m H:i" }}</span></div>
+        <div class="caja-dato"><span class="caja-dato__lbl">Total contado</span><span class="caja-dato__val" style="color:var(--azul-claro);">${{ ultimo_cierre.total_contado|pesos }}</span></div>
+        <div class="caja-dato"><span class="caja-dato__lbl">Total recogido</span><span class="caja-dato__val">${{ ultimo_cierre.total_retirado|pesos }}</span></div>
+        <div class="caja-dato"><span class="caja-dato__lbl">Base para mañana</span><span class="caja-dato__val" style="color:#2ed573;">${{ ultimo_cierre.monto_base_siguiente|pesos }}</span></div>
       </div>
-
     {% else %}
       <div style="color:var(--texto-muted); font-size:.88rem;">
-        <i class="bi bi-info-circle me-1"></i>
-        No hay registro de caja hoy. Usa el botón <strong>Abrir Caja</strong> para comenzar.
+        <i class="bi bi-info-circle me-1"></i> No hay registro de caja hoy. Usa el botón <strong>Abrir Caja</strong> para comenzar.
       </div>
     {% endif %}
   </section>
 
-  <!-- ── TABLA VENTAS ── -->
+  <!-- TABLA -->
   <section class="cys-card">
     <div class="cys-card__title mb-3">Detalle de Ventas</div>
-
     {% if ventas %}
     <div class="table-responsive">
       <table class="table table-dark vd-table mb-0" id="tablaVentas">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Hora</th>
-            <th>Cliente</th>
-            <th>Productos</th>
-            <th>Métodos de pago</th>
-            <th>Descuento</th>
-            <th>Total</th>
-          </tr>
-        </thead>
+        <thead><tr><th>#</th><th>Hora</th><th>Cliente</th><th>Productos</th><th>Métodos de pago</th><th>Descuento</th><th>Total</th></tr></thead>
         <tbody>
           {% for venta in ventas %}
           <tr onclick="abrirDetalle({{ venta.pk }})" data-fecha="{{ venta.fecha|date:'d/m/Y' }}">
             <td style="color:var(--texto-muted); font-size:.75rem;">{{ forloop.counter }}</td>
             <td style="color:var(--texto-muted);">{{ venta.fecha|date:"H:i" }}</td>
             <td style="font-weight:700;">{{ venta.cliente }}</td>
-            <td>
-              <div class="d-flex flex-wrap gap-1">
-                {% for det in venta.detalles.all %}
-                <span class="vd-badge">
-                  {{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %} ×{{ det.cantidad }}
-                </span>
-                {% endfor %}
-              </div>
-            </td>
-            <td>
-              <div class="d-flex flex-wrap gap-1">
-                {% if venta.pago_efectivo > 0 %}<span class="vd-badge"><i class="bi bi-cash"></i> Efectivo</span>{% endif %}
-                {% if venta.pago_tarjeta > 0 %}<span class="vd-badge"><i class="bi bi-credit-card"></i> Tarjeta</span>{% endif %}
-                {% if venta.pago_transferencia > 0 %}<span class="vd-badge"><i class="bi bi-bank"></i> Transfer.</span>{% endif %}
-                {% if venta.pago_nequi > 0 %}<span class="vd-badge"><i class="bi bi-phone"></i> Nequi</span>{% endif %}
-                {% if venta.pago_daviplata > 0 %}<span class="vd-badge"><i class="bi bi-phone"></i> Daviplata</span>{% endif %}
-              </div>
-            </td>
-            <td>
-              {% if venta.descuento_porcentaje > 0 %}
-              <span style="color:#ff4d4d; font-size:.8rem; font-weight:700;">-{{ venta.descuento_porcentaje|floatformat:0 }}%</span>
-              {% else %}
-              <span style="color:var(--texto-muted);">—</span>
-              {% endif %}
-            </td>
+            <td><div class="d-flex flex-wrap gap-1">{% for det in venta.detalles.all %}<span class="vd-badge">{{ det.producto.nombre }}{% if det.presentacion %} ({{ det.presentacion.nombre }}){% endif %} ×{{ det.cantidad }}</span>{% endfor %}</div></td>
+            <td><div class="d-flex flex-wrap gap-1">
+              {% if venta.pago_efectivo > 0 %}<span class="vd-badge"><i class="bi bi-cash"></i> Efectivo</span>{% endif %}
+              {% if venta.pago_tarjeta > 0 %}<span class="vd-badge"><i class="bi bi-credit-card"></i> Tarjeta</span>{% endif %}
+              {% if venta.pago_transferencia > 0 %}<span class="vd-badge"><i class="bi bi-bank"></i> Transfer.</span>{% endif %}
+              {% if venta.pago_nequi > 0 %}<span class="vd-badge"><i class="bi bi-phone"></i> Nequi</span>{% endif %}
+              {% if venta.pago_daviplata > 0 %}<span class="vd-badge"><i class="bi bi-phone"></i> Daviplata</span>{% endif %}
+            </div></td>
+            <td>{% if venta.descuento_porcentaje > 0 %}<span style="color:#ff4d4d; font-size:.8rem; font-weight:700;">-{{ venta.descuento_porcentaje|floatformat:0 }}%</span>{% else %}<span style="color:var(--texto-muted);">—</span>{% endif %}</td>
             <td style="font-weight:800; color:var(--azul-claro);">${{ venta.total_venta|pesos }}</td>
           </tr>
           {% endfor %}
@@ -366,7 +186,6 @@
       <span style="font-weight:700; font-size:.95rem; color:var(--texto-muted);">TOTAL DEL DÍA ({{ ventas.count }} ventas)</span>
       <span style="font-size:1.5rem; font-weight:800; color:var(--azul-claro);">${{ total_dia|pesos }}</span>
     </div>
-
     {% else %}
     <div style="text-align:center; padding:3rem 0; color:var(--texto-muted);">
       <i class="bi bi-receipt" style="font-size:2.5rem; display:block; margin-bottom:.7rem;"></i>
@@ -376,58 +195,57 @@
   </section>
 </div>
 
-<!-- ── DATOS PARA JS ── -->
+<!-- DATOS JS -->
 <div id="datosVentas" style="display:none;">
   {% for venta in ventas %}
   <div class="dato-venta"
-       data-id="{{ venta.pk }}"
-       data-cliente="{{ venta.cliente }}"
-       data-fecha="{{ venta.fecha|date:'d/m/Y H:i' }}"
-       data-hora="{{ venta.fecha|date:'H:i' }}"
-       data-fecha-dia="{{ venta.fecha|date:'d/m/Y' }}"
-       data-descuento="{{ venta.descuento_porcentaje }}"
-       data-total="{{ venta.total_venta }}"
-       data-efectivo="{{ venta.pago_efectivo }}"
-       data-tarjeta="{{ venta.pago_tarjeta }}"
-       data-transferencia="{{ venta.pago_transferencia }}"
-       data-nequi="{{ venta.pago_nequi }}"
-       data-daviplata="{{ venta.pago_daviplata }}">
+       data-id="{{ venta.pk }}" data-cliente="{{ venta.cliente }}"
+       data-fecha="{{ venta.fecha|date:'d/m/Y H:i' }}" data-hora="{{ venta.fecha|date:'H:i' }}"
+       data-fecha-dia="{{ venta.fecha|date:'d/m/Y' }}" data-descuento="{{ venta.descuento_porcentaje }}"
+       data-total="{{ venta.total_venta }}" data-efectivo="{{ venta.pago_efectivo }}"
+       data-tarjeta="{{ venta.pago_tarjeta }}" data-transferencia="{{ venta.pago_transferencia }}"
+       data-nequi="{{ venta.pago_nequi }}" data-daviplata="{{ venta.pago_daviplata }}">
     {% for det in venta.detalles.all %}
-    <span class="dato-detalle"
-          data-nombre="{{ det.producto.nombre }}"
+    <span class="dato-detalle" data-nombre="{{ det.producto.nombre }}"
           data-presentacion="{% if det.presentacion %}{{ det.presentacion.nombre }}{% endif %}"
-          data-cantidad="{{ det.cantidad }}"
-          data-precio="{{ det.precio_unitario }}"
-          data-subtotal="{{ det.subtotal }}">
-    </span>
+          data-cantidad="{{ det.cantidad }}" data-precio="{{ det.precio_unitario }}" data-subtotal="{{ det.subtotal }}"></span>
     {% endfor %}
   </div>
   {% endfor %}
 </div>
 
-<!-- ══════════════════════════════════════
-     MODAL APERTURA DE CAJA
-══════════════════════════════════════ -->
+<!-- MODAL AUTH -->
+<div id="overlayAuth" class="vd-modal-overlay"></div>
+<div id="modalAuth" class="vd-modal-box" style="width:400px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+    <div>
+      <div style="font-size:.7rem;color:var(--azul-claro);text-transform:uppercase;letter-spacing:1px;font-weight:700;" id="authSubtitulo">Verificación</div>
+      <div style="font-size:1.15rem;font-weight:800;color:var(--texto);" id="authTitulo">Acceso a Caja</div>
+    </div>
+    <button onclick="cerrarModalAuth()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <p style="font-size:.82rem;color:var(--texto-muted);margin-bottom:1.2rem;" id="authDescripcion">Solo administradores y cajeros pueden operar la caja.</p>
+  <div class="caja-input-label">Usuario</div>
+  <input type="text" class="caja-input" id="authUsuario" placeholder="Nombre de usuario" autocomplete="username">
+  <div class="caja-input-label">Contraseña</div>
+  <div style="position:relative;margin-bottom:.8rem;">
+    <input type="password" class="caja-input" id="authPassword" placeholder="••••••••" autocomplete="current-password" style="margin-bottom:0;padding-right:2.8rem;" onkeydown="if(event.key==='Enter') confirmarAuth()">
+    <button onclick="togglePasswordAuth()" style="position:absolute;right:.7rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--texto-muted);cursor:pointer;font-size:1rem;padding:0;"><i class="bi bi-eye" id="authEyeIcon"></i></button>
+  </div>
+  <div class="auth-aviso" id="authError"><i class="bi bi-exclamation-circle me-1"></i><span id="authErrorMsg"></span></div>
+  <button class="caja-btn-primary" id="authBoton" onclick="confirmarAuth()"><i class="bi bi-shield-check me-1"></i> Verificar e Ingresar</button>
+</div>
+
+<!-- MODAL APERTURA -->
 <div id="overlayApertura" class="vd-modal-overlay"></div>
 <div id="modalApertura" class="vd-modal-box">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-    <div>
-      <div style="font-size:.7rem; color:#2ed573; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Apertura</div>
-      <div style="font-size:1.15rem; font-weight:800; color:var(--texto);">Abrir Caja</div>
-    </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+    <div><div style="font-size:.7rem;color:#2ed573;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Apertura</div><div style="font-size:1.15rem;font-weight:800;color:var(--texto);">Abrir Caja</div></div>
     <button onclick="cerrarModalApertura()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
   </div>
-
-  <div class="info-base" id="infoBaseSiguiente">
-    <i class="bi bi-info-circle me-1"></i>
-    <span id="infoBaseSiguienteTexto"></span>
-  </div>
-
-  <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
-    Cuenta el dinero con el que inicias el día e ingresa la cantidad por denominación.
-  </p>
-
-  <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
+  <div class="info-base" id="infoBaseSiguiente"><i class="bi bi-info-circle me-1"></i><span id="infoBaseSiguienteTexto"></span></div>
+  <p style="font-size:.82rem;color:var(--texto-muted);margin-bottom:1.2rem;">Cuenta el dinero con el que inicias el día e ingresa la cantidad por denominación.</p>
+  <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--azul-claro);font-weight:700;margin-bottom:.5rem;">Billetes</div>
   <div class="denom-grid">
     <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="100000"></div>
     <div class="denom-item"><label>$50.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="50000"></div>
@@ -437,45 +255,28 @@
     <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="2000"></div>
     <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="1000"></div>
   </div>
-
-  <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
+  <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--azul-claro);font-weight:700;margin-bottom:.5rem;">Monedas</div>
   <div class="denom-grid">
     <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ap" data-valor="500"></div>
     <div class="denom-item"><label>$200</label><input type="number" min="0" value="0" class="denom-ap" data-valor="200"></div>
     <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ap" data-valor="100"></div>
     <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ap" data-valor="50"></div>
   </div>
-
-  <div class="denom-total">
-    <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Monto base calculado</span>
-    <span class="denom-total__val" id="totalApertura">$0</span>
-  </div>
-
+  <div class="denom-total"><span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Monto base calculado</span><span class="denom-total__val" id="totalApertura">$0</span></div>
   <div class="caja-input-label">Responsable / Observación (opcional)</div>
   <input type="text" class="caja-input" id="apObservacion" placeholder="Ej: Juan — apertura normal">
-
-  <button class="caja-btn-primary" onclick="confirmarApertura()">
-    <i class="bi bi-unlock me-1"></i> Confirmar Apertura
-  </button>
+  <button class="caja-btn-primary" onclick="confirmarApertura()"><i class="bi bi-unlock me-1"></i> Confirmar Apertura</button>
 </div>
 
-<!-- ══════════════════════════════════════
-     MODAL CIERRE DE CAJA
-══════════════════════════════════════ -->
+<!-- MODAL CIERRE -->
 <div id="overlayCierre" class="vd-modal-overlay"></div>
 <div id="modalCierre" class="vd-modal-box">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-    <div>
-      <div style="font-size:.7rem; color:#ff4d4d; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Cierre</div>
-      <div style="font-size:1.15rem; font-weight:800; color:var(--texto);">Cerrar Caja</div>
-    </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+    <div><div style="font-size:.7rem;color:#ff4d4d;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Cierre</div><div style="font-size:1.15rem;font-weight:800;color:var(--texto);">Cerrar Caja</div></div>
     <button onclick="cerrarModalCierre()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
   </div>
-  <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
-    Cuenta todo el dinero físico en caja. El sistema calculará cuánto se recoge y cuánto queda de base para mañana.
-  </p>
-
-  <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
+  <p style="font-size:.82rem;color:var(--texto-muted);margin-bottom:1.2rem;">Cuenta todo el dinero físico en caja. El sistema calculará cuánto se recoge y cuánto queda de base para mañana.</p>
+  <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--azul-claro);font-weight:700;margin-bottom:.5rem;">Billetes</div>
   <div class="denom-grid">
     <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100000"></div>
     <div class="denom-item"><label>$50.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="50000"></div>
@@ -485,100 +286,70 @@
     <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="2000"></div>
     <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="1000"></div>
   </div>
-
-  <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
+  <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--azul-claro);font-weight:700;margin-bottom:.5rem;">Monedas</div>
   <div class="denom-grid">
     <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ci" data-valor="500"></div>
     <div class="denom-item"><label>$200</label><input type="number" min="0" value="0" class="denom-ci" data-valor="200"></div>
     <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100"></div>
     <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ci" data-valor="50"></div>
   </div>
-
-  <div class="denom-total">
-    <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Total contado en caja</span>
-    <span class="denom-total__val" id="totalCierre">$0</span>
-  </div>
-
+  <div class="denom-total"><span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Total contado en caja</span><span class="denom-total__val" id="totalCierre">$0</span></div>
   <div class="caja-input-label">Monto base para mañana ($)</div>
   <input type="number" class="caja-input" id="baseSiguiente" placeholder="Ej: 100000" min="0">
-
-  <div id="resumenCierre" style="display:none; background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem; margin-bottom:1rem;">
-    <div style="font-size:.7rem; text-transform:uppercase; color:var(--texto-muted); margin-bottom:.6rem; font-weight:700; letter-spacing:.8px;">Resumen del día</div>
-    <div class="caja-resultado-fila">
-      <span style="color:var(--texto-muted);">Base de apertura</span>
-      <span id="res-base-apertura" style="font-weight:600;">$0</span>
-    </div>
-    <div class="caja-resultado-fila">
-      <span style="color:var(--texto-muted);">Ventas del día</span>
-      <span id="res-ventas" style="font-weight:600; color:#2ed573;">$0</span>
-    </div>
-    <div class="caja-resultado-fila" style="border-top:1px solid var(--azul-borde); padding-top:.5rem; margin-top:.3rem;">
-      <span style="color:var(--texto-muted);">Total contado en caja</span>
-      <span id="res-contado" style="font-weight:700; color:var(--azul-claro);">$0</span>
-    </div>
-    <div class="caja-resultado-fila">
-      <span style="color:var(--texto-muted);">Base para mañana</span>
-      <span id="res-base-sig" style="font-weight:600;">$0</span>
-    </div>
-    <div class="caja-resultado-fila" style="border-top:2px solid var(--azul-borde); padding-top:.6rem; margin-top:.4rem;">
-      <span style="font-weight:700; font-size:.95rem;">Total a retirar</span>
-      <span id="res-retirar" style="font-weight:800; font-size:1.15rem; color:#2ed573;">$0</span>
-    </div>
+  <div id="resumenCierre" style="display:none;background:var(--fondo-card2);border:1px solid var(--azul-borde);border-radius:10px;padding:.9rem;margin-bottom:1rem;">
+    <div style="font-size:.7rem;text-transform:uppercase;color:var(--texto-muted);margin-bottom:.6rem;font-weight:700;letter-spacing:.8px;">Resumen del día</div>
+    <div class="caja-resultado-fila"><span style="color:var(--texto-muted);">Base de apertura</span><span id="res-base-apertura" style="font-weight:600;">$0</span></div>
+    <div class="caja-resultado-fila"><span style="color:var(--texto-muted);">Ventas del día</span><span id="res-ventas" style="font-weight:600;color:#2ed573;">$0</span></div>
+    <div class="caja-resultado-fila" style="border-top:1px solid var(--azul-borde);padding-top:.5rem;margin-top:.3rem;"><span style="color:var(--texto-muted);">Total contado en caja</span><span id="res-contado" style="font-weight:700;color:var(--azul-claro);">$0</span></div>
+    <div class="caja-resultado-fila"><span style="color:var(--texto-muted);">Base para mañana</span><span id="res-base-sig" style="font-weight:600;">$0</span></div>
+    <div class="caja-resultado-fila" style="border-top:2px solid var(--azul-borde);padding-top:.6rem;margin-top:.4rem;"><span style="font-weight:700;font-size:.95rem;">Total a retirar</span><span id="res-retirar" style="font-weight:800;font-size:1.15rem;color:#2ed573;">$0</span></div>
   </div>
-
-  <button class="caja-btn-primary caja-btn-primary--danger" onclick="confirmarCierre()">
-    <i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja
-  </button>
+  <button class="caja-btn-primary caja-btn-primary--danger" onclick="confirmarCierre()"><i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja</button>
 </div>
 
-<!-- ── MODAL DETALLE VENTA ── -->
+<!-- MODAL DETALLE -->
 <div id="overlayDetalle" class="vd-modal-overlay" onclick="cerrarDetalle()"></div>
 <div id="modalDetalle" class="vd-modal-box">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.3rem;">
-    <div>
-      <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Comprobante</div>
-      <div style="font-size:1.1rem; font-weight:800; color:var(--texto);">Detalle de Venta</div>
-    </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.3rem;">
+    <div><div style="font-size:.7rem;color:var(--texto-muted);text-transform:uppercase;letter-spacing:1px;">Comprobante</div><div style="font-size:1.1rem;font-weight:800;color:var(--texto);">Detalle de Venta</div></div>
     <button onclick="cerrarDetalle()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
   </div>
   <div id="detalleContenido"></div>
-  <button onclick="cerrarDetalle()" style="width:100%; margin-top:1.2rem; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
+  <button onclick="cerrarDetalle()" style="width:100%;margin-top:1.2rem;background:var(--fondo-card2);color:var(--texto);border:1px solid var(--azul-borde);border-radius:10px;padding:.7rem;cursor:pointer;font-weight:600;">Cerrar</button>
 </div>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-const TOTAL_DIA     = {{ total_dia|default:0 }};
-const BASE_APERTURA = {{ caja_abierta.monto_base|default:0 }};
-const BASE_SIGUIENTE = {{ ultimo_cierre.monto_base_siguiente|default:0 }};
-const CSRF_TOKEN    = '{{ csrf_token }}';
+const TOTAL_DIA      = {{ total_dia|floatformat:0 }};
+const BASE_APERTURA  = {{ caja_abierta.monto_base|floatformat:0|default:0 }};
+const BASE_SIGUIENTE = {{ ultimo_cierre.monto_base_siguiente|floatformat:0|default:0 }};
+const CSRF_TOKEN     = '{{ csrf_token }}';
+const URL_VERIFICAR  = "{% url 'ventas:verificar_acceso_caja' %}";
+const URL_APERTURA   = "{% url 'ventas:apertura_caja' %}";
+const URL_CIERRE     = "{% url 'ventas:cierre_caja' %}";
 
 function formatPesos(val) {
     const n = Math.round(parseFloat(val) || 0);
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    const totalEnCajaEl = document.getElementById('totalEnCaja');
-    if (totalEnCajaEl) {
-        totalEnCajaEl.textContent = '$' + formatPesos(BASE_APERTURA + TOTAL_DIA);
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    const el = document.getElementById('totalEnCaja');
+    if (el) el.textContent = '$' + formatPesos(BASE_APERTURA + TOTAL_DIA);
 
-    // Separadores de día en tabla
     const filas = Array.from(document.querySelectorAll('#tablaVentas tbody tr'));
     let fechaAnterior = null;
     filas.forEach(fila => {
         const fechaActual = fila.dataset.fecha;
         if (!fechaActual) return;
         if (fechaAnterior !== null && fechaActual !== fechaAnterior) {
-            const sep    = document.createElement('tr');
+            const sep = document.createElement('tr');
             sep.className = 'vd-separador-dia no-print';
             const partes = fechaActual.split('/');
-            const meses  = ['enero','febrero','marzo','abril','mayo','junio',
-                            'julio','agosto','septiembre','octubre','noviembre','diciembre'];
-            const fechaTexto = `${parseInt(partes[0])} de ${meses[parseInt(partes[1])-1]} de ${partes[2]}`;
-            sep.innerHTML = `<td colspan="7"><i class="bi bi-calendar3 me-2"></i>${fechaTexto}</td>`;
+            const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+            sep.innerHTML = `<td colspan="7"><i class="bi bi-calendar3 me-2"></i>${parseInt(partes[0])} de ${meses[parseInt(partes[1])-1]} de ${partes[2]}</td>`;
             fila.parentNode.insertBefore(sep, fila);
         }
         fechaAnterior = fechaActual;
@@ -586,26 +357,96 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('.denom-ap').forEach(i => i.addEventListener('input', calcularTotalApertura));
     document.querySelectorAll('.denom-ci').forEach(i => i.addEventListener('input', calcularTotalCierre));
-    const baseInp = document.getElementById('baseSiguiente');
-    if (baseInp) baseInp.addEventListener('input', calcularTotalCierre);
+    const bi = document.getElementById('baseSiguiente');
+    if (bi) bi.addEventListener('input', calcularTotalCierre);
 });
 
-// ════════════════════════════════════════
-// APERTURA
-// ════════════════════════════════════════
-function calcularTotalApertura() {
-    let total = 0;
-    document.querySelectorAll('.denom-ap').forEach(i => {
-        total += (parseInt(i.value) || 0) * parseInt(i.dataset.valor);
-    });
-    document.getElementById('totalApertura').textContent = '$' + formatPesos(total);
-    return total;
+// ── AUTH ──
+let _accionPendiente = null;
+
+function abrirModalAuth(accion) {
+    _accionPendiente = accion;
+    const esCierre = accion === 'cierre';
+    document.getElementById('authSubtitulo').textContent   = esCierre ? 'Cierre de Caja' : 'Apertura de Caja';
+    document.getElementById('authTitulo').textContent      = esCierre ? 'Cerrar Caja' : 'Abrir Caja';
+    document.getElementById('authDescripcion').textContent = esCierre ? 'Confirma tu identidad para proceder con el cierre.' : 'Confirma tu identidad para proceder con la apertura.';
+    const boton = document.getElementById('authBoton');
+    boton.className = esCierre ? 'caja-btn-primary caja-btn-primary--danger' : 'caja-btn-primary';
+    boton.disabled  = false;
+    boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
+    document.getElementById('authUsuario').value  = '';
+    document.getElementById('authPassword').value = '';
+    document.getElementById('authPassword').type  = 'password';
+    document.getElementById('authEyeIcon').className = 'bi bi-eye';
+    document.getElementById('authError').classList.remove('show');
+    document.getElementById('overlayAuth').classList.add('open');
+    document.getElementById('modalAuth').classList.add('open');
+    setTimeout(() => document.getElementById('authUsuario').focus(), 120);
 }
 
-function abrirModalApertura() {
+function cerrarModalAuth() {
+    document.getElementById('overlayAuth').classList.remove('open');
+    document.getElementById('modalAuth').classList.remove('open');
+    _accionPendiente = null;
+}
+
+function togglePasswordAuth() {
+    const inp = document.getElementById('authPassword');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    document.getElementById('authEyeIcon').className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+}
+
+function confirmarAuth() {
+    const usuario  = document.getElementById('authUsuario').value.trim();
+    const password = document.getElementById('authPassword').value;
+    const errBox   = document.getElementById('authError');
+    const boton    = document.getElementById('authBoton');
+    if (!usuario || !password) {
+        document.getElementById('authErrorMsg').textContent = 'Ingresa usuario y contraseña.';
+        errBox.classList.add('show'); return;
+    }
+    boton.disabled = true;
+    boton.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Verificando...';
+    errBox.classList.remove('show');
+    fetch(URL_VERIFICAR, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({ username: usuario, password }),
+    })
+    .then(r => r.json())
+    .then(data => {
+        boton.disabled = false;
+        boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
+        if (!data.ok) {
+            document.getElementById('authErrorMsg').textContent = data.error || 'Error de autenticación.';
+            errBox.classList.add('show');
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authPassword').focus();
+            return;
+        }
+        cerrarModalAuth();
+        if (_accionPendiente === 'apertura') _abrirModalApertura();
+        else if (_accionPendiente === 'cierre') _abrirModalCierre();
+    })
+    .catch(() => {
+        boton.disabled = false;
+        boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
+        document.getElementById('authErrorMsg').textContent = 'Error de conexión.';
+        errBox.classList.add('show');
+    });
+}
+
+// ── APERTURA ──
+function calcularTotalApertura() {
+    let t = 0;
+    document.querySelectorAll('.denom-ap').forEach(i => { t += (parseInt(i.value)||0) * parseInt(i.dataset.valor); });
+    document.getElementById('totalApertura').textContent = '$' + formatPesos(t);
+    return t;
+}
+function abrirModalApertura() { abrirModalAuth('apertura'); }
+function _abrirModalApertura() {
     if (BASE_SIGUIENTE > 0) {
-        document.getElementById('infoBaseSiguienteTexto').textContent =
-            'El último cierre dejó una base de $' + formatPesos(BASE_SIGUIENTE) + ' para hoy.';
+        document.getElementById('infoBaseSiguienteTexto').textContent = 'El último cierre dejó una base de $' + formatPesos(BASE_SIGUIENTE) + ' para hoy.';
         document.getElementById('infoBaseSiguiente').classList.add('show');
     }
     document.querySelectorAll('.denom-ap').forEach(i => i.value = 0);
@@ -614,212 +455,106 @@ function abrirModalApertura() {
     document.getElementById('overlayApertura').classList.add('open');
     document.getElementById('modalApertura').classList.add('open');
 }
-
 function cerrarModalApertura() {
     document.getElementById('overlayApertura').classList.remove('open');
     document.getElementById('modalApertura').classList.remove('open');
 }
-
 function confirmarApertura() {
     const montoBase = calcularTotalApertura();
-    if (montoBase === 0) {
-        alert('Ingresa el dinero con el que abres la caja.');
-        return;
-    }
+    if (montoBase === 0) { alert('Ingresa el dinero con el que abres la caja.'); return; }
     const denominaciones = {};
-    document.querySelectorAll('.denom-ap').forEach(i => {
-        const cant = parseInt(i.value) || 0;
-        if (cant > 0) denominaciones[i.dataset.valor] = cant;
-    });
-    const btn = document.querySelector('#modalApertura .caja-btn-primary');
-    btn.disabled = true;
-    btn.textContent = 'Guardando…';
-
-    fetch("{% url 'ventas:apertura_caja' %}", {
-        method:  'POST',
+    document.querySelectorAll('.denom-ap').forEach(i => { const c=parseInt(i.value)||0; if(c>0) denominaciones[i.dataset.valor]=c; });
+    fetch(URL_APERTURA, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-        body:    JSON.stringify({
-            monto_base:  montoBase,
-            observacion: document.getElementById('apObservacion').value,
-            denominaciones,
-        }),
+        body: JSON.stringify({ monto_base: montoBase, observacion: document.getElementById('apObservacion').value, denominaciones }),
     })
     .then(r => r.json())
-    .then(data => {
-        if (data.ok) { location.reload(); }
-        else {
-            alert(data.error || 'Error al abrir caja.');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-unlock me-1"></i> Confirmar Apertura';
-        }
-    })
-    .catch(() => {
-        alert('Error de conexión.');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-unlock me-1"></i> Confirmar Apertura';
-    });
+    .then(data => { if (data.ok) location.reload(); else alert(data.error || 'Error al abrir caja.'); })
+    .catch(() => alert('Error de conexión.'));
 }
 
-// ════════════════════════════════════════
-// CIERRE
-// ════════════════════════════════════════
+// ── CIERRE ──
 function calcularTotalCierre() {
-    let total = 0;
-    document.querySelectorAll('.denom-ci').forEach(i => {
-        total += (parseInt(i.value) || 0) * parseInt(i.dataset.valor);
-    });
-    document.getElementById('totalCierre').textContent = '$' + formatPesos(total);
-
-    const baseSig = parseInt(document.getElementById('baseSiguiente').value) || 0;
-    const retirar = Math.max(0, total - baseSig);
-
-    document.getElementById('resumenCierre').style.display   = 'block';
+    let t = 0;
+    document.querySelectorAll('.denom-ci').forEach(i => { t += (parseInt(i.value)||0) * parseInt(i.dataset.valor); });
+    document.getElementById('totalCierre').textContent = '$' + formatPesos(t);
+    const bs = parseInt(document.getElementById('baseSiguiente').value) || 0;
+    document.getElementById('resumenCierre').style.display = 'block';
     document.getElementById('res-base-apertura').textContent = '$' + formatPesos(BASE_APERTURA);
     document.getElementById('res-ventas').textContent        = '$' + formatPesos(TOTAL_DIA);
-    document.getElementById('res-contado').textContent       = '$' + formatPesos(total);
-    document.getElementById('res-base-sig').textContent      = '$' + formatPesos(baseSig);
-    document.getElementById('res-retirar').textContent       = '$' + formatPesos(retirar);
-    return total;
+    document.getElementById('res-contado').textContent       = '$' + formatPesos(t);
+    document.getElementById('res-base-sig').textContent      = '$' + formatPesos(bs);
+    document.getElementById('res-retirar').textContent       = '$' + formatPesos(Math.max(0, t - bs));
+    return t;
 }
-
-function abrirModalCierre() {
+function abrirModalCierre() { abrirModalAuth('cierre'); }
+function _abrirModalCierre() {
     document.querySelectorAll('.denom-ci').forEach(i => i.value = 0);
-    document.getElementById('baseSiguiente').value         = '';
+    document.getElementById('baseSiguiente').value = '';
     document.getElementById('resumenCierre').style.display = 'none';
-    calcularTotalCierre();
     document.getElementById('overlayCierre').classList.add('open');
     document.getElementById('modalCierre').classList.add('open');
 }
-
 function cerrarModalCierre() {
     document.getElementById('overlayCierre').classList.remove('open');
     document.getElementById('modalCierre').classList.remove('open');
 }
-
 function confirmarCierre() {
-    const totalContado  = calcularTotalCierre();
-    const baseSiguiente = parseInt(document.getElementById('baseSiguiente').value) || 0;
-    if (totalContado === 0) {
-        alert('Ingresa el dinero contado en caja antes de cerrar.');
-        return;
-    }
+    const tc = calcularTotalCierre();
+    const bs = parseInt(document.getElementById('baseSiguiente').value) || 0;
+    if (tc === 0) { alert('Ingresa el dinero contado en caja antes de cerrar.'); return; }
     const denominaciones = {};
-    document.querySelectorAll('.denom-ci').forEach(i => {
-        const cant = parseInt(i.value) || 0;
-        if (cant > 0) denominaciones[i.dataset.valor] = cant;
-    });
-    const btn = document.querySelector('#modalCierre .caja-btn-primary');
-    btn.disabled = true;
-    btn.textContent = 'Guardando…';
-
-    fetch("{% url 'ventas:cierre_caja' %}", {
-        method:  'POST',
+    document.querySelectorAll('.denom-ci').forEach(i => { const c=parseInt(i.value)||0; if(c>0) denominaciones[i.dataset.valor]=c; });
+    fetch(URL_CIERRE, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-        body:    JSON.stringify({
-            total_contado:        totalContado,
-            monto_base_siguiente: baseSiguiente,
-            total_retirado:       Math.max(0, totalContado - baseSiguiente),
-            denominaciones,
-        }),
+        body: JSON.stringify({ total_contado: tc, monto_base_siguiente: bs, total_retirado: Math.max(0, tc - bs), denominaciones }),
     })
     .then(r => r.json())
-    .then(data => {
-        if (data.ok) { location.reload(); }
-        else {
-            alert(data.error || 'Error al cerrar caja.');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja';
-        }
-    })
-    .catch(() => {
-        alert('Error de conexión.');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja';
-    });
+    .then(data => { if (data.ok) location.reload(); else alert(data.error || 'Error al cerrar caja.'); })
+    .catch(() => alert('Error de conexión.'));
 }
 
-// ════════════════════════════════════════
-// DETALLE VENTA
-// ════════════════════════════════════════
+// ── DETALLE ──
 function abrirDetalle(ventaId) {
     const v = document.querySelector('.dato-venta[data-id="' + ventaId + '"]');
     if (!v) return;
-
     const detalles = Array.from(v.querySelectorAll('.dato-detalle'));
     let subtotalBruto = 0;
-
     const itemsHTML = detalles.map(d => {
-        const sub  = parseFloat(d.dataset.subtotal) || 0;
-        subtotalBruto += sub;
+        const sub = parseFloat(d.dataset.subtotal) || 0; subtotalBruto += sub;
         const pres = d.dataset.presentacion ? ' (' + d.dataset.presentacion + ')' : '';
         return `<div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--azul-borde);">
-            <div>
-                <div style="font-weight:600;color:var(--texto);font-size:.9rem;">${d.dataset.nombre}${pres}</div>
-                <div style="font-size:.75rem;color:var(--texto-muted);">${d.dataset.cantidad} × $${formatPesos(d.dataset.precio)}</div>
-            </div>
-            <span style="font-weight:700;color:var(--azul-claro);">$${formatPesos(sub)}</span>
-        </div>`;
+            <div><div style="font-weight:600;color:var(--texto);font-size:.9rem;">${d.dataset.nombre}${pres}</div>
+            <div style="font-size:.75rem;color:var(--texto-muted);">${d.dataset.cantidad} × $${formatPesos(d.dataset.precio)}</div></div>
+            <span style="font-weight:700;color:var(--azul-claro);">$${formatPesos(sub)}</span></div>`;
     }).join('');
-
     const descuento = parseFloat(v.dataset.descuento) || 0;
     const ahorro    = subtotalBruto * (descuento / 100);
     const total     = parseFloat(v.dataset.total) || 0;
-
     const pagos = [
-        { label:'Efectivo',      val:v.dataset.efectivo,      icon:'bi-cash' },
-        { label:'Tarjeta',       val:v.dataset.tarjeta,       icon:'bi-credit-card' },
-        { label:'Transferencia', val:v.dataset.transferencia, icon:'bi-bank' },
-        { label:'Nequi',         val:v.dataset.nequi,         icon:'bi-phone' },
-        { label:'Daviplata',     val:v.dataset.daviplata,     icon:'bi-phone' },
+        {label:'Efectivo',val:v.dataset.efectivo,icon:'bi-cash'},
+        {label:'Tarjeta',val:v.dataset.tarjeta,icon:'bi-credit-card'},
+        {label:'Transferencia',val:v.dataset.transferencia,icon:'bi-bank'},
+        {label:'Nequi',val:v.dataset.nequi,icon:'bi-phone'},
+        {label:'Daviplata',val:v.dataset.daviplata,icon:'bi-phone'},
     ].filter(p => parseFloat(p.val) > 0);
-
-    const pagosHTML = pagos.map(p => `
-        <div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.85rem;">
-            <span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span>
-            <span style="color:var(--texto);font-weight:600;">$${formatPesos(p.val)}</span>
-        </div>`).join('');
-
+    const pagosHTML = pagos.map(p => `<div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.85rem;"><span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span><span style="color:var(--texto);font-weight:600;">$${formatPesos(p.val)}</span></div>`).join('');
     document.getElementById('detalleContenido').innerHTML = `
         <div style="background:var(--fondo-card2);border-radius:10px;padding:1rem;margin-bottom:1rem;">
-            <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
-                <span style="font-size:.75rem;color:var(--texto-muted);">CLIENTE</span>
-                <span style="font-weight:700;color:var(--texto);">${v.dataset.cliente}</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;">
-                <span style="font-size:.75rem;color:var(--texto-muted);">HORA</span>
-                <span style="font-size:.85rem;color:var(--texto);">${v.dataset.hora}</span>
-            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;"><span style="font-size:.75rem;color:var(--texto-muted);">CLIENTE</span><span style="font-weight:700;color:var(--texto);">${v.dataset.cliente}</span></div>
+            <div style="display:flex;justify-content:space-between;"><span style="font-size:.75rem;color:var(--texto-muted);">HORA</span><span style="font-size:.85rem;color:var(--texto);">${v.dataset.hora}</span></div>
         </div>
-        <div style="margin-bottom:1rem;">
-            <div style="font-size:.7rem;color:var(--texto-muted);text-transform:uppercase;margin-bottom:.5rem;">Productos</div>
-            ${itemsHTML}
-        </div>
+        <div style="margin-bottom:1rem;"><div style="font-size:.7rem;color:var(--texto-muted);text-transform:uppercase;margin-bottom:.5rem;">Productos</div>${itemsHTML}</div>
         <div style="background:rgba(77,168,218,.08);border:1px solid var(--azul-borde);border-radius:10px;padding:.9rem;margin-bottom:1rem;">
-            ${descuento > 0 ? `
-            <div style="display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.85rem;">
-                <span style="color:var(--texto-muted);">Subtotal:</span>
-                <span style="text-decoration:line-through;color:var(--texto-muted);">$${formatPesos(subtotalBruto)}</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.85rem;">
-                <span style="color:#ff4d4d;">Descuento (${descuento}%):</span>
-                <span style="color:#ff4d4d;">-$${formatPesos(ahorro)}</span>
-            </div>` : ''}
-            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--azul-borde);padding-top:.6rem;margin-top:.3rem;">
-                <span style="font-weight:700;font-size:1rem;">TOTAL</span>
-                <span style="font-size:1.5rem;font-weight:800;color:var(--azul-claro);">$${formatPesos(total)}</span>
-            </div>
+            ${descuento > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.85rem;"><span style="color:var(--texto-muted);">Subtotal:</span><span style="text-decoration:line-through;color:var(--texto-muted);">$${formatPesos(subtotalBruto)}</span></div><div style="display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.85rem;"><span style="color:#ff4d4d;">Descuento (${descuento}%):</span><span style="color:#ff4d4d;">-$${formatPesos(ahorro)}</span></div>` : ''}
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--azul-borde);padding-top:.6rem;margin-top:.3rem;"><span style="font-weight:700;font-size:1rem;">TOTAL</span><span style="font-size:1.5rem;font-weight:800;color:var(--azul-claro);">$${formatPesos(total)}</span></div>
         </div>
-        ${pagos.length > 0 ? `
-        <div style="background:var(--fondo-card2);border:1px solid var(--azul-borde);border-radius:10px;padding:.9rem;">
-            <div style="font-size:.7rem;color:var(--texto-muted);text-transform:uppercase;margin-bottom:.5rem;">Métodos de pago</div>
-            ${pagosHTML}
-        </div>` : ''}
-    `;
-
+        ${pagos.length > 0 ? `<div style="background:var(--fondo-card2);border:1px solid var(--azul-borde);border-radius:10px;padding:.9rem;"><div style="font-size:.7rem;color:var(--texto-muted);text-transform:uppercase;margin-bottom:.5rem;">Métodos de pago</div>${pagosHTML}</div>` : ''}`;
     document.getElementById('overlayDetalle').classList.add('open');
     document.getElementById('modalDetalle').classList.add('open');
 }
-
 function cerrarDetalle() {
     document.getElementById('overlayDetalle').classList.remove('open');
     document.getElementById('modalDetalle').classList.remove('open');
