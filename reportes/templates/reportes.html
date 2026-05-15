@@ -10,6 +10,53 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ── Paginación historial ventas ── */
+.cys-pag-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--azul-borde, rgba(77,168,218,.15));
+}
+.cys-pag-info {
+  font-size: .78rem;
+  color: var(--texto-muted, #8FA3B1);
+  margin-right: auto;
+}
+.cys-pag-btns {
+  display: flex;
+  gap: 4px;
+}
+.cys-pag-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid var(--azul-borde, rgba(77,168,218,.2));
+  background: transparent;
+  color: var(--texto-principal, #C8D8E4);
+  font-size: .82rem;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.cys-pag-btn:hover:not(:disabled) {
+  background: rgba(77,168,218,.12);
+  color: var(--azul-claro, #4DA8DA);
+}
+.cys-pag-btn--active {
+  background: var(--azul-claro, #4DA8DA) !important;
+  color: #0A1F33 !important;
+  font-weight: 600;
+  border-color: var(--azul-claro, #4DA8DA);
+}
+.cys-pag-btn--disabled,
+.cys-pag-btn:disabled {
+  opacity: .3;
+  cursor: default;
+}
+</style>
 {% endblock %}
  
 {% block content %}
@@ -175,10 +222,10 @@
         <thead>
           <tr><th>#</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Precio Unit.</th><th>Total</th><th>Fecha</th></tr>
         </thead>
-        <tbody>
+        <tbody id="ventasHistorialBody">
           {% for venta in ventas %}
             {% for det in venta.detalles.all %}
-            <tr>
+            <tr data-venta-fila="1">
               <td class="cys-td">{{ forloop.parentloop.counter }}</td>
               <td class="cys-td cys-td--bold">{{ venta.cliente }}</td>
               <td class="cys-td">{{ det.producto.nombre }}</td>
@@ -199,6 +246,13 @@
         </tbody>
       </table>
     </div>
+
+    <!-- PAGINACIÓN HISTORIAL -->
+    <div class="cys-pag-wrap" id="ventasPaginacion" style="display:none;">
+      <span class="cys-pag-info" id="ventasPagInfo"></span>
+      <div class="cys-pag-btns" id="ventasPagBtns"></div>
+    </div>
+
   </section>
  
 </div>
@@ -1191,5 +1245,80 @@ document.getElementById('avBtnLimpiar').addEventListener('click',()=>{
   document.getElementById('avFechaFin').value='';
   renderAnalisis();
 });
+
+/* ══════════════════════════════════════════════
+   PAGINACIÓN HISTORIAL DE VENTAS
+══════════════════════════════════════════════ */
+(function () {
+  const FILAS_POR_PAG = 5;
+  let paginaActual = 1;
+
+  function getFilas() {
+    return [...document.querySelectorAll('#ventasHistorialBody tr[data-venta-fila]')];
+  }
+
+  function renderPaginacion() {
+    const filas = getFilas();
+    if (filas.length === 0) return;
+
+    const totalPags = Math.ceil(filas.length / FILAS_POR_PAG);
+    const inicio    = (paginaActual - 1) * FILAS_POR_PAG;
+    const fin       = Math.min(inicio + FILAS_POR_PAG, filas.length);
+
+    // Mostrar/ocultar filas según página
+    filas.forEach((fila, i) => {
+      fila.style.display = (i >= inicio && i < fin) ? '' : 'none';
+    });
+
+    // Info "Mostrando X–Y de Z"
+    document.getElementById('ventasPagInfo').textContent =
+      `Mostrando ${inicio + 1}–${fin} de ${filas.length}`;
+
+    // Botones
+    const btnsEl = document.getElementById('ventasPagBtns');
+    btnsEl.innerHTML = '';
+
+    // Anterior
+    const btnPrev = document.createElement('button');
+    btnPrev.className = 'cys-pag-btn' + (paginaActual === 1 ? ' cys-pag-btn--disabled' : '');
+    btnPrev.innerHTML = '‹';
+    btnPrev.disabled  = paginaActual === 1;
+    btnPrev.onclick   = () => { if (paginaActual > 1) { paginaActual--; renderPaginacion(); } };
+    btnsEl.appendChild(btnPrev);
+
+    // Páginas numeradas
+    for (let p = 1; p <= totalPags; p++) {
+      const btn = document.createElement('button');
+      btn.className   = 'cys-pag-btn' + (p === paginaActual ? ' cys-pag-btn--active' : '');
+      btn.textContent = p;
+      btn.onclick     = (function (pg) {
+        return function () { paginaActual = pg; renderPaginacion(); };
+      })(p);
+      btnsEl.appendChild(btn);
+    }
+
+    // Siguiente
+    const btnNext = document.createElement('button');
+    btnNext.className = 'cys-pag-btn' + (paginaActual === totalPags ? ' cys-pag-btn--disabled' : '');
+    btnNext.innerHTML = '›';
+    btnNext.disabled  = paginaActual === totalPags;
+    btnNext.onclick   = () => { if (paginaActual < totalPags) { paginaActual++; renderPaginacion(); } };
+    btnsEl.appendChild(btnNext);
+
+    // Ocultar paginación si solo hay 1 página
+    document.getElementById('ventasPaginacion').style.display =
+      totalPags <= 1 ? 'none' : '';
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Marcar filas de datos (excluye la fila "vacía" con colspan)
+    document.querySelectorAll('#ventasHistorialBody tr').forEach(function (fila) {
+      if (!fila.querySelector('td[colspan]')) {
+        fila.setAttribute('data-venta-fila', '1');
+      }
+    });
+    renderPaginacion();
+  });
+})();
 </script>
 {% endblock %}
