@@ -36,6 +36,18 @@
   #userDropdown a:hover {
     background: rgba(77,168,218,.1);
   }
+
+  /* Hover rojo tenue — aplica a todos los links del sidebar */
+  .cys-sb-link:hover,
+.cys-sb-sublink:hover {
+  background: rgba(77,168,218,.08) !important;
+  color: var(--azul-claro) !important;
+  border-color: var(--azul-borde) !important;
+}
+.cys-sb-link:hover i,
+.cys-sb-sublink:hover i {
+  color: var(--azul-claro) !important;
+}
 </style>
 
 <div class="offcanvas offcanvas-end"
@@ -172,8 +184,16 @@
       </div>
     </div>
 
+    <hr class="cys-sb-divider">
+
+    <!-- CONFIGURACIÓN + CERRAR SESIÓN -->
+    <a href="/configuracion/" class="cys-sb-link"
+       style="color:var(--azul-claro); border-color:rgba(77,168,218,.2); margin-bottom:.4rem;">
+      <i class="bi bi-sliders"></i> Configuración
+    </a>
+
     <a href="{% url 'logout' %}" class="cys-sb-link"
-       style="color:#e87070; border-color:rgba(192,57,43,.3); margin-top:.5rem;">
+       style="color:#e87070; border-color:rgba(192,57,43,.3);">
       <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
     </a>
 
@@ -535,7 +555,6 @@
     if (e.key === 'Escape') { cerrarModalPerfil(); cerrarModalEditar(); }
   });
 
-  // ── TOGGLE VENTAS ─────────────────────────────────────
   function toggleVentas(e, el) {
     if (window.location.pathname.startsWith('/ventas/')) e.preventDefault();
     document.getElementById('submenuVentas').classList.toggle('open');
@@ -543,7 +562,6 @@
     el.classList.toggle('open');
   }
 
-  // ── TOGGLE DEVOLUCIONES ───────────────────────────────
   function toggleDevoluciones(e, el) {
     if (window.location.pathname.startsWith('/ventas/devoluciones/')) e.preventDefault();
     document.getElementById('submenuDevoluciones').classList.toggle('open');
@@ -551,7 +569,6 @@
     el.classList.toggle('open');
   }
 
-  // ── TOGGLE PROVEEDORES ────────────────────────────────
   function toggleProveedores(e, el) {
     if (window.location.pathname.startsWith('/proveedores/') ||
         window.location.pathname.startsWith('/compra/')) e.preventDefault();
@@ -560,10 +577,8 @@
     el.classList.toggle('open');
   }
 
-  // ── APERTURA AUTOMÁTICA SEGÚN RUTA ───────────────────
   (function () {
     const path = window.location.pathname;
-
     function abrirSubmenu(submenuId, btnId, chevronId) {
       const s = document.getElementById(submenuId);
       const b = document.getElementById(btnId);
@@ -572,7 +587,6 @@
       if (b) b.classList.add('open');
       if (c) c.classList.add('open');
     }
-
     if (path.startsWith('/ventas/') || path.startsWith('/reportes')) {
       abrirSubmenu('submenuVentas', 'btnVentas', 'chevronVentas');
     }
