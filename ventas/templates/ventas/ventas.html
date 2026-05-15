@@ -16,7 +16,6 @@
   <!-- ── BARRA ESTADO DE CAJA ── -->
   <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:12px; padding:.8rem 1.2rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:3.0rem;">
 
-    <!-- lado izquierdo: badges y stats -->
     <div style="display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; min-width:0; flex:1;">
       {% if caja_abierta %}
         <span class="caja-badge caja-badge--abierta">
@@ -63,12 +62,10 @@
       {% endif %}
     </div>
 
-    <!-- lado derecho: menú hamburguesa -->
+    <!-- Menú hamburguesa: solo Ver día y Bloquear -->
     <div class="dropdown" style="flex-shrink:0;">
       <button class="cys-hamburger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
+        <span></span><span></span><span></span>
       </button>
       <ul class="dropdown-menu dropdown-menu-end cys-dropdown">
         <li>
@@ -77,24 +74,10 @@
           </a>
         </li>
         <li><hr class="dropdown-divider cys-dropdown__divider"></li>
-        {% if caja_abierta %}
-          <li>
-            <button class="dropdown-item cys-dropdown__item cys-dropdown__item--red" type="button" onclick="abrirModalCierre()">
-              <i class="bi bi-lock"></i> Cerrar Caja
-            </button>
-          </li>
-        {% else %}
-          <li>
-            <button class="dropdown-item cys-dropdown__item cys-dropdown__item--green" type="button" onclick="abrirModalApertura()">
-              <i class="bi bi-unlock"></i> Abrir Caja
-            </button>
-          </li>
-        {% endif %}
-        <li><hr class="dropdown-divider cys-dropdown__divider"></li>
         <li>
-          <a class="dropdown-item cys-dropdown__item cys-dropdown__item--red" href="{% url 'ventas:bloquear_caja' %}">
+          <button class="dropdown-item cys-dropdown__item cys-dropdown__item--red" type="button" onclick="abrirModalBloqueo()">
             <i class="bi bi-shield-lock"></i> Bloquear
-          </a>
+          </button>
         </li>
       </ul>
     </div>
@@ -186,7 +169,6 @@
           </div>
           <div id="totalGeneral" style="display:none; background:rgba(77,168,218,.08); border:1px solid var(--azul-borde); border-radius:10px; padding:1.1rem 1.3rem; margin-bottom:1rem;"></div>
 
-          <!-- MÉTODOS DE PAGO -->
           <div id="seccionPagos" style="display:none; margin-bottom:1rem;">
             <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:1rem 1.1rem;">
               <div style="font-size:1rem; color:var(--texto); font-weight:700; margin-bottom:.9rem;">MÉTODO DE PAGO</div>
@@ -281,49 +263,62 @@
 </div>
 
 <!-- ══════════════════════════════════════
-     MODAL APERTURA DE CAJA
+     MODAL CONTEO DE APERTURA
+     (abre automático, sin botón cerrar)
 ══════════════════════════════════════ -->
-<div id="overlayApertura" class="vd-modal-overlay"></div>
-<div id="modalApertura" class="vd-modal-box">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-    <div>
-      <div style="font-size:.7rem; color:#2ed573; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Apertura</div>
-      <div style="font-size:1.15rem; font-weight:800; color:var(--texto);">Abrir Caja</div>
-    </div>
-    <button onclick="cerrarModalApertura()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
-  </div>
-  <div class="info-base" id="infoBaseSiguiente">
-    <i class="bi bi-info-circle me-1"></i>
-    <span id="infoBaseSiguienteTexto"></span>
+<div id="overlayConteo" class="vd-modal-overlay"></div>
+<div id="modalConteo" class="vd-modal-box">
+  <div style="margin-bottom:1.5rem;">
+    <div style="font-size:.7rem; color:#2ed573; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Inicio del día</div>
+    <div style="font-size:1.15rem; font-weight:800; color:var(--texto);">Conteo de Caja</div>
   </div>
   <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
-    Cuenta el dinero con el que inicias el día e ingresa la cantidad por denominación.
+    Cuenta el dinero disponible en caja e ingresa la cantidad por denominación antes de comenzar.
   </p>
   <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
   <div class="denom-grid">
-    <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="100000"></div>
-    <div class="denom-item"><label>$50.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="50000"></div>
-    <div class="denom-item"><label>$20.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="20000"></div>
-    <div class="denom-item"><label>$10.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="10000"></div>
-    <div class="denom-item"><label>$5.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="5000"></div>
-    <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="2000"></div>
-    <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="1000"></div>
+    <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="100000" oninput="calcularTotalConteo()"></div>
+    <div class="denom-item"><label>$50.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="50000" oninput="calcularTotalConteo()"></div>
+    <div class="denom-item"><label>$20.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="20000" oninput="calcularTotalConteo()"></div>
+    <div class="denom-item"><label>$10.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="10000" oninput="calcularTotalConteo()"></div>
+    <div class="denom-item"><label>$5.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="5000" oninput="calcularTotalConteo()"></div>
+    <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="2000" oninput="calcularTotalConteo()"></div>
+    <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ct" data-valor="1000" oninput="calcularTotalConteo()"></div>
   </div>
   <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
   <div class="denom-grid">
-    <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ap" data-valor="500"></div>
-    <div class="denom-item"><label>$200</label><input type="number" min="0" value="0" class="denom-ap" data-valor="200"></div>
-    <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ap" data-valor="100"></div>
-    <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ap" data-valor="50"></div>
+    <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ct" data-valor="500" oninput="calcularTotalConteo()"></div>
+    <div class="denom-item"><label>$200</label><input type="number" min="0" value="0" class="denom-ct" data-valor="200" oninput="calcularTotalConteo()"></div>
+    <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ct" data-valor="100" oninput="calcularTotalConteo()"></div>
+    <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ct" data-valor="50" oninput="calcularTotalConteo()"></div>
   </div>
   <div class="denom-total">
-    <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Monto base calculado</span>
-    <span class="denom-total__val" id="totalApertura">$0</span>
+    <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Total contado</span>
+    <span class="denom-total__val" id="totalConteo">$0</span>
   </div>
   <div class="caja-input-label">Observación (opcional)</div>
-  <input type="text" class="caja-input" id="apObservacion" placeholder="Ej: apertura normal">
-  <button class="caja-btn-primary" onclick="confirmarApertura()">
-    <i class="bi bi-unlock me-1"></i> Confirmar Apertura
+  <input type="text" class="caja-input" id="ctObservacion" placeholder="Ej: todo en orden">
+  <button class="caja-btn-primary" id="btnConfirmarConteo" onclick="confirmarConteo()">
+    <i class="bi bi-check-circle me-1"></i> Confirmar Conteo e Iniciar
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL DECISIÓN AL BLOQUEAR
+══════════════════════════════════════ -->
+<div id="overlayBloqueo" class="modal-bloqueo-overlay"></div>
+<div id="modalBloqueo" class="modal-bloqueo-box">
+  <i class="bi bi-shield-lock modal-bloqueo-box__icon"></i>
+  <div class="modal-bloqueo-box__title">Bloquear Caja</div>
+  <div class="modal-bloqueo-box__sub">¿Este bloqueo es momentáneo o deseas cerrar caja definitivamente?</div>
+  <button class="bloqueo-btn bloqueo-btn--momentaneo" onclick="confirmarBloqueaMomentaneo()">
+    <i class="bi bi-pause-circle"></i> Bloqueo momentáneo
+  </button>
+  <button class="bloqueo-btn bloqueo-btn--definitivo" onclick="confirmarCierreCaja()">
+    <i class="bi bi-lock"></i> Cerrar caja definitivamente
+  </button>
+  <button class="bloqueo-btn bloqueo-btn--cancelar" onclick="cerrarModalBloqueo()">
+    Cancelar
   </button>
 </div>
 
@@ -334,8 +329,8 @@
 <div id="modalCierre" class="vd-modal-box">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
     <div>
-      <div style="font-size:.7rem; color:#ff4d4d; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Cierre</div>
-      <div style="font-size:1.15rem; font-weight:800; color:var(--texto);">Cerrar Caja</div>
+      <div style="font-size:.7rem; color:#ff4d4d; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Cierre definitivo</div>
+      <div style="font-size:1.15rem; font-weight:800; color:var(--texto);">Conteo de Cierre</div>
     </div>
     <button onclick="cerrarModalCierre()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
   </div>
@@ -344,27 +339,27 @@
   </p>
   <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
   <div class="denom-grid">
-    <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100000"></div>
-    <div class="denom-item"><label>$50.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="50000"></div>
-    <div class="denom-item"><label>$20.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="20000"></div>
-    <div class="denom-item"><label>$10.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="10000"></div>
-    <div class="denom-item"><label>$5.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="5000"></div>
-    <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="2000"></div>
-    <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="1000"></div>
+    <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100000" oninput="calcularTotalCierre()"></div>
+    <div class="denom-item"><label>$50.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="50000" oninput="calcularTotalCierre()"></div>
+    <div class="denom-item"><label>$20.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="20000" oninput="calcularTotalCierre()"></div>
+    <div class="denom-item"><label>$10.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="10000" oninput="calcularTotalCierre()"></div>
+    <div class="denom-item"><label>$5.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="5000" oninput="calcularTotalCierre()"></div>
+    <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="2000" oninput="calcularTotalCierre()"></div>
+    <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="1000" oninput="calcularTotalCierre()"></div>
   </div>
   <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
   <div class="denom-grid">
-    <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ci" data-valor="500"></div>
-    <div class="denom-item"><label>$200</label><input type="number" min="0" value="0" class="denom-ci" data-valor="200"></div>
-    <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100"></div>
-    <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ci" data-valor="50"></div>
+    <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ci" data-valor="500" oninput="calcularTotalCierre()"></div>
+    <div class="denom-item"><label>$200</label><input type="number" min="0" value="0" class="denom-ci" data-valor="200" oninput="calcularTotalCierre()"></div>
+    <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100" oninput="calcularTotalCierre()"></div>
+    <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ci" data-valor="50" oninput="calcularTotalCierre()"></div>
   </div>
   <div class="denom-total">
     <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Total contado en caja</span>
     <span class="denom-total__val" id="totalCierre">$0</span>
   </div>
   <div class="caja-input-label">Monto base para mañana ($)</div>
-  <input type="number" class="caja-input" id="baseSiguiente" placeholder="Ej: 100000" min="0">
+  <input type="number" class="caja-input" id="baseSiguiente" placeholder="Ej: 100000" min="0" oninput="calcularTotalCierre()">
   <div id="resumenCierre" style="display:none; background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem; margin-bottom:1rem;">
     <div style="font-size:.7rem; text-transform:uppercase; color:var(--texto-muted); margin-bottom:.6rem; font-weight:700; letter-spacing:.8px;">Resumen del día</div>
     <div class="caja-resultado-fila"><span style="color:var(--texto-muted);">Base de apertura</span><span id="res-base-apertura" style="font-weight:600;">$0</span></div>
@@ -378,12 +373,14 @@
       <span id="res-retirar" style="font-weight:800; font-size:1.15rem; color:#2ed573;">$0</span>
     </div>
   </div>
-  <button class="caja-btn-primary caja-btn-primary--danger" onclick="confirmarCierre()">
+  <button class="caja-btn-primary caja-btn-primary--danger" id="btnConfirmarCierre" onclick="confirmarCierre()">
     <i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja
   </button>
 </div>
 
-<!-- MODAL RECIBO -->
+<!-- ══════════════════════════════════════
+     MODAL RECIBO
+══════════════════════════════════════ -->
 <div id="overlayRecibo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.7); z-index:9998;" onclick="cerrarRecibo()"></div>
 <div id="modalRecibo" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999; width:440px; max-width:95vw; max-height:90vh; overflow-y:auto; background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
@@ -391,11 +388,11 @@
       <div style="font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:1px;">Comprobante de Venta</div>
       <div style="font-size:1.2rem; font-weight:800; color:var(--texto);">CYS Ltda</div>
     </div>
-    <button id="btnCerrarRecibo" onclick="cerrarRecibo()" style="background:none; border:none; color:var(--texto-muted); font-size:1.3rem; cursor:pointer;"><i class="bi bi-x-lg"></i></button>
+    <button onclick="cerrarRecibo()" style="background:none; border:none; color:var(--texto-muted); font-size:1.3rem; cursor:pointer;"><i class="bi bi-x-lg"></i></button>
   </div>
   <div id="reciboContenido"></div>
   <div style="display:flex; gap:.7rem; margin-top:1.5rem; flex-wrap:wrap;">
-    <button id="btnImprimir" onclick="window.print()" class="cys-btn" style="flex:1; background:var(--azul-claro); color:#000; font-weight:700; border:none; border-radius:10px; padding:.7rem; display:flex; align-items:center; justify-content:center; min-width:120px;">
+    <button onclick="window.print()" class="cys-btn" style="flex:1; background:var(--azul-claro); color:#000; font-weight:700; border:none; border-radius:10px; padding:.7rem; display:flex; align-items:center; justify-content:center; min-width:120px;">
       <i class="bi bi-printer me-1"></i> Imprimir
     </button>
     <form id="formCancelarVentaRecibo" method="POST" action="" style="flex:1; min-width:120px;">
@@ -409,7 +406,9 @@
   </div>
 </div>
 
-<!-- MODAL CANCELAR EN PROCESO -->
+<!-- ══════════════════════════════════════
+     MODAL CANCELAR VENTA EN PROCESO
+══════════════════════════════════════ -->
 <div id="overlayCancelar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.75); z-index:10000;"></div>
 <div id="modalCancelar" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:10001; width:420px; max-width:95vw; background:var(--fondo-card); border:1px solid #ff4d4d; border-radius:16px; padding:2rem;">
   <div style="text-align:center; margin-bottom:1.2rem;">
@@ -455,6 +454,7 @@
   </div>
   {% endfor %}
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -463,12 +463,19 @@ const TOTAL_DIA      = {{ total_dia|default:0|floatformat:0 }};
 const BASE_APERTURA  = {{ caja_abierta.monto_base|default:0|floatformat:0 }};
 const BASE_SIGUIENTE = {{ ultimo_cierre.monto_base_siguiente|default:0|floatformat:0 }};
 const CSRF_TOKEN     = '{{ csrf_token }}';
+const MOSTRAR_CONTEO = {{ mostrar_conteo_apertura|yesno:"true,false" }};
 
 {% verbatim %}
 let carrito        = [];
 let metodosActivos = new Set();
 let totalActual    = 0;
 
+/* ── Auto-abrir conteo si es primera vez en el día ── */
+window.addEventListener('DOMContentLoaded', () => {
+    if (MOSTRAR_CONTEO) abrirModalConteo();
+});
+
+/* ── Utilidades ── */
 function formatPesos(val) {
     const n = Math.round(parseFloat(val) || 0);
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -485,6 +492,162 @@ function formatearInputPago(input) {
     actualizarPagos();
 }
 
+/* ══════════════════════════════
+   MODAL CONTEO DE APERTURA
+══════════════════════════════ */
+function abrirModalConteo() {
+    document.querySelectorAll('.denom-ct').forEach(i => i.value = 0);
+    document.getElementById('ctObservacion').value = '';
+    document.getElementById('totalConteo').textContent = '$0';
+    document.getElementById('overlayConteo').classList.add('open');
+    document.getElementById('modalConteo').classList.add('open');
+}
+
+function calcularTotalConteo() {
+    let total = 0;
+    document.querySelectorAll('.denom-ct').forEach(i => {
+        total += (parseInt(i.value) || 0) * parseInt(i.dataset.valor);
+    });
+    document.getElementById('totalConteo').textContent = '$' + formatPesos(total);
+    return total;
+}
+
+function confirmarConteo() {
+    const montoContado = calcularTotalConteo();
+    if (montoContado === 0) {
+        alert('Ingresa el dinero disponible en caja antes de continuar.');
+        return;
+    }
+    const denominaciones = {};
+    document.querySelectorAll('.denom-ct').forEach(i => {
+        const c = parseInt(i.value) || 0;
+        if (c > 0) denominaciones[i.dataset.valor] = c;
+    });
+    const btn = document.getElementById('btnConfirmarConteo');
+    btn.disabled = true;
+    btn.textContent = 'Guardando…';
+    fetch({% endverbatim %}"{% url 'ventas:registrar_conteo' %}"{% verbatim %}, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({
+            monto_contado: montoContado,
+            observacion:   document.getElementById('ctObservacion').value,
+            denominaciones,
+        }),
+    }).then(r => r.json()).then(data => {
+        if (data.ok) {
+            document.getElementById('overlayConteo').classList.remove('open');
+            document.getElementById('modalConteo').classList.remove('open');
+        } else {
+            alert(data.error || 'Error al registrar conteo.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Confirmar Conteo e Iniciar';
+        }
+    }).catch(() => {
+        alert('Error de conexión.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Confirmar Conteo e Iniciar';
+    });
+}
+
+/* ══════════════════════════════
+   MODAL DECISIÓN DE BLOQUEO
+══════════════════════════════ */
+function abrirModalBloqueo() {
+    document.getElementById('overlayBloqueo').classList.add('open');
+    document.getElementById('modalBloqueo').classList.add('open');
+}
+
+function cerrarModalBloqueo() {
+    document.getElementById('overlayBloqueo').classList.remove('open');
+    document.getElementById('modalBloqueo').classList.remove('open');
+}
+
+function confirmarBloqueaMomentaneo() {
+    cerrarModalBloqueo();
+    window.location.href = {% endverbatim %}"{% url 'ventas:bloquear_caja' %}"{% verbatim %};
+}
+
+function confirmarCierreCaja() {
+    cerrarModalBloqueo();
+    abrirModalCierre();
+}
+
+/* ══════════════════════════════
+   MODAL CIERRE DE CAJA
+══════════════════════════════ */
+function calcularTotalCierre() {
+    let total = 0;
+    document.querySelectorAll('.denom-ci').forEach(i => {
+        total += (parseInt(i.value) || 0) * parseInt(i.dataset.valor);
+    });
+    document.getElementById('totalCierre').textContent = '$' + formatPesos(total);
+    const baseSig = parseInt(document.getElementById('baseSiguiente').value) || 0;
+    const retirar = Math.max(0, total - baseSig);
+    document.getElementById('resumenCierre').style.display = 'block';
+    document.getElementById('res-base-apertura').textContent = '$' + formatPesos(BASE_APERTURA);
+    document.getElementById('res-ventas').textContent        = '$' + formatPesos(TOTAL_DIA);
+    document.getElementById('res-contado').textContent       = '$' + formatPesos(total);
+    document.getElementById('res-base-sig').textContent      = '$' + formatPesos(baseSig);
+    document.getElementById('res-retirar').textContent       = '$' + formatPesos(retirar);
+    return total;
+}
+
+function abrirModalCierre() {
+    document.querySelectorAll('.denom-ci').forEach(i => i.value = 0);
+    document.getElementById('baseSiguiente').value = '';
+    document.getElementById('resumenCierre').style.display = 'none';
+    document.getElementById('totalCierre').textContent = '$0';
+    document.getElementById('overlayCierre').classList.add('open');
+    document.getElementById('modalCierre').classList.add('open');
+}
+
+function cerrarModalCierre() {
+    document.getElementById('overlayCierre').classList.remove('open');
+    document.getElementById('modalCierre').classList.remove('open');
+}
+
+function confirmarCierre() {
+    const totalContado  = calcularTotalCierre();
+    const baseSiguiente = parseInt(document.getElementById('baseSiguiente').value) || 0;
+    if (totalContado === 0) {
+        alert('Ingresa el dinero contado antes de cerrar.');
+        return;
+    }
+    const denominaciones = {};
+    document.querySelectorAll('.denom-ci').forEach(i => {
+        const c = parseInt(i.value) || 0;
+        if (c > 0) denominaciones[i.dataset.valor] = c;
+    });
+    const btn = document.getElementById('btnConfirmarCierre');
+    btn.disabled = true;
+    btn.textContent = 'Guardando…';
+    fetch({% endverbatim %}"{% url 'ventas:cierre_caja' %}"{% verbatim %}, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({
+            total_contado:        totalContado,
+            monto_base_siguiente: baseSiguiente,
+            total_retirado:       Math.max(0, totalContado - baseSiguiente),
+            denominaciones,
+        }),
+    }).then(r => r.json()).then(data => {
+        if (data.ok) { location.reload(); }
+        else {
+            alert(data.error || 'Error al cerrar caja.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja';
+        }
+    }).catch(() => {
+        alert('Error de conexión.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja';
+    });
+}
+
+/* ══════════════════════════════
+   MÉTODOS DE PAGO
+══════════════════════════════ */
 function toggleMetodo(metodo) {
     metodosActivos.has(metodo) ? metodosActivos.delete(metodo) : metodosActivos.add(metodo);
     document.querySelectorAll('.metodo-pago-btn').forEach(btn => {
@@ -495,8 +658,8 @@ function toggleMetodo(metodo) {
 }
 
 function renderInputsPago() {
-    const nombres = { efectivo:'Efectivo', tarjeta:'Tarjeta', transferencia:'Transferencia', nequi:'Nequi', daviplata:'Daviplata' };
-    const iconos  = { efectivo:'bi-cash', tarjeta:'bi-credit-card', transferencia:'bi-bank', nequi:'bi-phone', daviplata:'bi-phone' };
+    const nombres = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', nequi: 'Nequi', daviplata: 'Daviplata' };
+    const iconos  = { efectivo: 'bi-cash', tarjeta: 'bi-credit-card', transferencia: 'bi-bank', nequi: 'bi-phone', daviplata: 'bi-phone' };
     const cont    = document.getElementById('inputsPago');
     cont.innerHTML = '';
     metodosActivos.forEach(m => {
@@ -516,9 +679,9 @@ function renderInputsPago() {
 
 function actualizarPagos() {
     let totalPagado = 0;
-    ['efectivo','tarjeta','transferencia','nequi','daviplata'].forEach(m => {
+    ['efectivo', 'tarjeta', 'transferencia', 'nequi', 'daviplata'].forEach(m => {
         const inp = document.getElementById('input_' + m);
-        const val = inp ? (parseFloat(inp.value.replace(/\./g,'').replace(/,/g,'.')) || 0) : 0;
+        const val = inp ? (parseFloat(inp.value.replace(/\./g, '').replace(/,/g, '.')) || 0) : 0;
         const hid = document.getElementById('hidden' + m.charAt(0).toUpperCase() + m.slice(1));
         if (hid) hid.value = val;
         totalPagado += val;
@@ -543,6 +706,9 @@ function actualizarPagos() {
     }
 }
 
+/* ══════════════════════════════
+   CARRITO
+══════════════════════════════ */
 function agregarAlCarrito(prodId, prodNombre, presId, presNombre, stock, precio) {
     const key       = prodId + '_' + presId;
     const existente = carrito.find(i => i.key === key);
@@ -624,6 +790,9 @@ function actualizarHiddens() {
     `).join('');
 }
 
+/* ══════════════════════════════
+   MODAL CANCELAR VENTA
+══════════════════════════════ */
 function abrirModalCancelar() {
     document.getElementById('cancelarListaProductos').innerHTML = carrito.map(item => `
         <div style="display:flex; justify-content:space-between; padding:.4rem 0; border-bottom:1px solid var(--azul-borde); font-size:.85rem;">
@@ -632,15 +801,17 @@ function abrirModalCancelar() {
     document.getElementById('overlayCancelar').style.display = 'block';
     document.getElementById('modalCancelar').style.display   = 'block';
 }
+
 function cerrarModalCancelar() {
     document.getElementById('overlayCancelar').style.display = 'none';
     document.getElementById('modalCancelar').style.display   = 'none';
 }
+
 function confirmarCancelar() {
     cerrarModalCancelar();
     carrito = []; metodosActivos = new Set(); totalActual = 0;
-    ['inputsPago','camposHidden','listaCarrito'].forEach(id => document.getElementById(id).innerHTML = '');
-    ['carritoItems','seccionDescuento','seccionPagos','totalGeneral','validacionPago'].forEach(id => document.getElementById(id).style.display = 'none');
+    ['inputsPago', 'camposHidden', 'listaCarrito'].forEach(id => document.getElementById(id).innerHTML = '');
+    ['carritoItems', 'seccionDescuento', 'seccionPagos', 'totalGeneral', 'validacionPago'].forEach(id => document.getElementById(id).style.display = 'none');
     document.getElementById('carritoVacio').style.display     = 'block';
     document.getElementById('btnRegistrar').disabled          = true;
     document.getElementById('btnCancelarVenta').style.display = 'none';
@@ -648,6 +819,9 @@ function confirmarCancelar() {
     document.querySelectorAll('.metodo-pago-btn').forEach(b => b.classList.remove('activo'));
 }
 
+/* ══════════════════════════════
+   PRODUCTOS / CATEGORÍAS
+══════════════════════════════ */
 function renderizarProductos(datos) {
     const lista = document.getElementById('productoLista');
     lista.innerHTML = '';
@@ -677,8 +851,9 @@ function mostrarPresentaciones(prodId, prodNombre) {
     const lista   = document.getElementById('presentacionLista');
     lista.innerHTML = '';
     const pres = prodDiv ? Array.from(prodDiv.querySelectorAll('.dato-presentacion')) : [];
-    if (!pres.length) { lista.innerHTML = '<p style="color:var(--texto-muted); text-align:center;">Sin presentaciones.</p>'; }
-    else {
+    if (!pres.length) {
+        lista.innerHTML = '<p style="color:var(--texto-muted); text-align:center;">Sin presentaciones.</p>';
+    } else {
         pres.forEach(p => {
             const div = document.createElement('div');
             div.style.cssText = 'background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.8rem 1rem; cursor:pointer; transition:border-color .2s;';
@@ -711,6 +886,7 @@ function volverCategorias() {
     document.getElementById('vistaPresentaciones').style.display = 'none';
     document.getElementById('vistaCategorias').style.display     = 'block';
 }
+
 function volverProductos() {
     document.getElementById('vistaPresentaciones').style.display = 'none';
     document.getElementById('vistaProductos').style.display      = 'block';
@@ -732,6 +908,9 @@ document.getElementById('buscadorProducto').addEventListener('input', function (
 
 document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
 
+/* ══════════════════════════════
+   MODAL RECIBO
+══════════════════════════════ */
 function verRecibo(ventaId) {
     const v = document.querySelector('.dato-venta[data-id="' + ventaId + '"]');
     if (!v) return;
@@ -749,19 +928,24 @@ function verRecibo(ventaId) {
             <span style="font-weight:700;color:var(--azul-claro);">$${formatPesos(sub)}</span>
         </div>`;
     }).join('');
+
     const descuento   = parseFloat(v.dataset.descuento) || 0;
     const total       = parseFloat(v.dataset.total) || 0;
     const ahorro      = subtotalBruto * (descuento / 100);
+
     document.getElementById('formCancelarVentaRecibo').action = v.dataset.urlEliminar;
+
     const pagosInfo = [
-        {label:'Efectivo',icon:'bi-cash',val:parseFloat(v.dataset.efectivo)||0},
-        {label:'Tarjeta',icon:'bi-credit-card',val:parseFloat(v.dataset.tarjeta)||0},
-        {label:'Transferencia',icon:'bi-bank',val:parseFloat(v.dataset.transferencia)||0},
-        {label:'Nequi',icon:'bi-phone',val:parseFloat(v.dataset.nequi)||0},
-        {label:'Daviplata',icon:'bi-phone',val:parseFloat(v.dataset.daviplata)||0},
+        { label: 'Efectivo',      icon: 'bi-cash',        val: parseFloat(v.dataset.efectivo)      || 0 },
+        { label: 'Tarjeta',       icon: 'bi-credit-card', val: parseFloat(v.dataset.tarjeta)       || 0 },
+        { label: 'Transferencia', icon: 'bi-bank',        val: parseFloat(v.dataset.transferencia) || 0 },
+        { label: 'Nequi',         icon: 'bi-phone',       val: parseFloat(v.dataset.nequi)         || 0 },
+        { label: 'Daviplata',     icon: 'bi-phone',       val: parseFloat(v.dataset.daviplata)     || 0 },
     ].filter(p => p.val > 0);
+
     const totalPagado = pagosInfo.reduce((s, p) => s + p.val, 0);
     const cambio      = totalPagado - total;
+
     document.getElementById('reciboContenido').innerHTML = `
         <div style="background:var(--fondo-card2);border-radius:10px;padding:1rem;margin-bottom:1rem;">
             <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
@@ -795,105 +979,28 @@ function verRecibo(ventaId) {
         ${pagosInfo.length ? `
         <div style="background:var(--fondo-card2);border:1px solid var(--azul-borde);border-radius:10px;padding:.9rem;margin-top:1rem;">
             <div style="font-size:.7rem;color:var(--texto-muted);text-transform:uppercase;margin-bottom:.5rem;">Métodos de Pago</div>
-            ${pagosInfo.map(p => `<div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.85rem;"><span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span><span style="font-weight:600;">$${formatPesos(p.val)}</span></div>`).join('')}
+            ${pagosInfo.map(p => `<div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.85rem;">
+                <span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span>
+                <span style="font-weight:600;">$${formatPesos(p.val)}</span>
+            </div>`).join('')}
             <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-top:1px solid var(--azul-borde);font-size:.85rem;margin-top:.3rem;">
-                <span style="color:var(--texto-muted);">Total recibido:</span><span style="font-weight:600;">$${formatPesos(totalPagado)}</span>
+                <span style="color:var(--texto-muted);">Total recibido:</span>
+                <span style="font-weight:600;">$${formatPesos(totalPagado)}</span>
             </div>
-            ${cambio > 0.01 ? `<div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:rgba(77,255,145,.1);border:1px solid #4dff91;border-radius:8px;margin-top:.4rem;font-size:.9rem;"><span style="color:#4dff91;font-weight:700;"><i class="bi bi-arrow-return-left me-1"></i>Cambio:</span><span style="color:#4dff91;font-weight:800;">$${formatPesos(cambio)}</span></div>` : ''}
+            ${cambio > 0.01 ? `
+            <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:rgba(77,255,145,.1);border:1px solid #4dff91;border-radius:8px;margin-top:.4rem;font-size:.9rem;">
+                <span style="color:#4dff91;font-weight:700;"><i class="bi bi-arrow-return-left me-1"></i>Cambio:</span>
+                <span style="color:#4dff91;font-weight:800;">$${formatPesos(cambio)}</span>
+            </div>` : ''}
         </div>` : ''}
     `;
     document.getElementById('overlayRecibo').style.display = 'block';
     document.getElementById('modalRecibo').style.display   = 'block';
 }
+
 function cerrarRecibo() {
     document.getElementById('overlayRecibo').style.display = 'none';
     document.getElementById('modalRecibo').style.display   = 'none';
-}
-
-function calcularTotalApertura() {
-    let total = 0;
-    document.querySelectorAll('.denom-ap').forEach(i => total += (parseInt(i.value)||0) * parseInt(i.dataset.valor));
-    document.getElementById('totalApertura').textContent = '$' + formatPesos(total);
-    return total;
-}
-function abrirModalApertura() {
-    if (BASE_SIGUIENTE > 0) {
-        document.getElementById('infoBaseSiguienteTexto').textContent = 'El último cierre dejó una base de $' + formatPesos(BASE_SIGUIENTE) + ' para hoy.';
-        document.getElementById('infoBaseSiguiente').classList.add('show');
-    }
-    document.querySelectorAll('.denom-ap').forEach(i => i.value = 0);
-    calcularTotalApertura();
-    document.getElementById('apObservacion').value = '';
-    document.getElementById('overlayApertura').classList.add('open');
-    document.getElementById('modalApertura').classList.add('open');
-}
-function cerrarModalApertura() {
-    document.getElementById('overlayApertura').classList.remove('open');
-    document.getElementById('modalApertura').classList.remove('open');
-}
-function confirmarApertura() {
-    const montoBase = calcularTotalApertura();
-    if (montoBase === 0) { alert('Ingresa el dinero con el que abres la caja.'); return; }
-    const denominaciones = {};
-    document.querySelectorAll('.denom-ap').forEach(i => { const c = parseInt(i.value)||0; if(c>0) denominaciones[i.dataset.valor]=c; });
-    const btn = document.querySelector('#modalApertura .caja-btn-primary');
-    btn.disabled = true; btn.textContent = 'Guardando…';
-    fetch({% endverbatim %}
-"{% url 'ventas:apertura_caja' %}"
-    {% verbatim %}, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json','X-CSRFToken':CSRF_TOKEN},
-        body: JSON.stringify({monto_base:montoBase, observacion:document.getElementById('apObservacion').value, denominaciones}),
-    }).then(r=>r.json()).then(data => {
-        if (data.ok) { location.reload(); }
-        else { alert(data.error||'Error al abrir caja.'); btn.disabled=false; btn.innerHTML='<i class="bi bi-unlock me-1"></i> Confirmar Apertura'; }
-    }).catch(() => { alert('Error de conexión.'); btn.disabled=false; btn.innerHTML='<i class="bi bi-unlock me-1"></i> Confirmar Apertura'; });
-}
-
-function calcularTotalCierre() {
-    let total = 0;
-    document.querySelectorAll('.denom-ci').forEach(i => total += (parseInt(i.value)||0) * parseInt(i.dataset.valor));
-    document.getElementById('totalCierre').textContent = '$' + formatPesos(total);
-    const baseSig = parseInt(document.getElementById('baseSiguiente').value)||0;
-    const retirar = Math.max(0, total - baseSig);
-    document.getElementById('resumenCierre').style.display = 'block';
-    document.getElementById('res-base-apertura').textContent = '$' + formatPesos(BASE_APERTURA);
-    document.getElementById('res-ventas').textContent        = '$' + formatPesos(TOTAL_DIA);
-    document.getElementById('res-contado').textContent       = '$' + formatPesos(total);
-    document.getElementById('res-base-sig').textContent      = '$' + formatPesos(baseSig);
-    document.getElementById('res-retirar').textContent       = '$' + formatPesos(retirar);
-    return total;
-}
-function abrirModalCierre() {
-    document.querySelectorAll('.denom-ci').forEach(i => i.value = 0);
-    document.getElementById('baseSiguiente').value = '';
-    document.getElementById('resumenCierre').style.display = 'none';
-    calcularTotalCierre();
-    document.getElementById('overlayCierre').classList.add('open');
-    document.getElementById('modalCierre').classList.add('open');
-}
-function cerrarModalCierre() {
-    document.getElementById('overlayCierre').classList.remove('open');
-    document.getElementById('modalCierre').classList.remove('open');
-}
-function confirmarCierre() {
-    const totalContado  = calcularTotalCierre();
-    const baseSiguiente = parseInt(document.getElementById('baseSiguiente').value)||0;
-    if (totalContado === 0) { alert('Ingresa el dinero contado antes de cerrar.'); return; }
-    const denominaciones = {};
-    document.querySelectorAll('.denom-ci').forEach(i => { const c=parseInt(i.value)||0; if(c>0) denominaciones[i.dataset.valor]=c; });
-    const btn = document.querySelector('#modalCierre .caja-btn-primary');
-    btn.disabled = true; btn.textContent = 'Guardando…';
-    fetch({% endverbatim %}
-"{% url 'ventas:cierre_caja' %}"
-    {% verbatim %}, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json','X-CSRFToken':CSRF_TOKEN},
-        body: JSON.stringify({total_contado:totalContado, monto_base_siguiente:baseSiguiente, total_retirado:Math.max(0,totalContado-baseSiguiente), denominaciones}),
-    }).then(r=>r.json()).then(data => {
-        if (data.ok) { location.reload(); }
-        else { alert(data.error||'Error al cerrar caja.'); btn.disabled=false; btn.innerHTML='<i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja'; }
-    }).catch(() => { alert('Error de conexión.'); btn.disabled=false; btn.innerHTML='<i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja'; });
 }
 {% endverbatim %}
 </script>

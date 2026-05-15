@@ -30,7 +30,6 @@
   font-family: 'Inter', sans-serif;
   transition: var(--trans);
   outline: none;
-  position: relative;
 }
 
 .cys-venta-search__input:focus {
@@ -191,28 +190,19 @@
   cursor: pointer;
 }
 
-.cys-dropdown__item--blue {
-  color: var(--azul-claro);
-}
-
+.cys-dropdown__item--blue { color: var(--azul-claro); }
 .cys-dropdown__item--blue:hover {
   background: rgba(77, 168, 218, .12);
   color: #8fd8ff;
 }
 
-.cys-dropdown__item--green {
-  color: #2ed573;
-}
-
+.cys-dropdown__item--green { color: #2ed573; }
 .cys-dropdown__item--green:hover {
   background: rgba(46, 213, 115, .12);
   color: #59f39a;
 }
 
-.cys-dropdown__item--red {
-  color: #ff4d4d;
-}
-
+.cys-dropdown__item--red { color: #ff4d4d; }
 .cys-dropdown__item--red:hover {
   background: rgba(255, 77, 77, .12);
   color: #ff7a7a;
@@ -245,17 +235,9 @@
   white-space: nowrap;
 }
 
-.cys-btn-sm i {
-  font-size: .82rem;
-}
-
-.cys-btn-sm:hover {
-  transform: translateY(-2px);
-}
-
-.cys-btn-sm:active {
-  transform: scale(.97);
-}
+.cys-btn-sm i { font-size: .82rem; }
+.cys-btn-sm:hover { transform: translateY(-2px); }
+.cys-btn-sm:active { transform: scale(.97); }
 
 /* ============================================================
    GRID CATEGORÍAS
@@ -306,10 +288,7 @@
   color: var(--blanco);
 }
 
-.cys-cat-card__count {
-  font-size: .72rem;
-  color: var(--texto-muted);
-}
+.cys-cat-card__count { font-size: .72rem; color: var(--texto-muted); }
 
 /* ============================================================
    BOTÓN VOLVER
@@ -402,10 +381,7 @@
   flex-shrink: 0;
 }
 
-.cys-producto-item__info {
-  flex: 1;
-  min-width: 0;
-}
+.cys-producto-item__info { flex: 1; min-width: 0; }
 
 .cys-producto-item__nombre {
   font-size: .87rem;
@@ -422,10 +398,7 @@
   margin-top: 2px;
 }
 
-.cys-producto-item__meta {
-  text-align: right;
-  flex-shrink: 0;
-}
+.cys-producto-item__meta { text-align: right; flex-shrink: 0; }
 
 .cys-producto-item__precio {
   font-size: 1rem;
@@ -470,15 +443,8 @@
   box-shadow: 0 0 0 2px rgba(77, 168, 218, .2);
 }
 
-.pres-btn:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-
-.pres-btn__nombre {
-  font-size: .86rem;
-  font-weight: 600;
-}
+.pres-btn:disabled { opacity: .5; cursor: not-allowed; }
+.pres-btn__nombre { font-size: .86rem; font-weight: 600; }
 
 .pres-btn__meta {
   display: flex;
@@ -487,20 +453,9 @@
   gap: .15rem;
 }
 
-.pres-btn__precio {
-  color: var(--azul-claro);
-  font-size: .86rem;
-  font-weight: 700;
-}
-
-.pres-btn__stock {
-  font-size: .7rem;
-  color: var(--texto-muted);
-}
-
-.pres-btn__stock--agotado {
-  color: #ff4d4d;
-}
+.pres-btn__precio { color: var(--azul-claro); font-size: .86rem; font-weight: 700; }
+.pres-btn__stock  { font-size: .7rem; color: var(--texto-muted); }
+.pres-btn__stock--agotado { color: #ff4d4d; }
 
 /* ============================================================
    TOTAL
@@ -532,20 +487,18 @@
 }
 
 /* ============================================================
-   MODALES
+   MODALES — BASE
    ============================================================ */
 
 .vd-modal-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, .7);
+  background: rgba(0, 0, 0, .75);
   z-index: 9998;
 }
 
-.vd-modal-overlay.open {
-  display: block;
-}
+.vd-modal-overlay.open { display: block; }
 
 .vd-modal-box {
   display: none;
@@ -565,8 +518,262 @@
   padding: 2rem;
 }
 
-.vd-modal-box.open {
+.vd-modal-box.open { display: block; }
+
+/* ============================================================
+   DENOMINACIONES (grids de billetes/monedas)
+   ============================================================ */
+
+.denom-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+.denom-item {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+.denom-item label {
+  font-size: .7rem;
+  color: var(--texto-muted);
+  font-weight: 600;
+}
+
+.denom-item input {
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  border-radius: 8px;
+  color: var(--texto);
+  padding: .4rem .6rem;
+  font-size: .85rem;
+  width: 100%;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.denom-item input:focus {
+  border-color: var(--azul-claro);
+}
+
+.denom-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(77, 168, 218, .08);
+  border: 1px solid var(--azul-borde);
+  border-radius: 10px;
+  padding: .75rem 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.denom-total__label {
+  font-size: .78rem;
+  color: var(--texto-muted);
+  font-weight: 600;
+}
+
+.denom-total__val {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--azul-claro);
+  font-family: 'Rajdhani', sans-serif;
+}
+
+/* ============================================================
+   CAJA — INPUTS Y BOTONES DE MODAL
+   ============================================================ */
+
+.caja-input-label {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--texto-muted);
+  font-weight: 700;
+  margin-bottom: .4rem;
+}
+
+.caja-input {
+  width: 100%;
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  border-radius: 10px;
+  color: var(--texto);
+  padding: .65rem .9rem;
+  font-size: .9rem;
+  outline: none;
+  margin-bottom: 1.2rem;
+  transition: border-color .2s;
+  box-sizing: border-box;
+}
+
+.caja-input:focus {
+  border-color: var(--azul-claro);
+}
+
+.caja-btn-primary {
+  width: 100%;
+  background: var(--azul-claro);
+  color: var(--azul-oscuro);
+  border: none;
+  border-radius: 10px;
+  padding: .85rem;
+  font-size: .92rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all .2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+}
+
+.caja-btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.caja-btn-primary:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.caja-btn-primary--danger {
+  background: #ff4d4d;
+  color: #fff;
+}
+
+.caja-resultado-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .3rem 0;
+  font-size: .85rem;
+}
+
+/* ============================================================
+   INFO BASE (aviso apertura)
+   ============================================================ */
+
+.info-base {
+  display: none;
+  background: rgba(46, 213, 115, .08);
+  border: 1px solid rgba(46, 213, 115, .3);
+  border-radius: 10px;
+  padding: .7rem 1rem;
+  font-size: .82rem;
+  color: #2ed573;
+  margin-bottom: 1rem;
+}
+
+.info-base.show { display: flex; align-items: center; gap: .5rem; }
+
+/* ============================================================
+   MODAL BLOQUEO (decisión momentáneo / cierre definitivo)
+   ============================================================ */
+
+.modal-bloqueo-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .78);
+  z-index: 10000;
+}
+
+.modal-bloqueo-overlay.open { display: block; }
+
+.modal-bloqueo-box {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10001;
+  width: 420px;
+  max-width: 95vw;
+  background: var(--fondo-card);
+  border: 1px solid var(--azul-borde);
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.modal-bloqueo-box.open { display: block; }
+
+.modal-bloqueo-box__icon {
+  font-size: 2.2rem;
+  color: var(--azul-claro);
   display: block;
+  text-align: center;
+  margin-bottom: .7rem;
+}
+
+.modal-bloqueo-box__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--texto);
+  text-align: center;
+  margin-bottom: .4rem;
+}
+
+.modal-bloqueo-box__sub {
+  font-size: .85rem;
+  color: var(--texto-muted);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.bloqueo-btn {
+  width: 100%;
+  border-radius: 10px;
+  padding: .85rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: .9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  transition: all .2s ease;
+  margin-bottom: .75rem;
+}
+
+.bloqueo-btn:hover { transform: translateY(-1px); }
+
+.bloqueo-btn--momentaneo {
+  background: var(--fondo-card2);
+  color: var(--azul-claro);
+  border: 1px solid var(--azul-claro);
+}
+
+.bloqueo-btn--momentaneo:hover {
+  background: rgba(77, 168, 218, .12);
+}
+
+.bloqueo-btn--definitivo {
+  background: rgba(255, 77, 77, .1);
+  color: #ff4d4d;
+  border: 1px solid #ff4d4d;
+}
+
+.bloqueo-btn--definitivo:hover {
+  background: rgba(255, 77, 77, .2);
+}
+
+.bloqueo-btn--cancelar {
+  background: none;
+  color: var(--texto-muted);
+  border: none;
+  font-size: .85rem;
+  margin-bottom: 0;
+}
+
+.bloqueo-btn--cancelar:hover {
+  color: var(--texto);
+  transform: none;
 }
 
 /* ============================================================
@@ -574,18 +781,21 @@
    ============================================================ */
 
 .cys-producto-lista::-webkit-scrollbar,
-.cys-producto-grid::-webkit-scrollbar {
+.cys-producto-grid::-webkit-scrollbar,
+.vd-modal-box::-webkit-scrollbar {
   width: 6px;
 }
 
 .cys-producto-lista::-webkit-scrollbar-thumb,
-.cys-producto-grid::-webkit-scrollbar-thumb {
+.cys-producto-grid::-webkit-scrollbar-thumb,
+.vd-modal-box::-webkit-scrollbar-thumb {
   background: rgba(77, 168, 218, .25);
   border-radius: 999px;
 }
 
 .cys-producto-lista::-webkit-scrollbar-thumb:hover,
-.cys-producto-grid::-webkit-scrollbar-thumb:hover {
+.cys-producto-grid::-webkit-scrollbar-thumb:hover,
+.vd-modal-box::-webkit-scrollbar-thumb:hover {
   background: rgba(77, 168, 218, .45);
 }
 
@@ -594,24 +804,15 @@
    ============================================================ */
 
 @media (max-width: 768px) {
-  .cys-cat-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .vd-modal-box {
-    width: 95vw;
-    padding: 1.2rem;
-  }
+  .cys-cat-grid { grid-template-columns: 1fr; }
+  .vd-modal-box { width: 95vw; padding: 1.2rem; }
+  .modal-bloqueo-box { width: 95vw; padding: 1.2rem; }
+  .denom-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ============================================================
    INPUT CLIENTE
    ============================================================ */
 
-#id_cliente {
-  color: var(--texto) !important;
-}
-
-#id_cliente::placeholder {
-  color: var(--texto-muted) !important;
-}
+#id_cliente { color: var(--texto) !important; }
+#id_cliente::placeholder { color: var(--texto-muted) !important; }
