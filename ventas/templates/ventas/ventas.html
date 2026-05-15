@@ -14,7 +14,7 @@
 <div class="container-fluid p-0">
 
   <!-- ── BARRA ESTADO DE CAJA ── -->
-  <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:12px; padding:.8rem 1.2rem; display:flex; flex-wrap:nowrap; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.5rem;">
+  <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:12px; padding:.8rem 1.2rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:3.0rem;">
 
     <!-- lado izquierdo: badges y stats -->
     <div style="display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; min-width:0; flex:1;">
@@ -63,23 +63,40 @@
       {% endif %}
     </div>
 
-    <!-- lado derecho: botones -->
-    <div style="display:flex; align-items:center; gap:.5rem; flex-shrink:0; flex-wrap:nowrap;">
-      <a href="{% url 'ventas:ventas_dia' %}" class="cys-btn-sm cys-btn-sm--blue">
-        <i class="bi bi-calendar-check"></i> Ver día
-      </a>
-      {% if caja_abierta %}
-        <button onclick="abrirModalCierre()" class="cys-btn-sm cys-btn-sm--red">
-          <i class="bi bi-lock"></i> Cerrar Caja
-        </button>
-      {% else %}
-        <button onclick="abrirModalApertura()" class="cys-btn-sm cys-btn-sm--green">
-          <i class="bi bi-unlock"></i> Abrir Caja
-        </button>
-      {% endif %}
-      <a href="{% url 'ventas:bloquear_caja' %}" class="cys-btn-sm cys-btn-sm--red">
-        <i class="bi bi-shield-lock"></i> Bloquear
-      </a>
+    <!-- lado derecho: menú hamburguesa -->
+    <div class="dropdown" style="flex-shrink:0;">
+      <button class="cys-hamburger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end cys-dropdown">
+        <li>
+          <a class="dropdown-item cys-dropdown__item cys-dropdown__item--blue" href="{% url 'ventas:ventas_dia' %}">
+            <i class="bi bi-calendar-check"></i> Ver día
+          </a>
+        </li>
+        <li><hr class="dropdown-divider cys-dropdown__divider"></li>
+        {% if caja_abierta %}
+          <li>
+            <button class="dropdown-item cys-dropdown__item cys-dropdown__item--red" type="button" onclick="abrirModalCierre()">
+              <i class="bi bi-lock"></i> Cerrar Caja
+            </button>
+          </li>
+        {% else %}
+          <li>
+            <button class="dropdown-item cys-dropdown__item cys-dropdown__item--green" type="button" onclick="abrirModalApertura()">
+              <i class="bi bi-unlock"></i> Abrir Caja
+            </button>
+          </li>
+        {% endif %}
+        <li><hr class="dropdown-divider cys-dropdown__divider"></li>
+        <li>
+          <a class="dropdown-item cys-dropdown__item cys-dropdown__item--red" href="{% url 'ventas:bloquear_caja' %}">
+            <i class="bi bi-shield-lock"></i> Bloquear
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 
