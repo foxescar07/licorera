@@ -1,6 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
 from licorera import views
+from django.shortcuts import render
+
+def configuracion_view(request):
+    return render(request, 'configuracion.html')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -15,4 +19,5 @@ urlpatterns = [
     path('categorias-json/', views.categorias_json, name='categorias_json'),
     path('semana-json/', views.semana_json, name='semana_json'),
     path('meses-json/', views.meses_json, name='meses_json'),
+    path('configuracion/', configuracion_view, name='configuracion'),
 ]

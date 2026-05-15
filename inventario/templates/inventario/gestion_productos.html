@@ -1595,5 +1595,80 @@ window._loteLimpiar          = _loteLimpiar;
   makeGauge('gaugeCats',    CATS,     maxVal, PURPLE);
 })();
 </script>
+<style id="gp-tema-claro" style="display:none;">
+  .gp-input {
+    background: #ffffff !important;
+    color: #1a2a3a !important;
+    border: 1px solid rgba(26,42,58,.25) !important;
+  }
+  .gp-input::placeholder { color: #7a9bbf !important; }
 
+  .gp-btn--primary {
+    background: #c0392b !important;
+    color: #ffffff !important;
+    border-color: #c0392b !important;
+  }
+  .gp-btn--primary:hover {
+    background: #a93226 !important;
+    border-color: #a93226 !important;
+  }
+  .gp-btn--danger {
+    background: #922b21 !important;
+    color: #ffffff !important;
+    border-color: #922b21 !important;
+  }
+  .gp-btn--danger:hover { background: #7b241c !important; }
+  .gp-btn--warning {
+    background: #9a7d0a !important;
+    color: #ffffff !important;
+    border-color: #9a7d0a !important;
+  }
+  .gp-btn--warning:hover { background: #7d6608 !important; }
+  .gp-btn--outline {
+    background: transparent !important;
+    color: #1a2a3a !important;
+    border-color: rgba(178,42,26,.3) !important;
+  }
+  .gp-tab.active {
+    background: #f5eae9 !important;
+    border-color: #c0392b !important;
+    color: #922b21 !important;
+  }
+  .gp-label { color: #3a5a7a !important; }
+  .gp-card__title, .gp-title, .gp-back { color: #1a2a3a !important; }
+  #salidaDropdown, #loteDropdown, #motivoDropdown {
+    background: #ffffff !important;
+    border-color: rgba(178,42,26,.22) !important;
+  }
+  #salidaDropdown *, #loteDropdown *, #motivoDropdown * { color: #1a2a3a !important; }
+</style>
+<!-- Reset oscuro explícito — contrarresta gestion.css si tiene colores hardcodeados -->
+<style>
+  .gp-input {
+    background: var(--fondo-card2) !important;
+    color: var(--texto) !important;
+    border-color: var(--azul-borde) !important;
+  }
+  .gp-tab.active {
+    background: rgba(77,168,218,.15) !important;
+    border-color: var(--azul-claro) !important;
+    color: var(--azul-claro) !important;
+  }
+  .gp-label { color: var(--texto-muted) !important; }
+  .gp-card__title, .gp-title, .gp-back { color: var(--texto) !important; }
+</style>
+
+<script>
+(function() {
+  const cfg = JSON.parse(localStorage.getItem('cys_config') || '{}');
+  const hoja = document.getElementById('gp-tema-claro');
+  if (hoja) hoja.style.display = cfg.tema === 'claro' ? '' : 'none';
+})();
+<script>
+(function() {
+  const cfg = JSON.parse(localStorage.getItem('cys_config') || '{}');
+  const hoja = document.getElementById('gp-tema-claro');
+  if (hoja) hoja.style.display = cfg.tema === 'claro' ? '' : 'none';
+})();
+</script>
 {% endblock %}
