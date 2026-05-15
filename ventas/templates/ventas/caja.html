@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Acceso a Caja — CYS Ltda{% endblock %}
+{% block page_title %}Acceso a Caja{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+  <div style="
+    background: var(--fondo-card);
+    border: 1px solid var(--azul-borde);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.4);
+  ">
+    <!-- Icono -->
+    <div style="text-align:center; margin-bottom:1.8rem;">
+      <div style="
+        display:inline-flex; align-items:center; justify-content:center;
+        width:72px; height:72px; border-radius:50%;
+        background: rgba(77,168,218,.12);
+        border: 1px solid var(--azul-claro);
+        margin-bottom:1rem;
+      ">
+        <i class="bi bi-shield-lock" style="font-size:2rem; color:var(--azul-claro);"></i>
+      </div>
+      <div style="font-size:1.3rem; font-weight:800; color:var(--texto);">Acceso a Caja</div>
+      <div style="font-size:.82rem; color:var(--texto-muted); margin-top:.3rem;">
+        Ingresa tu contraseña para continuar
+      </div>
+    </div>
+
+    <!-- Error -->
+    {% if error %}
+    <div style="
+      background: rgba(255,77,77,.1);
+      border: 1px solid #ff4d4d;
+      border-radius: 10px;
+      padding: .75rem 1rem;
+      font-size: .85rem;
+      color: #ff4d4d;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    ">
+      <i class="bi bi-exclamation-circle-fill"></i>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Formulario -->
+    <form method="POST">
+      {% csrf_token %}
+      <div style="margin-bottom:1.2rem;">
+        <label style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--texto-muted); font-weight:600; display:block; margin-bottom:.4rem;">
+          Contraseña
+        </label>
+        <div style="position:relative;">
+          <input
+            type="password"
+            name="password"
+            id="inputPassword"
+            autofocus
+            autocomplete="current-password"
+            placeholder="••••••••"
+            style="
+              width:100%; background:var(--fondo-card2);
+              border:1px solid var(--azul-borde); border-radius:10px;
+              color:var(--texto); font-size:1rem; padding:.7rem 2.8rem .7rem 1rem;
+              outline:none; transition: border-color .2s;
+            "
+            onfocus="this.style.borderColor='var(--azul-claro)'"
+            onblur="this.style.borderColor='var(--azul-borde)'"
+          >
+          <button
+            type="button"
+            onclick="togglePass()"
+            style="position:absolute; right:.7rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--texto-muted); cursor:pointer; font-size:1rem;"
+          >
+            <i class="bi bi-eye" id="iconoOjo"></i>
+          </button>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        style="
+          width:100%; background:var(--azul-claro); color:#000;
+          border:none; border-radius:10px; padding:.8rem;
+          font-weight:800; font-size:1rem; cursor:pointer;
+          transition: opacity .2s; display:flex; align-items:center;
+          justify-content:center; gap:.5rem;
+        "
+        onmouseover="this.style.opacity='.85'"
+        onmouseout="this.style.opacity='1'"
+      >
+        <i class="bi bi-unlock-fill"></i> Desbloquear Caja
+      </button>
+    </form>
+
+    <!-- Info -->
+    <div style="margin-top:1.5rem; padding-top:1.2rem; border-top:1px solid var(--azul-borde); text-align:center; font-size:.75rem; color:var(--texto-muted);">
+      <i class="bi bi-info-circle me-1"></i>
+      Solo administradores y cajeros autorizados pueden acceder.
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePass() {
+  const inp  = document.getElementById('inputPassword');
+  const icon = document.getElementById('iconoOjo');
+  if (inp.type === 'password') {
+    inp.type   = 'text';
+    icon.className = 'bi bi-eye-slash';
+  } else {
+    inp.type   = 'password';
+    icon.className = 'bi bi-eye';
+  }
+}
+</script>
+{% endblock %}

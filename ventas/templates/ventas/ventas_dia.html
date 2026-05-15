@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load ventas_extras %}
- 
+
 {% block title %}Ventas del Día — CYS Ltda{% endblock %}
 {% block page_title %}Ventas del Día{% endblock %}
- 
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/ventas.css' %}">
 <style>
@@ -25,7 +25,7 @@
     transition: background .2s;
 }
 .cys-btn-export:hover { background: rgba(77,168,218,.25); color: var(--azul-claro); }
- 
+
 /* ── Botones caja ── */
 .cys-btn-caja {
     border-radius: 8px;
@@ -44,7 +44,7 @@
 .cys-btn-caja--abrir:hover  { background: rgba(46,213,115,.25); }
 .cys-btn-caja--cerrar { background: rgba(255,77,77,.12);  border-color: #ff4d4d; color: #ff4d4d; }
 .cys-btn-caja--cerrar:hover { background: rgba(255,77,77,.25); }
- 
+
 /* ── Tarjetas resumen ── */
 .vd-stat {
     background: var(--fondo-card2);
@@ -58,13 +58,13 @@
 .vd-stat__label { font-size:.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--texto-muted); font-weight:600; }
 .vd-stat__val   { font-size:1.7rem; font-weight:800; color:var(--azul-claro); line-height:1; }
 .vd-stat__sub   { font-size:.75rem; color:var(--texto-muted); }
- 
+
 /* ── Tabla ── */
 .vd-table th { font-size:.72rem; text-transform:uppercase; color:var(--azul-claro); font-weight:600; border-bottom:1px solid var(--azul-borde); padding:.7rem 1rem; white-space:nowrap; }
 .vd-table td { font-size:.85rem; padding:.75rem 1rem; border-bottom:1px solid var(--azul-borde); vertical-align:middle; color:var(--texto); }
 .vd-table tbody tr { cursor:pointer; transition:background .15s; }
 .vd-table tbody tr:hover { background:rgba(77,168,218,.05); }
- 
+
 /* ── Separador de día ── */
 .vd-separador-dia td {
     background: rgba(77,168,218,.08) !important;
@@ -75,14 +75,14 @@
     padding:.5rem !important; cursor:default !important;
 }
 .vd-separador-dia:hover { background: transparent !important; }
- 
+
 /* ── Badge método pago ── */
 .vd-badge {
     display:inline-flex; align-items:center; gap:.25rem;
     background:var(--fondo-card2); border:1px solid var(--azul-borde);
     border-radius:20px; padding:.15rem .55rem; font-size:.7rem; color:var(--texto-muted); white-space:nowrap;
 }
- 
+
 /* ── Panel de caja ── */
 .caja-panel {
     background: var(--fondo-card2);
@@ -94,85 +94,12 @@
 .caja-estado { display:inline-flex; align-items:center; gap:.4rem; border-radius:20px; padding:.25rem .8rem; font-size:.78rem; font-weight:700; }
 .caja-estado--abierta { background:rgba(46,213,115,.15); border:1px solid #2ed573; color:#2ed573; }
 .caja-estado--cerrada { background:rgba(255,77,77,.1);   border:1px solid #ff4d4d; color:#ff4d4d; }
- 
+
 .caja-dato { display:flex; flex-direction:column; gap:.1rem; }
 .caja-dato__lbl { font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.5px; }
 .caja-dato__val { font-weight:700; font-size:.92rem; }
- 
-/* ── Modal genérico ── */
-.vd-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9998; }
-.vd-modal-overlay.open { display:block; }
-.vd-modal-box {
-    display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-    z-index:9999; width:520px; max-width:95vw; max-height:90vh; overflow-y:auto;
-    background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;
-}
-.vd-modal-box.open { display:block; }
- 
-/* ── Denominaciones ── */
-.denom-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-bottom:.8rem; }
-.denom-item {
-    background:var(--fondo-card2); border:1px solid var(--azul-borde);
-    border-radius:10px; padding:.6rem .8rem; display:flex; align-items:center; gap:.6rem;
-}
-.denom-item label  { font-size:.78rem; color:var(--texto-muted); flex:1; margin:0; }
-.denom-item input  {
-    width:60px; background:var(--fondo-card); border:1px solid var(--azul-borde);
-    border-radius:6px; color:var(--texto); font-size:.85rem; font-weight:700; text-align:center; padding:.25rem .3rem;
-}
-.denom-item input:focus { outline:none; border-color:var(--azul-claro); }
- 
-.denom-total {
-    background:rgba(77,168,218,.08); border:1px solid var(--azul-claro);
-    border-radius:10px; padding:.8rem 1rem;
-    display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;
-}
-.denom-total__label { font-size:.78rem; color:var(--texto-muted); font-weight:600; }
-.denom-total__val   { font-size:1.4rem; font-weight:800; color:var(--azul-claro); }
- 
-.caja-input-label { font-size:.75rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:.3rem; font-weight:600; }
-.caja-input {
-    width:100%; background:var(--fondo-card2); border:1px solid var(--azul-borde);
-    border-radius:8px; color:var(--texto); font-size:.9rem; font-weight:600; padding:.55rem .8rem; margin-bottom:.8rem;
-}
-.caja-input:focus { outline:none; border-color:var(--azul-claro); }
- 
-.caja-btn-primary {
-    width:100%; background:var(--azul-claro); color:#fff; border:none;
-    border-radius:10px; padding:.75rem; font-weight:700; font-size:.95rem; cursor:pointer; transition:opacity .2s;
-}
-.caja-btn-primary:hover { opacity:.85; }
-.caja-btn-primary--danger { background:#ff4d4d; }
-.caja-btn-primary:disabled { opacity:.5; cursor:not-allowed; }
- 
-.caja-resultado-fila { display:flex; justify-content:space-between; padding:.35rem 0; font-size:.88rem; }
- 
-/* ── Auth modal ── */
-.auth-aviso {
-    display: none;
-    background: rgba(255,77,77,.1);
-    border: 1px solid #ff4d4d;
-    border-radius: 8px;
-    padding: .6rem .9rem;
-    font-size: .82rem;
-    color: #ff4d4d;
-    margin-bottom: .8rem;
-}
-.auth-aviso.show { display: block; }
- 
-.info-base {
-    display: none;
-    background: rgba(46,213,115,.08);
-    border: 1px solid #2ed573;
-    border-radius: 8px;
-    padding: .6rem .9rem;
-    font-size: .82rem;
-    color: #2ed573;
-    margin-bottom: 1rem;
-}
-.info-base.show { display: block; }
 
-/* ── Badge autorización activa ── */
+/* ── Badge caja abierta ── */
 .caja-auth-badge {
     display: inline-flex;
     align-items: center;
@@ -185,7 +112,67 @@
     font-weight: 700;
     color: #2ed573;
 }
- 
+
+/* ── Modal genérico ── */
+.vd-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9998; }
+.vd-modal-overlay.open { display:block; }
+.vd-modal-box {
+    display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    z-index:9999; width:520px; max-width:95vw; max-height:90vh; overflow-y:auto;
+    background:var(--fondo-card); border:1px solid var(--azul-borde); border-radius:16px; padding:2rem;
+}
+.vd-modal-box.open { display:block; }
+
+/* ── Denominaciones ── */
+.denom-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-bottom:.8rem; }
+.denom-item {
+    background:var(--fondo-card2); border:1px solid var(--azul-borde);
+    border-radius:10px; padding:.6rem .8rem; display:flex; align-items:center; gap:.6rem;
+}
+.denom-item label  { font-size:.78rem; color:var(--texto-muted); flex:1; margin:0; }
+.denom-item input  {
+    width:60px; background:var(--fondo-card); border:1px solid var(--azul-borde);
+    border-radius:6px; color:var(--texto); font-size:.85rem; font-weight:700; text-align:center; padding:.25rem .3rem;
+}
+.denom-item input:focus { outline:none; border-color:var(--azul-claro); }
+
+.denom-total {
+    background:rgba(77,168,218,.08); border:1px solid var(--azul-claro);
+    border-radius:10px; padding:.8rem 1rem;
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;
+}
+.denom-total__label { font-size:.78rem; color:var(--texto-muted); font-weight:600; }
+.denom-total__val   { font-size:1.4rem; font-weight:800; color:var(--azul-claro); }
+
+.caja-input-label { font-size:.75rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:.3rem; font-weight:600; }
+.caja-input {
+    width:100%; background:var(--fondo-card2); border:1px solid var(--azul-borde);
+    border-radius:8px; color:var(--texto); font-size:.9rem; font-weight:600; padding:.55rem .8rem; margin-bottom:.8rem;
+}
+.caja-input:focus { outline:none; border-color:var(--azul-claro); }
+
+.caja-btn-primary {
+    width:100%; background:var(--azul-claro); color:#fff; border:none;
+    border-radius:10px; padding:.75rem; font-weight:700; font-size:.95rem; cursor:pointer; transition:opacity .2s;
+}
+.caja-btn-primary:hover { opacity:.85; }
+.caja-btn-primary--danger { background:#ff4d4d; }
+.caja-btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+
+.caja-resultado-fila { display:flex; justify-content:space-between; padding:.35rem 0; font-size:.88rem; }
+
+.info-base {
+    display: none;
+    background: rgba(46,213,115,.08);
+    border: 1px solid #2ed573;
+    border-radius: 8px;
+    padding: .6rem .9rem;
+    font-size: .82rem;
+    color: #2ed573;
+    margin-bottom: 1rem;
+}
+.info-base.show { display: block; }
+
 @media print {
     .no-print { display:none !important; }
     .cys-header, .cys-subnav, aside { display:none !important; }
@@ -195,10 +182,10 @@
 }
 </style>
 {% endblock %}
- 
+
 {% block content %}
 <div class="container-fluid p-0">
- 
+
   <!-- ── ENCABEZADO ── -->
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 no-print">
     <div>
@@ -209,10 +196,11 @@
       </div>
     </div>
     <div class="d-flex gap-2 flex-wrap align-items-center">
-      {% if caja_autorizado %}
-      <span id="cajaAuthBadge" class="caja-auth-badge" style="display:none;">
-       <i class="bi bi-shield-check"></i> <span id="cajaAuthNombre"></span> autenticado
-      </span>
+      {% if caja_abierta %}
+        <span class="caja-auth-badge">
+          <i class="bi bi-circle-fill" style="font-size:.4rem;"></i>
+          Caja abierta · {{ caja_abierta.usuario }}
+        </span>
       {% endif %}
       <a href="{% url 'ventas:ventas_lista' %}" class="cys-btn-export">
         <i class="bi bi-arrow-left"></i> Volver
@@ -231,7 +219,7 @@
       {% endif %}
     </div>
   </div>
- 
+
   <!-- ── TARJETAS RESUMEN ── -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-lg-4">
@@ -251,16 +239,16 @@
     <div class="col-6 col-lg-4">
       <div class="vd-stat">
         <div class="vd-stat__label"><i class="bi bi-box-seam me-1"></i>Productos vendidos</div>
-        <div class="vd-stat__val" id="totalProductos">{{ total_productos }}</div>
+        <div class="vd-stat__val">{{ total_productos }}</div>
         <div class="vd-stat__sub">unidades totales</div>
       </div>
     </div>
   </div>
- 
+
   <!-- ── PANEL ESTADO DE CAJA ── -->
   <section class="caja-panel mb-4 no-print">
     <div class="caja-panel__titulo"><i class="bi bi-safe me-1"></i>Estado de Caja</div>
- 
+
     {% if caja_abierta %}
       <div class="d-flex flex-wrap gap-4 align-items-center">
         <span class="caja-estado caja-estado--abierta">
@@ -287,7 +275,7 @@
           <span class="caja-dato__val" style="color:var(--azul-claro);" id="totalEnCaja">—</span>
         </div>
       </div>
- 
+
     {% elif ultimo_cierre %}
       <div class="d-flex flex-wrap gap-4 align-items-center">
         <span class="caja-estado caja-estado--cerrada">
@@ -310,7 +298,7 @@
           <span class="caja-dato__val" style="color:#2ed573;">${{ ultimo_cierre.monto_base_siguiente|pesos }}</span>
         </div>
       </div>
- 
+
     {% else %}
       <div style="color:var(--texto-muted); font-size:.88rem;">
         <i class="bi bi-info-circle me-1"></i>
@@ -318,11 +306,11 @@
       </div>
     {% endif %}
   </section>
- 
+
   <!-- ── TABLA VENTAS ── -->
   <section class="cys-card">
     <div class="cys-card__title mb-3">Detalle de Ventas</div>
- 
+
     {% if ventas %}
     <div class="table-responsive">
       <table class="table table-dark vd-table mb-0" id="tablaVentas">
@@ -378,7 +366,7 @@
       <span style="font-weight:700; font-size:.95rem; color:var(--texto-muted);">TOTAL DEL DÍA ({{ ventas.count }} ventas)</span>
       <span style="font-size:1.5rem; font-weight:800; color:var(--azul-claro);">${{ total_dia|pesos }}</span>
     </div>
- 
+
     {% else %}
     <div style="text-align:center; padding:3rem 0; color:var(--texto-muted);">
       <i class="bi bi-receipt" style="font-size:2.5rem; display:block; margin-bottom:.7rem;"></i>
@@ -387,7 +375,7 @@
     {% endif %}
   </section>
 </div>
- 
+
 <!-- ── DATOS PARA JS ── -->
 <div id="datosVentas" style="display:none;">
   {% for venta in ventas %}
@@ -416,46 +404,7 @@
   </div>
   {% endfor %}
 </div>
- 
-<!-- ══════════════════════════════════════
-     MODAL AUTENTICACIÓN CAJA
-══════════════════════════════════════ -->
-<div id="overlayAuth" class="vd-modal-overlay"></div>
-<div id="modalAuth" class="vd-modal-box" style="width:400px;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-    <div>
-      <div style="font-size:.7rem; color:var(--azul-claro); text-transform:uppercase; letter-spacing:1px; font-weight:700;" id="authSubtitulo">Verificación</div>
-      <div style="font-size:1.15rem; font-weight:800; color:var(--texto);" id="authTitulo">Acceso a Caja</div>
-    </div>
-    <button onclick="cerrarModalAuth()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
-  </div>
- 
-  <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;" id="authDescripcion">
-    Solo administradores y cajeros pueden operar la caja.
-  </p>
- 
-  <div class="caja-input-label">Usuario</div>
-  <input type="text" class="caja-input" id="authUsuario" placeholder="Nombre de usuario" autocomplete="username">
- 
-  <div class="caja-input-label">Contraseña</div>
-  <div style="position:relative; margin-bottom:.8rem;">
-    <input type="password" class="caja-input" id="authPassword" placeholder="••••••••"
-           autocomplete="current-password" style="margin-bottom:0; padding-right:2.8rem;"
-           onkeydown="if(event.key==='Enter') confirmarAuth()">
-    <button onclick="togglePasswordAuth()" style="position:absolute;right:.7rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--texto-muted);cursor:pointer;font-size:1rem; padding:0;">
-      <i class="bi bi-eye" id="authEyeIcon"></i>
-    </button>
-  </div>
- 
-  <div class="auth-aviso" id="authError">
-    <i class="bi bi-exclamation-circle me-1"></i><span id="authErrorMsg"></span>
-  </div>
- 
-  <button class="caja-btn-primary" id="authBoton" onclick="confirmarAuth()">
-    <i class="bi bi-shield-check me-1"></i> Verificar e Ingresar
-  </button>
-</div>
- 
+
 <!-- ══════════════════════════════════════
      MODAL APERTURA DE CAJA
 ══════════════════════════════════════ -->
@@ -468,16 +417,16 @@
     </div>
     <button onclick="cerrarModalApertura()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
   </div>
- 
+
   <div class="info-base" id="infoBaseSiguiente">
     <i class="bi bi-info-circle me-1"></i>
     <span id="infoBaseSiguienteTexto"></span>
   </div>
- 
+
   <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
     Cuenta el dinero con el que inicias el día e ingresa la cantidad por denominación.
   </p>
- 
+
   <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
   <div class="denom-grid">
     <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="100000"></div>
@@ -488,7 +437,7 @@
     <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="2000"></div>
     <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="1000"></div>
   </div>
- 
+
   <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
   <div class="denom-grid">
     <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ap" data-valor="500"></div>
@@ -496,20 +445,20 @@
     <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ap" data-valor="100"></div>
     <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ap" data-valor="50"></div>
   </div>
- 
+
   <div class="denom-total">
     <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Monto base calculado</span>
     <span class="denom-total__val" id="totalApertura">$0</span>
   </div>
- 
+
   <div class="caja-input-label">Responsable / Observación (opcional)</div>
   <input type="text" class="caja-input" id="apObservacion" placeholder="Ej: Juan — apertura normal">
- 
+
   <button class="caja-btn-primary" onclick="confirmarApertura()">
     <i class="bi bi-unlock me-1"></i> Confirmar Apertura
   </button>
 </div>
- 
+
 <!-- ══════════════════════════════════════
      MODAL CIERRE DE CAJA
 ══════════════════════════════════════ -->
@@ -525,7 +474,7 @@
   <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
     Cuenta todo el dinero físico en caja. El sistema calculará cuánto se recoge y cuánto queda de base para mañana.
   </p>
- 
+
   <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
   <div class="denom-grid">
     <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100000"></div>
@@ -536,7 +485,7 @@
     <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="2000"></div>
     <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="1000"></div>
   </div>
- 
+
   <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
   <div class="denom-grid">
     <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ci" data-valor="500"></div>
@@ -544,15 +493,15 @@
     <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100"></div>
     <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ci" data-valor="50"></div>
   </div>
- 
+
   <div class="denom-total">
     <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Total contado en caja</span>
     <span class="denom-total__val" id="totalCierre">$0</span>
   </div>
- 
+
   <div class="caja-input-label">Monto base para mañana ($)</div>
   <input type="number" class="caja-input" id="baseSiguiente" placeholder="Ej: 100000" min="0">
- 
+
   <div id="resumenCierre" style="display:none; background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem; margin-bottom:1rem;">
     <div style="font-size:.7rem; text-transform:uppercase; color:var(--texto-muted); margin-bottom:.6rem; font-weight:700; letter-spacing:.8px;">Resumen del día</div>
     <div class="caja-resultado-fila">
@@ -576,12 +525,12 @@
       <span id="res-retirar" style="font-weight:800; font-size:1.15rem; color:#2ed573;">$0</span>
     </div>
   </div>
- 
+
   <button class="caja-btn-primary caja-btn-primary--danger" onclick="confirmarCierre()">
     <i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja
   </button>
 </div>
- 
+
 <!-- ── MODAL DETALLE VENTA ── -->
 <div id="overlayDetalle" class="vd-modal-overlay" onclick="cerrarDetalle()"></div>
 <div id="modalDetalle" class="vd-modal-box">
@@ -595,51 +544,39 @@
   <div id="detalleContenido"></div>
   <button onclick="cerrarDetalle()" style="width:100%; margin-top:1.2rem; background:var(--fondo-card2); color:var(--texto); border:1px solid var(--azul-borde); border-radius:10px; padding:.7rem; cursor:pointer; font-weight:600;">Cerrar</button>
 </div>
- 
+
 {% endblock %}
- 
+
 {% block extra_js %}
 <script>
-const TOTAL_DIA         = {{ total_dia|default:0 }};
-const BASE_APERTURA     = {{ caja_abierta.monto_base|default:0 }};
-const BASE_SIGUIENTE    = {{ ultimo_cierre.monto_base_siguiente|default:0 }};
-const CSRF_TOKEN        = '{{ csrf_token }}';
-const CAJA_AUTORIZADO   = localStorage.getItem('caja_autorizado') === 'true';
-const CAJA_AUTOR_NOMBRE = localStorage.getItem('caja_autor_nombre') || '';
+const TOTAL_DIA     = {{ total_dia|default:0 }};
+const BASE_APERTURA = {{ caja_abierta.monto_base|default:0 }};
+const BASE_SIGUIENTE = {{ ultimo_cierre.monto_base_siguiente|default:0 }};
+const CSRF_TOKEN    = '{{ csrf_token }}';
 
 function formatPesos(val) {
     const n = Math.round(parseFloat(val) || 0);
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
-// ── Init ──────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const totalEnCajaEl = document.getElementById('totalEnCaja');
     if (totalEnCajaEl) {
         totalEnCajaEl.textContent = '$' + formatPesos(BASE_APERTURA + TOTAL_DIA);
     }
 
-    // ── Mostrar badge si ya está autorizado ──
-    if (CAJA_AUTORIZADO) {
-        const badge  = document.getElementById('cajaAuthBadge');
-        const nombre = document.getElementById('cajaAuthNombre');
-        if (badge) {
-            nombre.textContent = CAJA_AUTOR_NOMBRE;
-            badge.style.display = 'inline-flex';
-        }
-    }
-
+    // Separadores de día en tabla
     const filas = Array.from(document.querySelectorAll('#tablaVentas tbody tr'));
     let fechaAnterior = null;
     filas.forEach(fila => {
         const fechaActual = fila.dataset.fecha;
         if (!fechaActual) return;
         if (fechaAnterior !== null && fechaActual !== fechaAnterior) {
-            const sep = document.createElement('tr');
+            const sep    = document.createElement('tr');
             sep.className = 'vd-separador-dia no-print';
             const partes = fechaActual.split('/');
-            const meses = ['enero','febrero','marzo','abril','mayo','junio',
-                           'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+            const meses  = ['enero','febrero','marzo','abril','mayo','junio',
+                            'julio','agosto','septiembre','octubre','noviembre','diciembre'];
             const fechaTexto = `${parseInt(partes[0])} de ${meses[parseInt(partes[1])-1]} de ${partes[2]}`;
             sep.innerHTML = `<td colspan="7"><i class="bi bi-calendar3 me-2"></i>${fechaTexto}</td>`;
             fila.parentNode.insertBefore(sep, fila);
@@ -654,108 +591,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ════════════════════════════════════════
-// MODAL AUTENTICACIÓN
-// ════════════════════════════════════════
-let _accionPendiente = null;
-
-function abrirModalAuth(accion) {
-    _accionPendiente = accion;
-    const esCierre = accion === 'cierre';
-
-    document.getElementById('authSubtitulo').textContent   = esCierre ? 'Cierre de Caja' : 'Apertura de Caja';
-    document.getElementById('authTitulo').textContent      = esCierre ? 'Cerrar Caja' : 'Abrir Caja';
-    document.getElementById('authDescripcion').textContent = esCierre
-        ? 'Confirma tu identidad para proceder con el cierre de caja.'
-        : 'Confirma tu identidad para proceder con la apertura de caja.';
-
-    const boton = document.getElementById('authBoton');
-    boton.className = esCierre ? 'caja-btn-primary caja-btn-primary--danger' : 'caja-btn-primary';
-    boton.disabled  = false;
-    boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
-
-    document.getElementById('authUsuario').value  = '';
-    document.getElementById('authPassword').value = '';
-    document.getElementById('authPassword').type  = 'password';
-    document.getElementById('authEyeIcon').className = 'bi bi-eye';
-    document.getElementById('authError').classList.remove('show');
-
-    document.getElementById('overlayAuth').classList.add('open');
-    document.getElementById('modalAuth').classList.add('open');
-    setTimeout(() => document.getElementById('authUsuario').focus(), 120);
-}
-
-function cerrarModalAuth() {
-    document.getElementById('overlayAuth').classList.remove('open');
-    document.getElementById('modalAuth').classList.remove('open');
-    _accionPendiente = null;
-}
-
-function togglePasswordAuth() {
-    const inp  = document.getElementById('authPassword');
-    const icon = document.getElementById('authEyeIcon');
-    if (inp.type === 'password') {
-        inp.type = 'text';
-        icon.className = 'bi bi-eye-slash';
-    } else {
-        inp.type = 'password';
-        icon.className = 'bi bi-eye';
-    }
-}
-
-function confirmarAuth() {
-    const usuario  = document.getElementById('authUsuario').value.trim();
-    const password = document.getElementById('authPassword').value;
-    const errBox   = document.getElementById('authError');
-    const boton    = document.getElementById('authBoton');
-
-    if (!usuario || !password) {
-        document.getElementById('authErrorMsg').textContent = 'Ingresa usuario y contraseña.';
-        errBox.classList.add('show');
-        return;
-    }
-
-    boton.disabled = true;
-    boton.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Verificando...';
-    errBox.classList.remove('show');
-
-    fetch("{% url 'ventas:verificar_acceso_caja' %}", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-        body: JSON.stringify({ username: usuario, password: password }),
-    })
-    .then(r => r.json())
-    .then(data => {
-        boton.disabled = false;
-        boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
-
-        if (!data.ok) {
-            document.getElementById('authErrorMsg').textContent = data.error || 'Error de autenticación.';
-            errBox.classList.add('show');
-            document.getElementById('authPassword').value = '';
-            document.getElementById('authPassword').focus();
-            return;
-        }
-
-        // ── Guardar autorización en localStorage ──
-        localStorage.setItem('caja_autorizado', 'true');
-        localStorage.setItem('caja_autor_nombre', data.nombre || '');
-
-        cerrarModalAuth();
-        if (_accionPendiente === 'apertura') {
-            _abrirModalApertura();
-        } else if (_accionPendiente === 'cierre') {
-            _abrirModalCierre();
-        }
-    })
-    .catch(() => {
-        boton.disabled = false;
-        boton.innerHTML = '<i class="bi bi-shield-check me-1"></i> Verificar e Ingresar';
-        document.getElementById('authErrorMsg').textContent = 'Error de conexión.';
-        errBox.classList.add('show');
-    });
-}
-
-// ════════════════════════════════════════
 // APERTURA
 // ════════════════════════════════════════
 function calcularTotalApertura() {
@@ -768,19 +603,10 @@ function calcularTotalApertura() {
 }
 
 function abrirModalApertura() {
-    if (CAJA_AUTORIZADO) {
-        _abrirModalApertura();
-    } else {
-        abrirModalAuth('apertura');
-    }
-}
-
-function _abrirModalApertura() {
     if (BASE_SIGUIENTE > 0) {
-        const infoEl  = document.getElementById('infoBaseSiguiente');
-        const textoEl = document.getElementById('infoBaseSiguienteTexto');
-        textoEl.textContent = 'El último cierre dejó una base de $' + formatPesos(BASE_SIGUIENTE) + ' para hoy.';
-        infoEl.classList.add('show');
+        document.getElementById('infoBaseSiguienteTexto').textContent =
+            'El último cierre dejó una base de $' + formatPesos(BASE_SIGUIENTE) + ' para hoy.';
+        document.getElementById('infoBaseSiguiente').classList.add('show');
     }
     document.querySelectorAll('.denom-ap').forEach(i => i.value = 0);
     calcularTotalApertura();
@@ -796,34 +622,42 @@ function cerrarModalApertura() {
 
 function confirmarApertura() {
     const montoBase = calcularTotalApertura();
-    if (montoBase === 0) { alert('Ingresa el dinero con el que abres la caja.'); return; }
-
+    if (montoBase === 0) {
+        alert('Ingresa el dinero con el que abres la caja.');
+        return;
+    }
     const denominaciones = {};
     document.querySelectorAll('.denom-ap').forEach(i => {
         const cant = parseInt(i.value) || 0;
         if (cant > 0) denominaciones[i.dataset.valor] = cant;
     });
+    const btn = document.querySelector('#modalApertura .caja-btn-primary');
+    btn.disabled = true;
+    btn.textContent = 'Guardando…';
 
     fetch("{% url 'ventas:apertura_caja' %}", {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-        body: JSON.stringify({
-            monto_base:    montoBase,
-            observacion:   document.getElementById('apObservacion').value,
+        body:    JSON.stringify({
+            monto_base:  montoBase,
+            observacion: document.getElementById('apObservacion').value,
             denominaciones,
         }),
     })
     .then(r => r.json())
     .then(data => {
-        if (data.ok) {
-            localStorage.removeItem('caja_autorizado');
-            localStorage.removeItem('caja_autor_nombre');
-            location.reload();
-        } else {
+        if (data.ok) { location.reload(); }
+        else {
             alert(data.error || 'Error al abrir caja.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-unlock me-1"></i> Confirmar Apertura';
         }
     })
-    .catch(() => alert('Error de conexión.'));
+    .catch(() => {
+        alert('Error de conexión.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-unlock me-1"></i> Confirmar Apertura';
+    });
 }
 
 // ════════════════════════════════════════
@@ -839,7 +673,7 @@ function calcularTotalCierre() {
     const baseSig = parseInt(document.getElementById('baseSiguiente').value) || 0;
     const retirar = Math.max(0, total - baseSig);
 
-    document.getElementById('resumenCierre').style.display = 'block';
+    document.getElementById('resumenCierre').style.display   = 'block';
     document.getElementById('res-base-apertura').textContent = '$' + formatPesos(BASE_APERTURA);
     document.getElementById('res-ventas').textContent        = '$' + formatPesos(TOTAL_DIA);
     document.getElementById('res-contado').textContent       = '$' + formatPesos(total);
@@ -849,16 +683,8 @@ function calcularTotalCierre() {
 }
 
 function abrirModalCierre() {
-    if (CAJA_AUTORIZADO) {
-        _abrirModalCierre();
-    } else {
-        abrirModalAuth('cierre');
-    }
-}
-
-function _abrirModalCierre() {
     document.querySelectorAll('.denom-ci').forEach(i => i.value = 0);
-    document.getElementById('baseSiguiente').value = '';
+    document.getElementById('baseSiguiente').value         = '';
     document.getElementById('resumenCierre').style.display = 'none';
     calcularTotalCierre();
     document.getElementById('overlayCierre').classList.add('open');
@@ -873,19 +699,23 @@ function cerrarModalCierre() {
 function confirmarCierre() {
     const totalContado  = calcularTotalCierre();
     const baseSiguiente = parseInt(document.getElementById('baseSiguiente').value) || 0;
-
-    if (totalContado === 0) { alert('Ingresa el dinero contado en caja antes de cerrar.'); return; }
-
+    if (totalContado === 0) {
+        alert('Ingresa el dinero contado en caja antes de cerrar.');
+        return;
+    }
     const denominaciones = {};
     document.querySelectorAll('.denom-ci').forEach(i => {
         const cant = parseInt(i.value) || 0;
         if (cant > 0) denominaciones[i.dataset.valor] = cant;
     });
+    const btn = document.querySelector('#modalCierre .caja-btn-primary');
+    btn.disabled = true;
+    btn.textContent = 'Guardando…';
 
     fetch("{% url 'ventas:cierre_caja' %}", {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-        body: JSON.stringify({
+        body:    JSON.stringify({
             total_contado:        totalContado,
             monto_base_siguiente: baseSiguiente,
             total_retirado:       Math.max(0, totalContado - baseSiguiente),
@@ -894,18 +724,23 @@ function confirmarCierre() {
     })
     .then(r => r.json())
     .then(data => {
-        if (data.ok) {
-            localStorage.removeItem('caja_autorizado');
-            localStorage.removeItem('caja_autor_nombre');
-            location.reload();
-        } else {
+        if (data.ok) { location.reload(); }
+        else {
             alert(data.error || 'Error al cerrar caja.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja';
         }
     })
-    .catch(() => alert('Error de conexión.'));
+    .catch(() => {
+        alert('Error de conexión.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja';
+    });
 }
 
-// ── Modal detalle venta ───────────────────────────────────────
+// ════════════════════════════════════════
+// DETALLE VENTA
+// ════════════════════════════════════════
 function abrirDetalle(ventaId) {
     const v = document.querySelector('.dato-venta[data-id="' + ventaId + '"]');
     if (!v) return;
@@ -914,7 +749,7 @@ function abrirDetalle(ventaId) {
     let subtotalBruto = 0;
 
     const itemsHTML = detalles.map(d => {
-        const sub = parseFloat(d.dataset.subtotal) || 0;
+        const sub  = parseFloat(d.dataset.subtotal) || 0;
         subtotalBruto += sub;
         const pres = d.dataset.presentacion ? ' (' + d.dataset.presentacion + ')' : '';
         return `<div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--azul-borde);">

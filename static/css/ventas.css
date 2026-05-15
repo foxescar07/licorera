@@ -143,6 +143,11 @@
   color: var(--rojo);
 }
 
+.cys-producto-item--agotado {
+  opacity: .5;
+  cursor: not-allowed !important;
+}
+
 /* ============================================================
    VENTAS — PRODUCTO SELECCIONADO
    ============================================================ */
@@ -310,7 +315,7 @@
   overflow-y: auto;
   padding-right: 4px;
 }
-/* ── Botones de presentación / jerarquía ─────────────────────────── */
+
 .pres-btn {
   display: flex;
   justify-content: space-between;
@@ -365,8 +370,296 @@
   color: var(--rojo);
 }
 
-/* Producto sin stock */
-.cys-producto-item--agotado {
-  opacity: .5;
-  cursor: not-allowed !important;
+/* ============================================================
+   VENTAS — ESTADO DE CAJA
+   ============================================================ */
+.caja-estado-bar {
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  border-radius: 12px;
+  padding: .8rem 1.2rem;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
 }
+
+/* lado izquierdo: badges y stats */
+.caja-estado-bar > div:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+  min-width: 0;
+  flex: 1;
+}
+
+/* lado derecho: botones */
+.caja-estado-bar > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+}
+
+.caja-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  border-radius: 20px;
+  padding: .25rem .8rem;
+  font-size: .78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.caja-badge--abierta { background: rgba(46,213,115,.15); border: 1px solid #2ed573; color: #2ed573; }
+.caja-badge--cerrada { background: rgba(255,77,77,.1);   border: 1px solid #ff4d4d; color: #ff4d4d; }
+.caja-badge--usuario { background: rgba(77,168,218,.1);  border: 1px solid var(--azul-claro); color: var(--azul-claro); }
+
+.caja-stat {
+  display: flex;
+  flex-direction: column;
+  gap: .05rem;
+}
+
+.caja-stat__lbl {
+  font-size: .65rem;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--texto-muted);
+}
+
+.caja-stat__val {
+  font-size: .88rem;
+  font-weight: 700;
+  color: var(--texto);
+}
+
+/* ============================================================
+   VENTAS — BOTONES HEADER
+   ============================================================ */
+.cys-btn-sm {
+  border-radius: 8px;
+  padding: .38rem .85rem;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  text-decoration: none;
+  transition: background .2s;
+  border: 1px solid;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cys-btn-sm--blue  { background: rgba(77,168,218,.12); border-color: var(--azul-claro); color: var(--azul-claro); }
+.cys-btn-sm--blue:hover  { background: rgba(77,168,218,.25); color: var(--azul-claro); }
+.cys-btn-sm--red   { background: rgba(255,77,77,.1); border-color: #ff4d4d; color: #ff4d4d; }
+.cys-btn-sm--red:hover   { background: rgba(255,77,77,.22); }
+.cys-btn-sm--green { background: rgba(46,213,115,.12); border-color: #2ed573; color: #2ed573; }
+.cys-btn-sm--green:hover { background: rgba(46,213,115,.25); }
+
+/* ============================================================
+   VENTAS — MÉTODO DE PAGO
+   ============================================================ */
+.metodo-pago-btn {
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  border-radius: 8px;
+  padding: .4rem .8rem;
+  color: var(--texto-muted);
+  cursor: pointer;
+  font-size: .8rem;
+  transition: all .2s;
+}
+
+.metodo-pago-btn.activo {
+  border-color: var(--azul-claro);
+  color: var(--azul-claro);
+  background: rgba(77,168,218,.1);
+}
+
+/* ============================================================
+   VENTAS — DENOMINACIONES (MODAL CAJA)
+   ============================================================ */
+.denom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem;
+  margin-bottom: .8rem;
+}
+
+.denom-item {
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  border-radius: 10px;
+  padding: .6rem .8rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.denom-item label {
+  font-size: .78rem;
+  color: var(--texto-muted);
+  flex: 1;
+  margin: 0;
+}
+
+.denom-item input {
+  width: 60px;
+  background: var(--fondo-card);
+  border: 1px solid var(--azul-borde);
+  border-radius: 6px;
+  color: var(--texto);
+  font-size: .85rem;
+  font-weight: 700;
+  text-align: center;
+  padding: .25rem .3rem;
+}
+
+.denom-item input:focus {
+  outline: none;
+  border-color: var(--azul-claro);
+}
+
+.denom-total {
+  background: rgba(77,168,218,.08);
+  border: 1px solid var(--azul-claro);
+  border-radius: 10px;
+  padding: .8rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.denom-total__label {
+  font-size: .78rem;
+  color: var(--texto-muted);
+  font-weight: 600;
+}
+
+.denom-total__val {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--azul-claro);
+}
+
+.caja-input-label {
+  font-size: .75rem;
+  color: var(--texto-muted);
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin-bottom: .3rem;
+  font-weight: 600;
+}
+
+.caja-input {
+  width: 100%;
+  background: var(--fondo-card2);
+  border: 1px solid var(--azul-borde);
+  border-radius: 8px;
+  color: var(--texto);
+  font-size: .9rem;
+  font-weight: 600;
+  padding: .55rem .8rem;
+  margin-bottom: .8rem;
+}
+
+.caja-input:focus {
+  outline: none;
+  border-color: var(--azul-claro);
+}
+
+.caja-btn-primary {
+  width: 100%;
+  background: var(--azul-claro);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: .75rem;
+  font-weight: 700;
+  font-size: .95rem;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+
+.caja-btn-primary:hover { opacity: .85; }
+.caja-btn-primary--danger { background: #ff4d4d; }
+.caja-btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+
+.caja-resultado-fila {
+  display: flex;
+  justify-content: space-between;
+  padding: .35rem 0;
+  font-size: .88rem;
+}
+
+.info-base {
+  display: none;
+  background: rgba(46,213,115,.08);
+  border: 1px solid #2ed573;
+  border-radius: 8px;
+  padding: .6rem .9rem;
+  font-size: .82rem;
+  color: #2ed573;
+  margin-bottom: 1rem;
+}
+
+.info-base.show { display: block; }
+
+/* ============================================================
+   VENTAS — MODALES
+   ============================================================ */
+.vd-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 9998;
+}
+
+.vd-modal-overlay.open { display: block; }
+
+.vd-modal-box {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  z-index: 9999;
+  width: 520px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--fondo-card);
+  border: 1px solid var(--azul-borde);
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.vd-modal-box.open { display: block; }
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+@media print {
+  body * { visibility: hidden; }
+  #modalRecibo, #modalRecibo * { visibility: visible; }
+  #modalRecibo { position: fixed; top: 0; left: 0; width: 100%; }
+  #btnImprimir, #btnCerrarRecibo { display: none; }
+}
+
+/* ============================================================
+   FIX CLIENTE INPUT
+   ============================================================ */
+#id_cliente { color: var(--texto) !important; }
+#id_cliente::placeholder { color: var(--texto-muted) !important; }

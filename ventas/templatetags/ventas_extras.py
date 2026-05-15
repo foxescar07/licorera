@@ -2,10 +2,11 @@ from django import template
 
 register = template.Library()
 
-@register.filter
+
+@register.filter(name='pesos')
 def pesos(value):
     try:
         n = int(round(float(value)))
-        return '{:,}'.format(n).replace(',', '.')
-    except (ValueError, TypeError):
+        return f"{n:,}".replace(",", ".")
+    except (TypeError, ValueError):
         return value
