@@ -1,14 +1,11 @@
-
-Copiar
-
 {% extends 'base.html' %}
 {% load static %}
 {% load ventas_extras %}
- 
+
 {% block title %}Ventas — CYS Ltda{% endblock %}
 {% block page_title %}Ventas{% endblock %}
 {% block nav_ventas %}active{% endblock %}
- 
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/ventas.css' %}">
 <style>
@@ -29,7 +26,7 @@ Copiar
     transition: border-color .2s;
 }
 .vt-fecha-btn:hover, .vt-fecha-btn.activo { border-color: var(--azul-claro); color: var(--azul-claro); }
- 
+
 .vt-orden-btn {
     background: var(--fondo-card2);
     border: 1px solid var(--azul-borde);
@@ -46,7 +43,7 @@ Copiar
     transition: all .2s;
 }
 .vt-orden-btn:hover { border-color: var(--azul-claro); color: var(--azul-claro); }
- 
+
 .vt-buscar-input {
     background: var(--fondo-card2);
     border: 1px solid var(--azul-borde);
@@ -59,7 +56,7 @@ Copiar
 }
 .vt-buscar-input:focus { border-color: var(--azul-claro); }
 .vt-buscar-input::placeholder { color: var(--texto-muted); }
- 
+
 /* Dropdown fechas */
 .vt-fecha-dropdown {
     display: none;
@@ -85,7 +82,7 @@ Copiar
 }
 .vt-fecha-opcion:hover { background: rgba(77,168,218,.1); color: var(--azul-claro); }
 .vt-fecha-opcion.seleccionada { background: rgba(77,168,218,.15); color: var(--azul-claro); font-weight: 700; }
- 
+
 /* Badge contador */
 .vt-contador {
     display: inline-flex;
@@ -100,14 +97,12 @@ Copiar
 }
 </style>
 {% endblock %}
- 
+
 {% block content %}
 <div class="container-fluid p-0">
- 
-  <!-- ── BARRA ESTADO DE CAJA ── -->
-  <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:12px; padding:.8rem 1.2rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:3.0rem;">
 
-    <!-- lado izquierdo: badges y stats -->
+  <!-- ── BARRA ESTADO DE CAJA ── -->
+  <div style="background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:12px; padding:.8rem 1.2rem; display:flex; flex-wrap:nowrap; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.5rem;">
     <div style="display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; min-width:0; flex:1;">
       {% if caja_abierta %}
         <span class="caja-badge caja-badge--abierta"><i class="bi bi-circle-fill" style="font-size:.4rem;"></i> Caja Abierta</span>
@@ -124,44 +119,17 @@ Copiar
       {% endif %}
       {% if caja_usuario %}<span class="caja-badge caja-badge--usuario"><i class="bi bi-person-fill"></i> {{ caja_usuario }}</span>{% endif %}
     </div>
-
-    <!-- lado derecho: menú hamburguesa -->
-    <div class="dropdown" style="flex-shrink:0;">
-      <button class="cys-hamburger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end cys-dropdown">
-        <li>
-          <a class="dropdown-item cys-dropdown__item cys-dropdown__item--blue" href="{% url 'ventas:ventas_dia' %}">
-            <i class="bi bi-calendar-check"></i> Ver día
-          </a>
-        </li>
-        <li><hr class="dropdown-divider cys-dropdown__divider"></li>
-        {% if caja_abierta %}
-          <li>
-            <button class="dropdown-item cys-dropdown__item cys-dropdown__item--red" type="button" onclick="abrirModalCierre()">
-              <i class="bi bi-lock"></i> Cerrar Caja
-            </button>
-          </li>
-        {% else %}
-          <li>
-            <button class="dropdown-item cys-dropdown__item cys-dropdown__item--green" type="button" onclick="abrirModalApertura()">
-              <i class="bi bi-unlock"></i> Abrir Caja
-            </button>
-          </li>
-        {% endif %}
-        <li><hr class="dropdown-divider cys-dropdown__divider"></li>
-        <li>
-          <a class="dropdown-item cys-dropdown__item cys-dropdown__item--red" href="{% url 'ventas:bloquear_caja' %}">
-            <i class="bi bi-shield-lock"></i> Bloquear
-          </a>
-        </li>
-      </ul>
+    <div style="display:flex; align-items:center; gap:.5rem; flex-shrink:0; flex-wrap:nowrap;">
+      <a href="{% url 'ventas:ventas_dia' %}" class="cys-btn-sm cys-btn-sm--blue"><i class="bi bi-calendar-check"></i> Ver día</a>
+      {% if caja_abierta %}
+        <button onclick="abrirModalCierre()" class="cys-btn-sm cys-btn-sm--red"><i class="bi bi-lock"></i> Cerrar Caja</button>
+      {% else %}
+        <button onclick="abrirModalApertura()" class="cys-btn-sm cys-btn-sm--green"><i class="bi bi-unlock"></i> Abrir Caja</button>
+      {% endif %}
+      <a href="{% url 'ventas:bloquear_caja' %}" class="cys-btn-sm cys-btn-sm--red"><i class="bi bi-shield-lock"></i> Bloquear</a>
     </div>
   </div>
- 
+
   <div class="row g-4">
     <!-- ── COLUMNA PRODUCTOS ── -->
     <div class="col-lg-7">
@@ -207,7 +175,7 @@ Copiar
         </div>
       </section>
     </div>
- 
+
     <!-- ── COLUMNA CARRITO ── -->
     <div class="col-lg-5">
       <section class="cys-card" style="min-height:600px;">
@@ -254,12 +222,12 @@ Copiar
       </section>
     </div>
   </div>
- 
+
   <!-- ── HISTORIAL ── -->
   <div class="row mt-4">
     <div class="col-12">
       <section class="cys-card">
- 
+
         <!-- Barra de filtros estilo inventario -->
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
           <div style="position:relative;">
@@ -277,7 +245,7 @@ Copiar
           <input type="text" class="vt-buscar-input" id="buscadorHistorial" placeholder="Buscar cliente o producto...">
           <span class="vt-contador"><i class="bi bi-list-ul"></i> <span id="contadorVentas">0</span> ventas</span>
         </div>
- 
+
         <div class="table-responsive">
           <table class="table table-dark table-hover align-middle" style="color:var(--texto);">
             <thead>
@@ -333,7 +301,7 @@ Copiar
     </div>
   </div>
 </div>
- 
+
 <!-- MODALES APERTURA/CIERRE (igual que antes) -->
 <div id="overlayApertura" class="vd-modal-overlay"></div>
 <div id="modalApertura" class="vd-modal-box">
@@ -365,7 +333,7 @@ Copiar
   <input type="text" class="caja-input" id="apObservacion" placeholder="Ej: apertura normal">
   <button class="caja-btn-primary" onclick="confirmarApertura()"><i class="bi bi-unlock me-1"></i> Confirmar Apertura</button>
 </div>
- 
+
 <div id="overlayCierre" class="vd-modal-overlay"></div>
 <div id="modalCierre" class="vd-modal-box">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
@@ -403,7 +371,7 @@ Copiar
   </div>
   <button class="caja-btn-primary caja-btn-primary--danger" onclick="confirmarCierre()"><i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja</button>
 </div>
- 
+
 <!-- MODAL RECIBO -->
 <div id="overlayRecibo" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9998;" onclick="cerrarRecibo()"></div>
 <div id="modalRecibo" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;width:440px;max-width:95vw;max-height:90vh;overflow-y:auto;background:var(--fondo-card);border:1px solid var(--azul-borde);border-radius:16px;padding:2rem;">
@@ -421,7 +389,7 @@ Copiar
     <button onclick="cerrarRecibo()" style="flex:1;min-width:120px;background:var(--fondo-card2);color:var(--texto);border:1px solid var(--azul-borde);border-radius:10px;padding:.7rem;cursor:pointer;font-weight:600;">Cerrar</button>
   </div>
 </div>
- 
+
 <!-- MODAL CANCELAR -->
 <div id="overlayCancelar" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:10000;"></div>
 <div id="modalCancelar" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10001;width:420px;max-width:95vw;background:var(--fondo-card);border:1px solid #ff4d4d;border-radius:16px;padding:2rem;">
@@ -436,7 +404,7 @@ Copiar
     <button onclick="confirmarCancelar()" style="flex:1;background:#ff4d4d;color:#fff;border:none;border-radius:10px;padding:.7rem;cursor:pointer;font-weight:700;"><i class="bi bi-x-circle me-1"></i> Sí, cancelar</button>
   </div>
 </div>
- 
+
 <!-- DATOS VENTAS -->
 <div id="datosVentas" style="display:none;">
   {% for venta in ventas %}
@@ -448,41 +416,41 @@ Copiar
   {% endfor %}
 </div>
 {% endblock %}
- 
+
 {% block extra_js %}
 <script>
 const TOTAL_DIA      = {{ total_dia|default:0|floatformat:0 }};
 const BASE_APERTURA  = {{ caja_abierta.monto_base|default:0|floatformat:0 }};
 const BASE_SIGUIENTE = {{ ultimo_cierre.monto_base_siguiente|default:0|floatformat:0 }};
 const CSRF_TOKEN     = '{{ csrf_token }}';
- 
+
 {% verbatim %}
 let carrito        = [];
 let metodosActivos = new Set();
 let totalActual    = 0;
- 
+
 function formatPesos(val) {
     const n = Math.round(parseFloat(val) || 0);
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
- 
+
 // ════════════════════════════════════════
 // FILTRO HISTORIAL
 // ════════════════════════════════════════
 let fechaSeleccionada = 'todas';
 let ordenAsc          = false;
 let busqueda          = '';
- 
+
 function construirDropdownFechas() {
     const filas = Array.from(document.querySelectorAll('.fila-venta'));
     const fechasSet = new Set();
     filas.forEach(f => fechasSet.add(f.dataset.fecha));
     const fechas = Array.from(fechasSet).sort((a, b) => b.localeCompare(a));
- 
+
     const hoy   = new Date();
     const fHoy  = hoy.toISOString().slice(0, 10);
     const fAyer = new Date(hoy - 86400000).toISOString().slice(0, 10);
- 
+
     const etiqueta = f => {
         if (f === fHoy)  return 'Hoy — ' + f.split('-').reverse().join('/');
         if (f === fAyer) return 'Ayer — ' + f.split('-').reverse().join('/');
@@ -491,16 +459,16 @@ function construirDropdownFechas() {
         const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
         return dias[d.getDay()] + ' ' + d.getDate() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
     };
- 
+
     const dd = document.getElementById('dropdownFecha');
     dd.innerHTML = `<div class="vt-fecha-opcion seleccionada" onclick="seleccionarFecha('todas', 'Todas las fechas')">Todas las fechas</div>` +
         fechas.map(f => `<div class="vt-fecha-opcion" onclick="seleccionarFecha('${f}', '${etiqueta(f)}')">${etiqueta(f)}</div>`).join('');
 }
- 
+
 function toggleDropdownFecha() {
     document.getElementById('dropdownFecha').classList.toggle('open');
 }
- 
+
 function seleccionarFecha(valor, label) {
     fechaSeleccionada = valor;
     document.getElementById('labelFecha').textContent = label;
@@ -510,49 +478,49 @@ function seleccionarFecha(valor, label) {
     });
     aplicarFiltros();
 }
- 
+
 function toggleOrden() {
     ordenAsc = !ordenAsc;
     document.getElementById('labelOrden').textContent = ordenAsc ? 'Más antiguos' : 'Más recientes';
     document.getElementById('iconOrden').className = ordenAsc ? 'bi bi-sort-up' : 'bi bi-sort-down';
     aplicarFiltros();
 }
- 
+
 document.addEventListener('DOMContentLoaded', function() {
     construirDropdownFechas();
     aplicarFiltros();
- 
+
     document.getElementById('buscadorHistorial').addEventListener('input', function() {
         busqueda = this.value.toLowerCase().trim();
         aplicarFiltros();
     });
- 
+
     // Cerrar dropdown al hacer clic fuera
     document.addEventListener('click', function(e) {
         if (!e.target.closest('#btnFecha') && !e.target.closest('#dropdownFecha')) {
             document.getElementById('dropdownFecha').classList.remove('open');
         }
     });
- 
+
     // Listeners denom
     document.querySelectorAll('.denom-ap').forEach(i => i.addEventListener('input', calcularTotalApertura));
     document.querySelectorAll('.denom-ci').forEach(i => i.addEventListener('input', calcularTotalCierre));
     const bi = document.getElementById('baseSiguiente');
     if (bi) bi.addEventListener('input', calcularTotalCierre);
 });
- 
+
 function aplicarFiltros() {
     const tbody  = document.getElementById('tbodyVentas');
     const filas  = Array.from(tbody.querySelectorAll('.fila-venta'));
- 
+
     let visibles = filas.filter(f => {
         const okFecha = fechaSeleccionada === 'todas' || f.dataset.fecha === fechaSeleccionada;
         const okBusq  = !busqueda || f.dataset.cliente.includes(busqueda) || f.dataset.productos.includes(busqueda);
         return okFecha && okBusq;
     });
- 
+
     if (ordenAsc) visibles = visibles.slice().reverse();
- 
+
     // Ocultar todas, luego mostrar las visibles en orden
     filas.forEach(f => f.style.display = 'none');
     visibles.forEach((f, i) => {
@@ -560,11 +528,11 @@ function aplicarFiltros() {
         f.querySelector('.num-fila').textContent = ordenAsc ? visibles.length - i : i + 1;
         tbody.appendChild(f);
     });
- 
+
     document.getElementById('contadorVentas').textContent = visibles.length;
     document.getElementById('sinResultados').style.display = visibles.length === 0 ? 'block' : 'none';
 }
- 
+
 // ════════════════════════════════════════
 // CARRITO
 // ════════════════════════════════════════
@@ -578,7 +546,7 @@ function formatearInputPago(input) {
     input.setSelectionRange(cursor + diff, cursor + diff);
     actualizarPagos();
 }
- 
+
 function toggleMetodo(metodo) {
     metodosActivos.has(metodo) ? metodosActivos.delete(metodo) : metodosActivos.add(metodo);
     document.querySelectorAll('.metodo-pago-btn').forEach(btn => {
@@ -587,7 +555,7 @@ function toggleMetodo(metodo) {
     });
     renderInputsPago();
 }
- 
+
 function renderInputsPago() {
     const nombres = {efectivo:'Efectivo',tarjeta:'Tarjeta',transferencia:'Transferencia',nequi:'Nequi',daviplata:'Daviplata'};
     const iconos  = {efectivo:'bi-cash',tarjeta:'bi-credit-card',transferencia:'bi-bank',nequi:'bi-phone',daviplata:'bi-phone'};
@@ -601,7 +569,7 @@ function renderInputsPago() {
     });
     actualizarPagos();
 }
- 
+
 function actualizarPagos() {
     let totalPagado = 0;
     ['efectivo','tarjeta','transferencia','nequi','daviplata'].forEach(m => {
@@ -626,7 +594,7 @@ function actualizarPagos() {
         document.getElementById('btnRegistrar').disabled = carrito.length === 0;
     }
 }
- 
+
 function agregarAlCarrito(prodId, prodNombre, presId, presNombre, stock, precio) {
     const key = prodId + '_' + presId;
     const ex  = carrito.find(i => i.key === key);
@@ -634,7 +602,7 @@ function agregarAlCarrito(prodId, prodNombre, presId, presNombre, stock, precio)
     else { const p = parseFloat(precio)||0; carrito.push({key,prodId,presId,nombre:prodNombre+' - '+presNombre,stock:parseInt(stock),precio:p,cantidad:1,subtotal:p}); }
     renderCarrito();
 }
- 
+
 function renderCarrito() {
     const hay = carrito.length > 0;
     ['carritoItems','seccionDescuento','seccionPagos','totalGeneral'].forEach(id => document.getElementById(id).style.display = hay ? 'block' : 'none');
@@ -666,7 +634,7 @@ function renderCarrito() {
     actualizarHiddens();
     actualizarPagos();
 }
- 
+
 function actualizarCant(i,v) { const val=parseInt(v)||1; carrito[i].cantidad=Math.min(val,carrito[i].stock); carrito[i].subtotal=carrito[i].cantidad*carrito[i].precio; renderCarrito(); }
 function quitar(i) { carrito.splice(i,1); renderCarrito(); }
 function actualizarHiddens() {
@@ -676,7 +644,7 @@ function actualizarHiddens() {
         <input type="hidden" name="cantidad[]" value="${item.cantidad}">
         <input type="hidden" name="precio[]" value="${item.precio}">`).join('');
 }
- 
+
 function abrirModalCancelar() {
     document.getElementById('cancelarListaProductos').innerHTML = carrito.map(item => `<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--azul-borde);font-size:.85rem;"><span>${item.nombre}</span><span style="color:var(--texto-muted);">x${item.cantidad}</span></div>`).join('');
     document.getElementById('overlayCancelar').style.display = 'block';
@@ -694,7 +662,7 @@ function confirmarCancelar() {
     document.getElementById('inputDescuento').value=0;
     document.querySelectorAll('.metodo-pago-btn').forEach(b => b.classList.remove('activo'));
 }
- 
+
 function renderizarProductos(datos) {
     const lista = document.getElementById('productoLista');
     lista.innerHTML = '';
@@ -707,14 +675,14 @@ function renderizarProductos(datos) {
         lista.appendChild(div);
     });
 }
- 
+
 function mostrarProductos(catId,catNombre) {
     document.getElementById('catTitulo').textContent=catNombre;
     renderizarProductos(Array.from(document.querySelectorAll('.dato-producto[data-cat="'+catId+'"]')));
     document.getElementById('vistaCategorias').style.display='none';
     document.getElementById('vistaProductos').style.display='block';
 }
- 
+
 function mostrarPresentaciones(prodId,prodNombre) {
     document.getElementById('presTitulo').textContent=prodNombre;
     const prodDiv=document.querySelector('.dato-producto[data-id="'+prodId+'"]');
@@ -735,10 +703,10 @@ function mostrarPresentaciones(prodId,prodNombre) {
     document.getElementById('vistaProductos').style.display='none';
     document.getElementById('vistaPresentaciones').style.display='block';
 }
- 
+
 function volverCategorias() { document.getElementById('vistaProductos').style.display='none'; document.getElementById('vistaPresentaciones').style.display='none'; document.getElementById('vistaCategorias').style.display='block'; }
 function volverProductos() { document.getElementById('vistaPresentaciones').style.display='none'; document.getElementById('vistaProductos').style.display='block'; }
- 
+
 document.getElementById('buscadorProducto').addEventListener('input', function() {
     const q=this.value.toLowerCase().trim();
     if (q.length>0) {
@@ -748,7 +716,7 @@ document.getElementById('buscadorProducto').addEventListener('input', function()
     } else { document.getElementById('vistaProductos').style.display='none'; document.getElementById('vistaCategorias').style.display='block'; }
 });
 document.getElementById('inputDescuento').addEventListener('input', renderCarrito);
- 
+
 function verRecibo(ventaId) {
     const v=document.querySelector('.dato-venta[data-id="'+ventaId+'"]'); if(!v) return;
     const detalles=Array.from(v.querySelectorAll('.dato-detalle')); let subtotalBruto=0;
@@ -768,7 +736,7 @@ function verRecibo(ventaId) {
     document.getElementById('overlayRecibo').style.display='block'; document.getElementById('modalRecibo').style.display='block';
 }
 function cerrarRecibo() { document.getElementById('overlayRecibo').style.display='none'; document.getElementById('modalRecibo').style.display='none'; }
- 
+
 // ════════ CAJA ════════
 function calcularTotalApertura() {
     let t=0; document.querySelectorAll('.denom-ap').forEach(i=>t+=(parseInt(i.value)||0)*parseInt(i.dataset.valor));
@@ -788,7 +756,7 @@ function confirmarApertura() {
     fetch({% endverbatim %}"{% url 'ventas:apertura_caja' %}"{% verbatim %},{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':CSRF_TOKEN},body:JSON.stringify({monto_base:montoBase,observacion:document.getElementById('apObservacion').value,denominaciones})})
     .then(r=>r.json()).then(data=>{if(data.ok){location.reload();}else{alert(data.error||'Error.');btn.disabled=false;btn.innerHTML='<i class="bi bi-unlock me-1"></i> Confirmar Apertura';}}).catch(()=>{alert('Error de conexión.');btn.disabled=false;btn.innerHTML='<i class="bi bi-unlock me-1"></i> Confirmar Apertura';});
 }
- 
+
 function calcularTotalCierre() {
     let t=0; document.querySelectorAll('.denom-ci').forEach(i=>t+=(parseInt(i.value)||0)*parseInt(i.dataset.valor));
     document.getElementById('totalCierre').textContent='$'+formatPesos(t);
