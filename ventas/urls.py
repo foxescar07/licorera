@@ -19,7 +19,7 @@ urlpatterns = [
     path('caja/apertura/',         views.apertura_caja,           name='apertura_caja'),
     path('caja/cierre/',           views.cierre_caja,             name='cierre_caja'),
     path('caja/conteo/',           views.registrar_conteo,        name='registrar_conteo'),
-    path('caja/apertura-conteo/', views.conteo_apertura, name='conteo_apertura'),
+    
 
     # ── Devoluciones ──
     path('devoluciones/',                               views.lista_devoluciones,       name='lista_devoluciones'),

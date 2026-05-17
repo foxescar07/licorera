@@ -27,7 +27,6 @@ def session_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
-
 def caja_desbloqueada(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
@@ -35,9 +34,14 @@ def caja_desbloqueada(view_func):
             return redirect('login')
         if not request.session.get('caja_desbloqueada'):
             return redirect('ventas:desbloquear_caja')
+        # Solo bloquear si hay cierre hoy Y no hay apertura activa
+        hoy = timezone.localdate()
+        if CierreCaja.objects.filter(fecha=hoy).exists():
+            request.session.pop('caja_desbloqueada', None)
+            request.session.pop('caja_usuario', None)
+            return redirect('ventas:desbloquear_caja')
         return view_func(request, *args, **kwargs)
     return wrapper
-
 
 # ════════════════════════════════════════
 # DESBLOQUEO / BLOQUEO DE CAJA
@@ -45,31 +49,31 @@ def caja_desbloqueada(view_func):
 
 @session_required
 def desbloquear_caja(request):
+    hoy = timezone.localdate()
+
     if request.session.get('caja_desbloqueada'):
-        # Ya desbloqueada — verificar si falta conteo de apertura
-        hoy = timezone.localdate()
-        if not AperturaCaja.objects.filter(fecha=hoy).exists():
-            return redirect('ventas:conteo_apertura')
         return redirect('ventas:ventas_lista')
 
-    error = None
+    ultimo_cierre  = CierreCaja.objects.filter(fecha=hoy).first()
+    hay_cierre_hoy = ultimo_cierre is not None
 
+    if hay_cierre_hoy:
+        return render(request, 'ventas/caja.html', {
+            'error':          None,
+            'hay_cierre_hoy': True,
+            'ultimo_cierre':  ultimo_cierre,
+        })
+
+    error = None
     if request.method == 'POST':
         password = request.POST.get('password', '').strip()
-
         if not password:
             error = 'Ingresa la contraseña.'
         else:
             clave_hash = hashlib.sha256(password.encode()).hexdigest()
-            usuario_encontrado = None
-
-            try:
-                usuario_encontrado = Usuario.objects.filter(
-                    clave=clave_hash, activo=True
-                ).first()
-            except Exception:
-                pass
-
+            usuario_encontrado = Usuario.objects.filter(
+                clave=clave_hash, activo=True
+            ).first()
             if usuario_encontrado:
                 request.session['caja_desbloqueada'] = True
                 request.session['caja_usuario'] = (
@@ -77,15 +81,15 @@ def desbloquear_caja(request):
                     or getattr(usuario_encontrado, 'username', None)
                     or str(usuario_encontrado)
                 )
-                # ← Después de desbloquear, verificar si hay apertura hoy
-                hoy = timezone.localdate()
-                if not AperturaCaja.objects.filter(fecha=hoy).exists():
-                    return redirect('ventas:conteo_apertura')
                 return redirect('ventas:ventas_lista')
             else:
                 error = 'Contraseña incorrecta.'
 
-    return render(request, 'ventas/caja.html', {'error': error})
+    return render(request, 'ventas/caja.html', {
+        'error':          error,
+        'hay_cierre_hoy': False,
+        'ultimo_cierre':  ultimo_cierre,
+    })
 
 @session_required
 def bloquear_caja(request):
@@ -106,22 +110,22 @@ def ventas_lista(request):
     hoy        = timezone.localdate()
 
     caja_abierta  = AperturaCaja.objects.filter(fecha=hoy).first()
-    ultimo_cierre = CierreCaja.objects.filter(fecha=hoy).order_by('-fecha_cierre').first()
+    ultimo_cierre = CierreCaja.objects.filter(fecha=hoy).first()
     total_dia     = int(sum(v.total_venta for v in Venta.objects.filter(fecha__date=hoy)))
 
-    # True si no hay apertura registrada hoy → dispara el modal automático
-    mostrar_conteo_apertura = not caja_abierta
+    # Conteo solo si es primera vez del día: sesión activa pero sin apertura ni cierre
+    mostrar_conteo_apertura = (not caja_abierta) and (not ultimo_cierre)
 
     return render(request, 'ventas/ventas.html', {
-        'ventas':                 ventas,
-        'form':                   form,
-        'categorias':             categorias,
-        'caja_abierta':           caja_abierta,
-        'ultimo_cierre':          ultimo_cierre,
-        'total_dia':              total_dia,
-        'hoy':                    hoy,
-        'caja_usuario':           request.session.get('caja_usuario', ''),
-        'mostrar_conteo_apertura': mostrar_conteo_apertura,  # ← nueva
+        'ventas':                  ventas,
+        'form':                    form,
+        'categorias':              categorias,
+        'caja_abierta':            caja_abierta,
+        'ultimo_cierre':           ultimo_cierre,
+        'total_dia':               total_dia,
+        'hoy':                     hoy,
+        'caja_usuario':            request.session.get('caja_usuario', ''),
+        'mostrar_conteo_apertura': mostrar_conteo_apertura,
     })
 
 
@@ -299,7 +303,7 @@ def ventas_dia(request):
     total_productos = sum(det.cantidad for v in ventas for det in v.detalles.all())
 
     caja_abierta  = AperturaCaja.objects.filter(fecha=hoy).first()
-    ultimo_cierre = CierreCaja.objects.filter(fecha=hoy).order_by('-fecha_cierre').first()
+    ultimo_cierre = CierreCaja.objects.filter(fecha=hoy).first()
 
     return render(request, 'ventas/ventas_dia.html', {
         'ventas':          ventas,
@@ -312,7 +316,7 @@ def ventas_dia(request):
 
 
 # ════════════════════════════════════════
-# CAJA — APERTURA Y CIERRE (legacy, se mantienen por si hay otras URLs)
+# CAJA — APERTURA Y CIERRE
 # ════════════════════════════════════════
 
 @require_POST
@@ -368,6 +372,7 @@ def cierre_caja(request):
 
     if not apertura:
         return JsonResponse({'ok': False, 'error': 'No hay apertura de caja para hoy.'}, status=400)
+
     if CierreCaja.objects.filter(fecha=hoy).exists():
         return JsonResponse({'ok': False, 'error': 'La caja ya fue cerrada hoy.'}, status=400)
 
@@ -386,20 +391,20 @@ def cierre_caja(request):
         total_retirado=total_retirado,
         denominaciones=data.get('denominaciones', {}),
     )
+
+    request.session.pop('caja_desbloqueada', None)
+    request.session.pop('caja_usuario', None)
+
     return JsonResponse({'ok': True})
 
 
 # ════════════════════════════════════════
-# CONTEO DE CAJA (apertura vía modal automático)
+# CONTEO DE APERTURA (modal automático)
 # ════════════════════════════════════════
 
 @require_POST
 @session_required
 def registrar_conteo(request):
-    """
-    Recibe el conteo de apertura desde el modal automático del template.
-    El JS envía: { monto_contado, observacion, denominaciones }
-    """
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, ValueError):
@@ -417,7 +422,6 @@ def registrar_conteo(request):
     except (TypeError, ValueError):
         return JsonResponse({'ok': False, 'error': 'Monto inválido.'}, status=400)
 
-    # Resolver nombre del usuario
     usuario_nombre = request.session.get('caja_usuario', '')
     if not usuario_nombre:
         usuario_id = request.session.get('usuario_id')
@@ -430,7 +434,7 @@ def registrar_conteo(request):
 
     AperturaCaja.objects.create(
         fecha=hoy,
-        monto_base=monto_contado,          # el contado físico es la base
+        monto_base=monto_contado,
         usuario=usuario_nombre,
         observacion=data.get('observacion', ''),
         denominaciones=data.get('denominaciones', {}),
@@ -549,19 +553,4 @@ def comprobante_devolucion(request, pk):
             'detalles__producto', 'detalles__presentacion'
         ), pk=pk,
     )
-    return render(request, 'ventas/comprobante_devolucion.html', {'devolucion': devolucion})
-    
-# ════════════════════════════════════════
-# CONTEO DE APERTURA (página dedicada)
-# ════════════════════════════════════════
-
-@caja_desbloqueada
-def conteo_apertura(request):
-    hoy = timezone.localdate()
-    # Si ya tiene apertura hoy, no tiene nada que hacer aquí
-    if AperturaCaja.objects.filter(fecha=hoy).exists():
-        return redirect('ventas:ventas_lista')
-    return render(request, 'ventas/conteo_apertura.html', {
-        'hoy': hoy,
-        'caja_usuario': request.session.get('caja_usuario', ''),
-    })
+    return render(request, 'ventas/comprobante_devolucion.html', {'devolucion': devolucion})    

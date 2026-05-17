@@ -1,125 +1,240 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Acceso a Caja — CYS Ltda{% endblock %}
-{% block page_title %}Acceso a Caja{% endblock %}
+{% block title %}Desbloquear Caja — CYS Ltda{% endblock %}
 
-{% block content %}
-<div class="d-flex justify-content-center align-items-center" style="min-height: 70vh;">
-  <div style="
+{% block extra_css %}
+<style>
+  /* ── Centra la tarjeta en pantalla completa ── */
+  .caja-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--fondo);
+    padding: 1.5rem;
+  }
+  .caja-card {
     background: var(--fondo-card);
     border: 1px solid var(--azul-borde);
     border-radius: 20px;
     padding: 2.5rem 2rem;
     width: 100%;
-    max-width: 420px;
+    max-width: 400px;
     box-shadow: 0 8px 40px rgba(0,0,0,.4);
-  ">
-    <!-- Icono -->
-    <div style="text-align:center; margin-bottom:1.8rem;">
-      <div style="
-        display:inline-flex; align-items:center; justify-content:center;
-        width:72px; height:72px; border-radius:50%;
-        background: rgba(77,168,218,.12);
-        border: 1px solid var(--azul-claro);
-        margin-bottom:1rem;
-      ">
-        <i class="bi bi-shield-lock" style="font-size:2rem; color:var(--azul-claro);"></i>
-      </div>
-      <div style="font-size:1.3rem; font-weight:800; color:var(--texto);">Acceso a Caja</div>
-      <div style="font-size:.82rem; color:var(--texto-muted); margin-top:.3rem;">
-        Ingresa tu contraseña para continuar
-      </div>
+  }
+  .caja-logo {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .caja-logo__icono {
+    font-size: 2.8rem;
+    color: var(--azul-claro);
+    display: block;
+    margin-bottom: .5rem;
+  }
+  .caja-logo__nombre {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--texto);
+  }
+  .caja-logo__sub {
+    font-size: .78rem;
+    color: var(--texto-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ── Bloque "caja cerrada hoy" ── */
+  .caja-cerrada-hoy {
+    background: rgba(255,77,77,.08);
+    border: 1px solid #ff4d4d;
+    border-radius: 14px;
+    padding: 1.8rem 1.5rem;
+    text-align: center;
+  }
+  .caja-cerrada-hoy__icono {
+    font-size: 3rem;
+    color: #ff4d4d;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .caja-cerrada-hoy__titulo {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--texto);
+    margin-bottom: .4rem;
+  }
+  .caja-cerrada-hoy__msg {
+    font-size: .88rem;
+    color: var(--texto-muted);
+    margin-bottom: 1.2rem;
+  }
+  .caja-cerrada-hoy__detalle {
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    border-radius: 10px;
+    padding: .8rem 1rem;
+    font-size: .82rem;
+    text-align: left;
+    margin-bottom: 1.2rem;
+  }
+  .caja-cerrada-hoy__fila {
+    display: flex;
+    justify-content: space-between;
+    padding: .25rem 0;
+    color: var(--texto-muted);
+  }
+  .caja-cerrada-hoy__fila span:last-child {
+    font-weight: 700;
+    color: var(--texto);
+  }
+  .caja-cerrada-hoy__fila--verde span:last-child { color: #2ed573; }
+
+  /* ── Formulario PIN ── */
+  .caja-pin-label {
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--texto-muted);
+    font-weight: 600;
+    margin-bottom: .4rem;
+  }
+  .caja-pin-input {
+    width: 100%;
+    background: var(--fondo-card2);
+    border: 1px solid var(--azul-borde);
+    border-radius: 10px;
+    color: var(--texto);
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: .7rem 1rem;
+    letter-spacing: 3px;
+    text-align: center;
+    margin-bottom: .8rem;
+    transition: border-color .2s;
+  }
+  .caja-pin-input:focus { outline: none; border-color: var(--azul-claro); }
+  .caja-pin-input::placeholder { letter-spacing: 1px; font-weight: 400; font-size: .9rem; }
+
+  .caja-btn-unlock {
+    width: 100%;
+    background: var(--azul-claro);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: .75rem;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+  .caja-btn-unlock:hover { opacity: .85; }
+
+  .caja-error {
+    background: rgba(255,77,77,.1);
+    border: 1px solid #ff4d4d;
+    border-radius: 8px;
+    color: #ff4d4d;
+    font-size: .82rem;
+    font-weight: 600;
+    padding: .5rem .8rem;
+    margin-bottom: .8rem;
+    text-align: center;
+  }
+
+  /* ── Info último cierre (panel resumido bajo PIN) ── */
+  .caja-info-cierre {
+    background: rgba(46,213,115,.07);
+    border: 1px solid #2ed573;
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    font-size: .8rem;
+    color: #2ed573;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="caja-wrap">
+  <div class="caja-card">
+
+    <div class="caja-logo">
+      <i class="bi bi-shield-lock caja-logo__icono"></i>
+      <div class="caja-logo__nombre">CYS Ltda</div>
+      <div class="caja-logo__sub">Sistema de Caja</div>
     </div>
 
-    <!-- Error -->
-    {% if error %}
-    <div style="
-      background: rgba(255,77,77,.1);
-      border: 1px solid #ff4d4d;
-      border-radius: 10px;
-      padding: .75rem 1rem;
-      font-size: .85rem;
-      color: #ff4d4d;
-      margin-bottom: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-    ">
-      <i class="bi bi-exclamation-circle-fill"></i>
-      {{ error }}
-    </div>
-    {% endif %}
-
-    <!-- Formulario -->
-    <form method="POST">
-      {% csrf_token %}
-      <div style="margin-bottom:1.2rem;">
-        <label style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--texto-muted); font-weight:600; display:block; margin-bottom:.4rem;">
-          Contraseña
-        </label>
-        <div style="position:relative;">
-          <input
-            type="password"
-            name="password"
-            id="inputPassword"
-            autofocus
-            autocomplete="current-password"
-            placeholder="••••••••"
-            style="
-              width:100%; background:var(--fondo-card2);
-              border:1px solid var(--azul-borde); border-radius:10px;
-              color:var(--texto); font-size:1rem; padding:.7rem 2.8rem .7rem 1rem;
-              outline:none; transition: border-color .2s;
-            "
-            onfocus="this.style.borderColor='var(--azul-claro)'"
-            onblur="this.style.borderColor='var(--azul-borde)'"
-          >
-          <button
-            type="button"
-            onclick="togglePass()"
-            style="position:absolute; right:.7rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--texto-muted); cursor:pointer; font-size:1rem;"
-          >
-            <i class="bi bi-eye" id="iconoOjo"></i>
-          </button>
+    {% if hay_cierre_hoy %}
+      <!-- ══ CAJA YA CERRADA HOY — sin formulario ══ -->
+      <div class="caja-cerrada-hoy">
+        <i class="bi bi-lock-fill caja-cerrada-hoy__icono"></i>
+        <div class="caja-cerrada-hoy__titulo">Caja cerrada</div>
+        <div class="caja-cerrada-hoy__msg">
+          La caja ya se cerró el día de hoy.<br>
+          Vuelve mañana para iniciar un nuevo turno.
+        </div>
+        {% if ultimo_cierre %}
+        <div class="caja-cerrada-hoy__detalle">
+          <div class="caja-cerrada-hoy__fila">
+            <span>Hora de cierre</span>
+            <span>{{ ultimo_cierre.fecha_cierre|date:"H:i" }}</span>
+          </div>
+          <div class="caja-cerrada-hoy__fila">
+            <span>Total contado</span>
+            <span>${{ ultimo_cierre.total_contado|floatformat:0 }}</span>
+          </div>
+          <div class="caja-cerrada-hoy__fila">
+            <span>Total retirado</span>
+            <span>${{ ultimo_cierre.total_retirado|floatformat:0 }}</span>
+          </div>
+          <div class="caja-cerrada-hoy__fila caja-cerrada-hoy__fila--verde">
+            <span>Base para mañana</span>
+            <span>${{ ultimo_cierre.monto_base_siguiente|floatformat:0 }}</span>
+          </div>
+        </div>
+        {% endif %}
+        <div style="font-size:.75rem; color:var(--texto-muted);">
+          <i class="bi bi-info-circle me-1"></i>
+          Si necesitas acceso de emergencia, contacta al administrador.
         </div>
       </div>
 
-      <button
-        type="submit"
-        style="
-          width:100%; background:var(--azul-claro); color:#000;
-          border:none; border-radius:10px; padding:.8rem;
-          font-weight:800; font-size:1rem; cursor:pointer;
-          transition: opacity .2s; display:flex; align-items:center;
-          justify-content:center; gap:.5rem;
-        "
-        onmouseover="this.style.opacity='.85'"
-        onmouseout="this.style.opacity='1'"
-      >
-        <i class="bi bi-unlock-fill"></i> Desbloquear Caja
-      </button>
-    </form>
+    {% else %}
+      <!-- ══ FORMULARIO DE DESBLOQUEO ══ -->
 
-    <!-- Info -->
-    <div style="margin-top:1.5rem; padding-top:1.2rem; border-top:1px solid var(--azul-borde); text-align:center; font-size:.75rem; color:var(--texto-muted);">
-      <i class="bi bi-info-circle me-1"></i>
-      Solo administradores y cajeros autorizados pueden acceder.
-    </div>
+      {% if ultimo_cierre %}
+      <div class="caja-info-cierre">
+        <i class="bi bi-arrow-repeat me-1"></i>
+        Nuevo turno — la base anterior fue ${{ ultimo_cierre.monto_base_siguiente|floatformat:0 }}
+      </div>
+      {% endif %}
+
+      {% if error %}
+      <div class="caja-error">
+        <i class="bi bi-exclamation-triangle me-1"></i> {{ error }}
+      </div>
+      {% endif %}
+
+      <form method="POST" action="{% url 'ventas:desbloquear_caja' %}">
+       {% csrf_token %}
+      <div class="caja-pin-label">Contraseña de acceso</div>
+      <input
+      type="password"
+      name="password"
+      class="caja-pin-input"
+      placeholder="Ingresa tu contraseña"
+      autofocus
+      autocomplete="current-password"
+      >
+      <button type="submit" class="caja-btn-unlock">
+  <i class="bi bi-unlock me-2"></i> Desbloquear Caja
+</button>
+      </form>
+    {% endif %}
+
   </div>
 </div>
-
-<script>
-function togglePass() {
-  const inp  = document.getElementById('inputPassword');
-  const icon = document.getElementById('iconoOjo');
-  if (inp.type === 'password') {
-    inp.type   = 'text';
-    icon.className = 'bi bi-eye-slash';
-  } else {
-    inp.type   = 'password';
-    icon.className = 'bi bi-eye';
-  }
-}
-</script>
 {% endblock %}

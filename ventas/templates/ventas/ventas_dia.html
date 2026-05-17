@@ -8,7 +8,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/ventas.css' %}">
 <style>
-/* ── Botón exportar ── */
 .cys-btn-export {
     background: rgba(77,168,218,.12);
     border: 1px solid var(--azul-claro);
@@ -26,7 +25,6 @@
 }
 .cys-btn-export:hover { background: rgba(77,168,218,.25); color: var(--azul-claro); }
 
-/* ── Botones caja ── */
 .cys-btn-caja {
     border-radius: 8px;
     padding: .45rem 1rem;
@@ -45,7 +43,6 @@
 .cys-btn-caja--cerrar { background: rgba(255,77,77,.12);  border-color: #ff4d4d; color: #ff4d4d; }
 .cys-btn-caja--cerrar:hover { background: rgba(255,77,77,.25); }
 
-/* ── Tarjetas resumen ── */
 .vd-stat {
     background: var(--fondo-card2);
     border: 1px solid var(--azul-borde);
@@ -59,13 +56,11 @@
 .vd-stat__val   { font-size:1.7rem; font-weight:800; color:var(--azul-claro); line-height:1; }
 .vd-stat__sub   { font-size:.75rem; color:var(--texto-muted); }
 
-/* ── Tabla ── */
 .vd-table th { font-size:.72rem; text-transform:uppercase; color:var(--azul-claro); font-weight:600; border-bottom:1px solid var(--azul-borde); padding:.7rem 1rem; white-space:nowrap; }
 .vd-table td { font-size:.85rem; padding:.75rem 1rem; border-bottom:1px solid var(--azul-borde); vertical-align:middle; color:var(--texto); }
 .vd-table tbody tr { cursor:pointer; transition:background .15s; }
 .vd-table tbody tr:hover { background:rgba(77,168,218,.05); }
 
-/* ── Separador de día ── */
 .vd-separador-dia td {
     background: rgba(77,168,218,.08) !important;
     border-top: 2px solid var(--azul-claro) !important;
@@ -76,14 +71,12 @@
 }
 .vd-separador-dia:hover { background: transparent !important; }
 
-/* ── Badge método pago ── */
 .vd-badge {
     display:inline-flex; align-items:center; gap:.25rem;
     background:var(--fondo-card2); border:1px solid var(--azul-borde);
     border-radius:20px; padding:.15rem .55rem; font-size:.7rem; color:var(--texto-muted); white-space:nowrap;
 }
 
-/* ── Panel de caja ── */
 .caja-panel {
     background: var(--fondo-card2);
     border: 1px solid var(--azul-borde);
@@ -99,7 +92,6 @@
 .caja-dato__lbl { font-size:.7rem; color:var(--texto-muted); text-transform:uppercase; letter-spacing:.5px; }
 .caja-dato__val { font-weight:700; font-size:.92rem; }
 
-/* ── Badge caja abierta ── */
 .caja-auth-badge {
     display: inline-flex;
     align-items: center;
@@ -113,7 +105,6 @@
     color: #2ed573;
 }
 
-/* ── Modal genérico ── */
 .vd-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:9998; }
 .vd-modal-overlay.open { display:block; }
 .vd-modal-box {
@@ -123,7 +114,6 @@
 }
 .vd-modal-box.open { display:block; }
 
-/* ── Denominaciones ── */
 .denom-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-bottom:.8rem; }
 .denom-item {
     background:var(--fondo-card2); border:1px solid var(--azul-borde);
@@ -282,15 +272,15 @@
           <i class="bi bi-circle-fill" style="font-size:.45rem;"></i> Caja Cerrada
         </span>
         <div class="caja-dato">
-          <span class="caja-dato__lbl">Último cierre</span>
-          <span class="caja-dato__val">{{ ultimo_cierre.fecha_cierre|date:"d/m H:i" }}</span>
+          <span class="caja-dato__lbl">Hora de cierre</span>
+          <span class="caja-dato__val">{{ ultimo_cierre.fecha_cierre|date:"H:i" }}</span>
         </div>
         <div class="caja-dato">
           <span class="caja-dato__lbl">Total contado</span>
           <span class="caja-dato__val" style="color:var(--azul-claro);">${{ ultimo_cierre.total_contado|pesos }}</span>
         </div>
         <div class="caja-dato">
-          <span class="caja-dato__lbl">Total recogido</span>
+          <span class="caja-dato__lbl">Total retirado</span>
           <span class="caja-dato__val">${{ ultimo_cierre.total_retirado|pesos }}</span>
         </div>
         <div class="caja-dato">
@@ -405,9 +395,7 @@
   {% endfor %}
 </div>
 
-<!-- ══════════════════════════════════════
-     MODAL APERTURA DE CAJA
-══════════════════════════════════════ -->
+<!-- ══ MODAL APERTURA ══ -->
 <div id="overlayApertura" class="vd-modal-overlay"></div>
 <div id="modalApertura" class="vd-modal-box">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
@@ -417,16 +405,13 @@
     </div>
     <button onclick="cerrarModalApertura()" style="background:none;border:none;color:var(--texto-muted);font-size:1.3rem;cursor:pointer;"><i class="bi bi-x-lg"></i></button>
   </div>
-
   <div class="info-base" id="infoBaseSiguiente">
     <i class="bi bi-info-circle me-1"></i>
     <span id="infoBaseSiguienteTexto"></span>
   </div>
-
   <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
     Cuenta el dinero con el que inicias el día e ingresa la cantidad por denominación.
   </p>
-
   <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
   <div class="denom-grid">
     <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="100000"></div>
@@ -437,7 +422,6 @@
     <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="2000"></div>
     <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ap" data-valor="1000"></div>
   </div>
-
   <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
   <div class="denom-grid">
     <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ap" data-valor="500"></div>
@@ -445,23 +429,18 @@
     <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ap" data-valor="100"></div>
     <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ap" data-valor="50"></div>
   </div>
-
   <div class="denom-total">
     <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Monto base calculado</span>
     <span class="denom-total__val" id="totalApertura">$0</span>
   </div>
-
   <div class="caja-input-label">Responsable / Observación (opcional)</div>
   <input type="text" class="caja-input" id="apObservacion" placeholder="Ej: Juan — apertura normal">
-
   <button class="caja-btn-primary" onclick="confirmarApertura()">
     <i class="bi bi-unlock me-1"></i> Confirmar Apertura
   </button>
 </div>
 
-<!-- ══════════════════════════════════════
-     MODAL CIERRE DE CAJA
-══════════════════════════════════════ -->
+<!-- ══ MODAL CIERRE ══ -->
 <div id="overlayCierre" class="vd-modal-overlay"></div>
 <div id="modalCierre" class="vd-modal-box">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
@@ -474,7 +453,6 @@
   <p style="font-size:.82rem; color:var(--texto-muted); margin-bottom:1.2rem;">
     Cuenta todo el dinero físico en caja. El sistema calculará cuánto se recoge y cuánto queda de base para mañana.
   </p>
-
   <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Billetes</div>
   <div class="denom-grid">
     <div class="denom-item"><label>$100.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100000"></div>
@@ -485,7 +463,6 @@
     <div class="denom-item"><label>$2.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="2000"></div>
     <div class="denom-item"><label>$1.000</label><input type="number" min="0" value="0" class="denom-ci" data-valor="1000"></div>
   </div>
-
   <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--azul-claro); font-weight:700; margin-bottom:.5rem;">Monedas</div>
   <div class="denom-grid">
     <div class="denom-item"><label>$500</label><input type="number" min="0" value="0" class="denom-ci" data-valor="500"></div>
@@ -493,45 +470,31 @@
     <div class="denom-item"><label>$100</label><input type="number" min="0" value="0" class="denom-ci" data-valor="100"></div>
     <div class="denom-item"><label>$50</label><input type="number" min="0" value="0" class="denom-ci" data-valor="50"></div>
   </div>
-
   <div class="denom-total">
     <span class="denom-total__label"><i class="bi bi-calculator me-1"></i>Total contado en caja</span>
     <span class="denom-total__val" id="totalCierre">$0</span>
   </div>
-
   <div class="caja-input-label">Monto base para mañana ($)</div>
   <input type="number" class="caja-input" id="baseSiguiente" placeholder="Ej: 100000" min="0">
-
   <div id="resumenCierre" style="display:none; background:var(--fondo-card2); border:1px solid var(--azul-borde); border-radius:10px; padding:.9rem; margin-bottom:1rem;">
     <div style="font-size:.7rem; text-transform:uppercase; color:var(--texto-muted); margin-bottom:.6rem; font-weight:700; letter-spacing:.8px;">Resumen del día</div>
-    <div class="caja-resultado-fila">
-      <span style="color:var(--texto-muted);">Base de apertura</span>
-      <span id="res-base-apertura" style="font-weight:600;">$0</span>
-    </div>
-    <div class="caja-resultado-fila">
-      <span style="color:var(--texto-muted);">Ventas del día</span>
-      <span id="res-ventas" style="font-weight:600; color:#2ed573;">$0</span>
-    </div>
+    <div class="caja-resultado-fila"><span style="color:var(--texto-muted);">Base de apertura</span><span id="res-base-apertura" style="font-weight:600;">$0</span></div>
+    <div class="caja-resultado-fila"><span style="color:var(--texto-muted);">Ventas del día</span><span id="res-ventas" style="font-weight:600; color:#2ed573;">$0</span></div>
     <div class="caja-resultado-fila" style="border-top:1px solid var(--azul-borde); padding-top:.5rem; margin-top:.3rem;">
-      <span style="color:var(--texto-muted);">Total contado en caja</span>
-      <span id="res-contado" style="font-weight:700; color:var(--azul-claro);">$0</span>
+      <span style="color:var(--texto-muted);">Total contado en caja</span><span id="res-contado" style="font-weight:700; color:var(--azul-claro);">$0</span>
     </div>
-    <div class="caja-resultado-fila">
-      <span style="color:var(--texto-muted);">Base para mañana</span>
-      <span id="res-base-sig" style="font-weight:600;">$0</span>
-    </div>
+    <div class="caja-resultado-fila"><span style="color:var(--texto-muted);">Base para mañana</span><span id="res-base-sig" style="font-weight:600;">$0</span></div>
     <div class="caja-resultado-fila" style="border-top:2px solid var(--azul-borde); padding-top:.6rem; margin-top:.4rem;">
       <span style="font-weight:700; font-size:.95rem;">Total a retirar</span>
       <span id="res-retirar" style="font-weight:800; font-size:1.15rem; color:#2ed573;">$0</span>
     </div>
   </div>
-
   <button class="caja-btn-primary caja-btn-primary--danger" onclick="confirmarCierre()">
     <i class="bi bi-lock me-1"></i> Confirmar Cierre de Caja
   </button>
 </div>
 
-<!-- ── MODAL DETALLE VENTA ── -->
+<!-- ══ MODAL DETALLE VENTA ══ -->
 <div id="overlayDetalle" class="vd-modal-overlay" onclick="cerrarDetalle()"></div>
 <div id="modalDetalle" class="vd-modal-box">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.3rem;">
@@ -549,10 +512,13 @@
 
 {% block extra_js %}
 <script>
-const TOTAL_DIA     = {{ total_dia|default:0 }};
-const BASE_APERTURA = {{ caja_abierta.monto_base|default:0 }};
+const TOTAL_DIA      = {{ total_dia|default:0 }};
+const BASE_APERTURA  = {{ caja_abierta.monto_base|default:0 }};
 const BASE_SIGUIENTE = {{ ultimo_cierre.monto_base_siguiente|default:0 }};
-const CSRF_TOKEN    = '{{ csrf_token }}';
+const CSRF_TOKEN     = '{{ csrf_token }}';
+const URL_DESBLOQUEAR = "{% url 'ventas:desbloquear_caja' %}";
+const URL_APERTURA    = "{% url 'ventas:apertura_caja' %}";
+const URL_CIERRE      = "{% url 'ventas:cierre_caja' %}";
 
 function formatPesos(val) {
     const n = Math.round(parseFloat(val) || 0);
@@ -561,18 +527,15 @@ function formatPesos(val) {
 
 document.addEventListener('DOMContentLoaded', function () {
     const totalEnCajaEl = document.getElementById('totalEnCaja');
-    if (totalEnCajaEl) {
-        totalEnCajaEl.textContent = '$' + formatPesos(BASE_APERTURA + TOTAL_DIA);
-    }
+    if (totalEnCajaEl) totalEnCajaEl.textContent = '$' + formatPesos(BASE_APERTURA + TOTAL_DIA);
 
-    // Separadores de día en tabla
     const filas = Array.from(document.querySelectorAll('#tablaVentas tbody tr'));
     let fechaAnterior = null;
     filas.forEach(fila => {
         const fechaActual = fila.dataset.fecha;
         if (!fechaActual) return;
         if (fechaAnterior !== null && fechaActual !== fechaAnterior) {
-            const sep    = document.createElement('tr');
+            const sep = document.createElement('tr');
             sep.className = 'vd-separador-dia no-print';
             const partes = fechaActual.split('/');
             const meses  = ['enero','febrero','marzo','abril','mayo','junio',
@@ -590,9 +553,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (baseInp) baseInp.addEventListener('input', calcularTotalCierre);
 });
 
-// ════════════════════════════════════════
-// APERTURA
-// ════════════════════════════════════════
+/* ══ APERTURA ══ */
 function calcularTotalApertura() {
     let total = 0;
     document.querySelectorAll('.denom-ap').forEach(i => {
@@ -601,7 +562,6 @@ function calcularTotalApertura() {
     document.getElementById('totalApertura').textContent = '$' + formatPesos(total);
     return total;
 }
-
 function abrirModalApertura() {
     if (BASE_SIGUIENTE > 0) {
         document.getElementById('infoBaseSiguienteTexto').textContent =
@@ -614,18 +574,13 @@ function abrirModalApertura() {
     document.getElementById('overlayApertura').classList.add('open');
     document.getElementById('modalApertura').classList.add('open');
 }
-
 function cerrarModalApertura() {
     document.getElementById('overlayApertura').classList.remove('open');
     document.getElementById('modalApertura').classList.remove('open');
 }
-
 function confirmarApertura() {
     const montoBase = calcularTotalApertura();
-    if (montoBase === 0) {
-        alert('Ingresa el dinero con el que abres la caja.');
-        return;
-    }
+    if (montoBase === 0) { alert('Ingresa el dinero con el que abres la caja.'); return; }
     const denominaciones = {};
     document.querySelectorAll('.denom-ap').forEach(i => {
         const cant = parseInt(i.value) || 0;
@@ -633,16 +588,11 @@ function confirmarApertura() {
     });
     const btn = document.querySelector('#modalApertura .caja-btn-primary');
     btn.disabled = true;
-    btn.textContent = 'Guardando…';
-
-    fetch("{% url 'ventas:apertura_caja' %}", {
+    btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Guardando…';
+    fetch(URL_APERTURA, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-        body:    JSON.stringify({
-            monto_base:  montoBase,
-            observacion: document.getElementById('apObservacion').value,
-            denominaciones,
-        }),
+        body:    JSON.stringify({ monto_base: montoBase, observacion: document.getElementById('apObservacion').value, denominaciones }),
     })
     .then(r => r.json())
     .then(data => {
@@ -660,19 +610,15 @@ function confirmarApertura() {
     });
 }
 
-// ════════════════════════════════════════
-// CIERRE
-// ════════════════════════════════════════
+/* ══ CIERRE ══ */
 function calcularTotalCierre() {
     let total = 0;
     document.querySelectorAll('.denom-ci').forEach(i => {
         total += (parseInt(i.value) || 0) * parseInt(i.dataset.valor);
     });
     document.getElementById('totalCierre').textContent = '$' + formatPesos(total);
-
     const baseSig = parseInt(document.getElementById('baseSiguiente').value) || 0;
     const retirar = Math.max(0, total - baseSig);
-
     document.getElementById('resumenCierre').style.display   = 'block';
     document.getElementById('res-base-apertura').textContent = '$' + formatPesos(BASE_APERTURA);
     document.getElementById('res-ventas').textContent        = '$' + formatPesos(TOTAL_DIA);
@@ -681,7 +627,6 @@ function calcularTotalCierre() {
     document.getElementById('res-retirar').textContent       = '$' + formatPesos(retirar);
     return total;
 }
-
 function abrirModalCierre() {
     document.querySelectorAll('.denom-ci').forEach(i => i.value = 0);
     document.getElementById('baseSiguiente').value         = '';
@@ -690,19 +635,14 @@ function abrirModalCierre() {
     document.getElementById('overlayCierre').classList.add('open');
     document.getElementById('modalCierre').classList.add('open');
 }
-
 function cerrarModalCierre() {
     document.getElementById('overlayCierre').classList.remove('open');
     document.getElementById('modalCierre').classList.remove('open');
 }
-
 function confirmarCierre() {
     const totalContado  = calcularTotalCierre();
     const baseSiguiente = parseInt(document.getElementById('baseSiguiente').value) || 0;
-    if (totalContado === 0) {
-        alert('Ingresa el dinero contado en caja antes de cerrar.');
-        return;
-    }
+    if (totalContado === 0) { alert('Ingresa el dinero contado en caja antes de cerrar.'); return; }
     const denominaciones = {};
     document.querySelectorAll('.denom-ci').forEach(i => {
         const cant = parseInt(i.value) || 0;
@@ -710,21 +650,15 @@ function confirmarCierre() {
     });
     const btn = document.querySelector('#modalCierre .caja-btn-primary');
     btn.disabled = true;
-    btn.textContent = 'Guardando…';
-
-    fetch("{% url 'ventas:cierre_caja' %}", {
+    btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Guardando…';
+    fetch(URL_CIERRE, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-        body:    JSON.stringify({
-            total_contado:        totalContado,
-            monto_base_siguiente: baseSiguiente,
-            total_retirado:       Math.max(0, totalContado - baseSiguiente),
-            denominaciones,
-        }),
+        body:    JSON.stringify({ total_contado: totalContado, monto_base_siguiente: baseSiguiente, total_retirado: Math.max(0, totalContado - baseSiguiente), denominaciones }),
     })
     .then(r => r.json())
     .then(data => {
-        if (data.ok) { location.reload(); }
+        if (data.ok) { window.location.href = URL_DESBLOQUEAR; }
         else {
             alert(data.error || 'Error al cerrar caja.');
             btn.disabled = false;
@@ -738,16 +672,12 @@ function confirmarCierre() {
     });
 }
 
-// ════════════════════════════════════════
-// DETALLE VENTA
-// ════════════════════════════════════════
+/* ══ DETALLE VENTA ══ */
 function abrirDetalle(ventaId) {
     const v = document.querySelector('.dato-venta[data-id="' + ventaId + '"]');
     if (!v) return;
-
     const detalles = Array.from(v.querySelectorAll('.dato-detalle'));
     let subtotalBruto = 0;
-
     const itemsHTML = detalles.map(d => {
         const sub  = parseFloat(d.dataset.subtotal) || 0;
         subtotalBruto += sub;
@@ -760,11 +690,9 @@ function abrirDetalle(ventaId) {
             <span style="font-weight:700;color:var(--azul-claro);">$${formatPesos(sub)}</span>
         </div>`;
     }).join('');
-
     const descuento = parseFloat(v.dataset.descuento) || 0;
     const ahorro    = subtotalBruto * (descuento / 100);
     const total     = parseFloat(v.dataset.total) || 0;
-
     const pagos = [
         { label:'Efectivo',      val:v.dataset.efectivo,      icon:'bi-cash' },
         { label:'Tarjeta',       val:v.dataset.tarjeta,       icon:'bi-credit-card' },
@@ -772,13 +700,11 @@ function abrirDetalle(ventaId) {
         { label:'Nequi',         val:v.dataset.nequi,         icon:'bi-phone' },
         { label:'Daviplata',     val:v.dataset.daviplata,     icon:'bi-phone' },
     ].filter(p => parseFloat(p.val) > 0);
-
     const pagosHTML = pagos.map(p => `
         <div style="display:flex;justify-content:space-between;padding:.3rem 0;font-size:.85rem;">
             <span style="color:var(--texto-muted);"><i class="bi ${p.icon} me-1"></i>${p.label}</span>
             <span style="color:var(--texto);font-weight:600;">$${formatPesos(p.val)}</span>
         </div>`).join('');
-
     document.getElementById('detalleContenido').innerHTML = `
         <div style="background:var(--fondo-card2);border-radius:10px;padding:1rem;margin-bottom:1rem;">
             <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
@@ -815,11 +741,9 @@ function abrirDetalle(ventaId) {
             ${pagosHTML}
         </div>` : ''}
     `;
-
     document.getElementById('overlayDetalle').classList.add('open');
     document.getElementById('modalDetalle').classList.add('open');
 }
-
 function cerrarDetalle() {
     document.getElementById('overlayDetalle').classList.remove('open');
     document.getElementById('modalDetalle').classList.remove('open');
